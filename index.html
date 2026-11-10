@@ -591,7 +591,8 @@ async function loadWx(){
         const ps=H.precipitation_probability?ii.map(i=>H.precipitation_probability[i]).filter(v=>v!=null):[];
         const ws=ii.map(i=>val(H.wind_speed_10m,JH&&JH.wind_speed_10m,i)).filter(v=>v!=null);
         let bi=null,bt=null;ii.forEach(i=>{const v=val(H.temperature_2m,JH&&JH.temperature_2m,i);if(v==null)return;if(bt==null||(mode==="max"?v>bt:v<bt)){bt=v;bi=i}});
-        const fv=(H.apparent_temperature&&bi!=null)?H.apparent_temperature[bi]:null;
+        // 体感温度は気象庁モデルの気温に合わせて補正(気温と体感で別のモデルの値が混ざらないように)
+        const fv=(H.apparent_temperature&&bi!=null&&H.apparent_temperature[bi]!=null)?H.apparent_temperature[bi]+(bt-(H.temperature_2m[bi]??bt)):null;
         return {f:fv!=null?r1(fv):null,t:r1(mode==="max"?Math.max(...ts):Math.min(...ts)),w:wmo(codes.length?Math.max(...codes):null),
           p:ps.length?Math.max(...ps):null,wind:Math.round(ws.length?Math.max(...ws):0)}};
       const dry=(()=>{const ii=[];for(let h=9;h<=16;h++){const i=idx[`${d}T${pad(h)}:00`];if(i!=null)ii.push(i)}if(!ii.length)return null;

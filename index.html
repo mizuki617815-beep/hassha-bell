@@ -120,6 +120,26 @@ details summary::-webkit-details-marker{display:none}
 .seg button.on{background:#b79cff;color:#fff;border-color:#b79cff}
 .link{display:block;text-align:center;font-size:13px;color:#8a63e6;margin:4px 0 8px;font-weight:700;text-decoration:none}
 .foot{text-align:center}
+
+/* ダークモード */
+body.dark{--ink:#ece6f7;--sub:#a99cc0;--line:#3d3558;--lav2:#3a2f5c;--pink2:#4a2c48;--mint2:#1f3f3d;--sky2:#243a5c;--lemon2:#4a4020;--rose2:#4d2738;
+  background:linear-gradient(170deg,#2a1f3d 0%,#231d42 38%,#1b2440 72%,#172c33 100%) fixed}
+body.dark:before{opacity:.25}
+body.dark .card{background:rgba(40,33,62,.82);border-color:rgba(255,255,255,.08);box-shadow:0 4px 18px rgba(0,0,0,.35)}
+body.dark .tabs{background:rgba(40,33,62,.6);border-color:rgba(255,255,255,.08)}
+body.dark .mbox{background:linear-gradient(160deg,#3a2c4e,#2e2a52)}
+body.dark .bubble{background:#2e2747;border-color:#5a3a5c}
+body.dark .bubble b{color:#ff9fcf}
+body.dark .wd{background:rgba(255,255,255,.05)}
+body.dark .wd.today{background:linear-gradient(170deg,#4a2c48,#3a2f5c);border-color:#7a4a72}
+body.dark input,body.dark .seg button{background:#2a2440;color:var(--ink);border-color:var(--line);color-scheme:dark}
+body.dark .seg button.on{background:#b79cff;color:#221a38}
+body.dark .avatar,body.dark .talk img{border-color:#4a3f6b}
+body.dark .chip{color:#cdb8ff}body.dark .chip.rain{color:#9cc8ff}body.dark .chip.wind{color:#8fe0cc}body.dark .chip.warm{color:#ffd86b}
+body.dark .date .dow{color:#cdb8ff}body.dark .date .dow.sat,body.dark .b-wd{color:#9cc8ff}body.dark .date .dow.sun,body.dark .b-hd{color:#ff9fc0}
+body.dark .t-急{background:#4a3524;color:#ffb37a}body.dark .t-特{background:#4d2738;color:#ff9fc0}body.dark .t-快{background:#3a2f5c;color:#cdb8ff}body.dark .t-普{background:#33364a;color:#b9c0d4}
+body.dark .m-ok{color:#8fe0cc}body.dark .m-warn{color:#ffd86b}body.dark .m-hurry{color:#ff9fc0}
+body.dark .link{color:#cdb8ff}
 </style>
 </head>
 <body>
@@ -190,6 +210,8 @@ details summary::-webkit-details-marker{display:none}
         <span>家 ⇔ 京急蒲田ホーム(分)</span><input type="number" id="sWalk" min="0" max="60">
         <span>余裕をもたせる(分)</span><input type="number" id="sBuf" min="0" max="30">
         <span>T3 改札→ホーム(帰り・分)</span><input type="number" id="sT3" min="0" max="30">
+        <span>画面の色</span>
+        <div class="seg" id="sTheme"><button data-v="auto">自動</button><button data-v="light">ライト</button><button data-v="dark">ダーク</button></div>
         <span>ダイヤ</span>
         <div class="seg" id="sDia"><button data-v="auto">自動</button><button data-v="wd">平日</button><button data-v="hd">土休日</button></div>
       </div>
@@ -200,7 +222,7 @@ details summary::-webkit-details-marker{display:none}
   <a class="link" href="https://www.keikyu.co.jp/" target="_blank" rel="noopener">⚠️ 遅れ・運休は京急公式の運行情報へ</a>
   <div class="note foot">
     時刻表：京急公式・駅探・NAVITIME(2025年12月13日ダイヤ改正版)をもとに作成。<br>
-    帰りはエアポート快特(京急蒲田は通過)を除外。所要時間は目安です。<br>
+    帰りはエアポート快特(京急蒲田は通過)を除外。平日の行きの到着時刻は時刻表どおり、土休日と帰りは目安です。<br>
     天気：Open-Meteo(CC BY 4.0)。服装アドバイスは目安だよ。最後は自分の感覚で🧸
   </div>
 </div>
@@ -298,7 +320,11 @@ const BK_HD=parse(`
 24: 00普 08快`);
 
 // 乗車時間の目安(分)
-const RIDE_GO={快:6,特:8,急:8,普:8};
+const RIDE_GO={快:6,特:9,急:9,普:9}; // 土休日は目安(余裕をみて長め)
+// 平日の行き:列車ごとの実際の所要時間(分)。NAVITIMEの発着時刻より
+const RIDE_WD={319:8,325:8,336:5,338:8,346:5,351:9,360:5,366:8,375:9,381:8,386:5,389:8,396:8,400:8,405:8,412:8,417:6,422:9,428:8,436:9,440:8,442:9,451:8,454:9,461:8,468:5,471:9,478:5,482:9,485:8,489:7,496:8,498:9,504:9,508:8,515:8,519:9,527:8,531:8,535:9,540:8,545:8,552:8,556:8,565:9,573:8,577:9,585:8,594:5,596:8,604:8,605:9,613:8,616:9,624:8,628:8,634:8,638:9,646:9,656:8,664:8,673:5,674:8,684:8,694:8,704:9,712:6,714:8,724:9,734:8,744:9,752:6,754:8,764:9,774:8,784:9,792:6,794:8,804:9,814:8,824:9,832:6,834:8,844:9,854:8,864:9,872:6,874:8,884:9,894:8,904:9,912:6,914:8,924:9,934:8,943:5,945:8,952:6,954:8,962:6,964:8,972:6,974:8,979:8,982:8,988:8,993:8,999:8,1003:8,1009:9,1014:8,1020:9,1024:8,1034:9,1037:8,1045:8,1047:8,1055:8,1057:8,1065:8,1068:8,1075:8,1077:8,1085:8,1087:8,1095:8,1097:8,1105:8,1108:8,1115:8,1117:8,1125:8,1127:8,1134:8,1137:8,1139:8,1146:8,1149:8,1155:8,1159:8,1166:8,1169:8,1175:8,1178:9,1186:8,1188:9,1195:8,1206:8,1211:8,1214:8,1221:8,1227:8,1232:8,1235:8,1242:8,1245:8,1253:8,1256:8,1263:8,1265:8,1272:8,1275:8,1283:8,1286:8,1294:9,1296:9,1303:8,1307:8,1318:8,1327:9,1336:8,1347:8,1356:8,1362:8,1368:8,1377:8,1382:8,1394:8,1402:8,1412:8,1423:8,1430:8,1436:8,1455:8};
+GO_WD.forEach(t=>{if(RIDE_WD[t.m])t.r=RIDE_WD[t.m]});
+const rideGo=t=>t.r||RIDE_GO[t.t];
 const RIDE_BK={快:5,特:7,急:8,普:9};
 const TNAME={急:"急行",特:"特急",快:"快特",普:"普通"};
 
@@ -314,7 +340,7 @@ let WX={issued:"",source:"",morning:[],days:[]};
 try{const c=JSON.parse(localStorage.getItem("yumebell_wx2")||"null");if(c&&c.days)WX=c}catch(e){}
 
 // ===== 設定 =====
-const S={walk:15,buf:0,t3:3,dia:"auto",tab:"go"};
+const S={walk:15,buf:0,t3:3,dia:"auto",tab:"go",theme:"auto"};
 try{Object.assign(S,JSON.parse(localStorage.getItem("yumebell")||"{}"))}catch(e){}
 function save(){try{localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
 
@@ -369,7 +395,7 @@ function renderNow(){
     const left=f.deadline-m;const st=left>10?"ok":left>3?"warn":"hurry";hero.className="hero st-"+st;
     hero.innerHTML=`<div class="lbl">おうちを出るまで${first}</div><div class="big">${fmtCount(left)}</div>
       <div class="info">${pill(f.t)}<b>${hm(f.abs)}</b> 京急蒲田発</div>
-      <div class="lim">出発リミット ${hm(f.deadline)} ・ T3着 ${hm(f.abs+RIDE_GO[f.t])}ごろ</div>`;
+      <div class="lim">出発リミット ${hm(f.deadline)} ・ T3着 ${hm(f.abs+rideGo(f))}ごろ</div>`;
     msg.innerHTML=`<div class="msg m-${st}">${st==="ok"?"🧸 まだ余裕あるよ、ゆっくり準備してね":st==="warn"?"🧸 そろそろ靴はいて〜！":"🧸 いますぐ出発！いってらっしゃい！"}</div>`;
   }else{
     const toDep=f.abs-m;const st=toDep-S.t3>10?"ok":toDep-S.t3>3?"warn":"hurry";hero.className="hero st-"+st;
@@ -397,10 +423,10 @@ function plan(){
   const k=dia(day);const lbl=`${M}/${D}(${WEEK[new Date(Y,M-1,D).getDay()]})は <b>${k==="hd"?"土休日":"平日"}ダイヤ</b>`;
   const out=document.getElementById("pRes");
   if(S.tab==="go"){
-    const list=table("go",day).filter(tr=>tr.m+RIDE_GO[tr.t]<=target);
+    const list=table("go",day).filter(tr=>tr.m+rideGo(tr)<=target);
     if(!list.length){out.innerHTML=lbl+"<br>間に合う電車がないみたい…";return}
     const b=list[list.length-1],p=list[list.length-2];
-    out.innerHTML=`${lbl}<br>🏠 <span class="hl">${hm(b.m-S.walk-S.buf)}</span> におうちを出てね<br>${pill(b.t)}<b>${hm(b.m)}</b> 京急蒲田発 → T3 ${hm(b.m+RIDE_GO[b.t])}着`+
+    out.innerHTML=`${lbl}<br>🏠 <span class="hl">${hm(b.m-S.walk-S.buf)}</span> におうちを出てね<br>${pill(b.t)}<b>${hm(b.m)}</b> 京急蒲田発 → T3 ${hm(b.m+rideGo(b))}着`+
       (p?`<div class="note">ひとつ前なら ${hm(p.m)}発(おうちを ${hm(p.m-S.walk-S.buf)} に出る)</div>`:"");
   }else{
     const list=table("back",day).filter(tr=>tr.m>=target+S.t3).slice(0,3);
@@ -536,6 +562,12 @@ sw.oninput=()=>{S.walk=Math.max(0,+sw.value||0);save();renderNow()};
 sb.oninput=()=>{S.buf=Math.max(0,+sb.value||0);save();renderNow()};
 st3.oninput=()=>{S.t3=Math.max(0,+st3.value||0);save();renderNow()};
 document.querySelectorAll("#sDia button").forEach(b=>{b.classList.toggle("on",b.dataset.v===S.dia);b.onclick=()=>{S.dia=b.dataset.v;save();document.querySelectorAll("#sDia button").forEach(x=>x.classList.toggle("on",x===b));renderNow()}});
+const mq=window.matchMedia?window.matchMedia("(prefers-color-scheme: dark)"):null;
+function applyTheme(){const dark=S.theme==="dark"||(S.theme==="auto"&&mq&&mq.matches);document.body.classList.toggle("dark",!!dark);
+  const tc=document.querySelector('meta[name="theme-color"]');if(tc)tc.content=dark?"#2a1f3d":"#ffe3f1"}
+if(mq&&mq.addEventListener)mq.addEventListener("change",applyTheme);
+document.querySelectorAll("#sTheme button").forEach(b=>{b.classList.toggle("on",b.dataset.v===S.theme);b.onclick=()=>{S.theme=b.dataset.v;save();document.querySelectorAll("#sTheme button").forEach(x=>x.classList.toggle("on",x===b));applyTheme()}});
+applyTheme();
 (function(){const n=jstNow();n.setDate(n.getDate()+1);document.getElementById("pDate").value=ymd(n)})();
 setTab(S.tab);renderWx();loadWx();
 setInterval(renderNow,1000);setInterval(renderWx,60000);setInterval(loadWx,30*60000);

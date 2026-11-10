@@ -140,6 +140,26 @@ body.dark .date .dow{color:#cdb8ff}body.dark .date .dow.sat,body.dark .b-wd{colo
 body.dark .t-急{background:#4a3524;color:#ffb37a}body.dark .t-特{background:#4d2738;color:#ff9fc0}body.dark .t-快{background:#3a2f5c;color:#cdb8ff}body.dark .t-普{background:#33364a;color:#b9c0d4}
 body.dark .m-ok{color:#8fe0cc}body.dark .m-warn{color:#ffd86b}body.dark .m-hurry{color:#ff9fc0}
 body.dark .link{color:#cdb8ff}
+
+.od{flex-wrap:nowrap}
+select{flex:1;min-width:0;font-family:inherit;font-size:16px;padding:10px 8px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.swap{flex:0 0 44px;height:44px;border:0;border-radius:50%;background:linear-gradient(120deg,#ff9fcf,#b79cff);color:#fff;font-size:20px;font-weight:900}
+.odSum{display:flex;gap:8px;margin:12px 0 6px}
+.odSum div{flex:1;text-align:center;border-radius:16px;padding:8px 4px;background:linear-gradient(160deg,#fff3fa,#f1ebff)}
+.odSum .k{font-size:11px;color:var(--sub);font-weight:700}.odSum .v{font-size:20px;font-weight:900}.odSum .v small{font-size:12px}
+.steps{margin:8px 0 4px;padding:0;list-style:none}
+.steps .stn{display:flex;align-items:center;gap:8px;font-weight:900;font-size:16px}
+.steps .stn:before{content:"";width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid #b79cff;flex:0 0 auto}
+.steps .pf{font-size:11px;font-weight:700;padding:2px 7px;border-radius:8px;background:var(--sky2);color:#3f86e0}
+.steps .pf.arr{background:var(--lav2);color:#8a63e6}
+.steps .leg{margin-left:5px;border-left:3px dotted #d9c8ff;padding:6px 0 6px 16px;font-size:13px;color:var(--sub)}
+.steps .leg b{color:var(--ink);font-size:14px}
+.btn2{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:14px;font-weight:900;font-size:14px;text-decoration:none;color:#fff;background:linear-gradient(120deg,#ff9fcf,#b79cff);box-shadow:0 3px 10px rgba(255,159,207,.35)}
+.btn2.sub{background:#fff;color:#8a63e6;border:1.5px solid var(--line);box-shadow:none}
+body.dark select,body.dark .btn2.sub{background:#2a2440;color:var(--ink);border-color:var(--line)}
+body.dark .odSum div{background:linear-gradient(160deg,#3a2c4e,#2e2a52)}
+body.dark .steps .stn:before{background:#2a2440}
+body.dark .steps .pf{color:#9cc8ff}body.dark .steps .pf.arr{color:#cdb8ff}
 </style>
 </head>
 <body>
@@ -201,6 +221,19 @@ body.dark .link{color:#cdb8ff}
     </div>
     <div class="note" id="planHint"></div>
     <div class="result" id="pRes"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec">🧳 おでかけ乗り換えガイド</div>
+    <div class="row od">
+      <select id="odFrom"></select>
+      <button class="swap" id="odSwap" aria-label="入れ替え">⇄</button>
+      <select id="odTo"></select>
+    </div>
+    <div id="odRes"></div>
+    <a class="btn2" id="odWeb" target="_blank" rel="noopener">🔎 乗換案内(ジョルダン)で今の時刻をしらべる</a>
+    <a class="btn2 sub" href="https://apps.apple.com/jp/app/%E4%B9%97%E6%8F%9B%E6%A1%88%E5%86%85/id299490481" target="_blank" rel="noopener">📱 乗換案内アプリをひらく</a>
+    <div class="note">平日10時ごろの検索結果をもとにした目安だよ。番線・行き先・所要時間は時間帯で変わることがあるから、乗る前に上のボタンで確認してね。出典：ジョルダン乗換案内(2026/11/10しらべ)</div>
   </div>
 
   <div class="card">
@@ -568,6 +601,118 @@ function applyTheme(){const dark=S.theme==="dark"||(S.theme==="auto"&&mq&&mq.mat
 if(mq&&mq.addEventListener)mq.addEventListener("change",applyTheme);
 document.querySelectorAll("#sTheme button").forEach(b=>{b.classList.toggle("on",b.dataset.v===S.theme);b.onclick=()=>{S.theme=b.dataset.v;save();document.querySelectorAll("#sTheme button").forEach(x=>x.classList.toggle("on",x===b));applyTheme()}});
 applyTheme();
+
+// ===== おでかけ乗り換えガイド =====
+const OD_ST=[["京急蒲田","京急蒲田"],["蒲田","JR蒲田"],["横浜","横浜"],["京急川崎","京急川崎"],["川崎","JR川崎"],["品川","品川"],["渋谷","渋谷"],["新宿","新宿"],["池袋","池袋"],["東京","東京"]];
+const OD_NAME=Object.fromEntries(OD_ST);
+const OD={};`横浜>京急蒲田=277,10;横浜##2番線~10^京急本線快特(泉岳寺行)~京急蒲田#6番線#
+横浜>蒲田=253,19;横浜##4番線~19^京浜東北線快速(大宮行)~蒲田#4番線#
+横浜>京急川崎=240,7;横浜##2番線~7^京急本線快特(泉岳寺行)~京急川崎#6・7番線#
+横浜>川崎=253,8;横浜##7番線~8^東海道本線（東日本）(宇都宮行)~川崎#2番線#
+横浜>品川=341,17;横浜##7番線~17^東海道本線（東日本）(宇都宮行)~品川#6番線#
+横浜>渋谷=309,33;横浜##2番線~33^東急東横線急行(川越市行)~渋谷#5・6番線#
+横浜>新宿=616,35;横浜##10番線~35^湘南新宿ライン(小金井行)~新宿#4番線#
+横浜>池袋=518,41;横浜##2番線~27^東急東横線特急(森林公園行)~渋谷(乗ったまま)##~12^東京メトロ副都心線急行(森林公園行)~池袋#6番線#
+横浜>東京=528,26;横浜##7番線~26^東海道本線（東日本）(宇都宮行)~東京#7番線#
+京急蒲田>横浜=277,12;京急蒲田##3番線~12^京急本線特急(京急久里浜行)~横浜#1番線#
+京急蒲田>蒲田=0,12;京急蒲田##~12^徒歩~蒲田##
+京急蒲田>京急川崎=180,3;京急蒲田##3番線~3^京急本線特急(京急久里浜行)~京急川崎#4・5番線#
+京急蒲田>川崎=180,13;京急蒲田##3番線~3^京急本線特急(京急久里浜行)~京急川崎#4・5番線#~10^徒歩~川崎##
+京急蒲田>品川=228,8;京急蒲田##4番線~8^京急本線快特(印西牧の原行)~品川#2番線#
+京急蒲田>渋谷=437,29;京急蒲田##4番線~8^京急本線快特(印西牧の原行)~品川#2番線#3番線~13^山手線外回り渋谷方面行~渋谷#1番線#
+京急蒲田>新宿=481,36;京急蒲田##4番線~8^京急本線快特(印西牧の原行)~品川#2番線#3番線~20^山手線外回り渋谷方面行~新宿#15番線#
+京急蒲田>池袋=569,44;京急蒲田##4番線~8^京急本線快特(印西牧の原行)~品川#2番線#3番線~28^山手線外回り渋谷方面行~池袋#7番線#
+京急蒲田>東京=437,24;京急蒲田##4番線~8^京急本線快特(印西牧の原行)~品川#2番線#13番線~8^横須賀線(東京行)~東京#総武3番線#
+蒲田>横浜=253,18;蒲田##1番線~18^京浜東北線(磯子行)~横浜#3番線#
+蒲田>京急蒲田=0,12;蒲田##~12^徒歩~京急蒲田##
+蒲田>京急川崎=199,14;蒲田##1番線~4^京浜東北線(磯子行)~川崎#3番線#~10^徒歩~京急川崎##
+蒲田>川崎=199,4;蒲田##1番線~4^京浜東北線(磯子行)~川崎#3番線#
+蒲田>品川=209,9;蒲田##4番線~9^京浜東北線(大宮行)~品川#4番線#
+蒲田>渋谷=253,24;蒲田##4番線~9^京浜東北線(大宮行)~品川#4番線#3番線~13^山手線外回り渋谷方面行~渋谷#1番線#
+蒲田>新宿=341,31;蒲田##4番線~9^京浜東北線(大宮行)~品川#4番線#3番線~20^山手線外回り渋谷方面行~新宿#15番線#
+蒲田>池袋=440,39;蒲田##4番線~9^京浜東北線(大宮行)~品川#4番線#3番線~28^山手線外回り渋谷方面行~池袋#7番線#
+蒲田>東京=253,23;蒲田##4番線~23^京浜東北線(大宮行)~東京#3番線#
+京急川崎>横浜=240,8;京急川崎##4・5番線~8^京急本線特急(京急久里浜行)~横浜#1番線#
+京急川崎>京急蒲田=180,3;京急川崎##6・7番線~3^京急本線特急(泉岳寺行)~京急蒲田#6番線#
+京急川崎>蒲田=199,15;京急川崎##~10^徒歩~川崎##4番線~5^京浜東北線快速(南浦和行)~蒲田#4番線#
+京急川崎>川崎=0,10;京急川崎##~10^徒歩~川崎##
+京急川崎>品川=240,13;京急川崎##6・7番線~13^京急本線特急(泉岳寺行)~品川#2番線#
+京急川崎>渋谷=341,39;京急川崎##~10^徒歩~川崎##2番線~9^東海道本線（東日本）(宇都宮行)~品川#6番線#3番線~13^山手線外回り渋谷方面行~渋谷#1番線#
+京急川崎>新宿=493,40;京急川崎##6・7番線~13^京急本線特急(泉岳寺行)~品川#2番線#3番線~20^山手線外回り渋谷方面行~新宿#15番線#
+京急川崎>池袋=581,48;京急川崎##6・7番線~13^京急本線特急(泉岳寺行)~品川#2番線#3番線~28^山手線外回り渋谷方面行~池袋#7番線#
+京急川崎>東京=341,28;京急川崎##~10^徒歩~川崎##2番線~18^東海道本線（東日本）(宇都宮行)~東京#7番線#
+川崎>横浜=253,9;川崎##1番線~9^東海道本線（東日本）(小田原行)~横浜#6番線#
+川崎>京急蒲田=180,12;川崎##~10^徒歩~京急川崎##6・7番線~2^京急本線快特(泉岳寺行)~京急蒲田#6番線#
+川崎>蒲田=199,5;川崎##4番線~5^京浜東北線快速(大宮行)~蒲田#4番線#
+川崎>京急川崎=0,10;川崎##~10^徒歩~京急川崎##
+川崎>品川=253,8;川崎##2番線~8^東海道本線（東日本）(小金井行)~品川#6番線#
+川崎>渋谷=341,29;川崎##2番線~8^東海道本線（東日本）(小金井行)~品川#6番線#3番線~13^山手線外回り渋谷方面行~渋谷#1番線#
+川崎>新宿=440,36;川崎##2番線~8^東海道本線（東日本）(小金井行)~品川#6番線#3番線~20^山手線外回り渋谷方面行~新宿#15番線#
+川崎>池袋=528,44;川崎##2番線~8^東海道本線（東日本）(小金井行)~品川#6番線#3番線~28^山手線外回り渋谷方面行~池袋#7番線#
+川崎>東京=341,18;川崎##2番線~18^東海道本線（東日本）(小金井行)~東京#7番線#
+品川>横浜=341,18;品川##12番線~18^東海道本線（東日本）(熱海行)~横浜#5番線#
+品川>京急蒲田=228,9;品川##1番線~9^京急本線特急(三崎口行)~京急蒲田#3番線#
+品川>蒲田=209,10;品川##5番線~10^京浜東北線(磯子行)~蒲田#1番線#
+品川>京急川崎=240,13;品川##1番線~13^京急本線特急(三崎口行)~京急川崎#4・5番線#
+品川>川崎=253,9;品川##12番線~9^東海道本線（東日本）(熱海行)~川崎#1番線#
+品川>渋谷=209,14;品川##3番線~14^山手線外回り渋谷方面行~渋谷#1番線#
+品川>新宿=253,21;品川##3番線~21^山手線外回り渋谷方面行~新宿#15番線#
+品川>池袋=341,29;品川##3番線~29^山手線外回り渋谷方面行~池袋#7番線#
+品川>東京=209,8;品川##6番線~8^上野東京ライン(高崎行)~東京#7番線#
+渋谷>横浜=309,28;渋谷##3・4番線~28^東急東横線特急(元町・中華街行)~横浜#1番線#
+渋谷>京急蒲田=437,30;渋谷##2番線~15^山手線内回り品川方面行~品川#1番線#1番線~9^京急本線特急(京急久里浜行)~京急蒲田#3番線#
+渋谷>蒲田=253,29;渋谷##2番線~15^山手線内回り品川方面行~品川#1番線#5番線~10^京浜東北線(磯子行)~蒲田#1番線#
+渋谷>京急川崎=449,34;渋谷##2番線~15^山手線内回り品川方面行~品川#1番線#1番線~13^京急本線特急(京急久里浜行)~京急川崎#4・5番線#
+渋谷>川崎=341,33;渋谷##2番線~15^山手線内回り品川方面行~品川#1番線#5番線~14^京浜東北線(磯子行)~川崎#3番線#
+渋谷>品川=209,15;渋谷##2番線~15^山手線内回り品川方面行~品川#1番線#
+渋谷>新宿=199,5;渋谷##3番線~5^埼京線(武蔵浦和行)~新宿#4番線#
+渋谷>池袋=209,10;渋谷##3番線~10^埼京線(武蔵浦和行)~池袋#4番線#
+渋谷>東京=209,21;渋谷##1・2番線~8^東京メトロ銀座線(浅草行)~赤坂見附#3番線#4番線~9^東京メトロ丸ノ内線(池袋行)~東京#2番線#
+新宿>横浜=616,32;新宿##1番線~32^湘南新宿ライン快速(小田原行)~横浜#9番線#
+新宿>京急蒲田=481,38;新宿##14番線~21^山手線内回り渋谷方面行~品川#1番線#1番線~11^京急本線急行(羽田空港第１・第２ターミナル行)~京急蒲田#1番線#
+新宿>蒲田=341,34;新宿##14番線~21^山手線内回り渋谷方面行~品川#1番線#5番線~10^京浜東北線(蒲田行)~蒲田#2番線#
+新宿>京急川崎=440,45;新宿##14番線~21^山手線内回り渋谷方面行~品川#1番線#12番線~9^東海道本線（東日本）(平塚行)~川崎#1番線#~10^徒歩~京急川崎##
+新宿>川崎=440,35;新宿##14番線~21^山手線内回り渋谷方面行~品川#1番線#12番線~9^東海道本線（東日本）(平塚行)~川崎#1番線#
+新宿>品川=253,21;新宿##14番線~21^山手線内回り渋谷方面行~品川#1番線#
+新宿>渋谷=199,5;新宿##1番線~5^湘南新宿ライン快速(小田原行)~渋谷#4番線#
+新宿>池袋=199,5;新宿##3番線~5^埼京線(大宮行)~池袋#4番線#
+新宿>東京=253,14;新宿##8番線~14^中央線中央特快(東京行)~東京#2番線#
+池袋>横浜=518,42;池袋##5番線~13^東京メトロ副都心線急行(元町・中華街行)~渋谷(乗ったまま)##~28^東急東横線特急(元町・中華街行)~横浜#1番線#
+池袋>京急蒲田=569,45;池袋##6番線~30^山手線内回り新宿方面行~品川#1番線#1番線~10^京急本線急行(羽田空港第１・第２ターミナル行)~京急蒲田#1番線#
+池袋>蒲田=440,45;池袋##6番線~30^山手線内回り新宿方面行~品川#1番線#5番線~10^京浜東北線(大船行)~蒲田#1番線#
+池袋>京急川崎=528,52;池袋##6番線~30^山手線内回り新宿方面行~品川#1番線#12番線~8^東海道本線（東日本）(熱海行)~川崎#1番線#~10^徒歩~京急川崎##
+池袋>川崎=528,42;池袋##6番線~30^山手線内回り新宿方面行~品川#1番線#12番線~8^東海道本線（東日本）(熱海行)~川崎#1番線#
+池袋>品川=341,30;池袋##6番線~30^山手線内回り新宿方面行~品川#1番線#
+池袋>渋谷=209,9;池袋##1番線~9^埼京線(りんかい線直通新木場行)~渋谷#4番線#
+池袋>新宿=199,5;池袋##1番線~5^埼京線(りんかい線直通新木場行)~新宿#1番線#
+池袋>東京=209,17;池袋##1・2番線~17^東京メトロ丸ノ内線(方南町行)~東京#1番線#
+東京>横浜=528,30;東京##10番線~30^東海道本線（東日本）(熱海行)~横浜#6番線#
+東京>京急蒲田=437,24;東京##10番線~9^東海道本線（東日本）(熱海行)~品川#12番線#1番線~10^京急本線急行(羽田空港第１・第２ターミナル行)~京急蒲田#1番線#
+東京>蒲田=253,22;東京##6番線~22^京浜東北線(蒲田行)~蒲田#2番線#
+東京>京急川崎=341,30;東京##10番線~20^東海道本線（東日本）(熱海行)~川崎#1番線#~10^徒歩~京急川崎##
+東京>川崎=341,20;東京##10番線~20^東海道本線（東日本）(熱海行)~川崎#1番線#
+東京>品川=209,8;東京##総武1番線~8^横須賀線(逗子行)~品川#15番線#
+東京>渋谷=209,18;東京##1番線~8^東京メトロ丸ノ内線(荻窪行)~赤坂見附#2番線#1番線~8^東京メトロ銀座線(渋谷行)~渋谷#1・2番線#
+東京>新宿=253,14;東京##1番線~14^中央線快速(高尾行)~新宿#12番線#
+東京>池袋=209,17;東京##2番線~17^東京メトロ丸ノ内線(池袋行)~池袋#1・2番線#`.trim().split("\n").forEach(l=>{const [k,v]=l.split("=");const [h,legs]=v.split(";");const [ic,mins]=h.split(",").map(Number);
+  OD[k]={ic,mins,parts:legs.split("~").map(p=>p.includes("^")?{min:+p.split("^")[0],line:p.split("^")[1]}:{name:p.split("#")[0],arr:p.split("#")[1],dep:p.split("#")[2]})}});
+function odLine(l){if(l==="徒歩")return "🚶 徒歩";const m=l.replace("（東日本）","").match(/^(.*?)\((.*)\)$/);return m?`🚃 <b>${m[1]}</b>（例：${m[2]}）`:`🚃 <b>${l}</b>`}
+function renderOD(){
+  const a=document.getElementById("odFrom").value,b=document.getElementById("odTo").value;const el=document.getElementById("odRes");
+  try{localStorage.setItem("yumebell_od",JSON.stringify([a,b]))}catch(e){}
+  document.getElementById("odWeb").href=`https://www.jorudan.co.jp/norikae/cgi/nori.cgi?eki1=${encodeURIComponent(a)}&eki2=${encodeURIComponent(b)}&S=${encodeURIComponent("検索")}`;
+  if(a===b){el.innerHTML='<div class="note">出発と到着に同じ駅がえらばれてるよ🧸</div>';return}
+  const r=OD[a+">"+b];if(!r){el.innerHTML='<div class="note">この区間のデータがないみたい…</div>';return}
+  const tr=r.parts.filter(p=>p.line&&p.line!=="徒歩").length-1-r.parts.filter(p=>p.name&&p.name.includes("乗ったまま")).length;
+  const dn=n=>{const base=n.replace("(乗ったまま)","");return (OD_NAME[base]||base.replace("/"," → "))+(n.includes("乗ったまま")?"（乗ったまま）":"")};
+  el.innerHTML=`<div class="odSum"><div><div class="k">ICカード運賃</div><div class="v">${r.ic?r.ic+"<small>円</small>":"0<small>円</small>"}</div></div><div><div class="k">所要時間(目安)</div><div class="v">${r.mins}<small>分</small></div></div><div><div class="k">乗り換え</div><div class="v">${Math.max(0,tr)}<small>回</small></div></div></div>
+  <ul class="steps">${r.parts.map(p=>p.line?`<li class="leg">${odLine(p.line)} ・ 約${p.min}分</li>`:`<li class="stn">${dn(p.name)}${p.arr?` <span class="pf arr">${p.arr}着</span>`:""}${p.dep?` <span class="pf">${p.dep}発</span>`:""}</li>`).join("")}</ul>`+
+  (r.ic===0?'<div class="note">歩いて移動する区間だよ(時間は目安)</div>':"");
+}
+(function(){const f=document.getElementById("odFrom"),t=document.getElementById("odTo");const opt=OD_ST.map(([v,n])=>`<option value="${v}">${n}</option>`).join("");f.innerHTML=opt;t.innerHTML=opt;
+  let sv=["京急蒲田","渋谷"];try{const c=JSON.parse(localStorage.getItem("yumebell_od")||"null");if(c&&OD_NAME[c[0]]&&OD_NAME[c[1]])sv=c}catch(e){}
+  f.value=sv[0];t.value=sv[1];f.onchange=renderOD;t.onchange=renderOD;
+  document.getElementById("odSwap").onclick=()=>{const x=f.value;f.value=t.value;t.value=x;renderOD()};renderOD()})();
 (function(){const n=jstNow();n.setDate(n.getDate()+1);document.getElementById("pDate").value=ymd(n)})();
 setTab(S.tab);renderWx();loadWx();
 setInterval(renderNow,1000);setInterval(renderWx,60000);setInterval(loadWx,30*60000);

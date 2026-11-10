@@ -1,0 +1,37 @@
+name: 占いデータ取得
+on:
+  schedule:
+    - cron: "7 15 * * *"   # 毎日 0:07(日本時間)
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 今日・明日の占いを取得
+        run: |
+          set -e
+          mkdir -p data
+          for off in 0 1; do
+            d=$(TZ=Asia/Tokyo date -d "+$off day" +%Y/%m/%d)
+            curl -sS --fail --max-time 30 "http://api.jugemkey.jp/api/horoscope/free/$d" -o "data/fortune_$off.json"
+            python3 -c "import json,sys;j=json.load(open('data/fortune_$off.json'));print(list(j['horoscope'].keys()), len(list(j['horoscope'].values())[0]))"
+          done
+          python3 - <<'PY'
+          import json
+          out={}
+          for off in (0,1):
+              j=json.load(open(f'data/fortune_{off}.json'))['horoscope']
+              for k,v in j.items(): out[k.replace('/','-')]=v
+          json.dump(out,open('fortune.json','w'),ensure_ascii=False)
+          PY
+          rm -rf data
+      - name: 保存
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add fortune.json
+          git diff --cached --quiet || git commit -m "占いデータ更新 $(TZ=Asia/Tokyo date +%F)"
+          git push

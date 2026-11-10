@@ -178,6 +178,12 @@ body.dark .l-ok{color:#8fe0cc}body.dark .l-so{color:#ffd86b}body.dark .l-ng{colo
 .rank{font-size:26px;font-weight:900;color:#ff6f9f}
 body.dark .fort div{background:linear-gradient(160deg,#3a2c4e,#2e2a52)}body.dark .fort .v i{color:#4a4266}
 body.dark .lucky span{background:rgba(255,255,255,.05)}
+
+.pTrain{margin-top:8px;font-size:15px;font-weight:700;line-height:1.5}
+.pTrain .pt{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;vertical-align:-4px;margin-right:2px}
+.pTrain .pill{font-size:13px;padding:3px 9px;vertical-align:4px}
+.pTrain .pa{white-space:nowrap}.pTrain .pa b{font-size:20px}
+.pHome{font-size:15px}
 </style>
 </head>
 <body>
@@ -488,12 +494,12 @@ function plan(){
     const list=table("go",day).filter(tr=>tr.m+rideGo(tr)<=target);
     if(!list.length){out.innerHTML=lbl+"<br>間に合う電車がないみたい…";return}
     const b=list[list.length-1],p=list[list.length-2];
-    out.innerHTML=`${lbl}<br>🏠 <span class="hl">${hm(b.m-S.walk-S.buf)}</span> におうちを出てね<br>${pill(b.t)}<b>${hm(b.m)}</b> 京急蒲田発 → T3 ${hm(b.m+rideGo(b))}着`+
+    out.innerHTML=`${lbl}<div class="pTrain">${pill(b.t)}<span class="pt">${hm(b.m)}</span> 京急蒲田発 <span class="pa">→ T3 <b>${hm(b.m+rideGo(b))}</b>着</span></div><div class="pHome">🏠 <span class="hl">${hm(b.m-S.walk-S.buf)}</span> におうちを出てね</div>`+
       (p?`<div class="note">ひとつ前なら ${hm(p.m)}発(おうちを ${hm(p.m-S.walk-S.buf)} に出る)</div>`:"");
   }else{
     const list=table("back",day).filter(tr=>tr.m>=target+S.t3).slice(0,3);
     if(!list.length){out.innerHTML=lbl+"<br>この時間からの電車がないみたい…";return}
-    out.innerHTML=lbl+list.map((tr,i)=>{const a=tr.m+RIDE_BK[tr.t];return `<div>${i===0?"🚃 ":"　 "}${pill(tr.t)}<b>${hm(tr.m)}</b> T3発 → 蒲田 ${hm(a)} → 🏠 ${i===0?`<span class="hl">${hm(a+S.walk)}</span>`:hm(a+S.walk)}</div>`}).join("");
+    out.innerHTML=lbl+list.map((tr,i)=>{const a=tr.m+RIDE_BK[tr.t];return i===0?`<div class="pTrain">${pill(tr.t)}<span class="pt">${hm(tr.m)}</span> T3発 <span class="pa">→ 蒲田 <b>${hm(a)}</b>着</span></div><div class="pHome">🏠 <span class="hl">${hm(a+S.walk)}</span> ごろおうちに着くよ</div>`:`<div class="note" style="font-size:13px">つぎは ${hm(tr.m)}発 → 蒲田 ${hm(a)} → 🏠 ${hm(a+S.walk)}</div>`}).join("");
   }
 }
 

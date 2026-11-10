@@ -204,6 +204,11 @@ body.dark .dnote{color:#ffd86b}
 .alert.typh{background:#e3ecff;color:#2f5fc0;border-color:#b8ccff}
 .alert a{color:inherit;font-weight:900}
 body.dark .alert{background:#4d2738;color:#ff9fc0;border-color:#7a3a52}body.dark .alert.typh{background:#243a5c;color:#9cc8ff;border-color:#3a5a8a}
+
+.kinds{margin:4px 0}.kd{display:inline-block;font-size:12px;font-weight:900;padding:2px 8px;border-radius:8px;margin:2px 4px 2px 0;background:#fff3c4;color:#9a6c00}
+.kd.lv2{background:#ffd6dd;color:#c0284f}.kd.lv3,.kd.lv4{background:#e9d6ff;color:#7a2fd0}
+.alert.lv1{background:#fff8e0;color:#9a6c00;border-color:#ffe08a}
+body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
 </style>
 </head>
 <body>
@@ -462,7 +467,8 @@ function outfit(sl){
   else if(feel<=20){main="過ごしやすい朝！<b>カーディガン</b>か<b>パーカー</b>くらいでOK";chips.push("カーディガン")}
   else if(feel<=24){main="あったかい朝だよ。<b>長袖1枚</b>で大丈夫そう";chips.push("長袖")}
   else{main="朝からもう暑いくらい！<b>半袖</b>でいこう。水分補給もわすれずにね";chips.push("半袖")}
-  let extra=m.f!=null&&Math.abs(m.f-m.t)>=2?`<br>🌡 朝は気温${m.t}℃だけど、体感は<b>${m.f}℃</b>くらいだよ`:"";
+  let extra="";
+  if(m.f!=null){const df=m.f-m.t;extra=df<=-2?`<br>🌡 朝は気温${m.t}℃だけど、体感は<b>${m.f}℃</b>くらい。数字より寒く感じるよ`:df>=2?`<br>🌡 朝は気温${m.t}℃で、体感は<b>${m.f}℃</b>くらい。数字よりあったかく感じるよ`:`<br>🌡 朝の体感は<b>${m.f}℃</b>くらい。気温(${m.t}℃)とほぼ同じだよ`}
   // 中に着るもの(昼の気温で決める)
   if(d){
     const gap=d.t-m.t;
@@ -501,17 +507,22 @@ function sevNote(sl){const x=sl.sev;if(!x)return "";const a=[];
   if(x.gust>=20)a.push(`💨 瞬間的に<b>${x.gust}m/s</b>の強い風の予報`);else if(x.gust>=15)a.push(`💨 瞬間的に${x.gust}m/sの風の予報`);
   if(x.thunder)a.push("⚡ 雷の予報");
   return a.length?`<div class="sev">⚠️ ${a.join("<br>")}<br><span>電車の遅れに気をつけて、早めに出るのが安心だよ</span></div>`:""}
-// 気象庁の警報・注意報(大田区)と台風情報
-const JMA_AREA="1311100";
+// 気象庁の警報・注意報(東京地方・大田区)と台風情報
+const JMA_AREA="1311100",JMA_REGION="130010";
+// 種類コード→名前(気象庁の警報・注意報ページの表示に合わせた対応表)
+const JMA_KIND={"02":"暴風雪警報","03":"大雨警報","05":"暴風警報","06":"大雪警報","07":"波浪警報","08":"高潮警報","09":"土砂災害警報","10":"大雨注意報","12":"大雪注意報","13":"風雪注意報","14":"雷注意報","15":"強風注意報","16":"波浪注意報","17":"融雪注意報","19":"高潮注意報","20":"濃霧注意報","21":"乾燥注意報","22":"なだれ注意報","23":"低温注意報","24":"霜注意報","25":"着氷注意報","26":"着雪注意報","29":"土砂災害注意報","32":"暴風雪特別警報","33":"大雨特別警報","35":"暴風特別警報","36":"大雪特別警報","37":"波浪特別警報","38":"高潮特別警報","39":"土砂災害特別警報","43":"大雨危険警報","48":"高潮危険警報","49":"土砂災害危険警報"};
+function kindLv(n){return /特別警報/.test(n)?4:/危険警報/.test(n)?3:/警報/.test(n)?2:1}
 async function loadJMA(){
   const el=document.getElementById("alertBox");if(!el)return;let html="";
   try{
     const j=await getJSON("https://www.jma.go.jp/bosai/warning/data/r8/130000.json");
     const latest={};(Array.isArray(j)?j:[j]).forEach(e=>{const k=e.dataTypeCode||"x";if(!latest[k]||e.reportDatetime>latest[k].reportDatetime)latest[k]=e});
-    let active=false,rd="";
-    Object.values(latest).forEach(e=>{const a=((e.warning||{}).class20Items||[]).find(x=>x.areaCode===JMA_AREA);
-      if(a&&(a.kinds||[]).some(k=>k.status&&!/なし|解除/.test(k.status))){active=true;if(e.reportDatetime>rd)rd=e.reportDatetime}});
-    if(active)html+=`<div class="alert">🚨 <b>大田区に警報・注意報が出てるよ</b><br><a href="https://www.jma.go.jp/bosai/warning/#area_type=class20s&area_code=${JMA_AREA}&lang=ja" target="_blank" rel="noopener">気象庁で中身をチェック →</a></div>`;
+    const pick=(key,code)=>{const set=new Map();Object.values(latest).forEach(e=>{const a=((e.warning||{})[key]||[]).find(x=>x.areaCode===code);
+      (a&&a.kinds||[]).forEach(k=>{if(!k.status||/なし|解除/.test(k.status))return;const n=JMA_KIND[k.code]||"警報・注意報";set.set(n,kindLv(n))})});return [...set.entries()].sort((x,y)=>y[1]-x[1])};
+    const ota=pick("class20Items",JMA_AREA),reg=pick("class10Items",JMA_REGION);
+    const list=ota.length?ota:reg;
+    if(list.length){const top=Math.max(...list.map(x=>x[1]));
+      html+=`<div class="alert lv${top}">🚨 <b>${ota.length?"大田区":"東京地方"}</b>に出てるよ：<div class="kinds">${list.map(([n,l])=>`<span class="kd lv${l}">${n}</span>`).join("")}</div><a href="https://www.jma.go.jp/bosai/warning/#area_type=offices&area_code=130000" target="_blank" rel="noopener">気象庁でくわしく見る →</a></div>`}
   }catch(e){}
   try{
     const t=await getJSON("https://www.jma.go.jp/bosai/information/data/typhoon.json");const now=Date.now();
@@ -579,8 +590,9 @@ async function loadWx(){
         const codes=ii.map(i=>val(H.weather_code,JH&&JH.weather_code,i)).filter(v=>v!=null);
         const ps=H.precipitation_probability?ii.map(i=>H.precipitation_probability[i]).filter(v=>v!=null):[];
         const ws=ii.map(i=>val(H.wind_speed_10m,JH&&JH.wind_speed_10m,i)).filter(v=>v!=null);
-        const fs=H.apparent_temperature?ii.map(i=>H.apparent_temperature[i]).filter(v=>v!=null):[];
-        return {f:fs.length?r1(mode==="max"?Math.max(...fs):Math.min(...fs)):null,t:r1(mode==="max"?Math.max(...ts):Math.min(...ts)),w:wmo(codes.length?Math.max(...codes):null),
+        let bi=null,bt=null;ii.forEach(i=>{const v=val(H.temperature_2m,JH&&JH.temperature_2m,i);if(v==null)return;if(bt==null||(mode==="max"?v>bt:v<bt)){bt=v;bi=i}});
+        const fv=(H.apparent_temperature&&bi!=null)?H.apparent_temperature[bi]:null;
+        return {f:fv!=null?r1(fv):null,t:r1(mode==="max"?Math.max(...ts):Math.min(...ts)),w:wmo(codes.length?Math.max(...codes):null),
           p:ps.length?Math.max(...ps):null,wind:Math.round(ws.length?Math.max(...ws):0)}};
       const dry=(()=>{const ii=[];for(let h=9;h<=16;h++){const i=idx[`${d}T${pad(h)}:00`];if(i!=null)ii.push(i)}if(!ii.length)return null;
         const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;const g=(arr,jarr)=>ii.map(i=>val(arr,jarr,i)).filter(v=>v!=null);

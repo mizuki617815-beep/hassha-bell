@@ -1,0 +1,8 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for u in "http://api.jugemkey.jp/api/horoscope/free/2026/11/11" "https://api.jugemkey.jp/api/horoscope/free/2026/11/11" "http://api.jugemkey.jp/api/horoscope/free/2024/01/01" "http://jugemkey.jp/api/waf/api_free.php"; do echo "== $u"; curl -sS -i --max-time 20 -A "Mozilla/5.0" "$u" | head -c 1500; echo; done

@@ -48,7 +48,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
 .mini{font-size:11px;color:var(--sub)}
 .morning{display:flex;gap:10px;align-items:stretch}
 .mbox{flex:1;border-radius:18px;padding:10px;text-align:center;background:linear-gradient(160deg,#fff3fa,#f1ebff)}
-.mbox .h{font-size:12px;color:var(--sub)}
+.mbox .h{font-size:12px;color:var(--sub);font-weight:700;line-height:1.2}
 .mbox .ic{font-size:30px;line-height:1.25}
 .mbox .tmp{font-size:24px;font-weight:900}
 .mbox .tmp small{font-size:13px}
@@ -63,6 +63,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
 .wx{display:flex;gap:8px;overflow-x:auto;padding:12px 0 2px;scrollbar-width:none}
 .wx::-webkit-scrollbar{display:none}
 .wd{flex:0 0 70px;text-align:center;border-radius:16px;padding:8px 4px;background:rgba(255,255,255,.7);border:1.5px solid var(--line)}
+.wd{cursor:pointer;transition:transform .15s}.wd.sel{outline:2.5px solid #c9a8ff;transform:translateY(-2px);box-shadow:0 4px 10px rgba(183,156,255,.35)}
 .wd.today{background:linear-gradient(170deg,#ffe6f3,#efe7ff);border-color:#ffc9e3}
 .wd .d{font-size:11px;color:var(--sub);font-weight:700}
 .wd .d.sat{color:#3f86e0}.wd .d.sun{color:#e0507f}
@@ -309,7 +310,7 @@ const HOLI_NAME={"2026-11-03":"文化の日","2026-11-23":"勤労感謝の日","
 
 // 天気(初期値。自動更新が入ればそちらを優先)
 let WX={issued:"",source:"",morning:[],days:[]};
-try{const c=JSON.parse(localStorage.getItem("yumebell_wx")||"null");if(c&&c.days)WX=c}catch(e){}
+try{const c=JSON.parse(localStorage.getItem("yumebell_wx2")||"null");if(c&&c.days)WX=c}catch(e){}
 
 // ===== 設定 =====
 const S={walk:15,buf:0,t3:3,dia:"auto",tab:"go"};
@@ -411,47 +412,65 @@ function plan(){
 function icon(w){const map=[["雪","⛄"],["雷","⚡"],["雨","☔"],["霧","🌫️"],["曇","☁️"],["晴","☀️"]];
   const parts=w.split(/のち|時々|一時/);const ic=parts.map(p=>{for(const [k,v] of map)if(p.includes(k))return v;return "🌈"});
   return ic.slice(0,2).join(w.includes("のち")?"→":"")}
-function outfit(m,day){
-  const temps=[m.h5.t,m.h6.t];const tmin=Math.min(...temps);const wind=Math.max(m.h5.wind||0,m.h6.wind||0);
-  const pop=Math.max(m.h5.p||0,m.h6.p||0);const feel=tmin-(wind>=4?2:wind>=2?1:0);
+// 服装アドバイス(朝=出発、昼=日中、夜=帰り)
+function outfit(sl){
+  const m=sl.m,d=sl.n,e=sl.e;
+  const wind=m.wind||0;const feel=m.t-(wind>=4?2:wind>=2?1:0);
   let main,chips=[];
-  if(feel<=4){main="すっごく寒いよ…！<b>ダウンコート</b>に<b>マフラー・手袋</b>までしっかりね";chips.push("ダウン","マフラー","手袋")}
-  else if(feel<=8){main="朝はかなり冷えるよ。<b>厚手のコート</b>に<b>マフラー</b>があると安心";chips.push("厚手コート","マフラー","ニット")}
-  else if(feel<=12){main="ひんやり朝だよ。<b>コート</b>か<b>トレンチ</b>に、中は<b>ニット</b>がちょうどいいかも";chips.push("コート","ニット")}
-  else if(feel<=16){main="少し肌寒いかな。<b>薄手のコート</b>や<b>ジャケット</b>をはおってね";chips.push("薄手コート","ジャケット")}
+  if(feel<=4){main="朝はすっごく寒いよ…！<b>ダウンコート</b>に<b>マフラー・手袋</b>までしっかりね";chips.push("ダウン","マフラー","手袋")}
+  else if(feel<=8){main="朝はかなり冷えるよ。<b>厚手のコート</b>に<b>マフラー</b>があると安心";chips.push("厚手コート","マフラー")}
+  else if(feel<=12){main="ひんやり朝だよ。<b>コート</b>か<b>トレンチ</b>をはおってね";chips.push("コート")}
+  else if(feel<=16){main="朝は少し肌寒いかな。<b>薄手のコート</b>や<b>ジャケット</b>がちょうどいいよ";chips.push("薄手コート","ジャケット")}
   else if(feel<=20){main="過ごしやすい朝！<b>カーディガン</b>か<b>パーカー</b>くらいでOK";chips.push("カーディガン")}
   else if(feel<=24){main="あったかい朝だよ。<b>長袖1枚</b>で大丈夫そう";chips.push("長袖")}
-  else{main="もう暑いくらい！<b>半袖</b>でいこう。水分補給もわすれずにね";chips.push("半袖")}
+  else{main="朝からもう暑いくらい！<b>半袖</b>でいこう。水分補給もわすれずにね";chips.push("半袖")}
   let extra="";
-  if(pop>=50){extra+="<br>☔ 雨の確率が高いから<b>傘</b>は必ず持ってね";chips.push({t:"傘必須",c:"rain"})}
+  // 中に着るもの(昼の気温で決める)
+  if(d){
+    const gap=d.t-m.t;
+    if(gap>=8){
+      const inner=d.t>=22?"半袖や薄手のカットソー":d.t>=17?"薄手の長袖":"薄手のニット";
+      extra+=`<br>☀️ 昼は<b>${d.t}℃</b>まで上がるよ（朝との差${Math.round(gap)}℃）。中は<b>${inner}</b>にして、アウターは脱いで持てるものにしてね`;
+      chips.push({t:"脱ぎ着しやすく",c:"warm"});
+    }else if(feel<=12){
+      extra+=`<br>🧶 昼も${d.t}℃くらいで上がりにくいから、中は<b>ニット</b>であったかくね`;chips.push("ニット");
+    }
+  }
+  if(e&&e.t<=m.t-2){extra+=`<br>🌙 夜は<b>${e.t}℃</b>まで下がるから、帰りも寒いよ`}
+  else if(e&&d&&d.t-e.t>=6){extra+=`<br>🌙 夜は${e.t}℃に下がるから、帰りに上着をまた着てね`}
+  const pop=Math.max(m.p||0,d?d.p||0:0,e?e.p||0:0);
+  const rainWhen=[m,d,e].map((x,i)=>x&&(x.p||0)>=50?["朝","昼","夜"][i]:null).filter(Boolean);
+  if(pop>=50){extra+=`<br>☔ ${rainWhen.join("・")}は雨の確率が高いから<b>傘</b>は必ず持ってね`;chips.push({t:"傘必須",c:"rain"})}
   else if(pop>=30){extra+="<br>🌂 念のため<b>折りたたみ傘</b>があると安心";chips.push({t:"折りたたみ傘",c:"rain"})}
-  if(wind>=5){extra+="<br>💨 風が強めだから体感はもっと寒いよ";chips.push({t:"風つよめ",c:"wind"})}
-  if(day&&day.hi-tmin>=8){extra+=`<br>☀️ 日中は${day.hi}℃まで上がるから、<b>脱ぎ着しやすい服</b>がおすすめ`;chips.push({t:"脱ぎ着しやすく",c:"warm"})}
+  if(Math.max(wind,d?d.wind||0:0)>=5){extra+="<br>💨 風が強めだから体感はもっと寒いよ";chips.push({t:"風つよめ",c:"wind"})}
   const chipHtml=chips.map(c=>typeof c==="string"?`<span class="chip">${c}</span>`:`<span class="chip ${c.c}">${c.t}</span>`).join("");
   return `${main}${extra}<div class="chips">${chipHtml}</div>`;
 }
+let SEL=null; // タップで選んだ日
+function defaultDay(){const now=jstNow();const t=new Date(now);if(now.getHours()*60+now.getMinutes()>=390)t.setDate(t.getDate()+1);return ymd(t)}
+function selectDay(d){SEL=d;renderWx()}
+function slotBox(lbl,time,x){
+  if(!x)return `<div class="mbox"><div class="h">${lbl}</div><div class="ic">・</div><div class="p">データなし</div></div>`;
+  return `<div class="mbox"><div class="h">${lbl}<br><span style="font-size:10px">${time}</span></div><div class="ic">${icon(x.w)}</div><div class="tmp">${x.t}<small>℃</small></div><div class="p">☂ ${x.p??"-"}%<br>風${x.wind}m</div></div>`;
+}
 function renderWx(){
   const now=jstNow();const today=ymd(now);
-  // 6:30までは今朝、それ以降は明日の朝
-  const mins=now.getHours()*60+now.getMinutes();
-  const tgt=new Date(now);if(mins>=390)tgt.setDate(tgt.getDate()+1);
-  const key=ymd(tgt);const isToday=key===today;
-  const m=(WX.morning||[]).find(x=>x.d===key);const day=(WX.days||[]).find(x=>x.d===key);
-  document.getElementById("mTitle").textContent=`${isToday?"☀️ けさ":"🌙 あした"}の朝 5:30〜6:30(${tgt.getMonth()+1}/${tgt.getDate()} ${WEEK[tgt.getDay()]})`;
-  const mEl=document.getElementById("morning"),bEl=document.getElementById("bubble");
-  if(m){
-    mEl.innerHTML=[["5時",m.h5],["6時",m.h6]].map(([h,x])=>`<div class="mbox"><div class="h">${h}</div><div class="ic">${icon(x.w)}</div><div class="tmp">${x.t}<small>℃</small></div><div class="p">☂ ${x.p??"-"}% ・ 風${x.wind}m</div></div>`).join("")+
-      (day?`<div class="mbox"><div class="h">1日の気温</div><div class="ic">${icon(day.w)}</div><div class="tmp" style="font-size:18px"><span style="color:#ff6f9f">${day.hi}</span>/<span style="color:#6aa8ff">${day.lo}</span></div><div class="p">${day.w}</div></div>`:"");
-    bEl.innerHTML=outfit(m,day);
-  }else if(day){
-    mEl.innerHTML=`<div class="mbox"><div class="h">1日の天気</div><div class="ic">${icon(day.w)}</div><div class="tmp">${day.lo}<small>℃〜</small>${day.hi}<small>℃</small></div><div class="p">☂ ${day.p??"-"}%</div></div>`;
-    bEl.innerHTML=outfit({h5:{t:day.lo,p:day.p,wind:0},h6:{t:day.lo,p:day.p,wind:0}},day)+'<div class="note">朝の時間ごとの予報がまだないから、最低気温から考えたよ</div>';
-  }else{mEl.innerHTML="";bEl.innerHTML="いま天気を取ってきてるよ…ちょっと待ってね🧸"}
   const days=(WX.days||[]).filter(x=>x.d>=today).slice(0,8);
-  document.getElementById("wx").innerHTML=days.map(x=>{const dd=new Date(x.d+"T00:00:00");const w=dd.getDay();
-    const cls=w===6?"sat":(w===0||HOLI.has(x.d))?"sun":"";const lab=x.d===today?"きょう":`${dd.getMonth()+1}/${dd.getDate()}`;
-    return `<div class="wd ${x.d===today?"today":""}"><div class="d ${cls}">${lab}(${WEEK[w]})</div><div class="ic">${icon(x.w)}</div><div class="tx">${x.w}</div><div><span class="hi">${x.hi}°</span> <span class="lo">${x.lo}°</span></div><div class="pop">☂ ${x.p??"-"}%</div></div>`}).join("");
-  document.getElementById("wxNote").innerHTML=WX.issued?`${WX.source} ・ ${WX.issued} ・ <a href="https://open-meteo.com/" target="_blank" rel="noopener">Weather data by Open-Meteo.com</a>`:"天気を読み込み中…☁️";
+  if(!SEL||SEL<today||!days.find(x=>x.d===SEL))SEL=days.find(x=>x.d===defaultDay())?defaultDay():(days[0]&&days[0].d);
+  const key=SEL;const sl=(WX.slots||[]).find(x=>x.date===key);
+  const dd=key?new Date(key+"T00:00:00"):null;
+  const ahead=dd?Math.round((dd-new Date(today+"T00:00:00"))/86400000):0;
+  const lab=ahead===0?"☀️ きょう":ahead===1?"🌙 あした":"📅";
+  document.getElementById("mTitle").textContent=dd?`${lab} ${dd.getMonth()+1}/${dd.getDate()}(${WEEK[dd.getDay()]})の朝・昼・夜`:"天気";
+  const mEl=document.getElementById("morning"),bEl=document.getElementById("bubble");
+  if(sl&&sl.m){
+    mEl.innerHTML=slotBox("朝","5〜7時",sl.m)+slotBox("昼","12〜15時",sl.n)+slotBox("夜","18〜21時",sl.e);
+    bEl.innerHTML=outfit(sl)+(ahead>=3?'<div class="note">3日以上先の予報だから、目安くらいに見てね</div>':"");
+  }else{mEl.innerHTML="";bEl.innerHTML="いま天気を取ってきてるよ…ちょっと待ってね🧸"}
+  document.getElementById("wx").innerHTML=days.map(x=>{const d2=new Date(x.d+"T00:00:00");const w=d2.getDay();
+    const cls=w===6?"sat":(w===0||HOLI.has(x.d))?"sun":"";const l=x.d===today?"きょう":`${d2.getMonth()+1}/${d2.getDate()}`;
+    return `<div class="wd ${x.d===SEL?"sel":""} ${x.d===today?"today":""}" onclick="selectDay('${x.d}')"><div class="d ${cls}">${l}(${WEEK[w]})</div><div class="ic">${icon(x.w)}</div><div class="tx">${x.w}</div><div><span class="hi">${x.hi}°</span> <span class="lo">${x.lo}°</span></div><div class="pop">☂ ${x.p??"-"}%</div></div>`}).join("");
+  document.getElementById("wxNote").innerHTML=WX.issued?`日付をタップすると切り替わるよ ・ ${WX.source} ・ ${WX.issued} ・ <a href="https://open-meteo.com/" target="_blank" rel="noopener">Weather data by Open-Meteo.com</a>`:"天気を読み込み中…☁️";
 }
 // ===== Open-Meteo から最新の天気を取得(開くたびに)=====
 const LAT=35.561, LON=139.716; // 大田区
@@ -477,19 +496,24 @@ async function loadWx(){
     const H=a.hourly, JH=j&&j.hourly, D=a.daily, JD=j&&j.daily;
     const pick=(jv,av)=>(jv!=null&&!Number.isNaN(jv))?jv:av;
     const idx={};H.time.forEach((t,i)=>idx[t]=i);
-    const morning=[];
+    const slots=[];
+    const val=(arr,jarr,i)=>pick(jarr&&jarr[i],arr[i]);
     D.time.forEach(d=>{
-      const hh=h=>{const i=idx[`${d}T0${h}:00`];if(i==null)return null;
-        return {w:wmo(pick(JH&&JH.weather_code[i],H.weather_code[i])),t:r1(pick(JH&&JH.temperature_2m[i],H.temperature_2m[i])),
-          p:H.precipitation_probability?H.precipitation_probability[i]:null,wind:Math.round(pick(JH&&JH.wind_speed_10m[i],H.wind_speed_10m[i])||0)}};
-      const h5=hh(5),h6=hh(6);if(h5&&h6&&h5.t!=null)morning.push({d,h5,h6});
+      const seg=(h0,h1,mode)=>{const ii=[];for(let h=h0;h<=h1;h++){const i=idx[`${d}T${pad(h)}:00`];if(i!=null)ii.push(i)}
+        const ts=ii.map(i=>val(H.temperature_2m,JH&&JH.temperature_2m,i)).filter(v=>v!=null);if(!ts.length)return null;
+        const codes=ii.map(i=>val(H.weather_code,JH&&JH.weather_code,i)).filter(v=>v!=null);
+        const ps=H.precipitation_probability?ii.map(i=>H.precipitation_probability[i]).filter(v=>v!=null):[];
+        const ws=ii.map(i=>val(H.wind_speed_10m,JH&&JH.wind_speed_10m,i)).filter(v=>v!=null);
+        return {t:r1(mode==="max"?Math.max(...ts):Math.min(...ts)),w:wmo(codes.length?Math.max(...codes):null),
+          p:ps.length?Math.max(...ps):null,wind:Math.round(ws.length?Math.max(...ws):0)}};
+      const m=seg(5,7,"min");if(m)slots.push({date:d,m,n:seg(12,15,"max"),e:seg(18,21,"min")});
     });
     const days=D.time.map((d,i)=>({d,w:wmo(pick(JD&&JD.weather_code[i],D.weather_code[i])),
       hi:Math.round(pick(JD&&JD.temperature_2m_max[i],D.temperature_2m_max[i])),lo:Math.round(pick(JD&&JD.temperature_2m_min[i],D.temperature_2m_min[i])),
       p:D.precipitation_probability_max?D.precipitation_probability_max[i]:null}));
     const n=jstNow();
-    WX={issued:`${n.getMonth()+1}/${n.getDate()} ${n.getHours()}:${pad(n.getMinutes())} 取得`,source:"Open-Meteo(気象庁モデルほか)",morning,days};
-    try{localStorage.setItem("yumebell_wx",JSON.stringify(WX))}catch(e){}
+    WX={issued:`${n.getMonth()+1}/${n.getDate()} ${n.getHours()}:${pad(n.getMinutes())} 取得`,source:"Open-Meteo(気象庁モデルほか)",slots,days};
+    try{localStorage.setItem("yumebell_wx2",JSON.stringify(WX))}catch(e){}
     renderWx();
   }catch(e){
     const el=document.getElementById("wxNote");

@@ -38,6 +38,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
 .date .dow{display:inline-block;margin-left:4px;font-size:16px;padding:2px 9px;border-radius:999px;vertical-align:4px;background:var(--lav2);color:#8a63e6}
 .date .dow.sat{background:var(--sky2);color:#3f86e0}.date .dow.sun{background:var(--rose2);color:#e0507f}
 .clock{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;color:#9b7cf0;line-height:1}
+.clock .sec2{font-size:20px;color:#c3a8ff}
 .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
 .b-wd{background:var(--sky2);color:#3f86e0}.b-hd{background:var(--pink2);color:#e0507f}
 .subrow{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:12px;color:var(--sub)}
@@ -137,7 +138,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="date" id="date">--月--日</div>
       <div class="subrow"><span id="dtype" class="badge b-wd">平日ダイヤ</span><span id="holiName"></span></div>
     </div>
-    <div class="clock" id="clock">--:--</div>
+    <div class="clock" id="clock">--:--:--</div>
   </div>
 
   <!-- 天気&コーデ -->
@@ -350,7 +351,7 @@ function renderHead(now){
   const w=now.getDay();const key=ymd(now);const hol=HOLI_NAME[key];
   const cls=(w===0||hol)?"sun":w===6?"sat":"";
   document.getElementById("date").innerHTML=`${now.getMonth()+1}月${now.getDate()}日<span class="dow ${cls}">${WEEK[w]}曜日</span>`;
-  document.getElementById("clock").textContent=`${now.getHours()}:${pad(now.getMinutes())}`;
+  document.getElementById("clock").innerHTML=`${now.getHours()}:${pad(now.getMinutes())}<span class="sec2">:${pad(now.getSeconds())}</span>`;
   const k=dia(svc(now).d);const b=document.getElementById("dtype");
   b.textContent=(k==="hd"?"土休日ダイヤ":"平日ダイヤ")+(S.dia!=="auto"?"(手動)":"");b.className="badge "+(k==="hd"?"b-hd":"b-wd");
   document.getElementById("holiName").textContent=hol?`🎌 ${hol}`:"";

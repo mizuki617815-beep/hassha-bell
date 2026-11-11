@@ -56,7 +56,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
 .mbox .p{font-size:11px;color:#5d9de8}
 .wxTop{display:flex;gap:10px;align-items:flex-start}
 .wxTop .morning{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
-.wxTop .mbox{flex:none;display:flex;align-items:center;gap:7px;text-align:left;padding:7px 10px;border-radius:14px}
+.wxTop .mbox{flex:none;display:flex;align-items:center;gap:7px;text-align:left;padding:5px 10px;border-radius:14px}
 .wxTop .mbox .h{line-height:1.25;white-space:nowrap}
 .wxTop .mbox .ic{font-size:19px;line-height:1}
 .wxTop .mbox .tmp{font-size:17px}
@@ -67,14 +67,14 @@ body.dark .wxBear{border-color:#4a3f6b}
 .wxBearCap{margin-top:5px;font-size:10.5px;color:var(--sub);text-align:center;max-width:112px;line-height:1.4}
 .talk{display:flex;gap:10px;align-items:flex-end;margin-top:12px}
 .talk img{width:74px;height:74px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(183,156,255,.3);flex:0 0 auto}
-.bubble{position:relative;flex:1;background:#fff;border-radius:20px 20px 20px 6px;padding:12px 14px;font-size:14px;line-height:1.65;border:2px solid var(--pink2)}
+.bubble{position:relative;flex:1;background:#fff;border-radius:20px 20px 20px 6px;padding:9px 13px;font-size:14px;line-height:1.55;border:2px solid var(--pink2)}
 .bubble b{color:#e0609a}
-.cheer{position:relative;margin-top:12px;background:#fff;border:2px solid var(--pink2);border-radius:16px;padding:9px 12px;font-size:13.5px;line-height:1.6;color:var(--ink)}
+.cheer{position:relative;margin-top:10px;background:#fff;border:2px solid var(--pink2);border-radius:14px;padding:6px 10px;font-size:13px;line-height:1.5;color:var(--ink)}
 .cheer:before,.cheer:after{content:"";position:absolute;left:44px;border:solid transparent}
 .cheer:before{top:-12px;border-width:0 9px 12px;border-bottom-color:var(--pink2)}
 .cheer:after{top:-8px;left:46px;border-width:0 7px 9px;border-bottom-color:#fff}
 .cheer b{color:#e0609a}
-.cheer .chips{margin-top:5px}.cheer .chip{font-size:11px;padding:2px 8px}
+#cheerTxt{display:inline}.cheer .chips{display:inline;margin:0}.cheer .chip{display:inline-block;font-size:10.5px;padding:1px 7px;margin:2px 0 0 4px;vertical-align:1px}
 body.dark .cheer{background:#2e2747;border-color:#5a3a5c}body.dark .cheer:before{border-bottom-color:#5a3a5c}body.dark .cheer:after{border-bottom-color:#2e2747}body.dark .cheer b{color:#ff9fcf}
 #pCheer{margin-top:8px;padding:8px 12px;border-radius:14px;background:var(--pink2);font-size:13.5px;font-weight:700;line-height:1.6;color:var(--ink)}
 #pCheer:empty{display:none}
@@ -83,7 +83,7 @@ body.dark .cheerRen{color:#ff9fcf}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--lav2);color:#8a63e6}
 .chip.rain{background:var(--sky2);color:#3f86e0}.chip.wind{background:var(--mint2);color:#2fa486}.chip.warm{background:var(--lemon2);color:#c48a00}
-.wx{display:flex;gap:8px;overflow-x:auto;padding:12px 0 2px;scrollbar-width:none}
+.wx{display:flex;gap:8px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}
 .wx::-webkit-scrollbar{display:none}
 .wd.past{opacity:.6}.wd.past.sel{opacity:1}
 .reload{margin-top:4px;font:inherit;font-size:12px;font-weight:700;color:#8a63e6;background:var(--lav2);border:0;border-radius:999px;padding:5px 12px;cursor:pointer}
@@ -276,10 +276,10 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
   <!-- 天気&コーデ -->
   <div class="card">
     <div class="wxHead"><span class="ttl" id="mTitle">🌙 あしたの朝 5:30〜6:30</span><span class="mini">大田区</span></div>
-    <div class="wxTop"><div class="wxBearBox" id="wxBearBox" style="display:none"><img class="wxBear" id="wxBear" alt="天気に合わせたクマちゃんの挿絵"><div class="wxBearCap" id="wxBearCap"></div></div><div class="morning" id="morning"></div></div></div>
+    <div class="wxTop"><div class="wxBearBox" id="wxBearBox" style="display:none"><img class="wxBear" id="wxBear" alt="天気に合わせたクマちゃんの挿絵"><div class="wxBearCap" id="wxBearCap"></div></div><div class="morning" id="morning"></div></div>
     <div class="cheer" id="cheer" style="display:none"><div id="cheerTxt"></div><div class="chips" id="cheerChips"></div></div>
     <div id="alertBox"></div>
-    <div class="talk">
+    <div class="talk" style="margin-top:8px">
       
       <div class="bubble" id="bubble">…</div>
     </div>

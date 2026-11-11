@@ -325,6 +325,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
         <span>家 ⇔ 京急蒲田ホーム(分)</span><input type="number" id="sWalk" min="0" max="60">
         <span>余裕をもたせる(分)</span><input type="number" id="sBuf" min="0" max="30">
         <span>T3 改札→ホーム(帰り・分)</span><input type="number" id="sT3" min="0" max="30">
+        <span>シフト開始の何分前にT3に着く(分)</span><input type="number" id="sArr" min="0" max="120">
         <span>星座</span><select id="sSign" style="flex:none;width:130px"></select>
         <span>画面の色</span>
         <div class="seg" id="sTheme"><button data-v="auto">自動</button><button data-v="light">ライト</button><button data-v="dark">ダーク</button></div>
@@ -364,7 +365,7 @@ let WX={issued:"",source:"",morning:[],days:[]};
 try{const c=JSON.parse(localStorage.getItem("yumebell_wx4")||"null");if(c&&c.days)WX=c}catch(e){}
 
 // ===== 設定 =====
-const S={walk:15,buf:0,t3:3,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",sex:"f"};
+const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",sex:"f"};
 try{Object.assign(S,JSON.parse(localStorage.getItem("yumebell")||"{}"))}catch(e){}
 function save(){try{localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
 
@@ -475,7 +476,7 @@ function plan(){
 
 
 // ===== シフトCSV(月初に読み込んで逆算に自動反映) =====
-const SHIFT_KEY="yumebell_shifts_v1",ARRIVE_BEFORE=10; // T3にはシフト開始の10分前に着く
+const SHIFT_KEY="yumebell_shifts_v1"; // T3にはシフト開始の S.arrive 分前に着く(設定で変更)
 let SHIFTS={};try{SHIFTS=JSON.parse(localStorage.getItem(SHIFT_KEY)||"{}")}catch(e){SHIFTS={}}
 function saveShifts(){try{localStorage.setItem(SHIFT_KEY,JSON.stringify(SHIFTS))}catch(e){}}
 function parseCSVText(text){
@@ -519,14 +520,14 @@ const OFFBEAR="data:image/webp;base64,UklGRhBiAABXRUJQVlA4IARiAADw4AGdASoXAtACPn
 function offMsg(dv,sh){const[Y,M,D]=dv.split("-").map(Number);
   return `<div class="pOff">🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span> だよ<br>電車に乗らなくてOK。会社にも行かなくて大丈夫だよ。<br>ゆっくり休んでね<br><img src="${OFFBEAR}" alt="Tomorrow is your day off!" style="width:80%;max-width:300px;border-radius:14px;margin-top:10px"></div>`}
 let pAuto=true;
-function homeLeaveFor(d,sh){const target=sh.start-ARRIVE_BEFORE;if(target<0)return null;
+function homeLeaveFor(d,sh){const target=sh.start-(+S.arrive||0);if(target<0)return null;
   const list=table("go",d).filter(tr=>tr.m+rideGo(tr)<=target);if(!list.length)return null;
   const b=list[list.length-1];const dt=new Date(d.getFullYear(),d.getMonth(),d.getDate());dt.setMinutes(b.m-S.walk-S.buf);return dt}
 function autoTargetDate(now){
   const base=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   for(let i=-1;i<=8;i++){const d=new Date(base);d.setDate(d.getDate()+i);const key=ymd(d);const sh=SHIFTS[key];
     if(sh&&!sh.off&&sh.start!=null){const hl=homeLeaveFor(d,sh);if(hl&&now<hl)return key;if(hl)continue}
-    else{const end=new Date(d);end.setDate(end.getDate()+1);if(now<end)return key}}
+    else if(i>=1)return key}
   const t=new Date(base);t.setDate(t.getDate()+1);return ymd(t)}
 function setAutoDate(){pAuto=true;document.getElementById("pDate").value=autoTargetDate(jstNow());
   const b=document.getElementById("autoBadge");if(b)b.style.display=""}
@@ -543,9 +544,9 @@ function applyShiftForDate(run){
   if(sh.off){info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span> だよ。逆算はいらないね`;
     if(run)document.getElementById("pRes").innerHTML=offMsg(dv,sh);return}
   if(sh.start==null)return;
-  const target=sh.start-ARRIVE_BEFORE;
+  const target=sh.start-(+S.arrive||0);
   document.getElementById("pTime").value=`${pad(Math.floor(target/60))}:${pad(target%60)}`;
-  info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span>（開始 ${hm(sh.start)}）→ T3到着目標 <b>${hm(target)}</b>（開始${ARRIVE_BEFORE}分前）でセットしたよ`;
+  info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span>（開始 ${hm(sh.start)}）→ T3到着目標 <b>${hm(target)}</b>（開始${(+S.arrive||0)}分前）でセットしたよ`;
   if(run)plan();
 }
 
@@ -730,6 +731,8 @@ document.getElementById("tabBack").onclick=()=>setTab("back");
 document.getElementById("pBtn").onclick=plan;
 const sw=document.getElementById("sWalk"),sb=document.getElementById("sBuf"),st3=document.getElementById("sT3");
 sw.value=S.walk;sb.value=S.buf;st3.value=S.t3;
+const sar=document.getElementById("sArr");sar.value=S.arrive;
+sar.oninput=()=>{S.arrive=Math.max(0,Math.min(120,+sar.value||0));save();if(pAuto)setAutoDate();applyShiftForDate(true)};
 sw.oninput=()=>{S.walk=Math.max(0,+sw.value||0);save();renderNow()};
 sb.oninput=()=>{S.buf=Math.max(0,+sb.value||0);save();renderNow()};
 st3.oninput=()=>{S.t3=Math.max(0,+st3.value||0);save();renderNow()};

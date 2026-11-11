@@ -115,6 +115,7 @@ html,body{overscroll-behavior-y:contain}
 .walkBar .wbLbl{font-size:12px;font-weight:700;opacity:.85}
 .walkBar .wbBig{font-size:46px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1;margin:2px 0}
 .walkBar .wbBig small{font-size:17px;margin:0 1px}
+.walkBar .wbAto{font-size:19px;font-weight:700;margin-right:3px}
 .walkBar .wbInfo{font-size:19px;font-weight:700}
 .walkBar .wbInfo b{font-size:24px}
 .walkBar .pill{font-size:15px;padding:3px 10px;vertical-align:3px}
@@ -470,7 +471,7 @@ function renderNow(){
       <div class="lim">🚃 T3は1番線着。乗るなら<b>やや前寄り</b>の車両がおすすめ</div>`;
     msg.innerHTML=`<div class="msg m-${st}">${st==="ok"?"🧸 まだ余裕あるよ、ゆっくり準備してね":st==="warn"?"🧸 そろそろ靴はいて〜！":"🧸 いますぐ出発！いってらっしゃい！"}</div>`;
     const wb=document.getElementById("walkBar");const w=nextDeparture("go",now);
-    if(wb)wb.innerHTML=(w&&w.abs!==f.abs)?`<div class="walkBar"><div class="wbLbl">もう家を出てる人へ・京急蒲田の次の電車まで</div><div class="wbBig">あと${fmtCount(w.abs-m)}</div><div class="wbInfo">${pill(w.t)} <b>${hm(w.abs)}</b>発 ${plat(w)}</div><div class="wbMsg">🧸 ⚠️家を出るリミットを過ぎたよ！ちゃんともう家を出たかな？</div></div>`:"";
+    if(wb)wb.innerHTML=(w&&w.abs!==f.abs)?`<div class="walkBar"><div class="wbLbl">もう家を出てる人へ・京急蒲田の次の電車まで</div><div class="wbBig"><span class="wbAto">あと</span>${fmtCount(w.abs-m)}</div><div class="wbInfo">${pill(w.t)} <b>${hm(w.abs)}</b>発 ${plat(w)}</div><div class="wbMsg">🧸 ⚠️家を出るリミットを過ぎたよ！ちゃんともう家を出たかな？</div></div>`:"";
   }else{
     const toDep=f.abs-m;const st=toDep-S.t3>10?"ok":toDep-S.t3>3?"warn":"hurry";hero.className="hero st-"+st;
     const arr=f.abs+rideBk(f);

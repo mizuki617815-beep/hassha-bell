@@ -452,11 +452,11 @@ function renderNow(){
     }else{
       // リミットは過ぎたが電車はまだ発車していない: 発車までのカウントダウンで出し続ける
       hero.className="hero st-hurry";
-      hero.innerHTML=`<div class="lbl">⚠ 出発リミット過ぎた！発車まで${first}</div><div class="big">${fmtCount(f.abs-m)}</div>
+      hero.innerHTML=`<div class="lbl">⚠️ 出発リミット過ぎた！発車まで${first}</div><div class="big">${fmtCount(f.abs-m)}</div>
         <div class="info">${pill(f.t)}<b>${hm(f.abs)}</b> 京急蒲田発 ${plat(f)}</div>
         <div class="lim">出発リミット ${hm(f.deadline)} ・ T3着 ${hm(f.abs+rideGo(f))}</div>
         <div class="lim">🚃 T3は1番線着。乗るなら<b>やや前寄り</b>の車両がおすすめ</div>`;
-      msg.innerHTML=`<div class="msg m-hurry">🧸 リミット過ぎてるよ！この電車に乗るなら急いで〜！</div>`;
+      msg.innerHTML=`<div class="msg m-hurry">🧸 ⚠️家を出るリミットを過ぎたよ！ちゃんともう家を出たかな？</div>`;
     }
   }else{
     const toDep=f.abs-m;const st=toDep-S.t3>10?"ok":toDep-S.t3>3?"warn":"hurry";hero.className="hero st-"+st;
@@ -468,7 +468,7 @@ function renderNow(){
     msg.innerHTML=`<div class="msg m-${st}">${st==="ok"?"🧸 おつかれさま！ゆっくりで大丈夫":st==="warn"?"🧸 改札に向かおっか":"🧸 急いで〜！"}</div>`;
   }
   document.getElementById("nextList").innerHTML=res.slice(1,5).map(r=>{
-    if(go){const dl=r.deadline-m;return `<li><span>${pill(r.t)}<span class="t">${hm(r.abs)}</span></span><span class="r">${plat(r)} ${dl>=0?`おうちを出る <b>${hm(r.deadline)}</b><br>あと${Math.round(dl)}分`:`⚠ リミット過ぎ<br>発車まであと${Math.max(0,Math.round(r.abs-m))}分`}</span></li>`}
+    if(go){const dl=r.deadline-m;return `<li><span>${pill(r.t)}<span class="t">${hm(r.abs)}</span></span><span class="r">${plat(r)} ${dl>=0?`おうちを出る <b>${hm(r.deadline)}</b><br>あと${Math.round(dl)}分`:`⚠️ リミット過ぎ<br>発車まであと${Math.max(0,Math.round(r.abs-m))}分`}</span></li>`}
     const a=r.abs+rideBk(r);return `<li><span>${pill(r.t)}<span class="t">${hm(r.abs)}</span></span><span class="r">蒲田 ${hm(a)} / おうち <b>${hm(a+S.walk)}</b><br>あと${Math.round(r.abs-m)}分</span></li>`;
   }).join("");
 }

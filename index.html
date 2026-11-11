@@ -942,12 +942,15 @@ const FPHASE=[["🌑","新月","新しいことを始める合図"],["🌒","三
 const PL_JP={sun:"太陽",moon:"月",mercury:"水星",venus:"金星",mars:"火星",jupiter:"木星",saturn:"土星"};
 // 星座どうしの角度(ホールサイン)ごとの点数:[合,30°,60°,90°,120°,150°,180°]
 const ASP={moon:[1.5,0,1,-1.5,2,-.5,-1],benef:[2,0,1,0,2,0,-.5],malef:[-1,0,.5,-2,1,-.5,-1.5],neut:[1,0,1,-.5,1,0,-.5]};
-function asp(pl,s,tbl){let k=(Math.floor(pl/30)-s+12)%12;if(k>6)k=12-k;return tbl[k]}
+// 星座の中心(15°)と天体との実際の角度で、アスペクト(0/60/90/120/180°)の強さを連続的に計算(許容度orb内で正確なほど強い)
+function asp(pl,s,tbl,orb){orb=orb||10;let d=Math.abs(((pl-(s*30+15))%360+360)%360);if(d>180)d=360-d;
+  const A=[[0,tbl[0]],[60,tbl[2]],[90,tbl[3]],[120,tbl[4]],[180,tbl[6]]];let v=0;
+  for(const [a,val] of A){const w=1-Math.abs(d-a)/orb;if(w>0)v+=val*w}return v}
 function houseOf(pl,s){return (Math.floor(pl/30)-s+12)%12+1}
 function scoreSign(L,s,retro){
-  const moon=asp(L.moon,s,ASP.moon),ven=asp(L.venus,s,ASP.benef),jup=asp(L.jupiter,s,ASP.benef),mar=asp(L.mars,s,ASP.malef),sat=asp(L.saturn,s,ASP.malef),mer=asp(L.mercury,s,ASP.neut),sun=asp(L.sun,s,ASP.neut);
+  const moon=asp(L.moon,s,ASP.moon,14),ven=asp(L.venus,s,ASP.benef),jup=asp(L.jupiter,s,ASP.benef),mar=asp(L.mars,s,ASP.malef),sat=asp(L.saturn,s,ASP.malef),mer=asp(L.mercury,s,ASP.neut),sun=asp(L.sun,s,ASP.neut);
   const hM=houseOf(L.moon,s),hV=houseOf(L.venus,s),hJ=houseOf(L.jupiter,s);
-  const total=moon*2+ven+jup+mar+sat*.5+sun*.5;
+  const total=moon*3+sun*.8+mer*.4+ven*.8+mar*.6+jup*.5+sat*.4;
   const love=moon+ven*2+mar*.5+([5,7].includes(hV)?1.5:0)+([5,7].includes(hM)?1:0);
   const work=moon+sun+mar+sat+mer+([10,6].includes(hM)?1:0)-(retro.mercury?.5:0);
   const money=moon+ven+jup*1.5+([2,8].includes(hJ)||[2,8].includes(hV)?1.5:0)+(hM===2?1:0);

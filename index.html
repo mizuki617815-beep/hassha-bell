@@ -55,7 +55,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
 .mbox .tmp small{font-size:13px}
 .mbox .p{font-size:11px;color:#5d9de8}
 .wxBearWrap{margin-top:12px}
-.wxBear{width:100%;border-radius:20px;display:block}
+.wxBear{width:min(230px,70%);border-radius:20px;display:block;margin:0 auto}
 .wxBearCap{font-size:11px;color:var(--sub);text-align:center;margin-top:5px}
 .talk{display:flex;gap:10px;align-items:flex-end;margin-top:12px}
 .talk img{width:74px;height:74px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(183,156,255,.3);flex:0 0 auto}
@@ -638,30 +638,41 @@ async function loadJMA(){
 let SEL=null; // タップで選んだ日
 function defaultDay(){const now=jstNow();const t=new Date(now);if(now.getHours()*60+now.getMinutes()>=390)t.setDate(t.getDate()+1);return ymd(t)}
 function selectDay(d){SEL=d;renderWx()}
-// ===== 天気クマの挿絵(選んだ日の朝5〜7時の天気で判定) =====
+// ===== 天気クマの挿絵 =====
+// 【絵の変更ルール(明記)】
+// ・判定に使うのは「選んだ日の1日の天気ラベル」だけ。これは下の日付カードに出る天気と同一の値。
+//   朝・昼・夜の時間帯ラベルは判定に使わない(日ラベルとズレて見えるため)。
+// ・ラベル→絵の対応: 晴/晴時々曇→晴れの絵、曇→曇りの絵、霧→曇りの絵(代用)、
+//   小雨/雨/にわか雨→雨の絵、雪→雪の絵、雷雨→雷雨の絵。
+// ・数値による上書きは次の3つだけ(優先順位: 台風>雷雨>大雨>雪>強風>通常ラベル):
+//   台風=雨系ラベル かつ その日の最大風速8m/s以上、大雨=雨系ラベル かつ その日の最大雨量10mm/h以上、
+//   強風=その日の最大風速8m/s以上(雨系・雪・雷雨の日はそちらの絵を優先)。
 const BEAR_HEAVY_RAIN=10; // 大雨とみなす雨量(mm/h)
 const BEAR_STRONG_WIND=8; // 強風・台風とみなす風速(m/s)
-function bearPick(m){
-  if(!m||!m.w)return null;
-  const rainy=["小雨","雨","にわか雨"].includes(m.w),wind=m.wind||0,rain=m.rain||0;
+function bearPick(w,wind,rain){
+  if(!w)return null;
+  const rainy=["小雨","雨","にわか雨"].includes(w);
+  wind=wind||0;rain=rain||0;
   if(rainy&&wind>=BEAR_STRONG_WIND)return {img:"typhoon",cap:"台風みたいな天気（雨＋強風）"};
-  if(m.w==="雷雨")return {img:"thunder",cap:"雷雨"};
+  if(w==="雷雨")return {img:"thunder",cap:"雷雨"};
   if(rainy&&rain>=BEAR_HEAVY_RAIN)return {img:"heavyrain",cap:"大雨"};
-  if(m.w==="雪")return {img:"snow",cap:"雪"};
+  if(w==="雪")return {img:"snow",cap:"雪"};
   if(wind>=BEAR_STRONG_WIND)return {img:"wind",cap:"強風"};
-  if(m.w==="晴"||m.w==="晴時々曇")return {img:"sunny",cap:"晴れ"};
-  if(m.w==="曇")return {img:"cloudy",cap:"曇り"};
-  if(m.w==="霧")return {img:"cloudy",cap:"霧（曇りの絵）"};
+  if(w==="晴"||w==="晴時々曇")return {img:"sunny",cap:"晴れ"};
+  if(w==="曇")return {img:"cloudy",cap:"曇り"};
+  if(w==="霧")return {img:"cloudy",cap:"霧（曇りの絵）"};
   if(rainy)return {img:"rain",cap:"雨"};
-  return {img:"cloudy",cap:m.w};
+  return {img:"cloudy",cap:w};
 }
-function updateWxBear(sl,dd){
+function updateWxBear(sl,dayW,dd){
   const wrap=document.getElementById("wxBearWrap"),img=document.getElementById("wxBear"),cap=document.getElementById("wxBearCap");
   if(!wrap)return;
-  const pick=sl&&sl.m?bearPick(sl.m):null;
+  let wind=0,rain=0;
+  if(sl){wind=Math.max(sl.m?sl.m.wind||0:0,sl.n?sl.n.wind||0:0,sl.e?sl.e.wind||0:0);rain=sl.sev?sl.sev.rain||0:0}
+  const pick=bearPick(dayW,wind,rain);
   if(!pick){wrap.style.display="none";return}
   img.src=`weather/${pick.img}.webp`;
-  cap.textContent=dd?`🧸 ${dd.getMonth()+1}/${dd.getDate()}の朝の天気：${pick.cap}`:`🧸 朝の天気：${pick.cap}`;
+  cap.textContent=dd?`🧸 ${dd.getMonth()+1}/${dd.getDate()}の天気：${pick.cap}`:`🧸 天気：${pick.cap}`;
   wrap.style.display="";
 }
 function slotBox(lbl,time,x){
@@ -684,7 +695,7 @@ function renderWx(){
     mEl.innerHTML=slotBox("朝","5〜7時",sl.m)+slotBox("昼","12〜15時",sl.n)+slotBox("夜","18〜21時",sl.e);
     bEl.innerHTML=ahead<0?`<div class="note">🕰 ${-ahead}日前の天気だよ(当時の予報データの記録なので、実際の観測とは少しちがうことがあるよ)</div>`+outfit(sl)+laundry(sl):sevNote(sl)+outfit(sl)+laundry(sl)+(ahead>=3?'<div class="note">3日以上先の予報だから、目安くらいに見てね</div>':"");
   }else{mEl.innerHTML="";bEl.innerHTML="いま天気を取ってきてるよ…ちょっと待ってね🧸"}
-  updateWxBear(sl,dd);
+  const dayE=days.find(x=>x.d===key);updateWxBear(sl,dayE?dayE.w:"",dd);
   document.getElementById("wx").innerHTML=days.map(x=>{const d2=new Date(x.d+"T00:00:00");const w=d2.getDay();
     const cls=w===6?"sat":(w===0||HOLI.has(x.d))?"sun":"";const l=x.d===today?"きょう":`${d2.getMonth()+1}/${d2.getDate()}`;
     return `<div class="wd ${x.d===SEL?"sel":""} ${x.d===today?"today":""} ${x.d<today?"past":""}" onclick="selectDay('${x.d}')"><div class="d ${cls}">${l}(${WEEK[w]})</div><div class="ic">${icon(x.w)}</div><div class="tx">${x.w}</div><div><span class="hi">${x.hi}°</span> <span class="lo">${x.lo}°</span></div><div class="pop">☂ ${x.p??"-"}%</div></div>`}).join("");
@@ -727,8 +738,7 @@ async function loadWx(){
         // 体感温度は気象庁モデルの気温に合わせて補正(気温と体感で別のモデルの値が混ざらないように)
         const fv=(H.apparent_temperature&&bi!=null&&H.apparent_temperature[bi]!=null)?H.apparent_temperature[bi]+(bt-(H.temperature_2m[bi]??bt)):null;
         return {f:fv!=null?r1(fv):null,t:r1(mode==="max"?Math.max(...ts):Math.min(...ts)),w:wmo(codes.length?Math.max(...codes):null),
-          p:ps.length?Math.max(...ps):null,wind:Math.round(ws.length?Math.max(...ws):0),
-          rain:(()=>{const pr=H.precipitation?ii.map(i=>H.precipitation[i]).filter(v=>v!=null):[];return pr.length?Math.max(...pr):0})()}};
+          p:ps.length?Math.max(...ps):null,wind:Math.round(ws.length?Math.max(...ws):0)}};
       const dry=(()=>{const ii=[];for(let h=9;h<=16;h++){const i=idx[`${d}T${pad(h)}:00`];if(i!=null)ii.push(i)}if(!ii.length)return null;
         const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;const g=(arr,jarr)=>ii.map(i=>val(arr,jarr,i)).filter(v=>v!=null);
         const codes=g(H.weather_code,JH&&JH.weather_code);const ps=H.precipitation_probability?ii.map(i=>H.precipitation_probability[i]).filter(v=>v!=null):[];

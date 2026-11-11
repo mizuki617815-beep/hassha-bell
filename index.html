@@ -1022,6 +1022,22 @@ const FMONEY=[
  ["お金を使わない楽しみを見つけよう","家でゆっくりが一番の節約になる日","持っている物を大切にすると運が戻ってくるよ","無理せず、今あるもので十分だよ"],
  ["人に流されて出費しないように気をつけてね","おつきあいは断っても大丈夫な日","貸し借りは今日は控えよう","見栄を張らないのが一番の金運アップ"],
  ["今日はお財布を休ませる日にしよう","家計を見直すにはいいタイミング","小さな節約からコツコツと","明日に向けて、お財布の中を整えておこう"]]];
+// クマちゃん占い師のひとこと:[順位12]×3
+const FBEAR=[["1位だよ！今日はぜんぶ味方してくれる日🧸✨","1位おめでとう！思いきって動いてみてね","今日はいちばん輝ける日だよ。クマちゃんも応援してる！"],
+["2位だよ！かなりいい流れ。チャンスはつかんでね","2位！あと少しで1位。笑顔でいけば大丈夫","いい日だよ〜。やりたいことをやってみよう"],
+["3位！表彰台だよ。自信もっていこうね","3位だよ。いい感じの追い風が吹いてるよ","上位の日！ちょっと背伸びしても大丈夫だよ"],
+["4位だよ。おだやかに運が味方してくれる日","4位！小さないいことがありそう。見逃さないでね","いい調子だよ。いつものペースで大丈夫"],
+["5位！バランスのいい一日になりそう","5位だよ。ていねいに過ごすともっとよくなるよ","まずまずの日。好きなおやつでパワーチャージしてね"],
+["6位だよ。ふつうの日こそ小さな幸せを探そう","6位！がんばりすぎず、マイペースでいこう","真ん中くらいの日。のんびり楽しんでね"],
+["7位だよ。落ち着いて過ごせばいい日になるよ","7位！あわてずゆっくりがコツだよ","ふつうの日だよ。深呼吸してから動こうね"],
+["8位だよ。今日は守りの日。無理しないでね","8位！確認をていねいにすると安心だよ","ちょっと慎重にいこう。クマちゃんがついてるよ"],
+["9位だよ。疲れやすい日だから休憩を大事にね","9位…でも大丈夫。ゆっくり進めばOKだよ","今日は無理しない日。あったかい飲み物でひと息ついてね"],
+["10位だよ。うまくいかなくても自分を責めないでね","10位…今日はのんびりモードでいこう","低めの日だけど、明日はまた変わるよ。安心してね"],
+["11位だよ。今日はがんばりすぎない日にしよう","11位…クマちゃんがぎゅってしてあげるね🧸","しずかに過ごせば大丈夫。早めに寝ようね"],
+["12位だよ…でも月は毎日動くから、明日はきっと上がるよ","12位の日は休む日。自分をいっぱい甘やかしてね","今日はクマちゃんと一緒にのんびりしよう🧸 明日はいい日になるよ"]];
+const HONEY=[10,9,9,8,7,6,6,5,4,3,2,1];
+const bearSay=(r,day)=>{const i=Math.max(0,Math.min(11,(r||1)-1));const v=FBEAR[i][(+day.slice(-2))%3];return `<div style="margin-top:10px;padding:10px 12px;border-radius:16px;background:var(--lav2);font-size:14px;font-weight:700;line-height:1.6">🧸 占い師クマちゃん：「${v}」</div>`};
+const honeyHtml=r=>{const h=HONEY[Math.max(0,Math.min(11,(r||1)-1))];return `<span><b>はちみつ度</b>${"🍯".repeat(h)} ${h}/10</span>`};
 const tierOf=st=>st>=5?0:st>=4?1:st>=3?2:3;
 function aspIdx(a,b){let d=Math.abs(((a-b)%360+360)%360);if(d>180)d=360-d;const A=[0,60,90,120,180];for(let i=0;i<5;i++)if(Math.abs(d-A[i])<=10)return i;return 5}
 
@@ -1054,11 +1070,11 @@ function renderFortune(){
   const jg=FORT&&FORT.jugem&&FORT.jugem[day]&&FORT.jugem[day][S.sign];
   const zt=FORT&&FORT.zt&&FORT.zt[day]&&FORT.zt[day][S.sign];
   if(jg){ // 原宿占い館 塔里木 監修の占いが取れている日はそれを表示
-    document.getElementById("fMsg").innerHTML=`<span class="rank">${jg.rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br>${esc(jg.content)}`;
+    document.getElementById("fMsg").innerHTML=`<span class="rank">${jg.rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br>${esc(jg.content)}`+bearSay(+jg.rank,day);
     document.getElementById("fStars").innerHTML=[["総合運",jg.total],["恋愛運",jg.love],["仕事運",jg.job],["金運",jg.money]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(Math.max(0,Math.min(5,+v||0)))}</div></div>`).join("");
-    document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b>🎨 ${esc(jg.color)}</span><span><b>ラッキーアイテム</b>🎀 ${esc(jg.item)}</span>${zt?`<span><b>海外サイトの評価</b>🌍 ${zt.toFixed(1)} / 10</span>`:""}`;
+    document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b>🎨 ${esc(jg.color)}</span><span><b>ラッキーアイテム</b>🎀 ${esc(jg.item)}</span>${honeyHtml(+jg.rank)}`;
     document.getElementById("fSky").innerHTML="";
-    document.getElementById("fCredit").innerHTML=`占い：powered by <a href="https://jugemkey.jp/api/" target="_blank" rel="noopener">JugemKey</a>・【PR】<a href="https://uranai-tarim.jp/" target="_blank" rel="noopener">原宿占い館 塔里木</a>${zt?` ・ 評価：<a href="https://zodiactimeline.com" target="_blank" rel="noopener">Zodiac Timeline</a>`:""}`;
+    document.getElementById("fCredit").innerHTML=`占い：powered by <a href="https://jugemkey.jp/api/" target="_blank" rel="noopener">JugemKey</a>・【PR】<a href="https://uranai-tarim.jp/" target="_blank" rel="noopener">原宿占い館 塔里木</a>`;
     return;
   }
   // 天体計算(その日の正午の星の位置)
@@ -1078,12 +1094,12 @@ function renderFortune(){
   const lv=FLOVE2[tierOf(stL)][aspIdx(L.moon,L.venus)][v4],wk=FWORK2[tierOf(stW)][aspIdx(L.moon,L.mars)][(v4+1)%4];
   const mo=FMONEY[tierOf(stM)][aspIdx(L.moon,L.jupiter)][(v4+2)%4];const moonMsg=FMOON[lday][Math.floor(L.sun/30)%2];const item2=FITEM2[Math.floor(L.moon/3)%120];
   const col=SIGN_COL[Math.floor(L.moon/30)];
-  document.getElementById("fMsg").innerHTML=`<span class="rank">${rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br><b>${H.t}</b><br>${tone}${msg}<br>💗 恋愛：${lv}<br>💼 仕事：${wk}<br>💰 金運：${mo}<br>${ph[0]} 今夜の月（${ph[1]}）：${moonMsg}`+(retro.mercury?`<br>📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね`:"");
+  document.getElementById("fMsg").innerHTML=`<span class="rank">${rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br><b>${H.t}</b><br>${tone}${msg}<br>💗 恋愛：${lv}<br>💼 仕事：${wk}<br>💰 金運：${mo}<br>${ph[0]} 今夜の月（${ph[1]}）：${moonMsg}`+(retro.mercury?`<br>📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね`:"")+bearSay(rank,day);
   document.getElementById("fStars").innerHTML=[["総合運",starsByRank(all.map(x=>x.total),s)],["恋愛運",starsByRank(all.map(x=>x.love),s)],["仕事運",starsByRank(all.map(x=>x.work),s)],["金運",starsByRank(all.map(x=>x.money),s)]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(v)}</div></div>`).join("");
-  document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b><i class="dot" style="background:${col[1]}"></i>${col[0]}</span><span><b>ラッキーアイテム</b>🎀 ${item2}</span>${zt?`<span><b>海外サイトの評価</b>🌍 ${zt.toFixed(1)} / 10</span>`:""}`;
+  document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b><i class="dot" style="background:${col[1]}"></i>${col[0]}</span><span><b>ラッキーアイテム</b>🎀 ${item2}</span>${honeyHtml(rank)}`;
   const sn=x=>SIGNS[Math.floor(x/30)];
   document.getElementById("fSky").innerHTML=`🌙 今日の星の動き：月は${sn(L.moon)}(あなたの第${me.hM}ハウス)・太陽は${sn(L.sun)}・金星は${sn(L.venus)}${retro.venus?"(逆行中)":""}・水星は${sn(L.mercury)}${retro.mercury?"(逆行中)":""}`;
-  document.getElementById("fCredit").innerHTML=`順位・運勢は、その日の月や惑星の実際の位置とあなたの星座との角度から計算した西洋占星術の占いだよ${zt?` ・ 評価：<a href="https://zodiactimeline.com" target="_blank" rel="noopener">Zodiac Timeline</a>`:""}`;
+  document.getElementById("fCredit").innerHTML=`順位・運勢は、その日の月や惑星の実際の位置とあなたの星座との角度から計算した西洋占星術の占いだよ`;
 }
 function esc(x){return String(x??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c])}
 (function(){const sel=document.getElementById("sSign");sel.innerHTML=SIGNS.map(x=>`<option>${x}</option>`).join("");sel.value=S.sign;sel.onchange=()=>{S.sign=sel.value;save();renderFortune()};

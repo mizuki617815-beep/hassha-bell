@@ -189,7 +189,8 @@ body.dark .lucky span{background:rgba(255,255,255,.05)}
 .pTrain .pt{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;vertical-align:-4px;margin-right:2px}
 .pTrain .pill{font-size:13px;padding:3px 9px;vertical-align:4px}
 .pTrain .pa{white-space:nowrap}.pTrain .pa b{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;vertical-align:-4px}
-#shiftInfo .sb{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15;color:var(--ink)}
+#shiftInfo .sb,.pOff .sb{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15;color:var(--ink)}
+.pOff{margin-top:10px;padding:16px 12px;border-radius:16px;border:2px solid var(--pink2);background:var(--lav2);font-size:16px;font-weight:700;line-height:1.75;text-align:center;color:var(--ink)}
 .pHome{font-size:15px}
 
 .banner{flex:0 0 auto;width:30%;max-width:130px;border-radius:12px;box-shadow:0 3px 10px rgba(183,156,255,.25);border:1.5px solid rgba(255,255,255,.9)}
@@ -453,6 +454,7 @@ function plan(){
   let day=new Date(Y,M-1,D);let target=h*60+mi;if(h<3){day.setDate(day.getDate()-1);target+=1440}
   const k=dia(day);const lbl=`${M}/${D}(${WEEK[new Date(Y,M-1,D).getDay()]})は <b>${k==="hd"?"土休日":"平日"}ダイヤ</b>`;
   const out=document.getElementById("pRes");
+  if(S.tab==="go"){const shx=SHIFTS[dv];if(shx&&shx.off){out.innerHTML=offMsg(dv,shx);return}}
   if(S.tab==="go"){
     const list=table("go",day).filter(tr=>tr.m+rideGo(tr)<=target);
     if(!list.length){out.innerHTML=lbl+"<br>間に合う電車がないみたい…";return}
@@ -508,6 +510,8 @@ function renderShiftStatus(msg){
   el.textContent=(msg?msg+" ":"")+`🗓 シフト読み込み済み：${keys[0]} 〜 ${keys[keys.length-1]}（CX ${cx}件・お休み ${off}件）。日付を選ぶと自動で逆算するよ`;
   if(clr)clr.style.display="";
 }
+function offMsg(dv,sh){const[Y,M,D]=dv.split("-").map(Number);
+  return `<div class="pOff">🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span> だよ<br>電車に乗らなくてOK。会社にも行かなくて大丈夫だよ。<br>ゆっくり休んでね</div>`}
 function applyShiftForDate(run){
   const info=document.getElementById("shiftInfo");if(!info)return;
   const dv=document.getElementById("pDate").value;info.innerHTML="";
@@ -515,7 +519,7 @@ function applyShiftForDate(run){
   const sh=SHIFTS[dv];if(!sh)return;
   const[Y,M,D]=dv.split("-").map(Number);
   if(sh.off){info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span> だよ。逆算はいらないね`;
-    if(run)document.getElementById("pRes").innerHTML="";return}
+    if(run)document.getElementById("pRes").innerHTML=offMsg(dv,sh);return}
   if(sh.start==null)return;
   const target=sh.start-ARRIVE_BEFORE;
   document.getElementById("pTime").value=`${pad(Math.floor(target/60))}:${pad(target%60)}`;

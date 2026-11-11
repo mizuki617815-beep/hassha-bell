@@ -188,7 +188,8 @@ body.dark .lucky span{background:rgba(255,255,255,.05)}
 .pTrain{margin-top:8px;font-size:15px;font-weight:700;line-height:1.5}
 .pTrain .pt{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;vertical-align:-4px;margin-right:2px}
 .pTrain .pill{font-size:13px;padding:3px 9px;vertical-align:4px}
-.pTrain .pa{white-space:nowrap}.pTrain .pa b{font-size:20px}
+.pTrain .pa{white-space:nowrap}.pTrain .pa b{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;vertical-align:-4px}
+#shiftInfo .sb{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15;color:var(--ink)}
 .pHome{font-size:15px}
 
 .banner{flex:0 0 auto;width:30%;max-width:130px;border-radius:12px;box-shadow:0 3px 10px rgba(183,156,255,.25);border:1.5px solid rgba(255,255,255,.9)}
@@ -511,12 +512,12 @@ function applyShiftForDate(run){
   if(!dv||S.tab!=="go")return;
   const sh=SHIFTS[dv];if(!sh)return;
   const[Y,M,D]=dv.split("-").map(Number);
-  if(sh.off){info.innerHTML=`🧸 ${M}/${D} は <b>${sh.title}</b> だよ。逆算はいらないね`;
+  if(sh.off){info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span> だよ。逆算はいらないね`;
     if(run)document.getElementById("pRes").innerHTML="";return}
   if(sh.start==null)return;
   const target=sh.start-ARRIVE_BEFORE;
   document.getElementById("pTime").value=`${pad(Math.floor(target/60))}:${pad(target%60)}`;
-  info.innerHTML=`🧸 ${M}/${D} は <b>${sh.title}</b>（開始 ${hm(sh.start)}）→ T3到着目標 <b>${hm(target)}</b>（開始${ARRIVE_BEFORE}分前）でセットしたよ`;
+  info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span>（開始 ${hm(sh.start)}）→ T3到着目標 <b>${hm(target)}</b>（開始${ARRIVE_BEFORE}分前）でセットしたよ`;
   if(run)plan();
 }
 

@@ -509,7 +509,7 @@ function plan(){
   let day=new Date(Y,M-1,D);let target=h*60+mi;if(h<3){day.setDate(day.getDate()-1);target+=1440}
   const k=dia(day);const lbl=`${M}/${D}(${WEEK[new Date(Y,M-1,D).getDay()]})は <b>${k==="hd"?"土休日":"平日"}ダイヤ</b>`;
   const out=document.getElementById("pRes");
-  if(S.tab==="go"){const shx=SHIFTS[dv];if(shx&&shx.off){out.innerHTML=offMsg(dv,shx);return}}
+  {const shx=SHIFTS[dv];if(shx&&shx.off){out.innerHTML=offMsg(dv,shx);return}} // お休みはタブ不問で表示
   if(S.tab==="go"){
     const list=table("go",day).filter(tr=>tr.m+rideGo(tr)<=target);
     if(!list.length){out.innerHTML=lbl+"<br>間に合う電車がないみたい…";return}
@@ -587,11 +587,13 @@ function autoTick(now){if(!pAuto)return;const mk=ymd(now)+now.getHours()+":"+now
 function applyShiftForDate(run){
   const info=document.getElementById("shiftInfo");if(!info)return;
   const dv=document.getElementById("pDate").value;info.innerHTML="";
-  if(!dv||S.tab!=="go")return;
+  if(!dv)return;
   const sh=SHIFTS[dv];if(!sh)return;
   const[Y,M,D]=dv.split("-").map(Number);
+  // お休みの表示は「行き/帰り」タブどちらでも出す(タブ依存で出ないのが分かりにくいため)
   if(sh.off){info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span> だよ。逆算はいらないね`;
     if(run)document.getElementById("pRes").innerHTML=offMsg(dv,sh);return}
+  if(S.tab!=="go")return;
   if(sh.start==null)return;
   const target=sh.start-(+S.arrive||0);
   document.getElementById("pTime").value=`${pad(Math.floor(target/60))}:${pad(target%60)}`;

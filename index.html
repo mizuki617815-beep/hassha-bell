@@ -527,7 +527,7 @@ function autoTargetDate(now){
   const base=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   for(let i=-1;i<=8;i++){const d=new Date(base);d.setDate(d.getDate()+i);const key=ymd(d);const sh=SHIFTS[key];
     if(sh&&!sh.off&&sh.start!=null){const hl=homeLeaveFor(d,sh);if(hl&&now<hl)return key;if(hl)continue}
-    else if(i>=1)return key}
+    else if(i>=1||(i===0&&sh&&sh.off))return key}
   const t=new Date(base);t.setDate(t.getDate()+1);return ymd(t)}
 function setAutoDate(){pAuto=true;document.getElementById("pDate").value=autoTargetDate(jstNow());
   const b=document.getElementById("autoBadge");if(b)b.style.display=""}

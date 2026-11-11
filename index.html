@@ -283,6 +283,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
 
   <div class="card">
     <div class="sec">📅 前の晩に逆算</div>
+    <div class="note" id="pNow" style="font-size:13px;margin:0 2px 8px"></div>
     <div class="row">
       <input type="date" id="pDate">
       <input type="time" id="pTime" value="09:00">
@@ -396,6 +397,7 @@ function renderHead(now){
   const cls=(w===0||hol)?"sun":w===6?"sat":"";
   document.getElementById("date").innerHTML=`${now.getMonth()+1}月${now.getDate()}日<span class="dow ${cls}">${WEEK[w]}曜日</span>`;
   document.getElementById("clock").innerHTML=`${now.getHours()}:${pad(now.getMinutes())}<span class="sec2">:${pad(now.getSeconds())}</span>`;
+  const pn=document.getElementById("pNow");if(pn)pn.innerHTML=`🕐 いま：<b>${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}（${WEEK[w]}） ${now.getHours()}:${pad(now.getMinutes())}:${pad(now.getSeconds())}</b>`;
   const k=dia(svc(now).d);const b=document.getElementById("dtype");
   b.textContent=(k==="hd"?"土休日ダイヤ":"平日ダイヤ")+(S.dia!=="auto"?"(手動)":"");b.className="badge "+(k==="hd"?"b-hd":"b-wd");
   document.getElementById("holiName").textContent=hol?`🎌 ${hol}`:"";

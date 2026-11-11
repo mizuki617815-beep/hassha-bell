@@ -950,7 +950,8 @@ function houseOf(pl,s){return (Math.floor(pl/30)-s+12)%12+1}
 function scoreSign(L,s,retro){
   const moon=asp(L.moon,s,ASP.moon,14),ven=asp(L.venus,s,ASP.benef),jup=asp(L.jupiter,s,ASP.benef),mar=asp(L.mars,s,ASP.malef),sat=asp(L.saturn,s,ASP.malef),mer=asp(L.mercury,s,ASP.neut),sun=asp(L.sun,s,ASP.neut);
   const hM=houseOf(L.moon,s),hV=houseOf(L.venus,s),hJ=houseOf(L.jupiter,s);
-  const total=moon*3+sun*.8+mer*.4+ven*.8+mar*.6+jup*.5+sat*.4;
+  // 毎日の順位は伝統的な「デイリー運勢」と同じく月を中心に(月は約27日で12星座を1周するので、全星座に平等に順位が回る)。動きの遅い火星・木星・土星は順位に入れない
+  const total=moon*3+sun*.5+mer*.3+ven*.5+.15*Math.cos((L.moon-(s*30+15))*Math.PI/180);
   const love=moon+ven*2+mar*.5+([5,7].includes(hV)?1.5:0)+([5,7].includes(hM)?1:0);
   const work=moon+sun+mar+sat+mer+([10,6].includes(hM)?1:0)-(retro.mercury?.5:0);
   const money=moon+ven+jup*1.5+([2,8].includes(hJ)||[2,8].includes(hV)?1.5:0)+(hM===2?1:0);

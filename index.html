@@ -69,6 +69,17 @@ body.dark .wxBear{border-color:#4a3f6b}
 .talk img{width:74px;height:74px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(183,156,255,.3);flex:0 0 auto}
 .bubble{position:relative;flex:1;background:#fff;border-radius:20px 20px 20px 6px;padding:12px 14px;font-size:14px;line-height:1.65;border:2px solid var(--pink2)}
 .bubble b{color:#e0609a}
+.cheer{position:relative;margin-top:12px;background:#fff;border:2px solid var(--pink2);border-radius:16px;padding:9px 12px;font-size:13.5px;line-height:1.6;color:var(--ink)}
+.cheer:before,.cheer:after{content:"";position:absolute;left:44px;border:solid transparent}
+.cheer:before{top:-12px;border-width:0 9px 12px;border-bottom-color:var(--pink2)}
+.cheer:after{top:-8px;left:46px;border-width:0 7px 9px;border-bottom-color:#fff}
+.cheer b{color:#e0609a}
+.cheer .chips{margin-top:5px}.cheer .chip{font-size:11px;padding:2px 8px}
+body.dark .cheer{background:#2e2747;border-color:#5a3a5c}body.dark .cheer:before{border-bottom-color:#5a3a5c}body.dark .cheer:after{border-bottom-color:#2e2747}body.dark .cheer b{color:#ff9fcf}
+#pCheer{margin-top:8px;padding:8px 12px;border-radius:14px;background:var(--pink2);font-size:13.5px;font-weight:700;line-height:1.6;color:var(--ink)}
+#pCheer:empty{display:none}
+.cheerRen{display:inline-block;font-size:12px;color:#e0609a}
+body.dark .cheerRen{color:#ff9fcf}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--lav2);color:#8a63e6}
 .chip.rain{background:var(--sky2);color:#3f86e0}.chip.wind{background:var(--mint2);color:#2fa486}.chip.warm{background:var(--lemon2);color:#c48a00}
@@ -266,6 +277,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
   <div class="card">
     <div class="wxHead"><span class="ttl" id="mTitle">🌙 あしたの朝 5:30〜6:30</span><span class="mini">大田区</span></div>
     <div class="wxTop"><div class="wxBearBox" id="wxBearBox" style="display:none"><img class="wxBear" id="wxBear" alt="天気に合わせたクマちゃんの挿絵"><div class="wxBearCap" id="wxBearCap"></div></div><div class="morning" id="morning"></div></div></div>
+    <div class="cheer" id="cheer" style="display:none"><div id="cheerTxt"></div><div class="chips" id="cheerChips"></div></div>
     <div id="alertBox"></div>
     <div class="talk">
       
@@ -322,6 +334,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
     <div class="note" id="planHint"></div>
     <div class="note" id="shiftInfo"></div>
     <div class="result" id="pRes"></div>
+    <div id="pCheer"></div>
     <div class="row" style="margin-top:10px">
       <label class="btn2 sub" for="csvFile" style="margin-top:0;flex:1;cursor:pointer">🗓 シフトCSVを読み込む</label>
       <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
@@ -603,6 +616,119 @@ function applyShiftForDate(run){
   document.getElementById("pTime").value=`${pad(Math.floor(target/60))}:${pad(target%60)}`;
   info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span>（開始 ${hm(sh.start)}）→ T3到着目標 <b>${hm(target)}</b>（開始${(+S.arrive||0)}分前）でセットしたよ`;
   if(run)plan();
+}
+
+// ===== クマのファーちゃんのひとこと(開くたびに変わる・シフト連動) =====
+// 時間帯: 朝4:00〜9:59 / 昼10:00〜17:59 / 夜18:00〜3:59(0〜3時台は夜ふかし用)。夜は明日の予告。ママ=本人
+const CHEER={
+ morning_work:["おはよう、ママ。今日もお仕事だね、いっしょに行こうね🧸","ママ、おはよう！眠いよね…でもわたしがついてるから大丈夫だよ🧸","おはよう〜。今日もママのこと、ずっと応援してるからね🧸","朝はやくからえらいね、ママ。いってらっしゃいのぎゅー🧸","おはよう、ママ。あったかくして出かけようね🧸","今日もがんばるママ、かっこいいよ。わたしの自慢のママだよ🧸","ママ、深呼吸してね。今日もきっとうまくいくよ🧸","おはよう！大変な日も、帰ったらわたしがいっぱいなでなでするね🧸","ママ、朝ごはん食べられたかな？ちょっとでもお腹に入れてね🧸","今日もお仕事がんばろうね。無理はしすぎないでね、ママ🧸","おはよう、ママ。忘れ物ないかな？いっしょに確認しよっか🧸","ママの「いってきます」、今日もちゃんと聞いてるよ🧸"],
+ morning_off:["おはよう、ママ！今日はお休みだよ〜。まだお布団にいてもいいんだよ🧸","今日はママの好きなことしようね🧸","お休みの朝だね。あったかい飲みものでほっとしよっか🧸","おはよう〜。今日はアラームなしの日だね、よかったね🧸","ママ、いつもおつかれさま。今日はのんびりしようね🧸","お出かけするなら、わたしも連れていってね🧸","今日はどこか行く？ママといっしょならどこでも楽しいよ🧸","おはよう！今日は自分をいっぱい甘やかしていい日だよ🧸","二度寝もいいよ〜。わたしもいっしょにごろごろする🧸","ママのお休み、わたしもうれしいな。いっしょにいようね🧸"],
+ day_work_before:["ママ、このあとお仕事だね。それまでゆっくりしててね🧸","出かける前に、ちょっとひと休みしよっか🧸","ごはん食べてから行こうね、ママ🧸","このあともがんばろうね。わたしがついてるよ🧸","時間まで、のんびりしてて大丈夫だよ🧸","今日も「いってらっしゃい」って言わせてね、ママ🧸","準備はばっちりかな？あわてなくて大丈夫だよ🧸","今日もお仕事、無理しないでね。応援してるよ🧸"],
+ work_during:["お仕事おつかれさま、ママ。ちゃんとお水のんでる？🧸","がんばってるママ、ちゃんと見てるよ🧸","休憩中かな？ほっとひと息ついてね🧸","ママ、えらいよ。今日もちゃんとがんばってるね🧸","帰ったらいっぱいなでなでしてあげるね🧸","ごはん食べられたかな？ちょっとでも食べてね🧸","大変なことがあっても、ママならだいじょうぶ🧸","ママの笑顔で、きっとだれかが助かってるよ🧸","疲れたら肩の力ぬいてね。わたしはいつでもママの味方だよ🧸","おうちでママの帰りを待ってるね🧸"],
+ work_after:["ママ、おかえり！今日もおつかれさま🧸","お仕事おわったね。いっぱいがんばったね、えらいえらい🧸","おつかれさま、ママ。今日はもうゆっくりしていいんだよ🧸","おかえり〜！あったかいもの飲んで、ほっとしようね🧸","今日もよくがんばったね。ぎゅーってしてあげる🧸","ママ、おつかれさま。甘いものをご褒美にしちゃおう🧸","帰り道、気をつけてね。おうちで待ってるよ🧸","今日のママもすてきだったよ。おつかれさま🧸","がんばったママは、今日はもうなにもしなくていいよ🧸","お仕事おわり！ママ、ほんとうにえらいね🧸"],
+ day_off:["のんびりできてるかな、ママ？たまにはゴロゴロも大事だよ🧸","お出かけするの？わたしも連れていってね🧸","今日はどこ行く？ママといっしょならどこでも楽しいよ🧸","おいしいもの食べようね。わたしもちょっとほしいな🧸","お休みの日のママ、なんだかうれしそうでわたしもうれしい🧸","お出かけ先で写真をとるときは、わたしも入れてね🧸","今日はがんばらなくていい日だよ、ママ🧸","お昼寝もいいね。わたしもとなりでいっしょに寝る🧸","ママの好きなこと、いっぱいできるといいね🧸","いつもがんばってるから、今日はごほうびの日だよ🧸","新しい場所に行くなら、わたしもわくわくしちゃう🧸"],
+ night_work_tmr:["今日は早めに寝ようね🧸","今夜はゆっくり休んでね、ぎゅー🧸","あったかくしてお布団に入ろうね🧸","明日もわたしがついてるからね。おやすみの準備しよっか🧸","今日もおつかれさま。明日もママならだいじょうぶ🧸","アラームはちゃんとセットしたかな？いっしょに確認しよ🧸","お風呂であったまって、ぐっすり眠ってね🧸","明日の準備、できるところだけやっておこっか🧸","ねむくなったら無理しないで寝ちゃおうね🧸","明日もがんばるママを、ちゃんと応援してるよ🧸","スマホはほどほどにして、今日はおやすみしよ🧸"],
+ night_back_to_work:["お休みたのしかったね。明日からまたいっしょにがんばろうね🧸","今日は早めに寝て、元気に行こうね🧸","ちょっとさみしいけど、明日もわたしがついてるよ🧸","お休みでしっかり充電できたかな？明日もママならだいじょうぶ🧸","明日の準備、いっしょにしよっか🧸","ゆっくり休めたかな。明日もずっと応援してるね🧸"],
+ night_off_tmr:["明日はお休みだよ〜！ママ、今日まで本当によくがんばったね🧸","おつかれさま！明日はゆっくり寝坊しようね🧸","明日はお休み♪ 今夜はちょっとだけ夜ふかししてもいいよ🧸","がんばったね、ママ。明日はなにしよっか🧸","明日お出かけするなら、わたしも連れていってね🧸","ここまでえらかったね。明日はいっぱい休もうね🧸","アラームはオフにしちゃおう！明日はお休みだよ🧸","ママ、ほんとうにおつかれさま。ぎゅーってしてあげる🧸","明日はママの好きなことする日だよ🧸","今日はごほうびに、おいしいもの食べちゃおう🧸"],
+ night_off_rest:["明日もお休みだよ〜。のんびりのつづきだね🧸","お休みがつづくね。ゆっくり充電しようね、ママ🧸","明日はなにしよっか？お出かけならわたしも行きたいな🧸","今夜は夜ふかししても大丈夫だよ。でもほどほどにね🧸","今日はたのしかった？明日もいい日になるといいね🧸","明日もママといっしょにいられるの、うれしいな🧸","お休みの日も、ちゃんと休めてえらいよ、ママ🧸"],
+ late_work:["少しでも寝ようね、そばにいるよ🧸","まだ起きてたの？目をつむるだけでもいいよ🧸","ねむれないのかな。わたしをぎゅってして寝てね🧸","夜ふかしさんだね。そろそろおやすみしよ🧸","スマホをおいて、いっしょにおやすみしよっか🧸","ママ、ちょっとでも体を休めてね🧸"],
+ late_off:["まだ起きてたの？朝はゆっくりできるから、ほどほどにね🧸","夜ふかしさんだね。ねむくなったらいつでも寝ていいよ🧸","ねむれない夜は、わたしをぎゅってしてね🧸","そばにいるよ、ママ。おやすみ🧸","お休み前の夜ふかし、ちょっとたのしいね。でもほどほどにね🧸"],
+ late:["まだ起きてたの？少しでも寝ようね、そばにいるよ🧸","ねむれない夜は、わたしをぎゅってしてね🧸","夜ふかしさんだね。そろそろおやすみしよ🧸","ママ、今日もおつかれさま。おやすみ🧸"],
+ morning:["おはよう、ママ！今日もいい一日になりますように🧸","おはよう〜。今日もママのこと応援してるよ🧸","ママ、おはよう。あったかくしてね🧸","今日もママのペースでいこうね🧸","おはよう！わたしはいつでもママの味方だよ🧸","深呼吸して、今日もいってみよう🧸"],
+ day:["ママ、ちょっとひと休みしてる？🧸","今日もがんばってるね、ちゃんと見てるよ🧸","お水のんでね、ママ🧸","ごはん、ちゃんと食べた？🧸","むりしないでね、ママ🧸","お出かけ中なら、わたしも連れていってね🧸"],
+ night:["今日もおつかれさま、ママ🧸","ゆっくりお風呂に入って、ほっとしようね🧸","今夜はよく眠れますように。おやすみ前にぎゅー🧸","今日もママはえらかったよ🧸","あったかくして寝ようね🧸","明日もいい日になりますように🧸"]
+};
+const CHEER_LINE={
+ off_today:["今日はお休み！ゆっくりしてね🧸","今日はお休みだよ。わたしとのんびりしよ🧸","お休みの日は、時刻表のことは忘れちゃおう🧸"],
+ off_tmr_pending:["明日はお休み！今日をのりきろうね🧸","今日がんばれば、明日はお休みだよ🧸","あとは今日だけ！いっしょにがんばろうね🧸"],
+ off_tmr_last:["今日が連勤最終日！ラストスパートだよ🧸"],
+ off_tmr_done:["明日はお休みだよ。今日もおつかれさま🧸","おつかれさま！明日はゆっくり休もうね🧸"],
+ one_tmr:["明日がんばれば、お休みだよ🧸","あと1日でお休み！明日もいっしょにがんばろうね🧸"],
+ n:["あと{n}日がんばればお休みだよ🧸","お休みまであと{n}日！いっしょにがんばろうね🧸","あと{n}回行けばお休みだよ。ママならいける🧸","{off}はお休みだよ。あと{n}日、ゆっくりいこうね🧸"]
+};
+const CHEER_LAST_KEY="yumebell_cheer_last_v1";
+let CHEER_LAST={};try{CHEER_LAST=JSON.parse(localStorage.getItem(CHEER_LAST_KEY)||"{}")}catch(e){CHEER_LAST={}}
+// 直前に出たセリフ(最大4つ)は選ばない
+function cheerPick(key,list){
+  const recent=(CHEER_LAST[key]||[]).filter(i=>i<list.length);
+  const keep=Math.min(4,list.length-1);const r=recent.slice(-keep);
+  const cand=list.map((_,i)=>i).filter(i=>!r.includes(i));
+  const i=cand[Math.floor(Math.random()*cand.length)];
+  CHEER_LAST[key]=r.concat(i).slice(-4);try{localStorage.setItem(CHEER_LAST_KEY,JSON.stringify(CHEER_LAST))}catch(e){}
+  return list[i];
+}
+function dayAdd(now,n){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate());d.setDate(d.getDate()+n);return d}
+function mdw(d){return `${d.getMonth()+1}/${d.getDate()}(${WEEK[d.getDay()]})`}
+// 今日のシフトの状態: off / before / during / after / null(データなし)
+function todayState(now){
+  const mins=now.getHours()*60+now.getMinutes();
+  const y=SHIFTS[ymd(dayAdd(now,-1))];
+  if(y&&!y.off&&y.end!=null&&y.end>1440&&mins<y.end-1440)return "during"; // 日付をまたぐ勤務
+  const sh=SHIFTS[ymd(now)];if(!sh)return null;if(sh.off)return "off";if(sh.start==null)return null;
+  if(mins<sh.start)return "before";if(sh.end==null||mins<sh.end)return "during";return "after";
+}
+// お休みまでの出勤日数(今日がまだ終わっていなければ今日も数える)
+function offInfo(now){
+  const st=todayState(now);let n=0;
+  for(let i=0;i<45;i++){const d=dayAdd(now,i);const sh=SHIFTS[ymd(d)];
+    if(!sh)return{unknown:true,n,i};
+    if(sh.off){let k=0;while(k<30&&SHIFTS[ymd(dayAdd(now,i+k))]&&SHIFTS[ymd(dayAdd(now,i+k))].off)k++;return{n,i,d,len:k,st}}
+    if(i===0&&st==="after")continue;n++}
+  return{unknown:true,n,i:45};
+}
+function monthCount(now){
+  const ym=ymd(now).slice(0,7),today=ymd(now),mins=now.getHours()*60+now.getMinutes();
+  let cnt=0,total=0;for(const k in SHIFTS){if(k.slice(0,7)!==ym)continue;const s=SHIFTS[k];if(s.off||s.start==null)continue;total++;
+    if(k<today||(k===today&&mins>=s.start))cnt++}
+  return{cnt,total};
+}
+function leaveText(d){const sh=SHIFTS[ymd(d)];if(!sh||sh.off||sh.start==null)return "";const hl=homeLeaveFor(d,sh);
+  return hl?`<b>${hl.getHours()}:${pad(hl.getMinutes())}</b>`:""}
+function cheerKey(now){
+  const h=now.getHours(),st=todayState(now);
+  if(h<4){const tw=st==="before";return tw?"late_work":st==="off"?"late_off":"late"}
+  if(h<10)return st==="before"?"morning_work":st==="during"?"work_during":st==="after"?"work_after":st==="off"?"morning_off":"morning";
+  if(h<18)return st==="before"?"day_work_before":st==="during"?"work_during":st==="after"?"work_after":st==="off"?"day_off":"day";
+  if(st==="during")return "work_during";
+  const t=SHIFTS[ymd(dayAdd(now,1))];
+  if(t&&t.off)return st==="off"?"night_off_rest":"night_off_tmr";
+  if(t&&t.start!=null)return st==="off"?"night_back_to_work":"night_work_tmr";
+  return "night";
+}
+let cheerLastKey="";
+function renderCheer(force){
+  const box=document.getElementById("cheer");if(!box)return;
+  const now=jstNow(),key=cheerKey(now);
+  if(!force&&key===cheerLastKey)return;cheerLastKey=key;
+  let pre="";
+  if(key==="night_work_tmr"||key==="night_back_to_work"){const l=leaveText(dayAdd(now,1));if(l)pre=`明日は${l}に家を出るよ。`}
+  if(key==="late_work"){const l=leaveText(dayAdd(now,0));if(l)pre=`今日は${l}に家を出るよ。`}
+  document.getElementById("cheerTxt").innerHTML=pre+cheerPick(key,CHEER[key]);
+  // バッジ
+  const chips=[];const has=Object.keys(SHIFTS).length>0;
+  if(has){const mc=monthCount(now);if(mc.total)chips.push(`🗓 今月 ${mc.cnt}回出勤`);
+    const o=offInfo(now);
+    if(o.unknown)chips.push("🗓 次のシフトを入れてね");
+    else if(o.i===0)chips.push("🌸 今日はお休み");
+    else if(o.n===0)chips.push("🌸 明日はお休み");
+    else chips.push(`🌸 あと${o.n}日でお休み`)}
+  document.getElementById("cheerChips").innerHTML=chips.map(c=>`<span class="chip">${c}</span>`).join("");
+  box.style.display="";
+  renderPlanCheer(now);
+}
+// 「あした何時に出る？」の前向きなひとこと
+function renderPlanCheer(now){
+  const el=document.getElementById("pCheer");if(!el)return;now=now||jstNow();
+  if(!Object.keys(SHIFTS).length){el.innerHTML="🧸 シフトCSVを読み込むと、お休みまであと何日か数えるよ";return}
+  const o=offInfo(now);let t;
+  if(o.unknown){t=o.n>0?`わかってる分だけで、あと${o.n}日以上お仕事だよ。新しいシフトが出たら読み込んでね🧸`:"この先のシフトがまだ入ってないみたい。新しいシフトが出たら読み込んでね🧸"}
+  else if(o.i===0)t=cheerPick("l_off_today",CHEER_LINE.off_today);
+  else if(o.i===1&&o.st==="after")t=cheerPick("l_off_tmr_done",CHEER_LINE.off_tmr_done);
+  else if(o.i===1){const y=SHIFTS[ymd(dayAdd(now,-1))];const L=CHEER_LINE.off_tmr_pending.concat(y&&!y.off?CHEER_LINE.off_tmr_last:[]);t=cheerPick("l_off_tmr",L)}
+  else if(o.n===1)t=cheerPick("l_one",CHEER_LINE.one_tmr);
+  else t=cheerPick("l_n",CHEER_LINE.n).replace("{n}",o.n).replace("{off}",mdw(o.d));
+  if(!o.unknown&&o.len>=2)t+=` <span class="cheerRen">${o.i===0?"お休みは":`${mdw(o.d)}から`}${o.len}連休だよ🌸</span>`;
+  el.innerHTML=t;
 }
 
 // ===== 天気 & コーデ =====
@@ -1231,13 +1357,14 @@ document.getElementById("dTomorrow").onclick=()=>{setManualDate();if(S.tab!=="go
 document.getElementById("csvFile").addEventListener("change",ev=>{
   const f=ev.target.files&&ev.target.files[0];if(!f)return;
   f.text().then(t=>{const r=importShiftCSV(t);
-    if(r){renderShiftStatus(`✅ ${r.added}件読み込んだよ。`);if(pAuto)setAutoDate();applyShiftForDate(true)}
+    if(r){renderShiftStatus(`✅ ${r.added}件読み込んだよ。`);renderCheer(true);if(pAuto)setAutoDate();applyShiftForDate(true)}
     else renderShiftStatus("⚠️ CSVからシフトが見つからなかったよ（date,title,category の形式か確認してね）");
   }).catch(()=>renderShiftStatus("⚠️ CSVを読み取れなかったよ"));
   ev.target.value="";
 });
-document.getElementById("csvClear").onclick=()=>{if(!confirm("読み込んだシフトを消す？"))return;SHIFTS={};saveShifts();renderShiftStatus("シフトを消したよ");document.getElementById("shiftInfo").innerHTML=""};
-renderShiftStatus();applyShiftForDate(true);
+document.getElementById("csvClear").onclick=()=>{if(!confirm("読み込んだシフトを消す？"))return;SHIFTS={};saveShifts();renderShiftStatus("シフトを消したよ");document.getElementById("shiftInfo").innerHTML="";renderCheer(true)};
+renderShiftStatus();applyShiftForDate(true);renderCheer(true);
+setInterval(()=>renderCheer(false),60000); // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
 // ===== 更新ボタン・下に引っぱって更新 =====
 function hardReload(){const p=document.getElementById("ptr");p.textContent="🔄 更新中…";p.style.transform="translate(-50%,12px)";setTimeout(()=>location.reload(),150)}
 document.getElementById("reloadBtn").onclick=hardReload;
@@ -1249,7 +1376,7 @@ document.getElementById("reloadBtn").onclick=hardReload;
 loadJMA();setInterval(loadJMA,30*60000);
 if("serviceWorker" in navigator&&location.protocol==="https:"){navigator.serviceWorker.register("sw.js").catch(()=>{})}
 setInterval(renderNow,1000);setInterval(renderWx,60000);setInterval(loadWx,30*60000);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden){loadWx();loadJMA()}});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){loadWx();loadJMA();renderCheer(true)}});
 </script>
 </body>
 </html>

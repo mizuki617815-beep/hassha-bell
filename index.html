@@ -588,11 +588,14 @@ function applyShiftForDate(run){
   const info=document.getElementById("shiftInfo");if(!info)return;
   const dv=document.getElementById("pDate").value;info.innerHTML="";
   if(!dv)return;
-  const sh=SHIFTS[dv];if(!sh)return;
+  const sh=SHIFTS[dv];
   const[Y,M,D]=dv.split("-").map(Number);
   // お休みの表示は「行き/帰り」タブどちらでも出す(タブ依存で出ないのが分かりにくいため)
-  if(sh.off){info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span> だよ。逆算はいらないね`;
+  if(sh&&sh.off){info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span> だよ。逆算はいらないね`;
     if(run)document.getElementById("pRes").innerHTML=offMsg(dv,sh);return}
+  // お休みでない日に切り替えたら、残っているお休み表示(.pOff)を消す(クマが残り続ける問題の対策)
+  const pr=document.getElementById("pRes");if(pr&&pr.querySelector(".pOff"))pr.innerHTML="";
+  if(!sh)return;
   if(S.tab!=="go")return;
   if(sh.start==null)return;
   const target=sh.start-(+S.arrive||0);

@@ -111,6 +111,9 @@ html,body{overscroll-behavior-y:contain}
 .pill{display:inline-block;font-size:11px;font-weight:900;padding:2px 7px;border-radius:8px;margin-right:4px;vertical-align:2px}
 .t-急{background:#ffe7d4;color:#d8742b}.t-特{background:#ffe0ea;color:#e0507f}.t-快{background:#ebe3ff;color:#7d5ce0}.t-普{background:#eef0f5;color:#7c8396}
 .msg{margin-top:12px;padding:9px 12px;border-radius:16px;font-size:13px;text-align:center;font-weight:700}
+.walkBar{margin-top:10px;padding:9px 12px;border-radius:16px;font-size:13px;background:var(--sky2);color:#3f78c8;line-height:1.55}
+.walkBar .wbMsg{font-size:12px;opacity:.92;margin-top:2px}
+body.dark .walkBar{color:#9cc8ff}
 .m-ok{background:var(--mint2);color:#2fa486}.m-warn{background:var(--lemon2);color:#b77f00}.m-hurry{background:var(--rose2);color:#e0507f}
 
 .sec{font-size:14px;font-weight:900;color:#9b7cf0;margin:0 2px 8px}
@@ -286,6 +289,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
       <div class="hero" id="hero"></div>
     </div>
     <div id="heroMsg"></div>
+    <div id="walkBar"></div>
   </div>
 
   <div class="card">
@@ -400,13 +404,24 @@ function upcoming(kind,now){
     for(const tr of table(kind,day)){
       const need=kind==="go"?(S.walk+S.buf):S.t3;
       const deadline=tr.m+off-need;
-      // 行きは「出発リミット」ではなく「発車時刻」を過ぎるまで表示する。
-      // リミット基準だとカウント0秒で次の電車に切り替わり、今乗る電車が見えなくなるため。
-      if((kind==="go"?tr.m+off:deadline)>=m-0.01)res.push({...tr,abs:tr.m+off,deadline,k});
+      if(deadline>=m-0.01)res.push({...tr,abs:tr.m+off,deadline,k});
       if(res.length>=5)break;
     }
   }
   return {res,m};
+}
+function nextDeparture(kind,now){
+  // 歩行中向け: リミットは過ぎたがまだ発車していない直近の電車。なければ null。
+  // (過密ダイヤでは主表示を発車基準にすると⚠️が常態化するため、主表示はリミット基準のまま分離した)
+  const {d,m}=svc(now);const need=kind==="go"?(S.walk+S.buf):S.t3;
+  for(let k=0;k<2;k++){
+    const day=new Date(d);day.setDate(day.getDate()+k);const off=k*1440;
+    for(const tr of table(kind,day)){
+      const abs=tr.m+off,deadline=abs-need;
+      if(abs>=m-0.01)return deadline<m-0.01?{...tr,abs,deadline,k}:null;
+    }
+  }
+  return null;
 }
 function fmtCount(min){const s=Math.max(0,Math.floor(min*60));const h=Math.floor(s/3600),mm=Math.floor(s%3600/60),ss=s%60;
   if(h>0)return `${h}<small>時間</small>${pad(mm)}<small>分</small>`;return `${mm}<small>分</small>${pad(ss)}<small>秒</small>`}
@@ -441,23 +456,14 @@ function renderNow(){
   if(!res.length){hero.innerHTML='<div class="lbl">電車が見つからないよ</div>';msg.innerHTML="";return}
   const f=res[0];const first=f.k>0?' <span class="badge b-hd">始発</span>':"";
   if(go){
-    const left=f.deadline-m;
-    if(left>=0){
-      const st=left>10?"ok":left>3?"warn":"hurry";hero.className="hero st-"+st;
-      hero.innerHTML=`<div class="lbl">おうちを出るまで${first}</div><div class="big">${fmtCount(left)}</div>
-        <div class="info">${pill(f.t)}<b>${hm(f.abs)}</b> 京急蒲田発 ${plat(f)}</div>
-        <div class="lim">出発リミット ${hm(f.deadline)} ・ T3着 ${hm(f.abs+rideGo(f))}</div>
-        <div class="lim">🚃 T3は1番線着。乗るなら<b>やや前寄り</b>の車両がおすすめ</div>`;
-      msg.innerHTML=`<div class="msg m-${st}">${st==="ok"?"🧸 まだ余裕あるよ、ゆっくり準備してね":st==="warn"?"🧸 そろそろ靴はいて〜！":"🧸 いますぐ出発！いってらっしゃい！"}</div>`;
-    }else{
-      // リミットは過ぎたが電車はまだ発車していない: 発車までのカウントダウンで出し続ける
-      hero.className="hero st-hurry";
-      hero.innerHTML=`<div class="lbl">⚠️ 出発リミット過ぎた！発車まで${first}</div><div class="big">${fmtCount(f.abs-m)}</div>
-        <div class="info">${pill(f.t)}<b>${hm(f.abs)}</b> 京急蒲田発 ${plat(f)}</div>
-        <div class="lim">出発リミット ${hm(f.deadline)} ・ T3着 ${hm(f.abs+rideGo(f))}</div>
-        <div class="lim">🚃 T3は1番線着。乗るなら<b>やや前寄り</b>の車両がおすすめ</div>`;
-      msg.innerHTML=`<div class="msg m-hurry">🧸 ⚠️家を出るリミットを過ぎたよ！ちゃんともう家を出たかな？</div>`;
-    }
+    const left=f.deadline-m;const st=left>10?"ok":left>3?"warn":"hurry";hero.className="hero st-"+st;
+    hero.innerHTML=`<div class="lbl">おうちを出るまで${first}</div><div class="big">${fmtCount(left)}</div>
+      <div class="info">${pill(f.t)}<b>${hm(f.abs)}</b> 京急蒲田発 ${plat(f)}</div>
+      <div class="lim">出発リミット ${hm(f.deadline)} ・ T3着 ${hm(f.abs+rideGo(f))}</div>
+      <div class="lim">🚃 T3は1番線着。乗るなら<b>やや前寄り</b>の車両がおすすめ</div>`;
+    msg.innerHTML=`<div class="msg m-${st}">${st==="ok"?"🧸 まだ余裕あるよ、ゆっくり準備してね":st==="warn"?"🧸 そろそろ靴はいて〜！":"🧸 いますぐ出発！いってらっしゃい！"}</div>`;
+    const wb=document.getElementById("walkBar");const w=nextDeparture("go",now);
+    if(wb)wb.innerHTML=(w&&w.abs!==f.abs)?`<div class="walkBar"><div>🚶 もう家を出てる人へ：${pill(w.t)} <b>${hm(w.abs)}</b>発まで あと${fmtCount(w.abs-m)} ${plat(w)}</div><div class="wbMsg">🧸 ⚠️家を出るリミットを過ぎたよ！ちゃんともう家を出たかな？</div></div>`:"";
   }else{
     const toDep=f.abs-m;const st=toDep-S.t3>10?"ok":toDep-S.t3>3?"warn":"hurry";hero.className="hero st-"+st;
     const arr=f.abs+rideBk(f);
@@ -467,8 +473,9 @@ function renderNow(){
       <div class="lim">🚃 ふだんはT3の2番線から乗って、京急蒲田は4番線に着くよ</div>`;
     msg.innerHTML=`<div class="msg m-${st}">${st==="ok"?"🧸 おつかれさま！ゆっくりで大丈夫":st==="warn"?"🧸 改札に向かおっか":"🧸 急いで〜！"}</div>`;
   }
+  if(!go){const wb2=document.getElementById("walkBar");if(wb2)wb2.innerHTML=""}
   document.getElementById("nextList").innerHTML=res.slice(1,5).map(r=>{
-    if(go){const dl=r.deadline-m;return `<li><span>${pill(r.t)}<span class="t">${hm(r.abs)}</span></span><span class="r">${plat(r)} ${dl>=0?`おうちを出る <b>${hm(r.deadline)}</b><br>あと${Math.round(dl)}分`:`⚠️ リミット過ぎ<br>発車まであと${Math.max(0,Math.round(r.abs-m))}分`}</span></li>`}
+    if(go)return `<li><span>${pill(r.t)}<span class="t">${hm(r.abs)}</span></span><span class="r">${plat(r)} おうちを出る <b>${hm(r.deadline)}</b><br>あと${Math.round(r.deadline-m)}分</span></li>`;
     const a=r.abs+rideBk(r);return `<li><span>${pill(r.t)}<span class="t">${hm(r.abs)}</span></span><span class="r">蒲田 ${hm(a)} / おうち <b>${hm(a+S.walk)}</b><br>あと${Math.round(r.abs-m)}分</span></li>`;
   }).join("");
 }

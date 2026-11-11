@@ -111,8 +111,12 @@ html,body{overscroll-behavior-y:contain}
 .pill{display:inline-block;font-size:11px;font-weight:900;padding:2px 7px;border-radius:8px;margin-right:4px;vertical-align:2px}
 .t-急{background:#ffe7d4;color:#d8742b}.t-特{background:#ffe0ea;color:#e0507f}.t-快{background:#ebe3ff;color:#7d5ce0}.t-普{background:#eef0f5;color:#7c8396}
 .msg{margin-top:12px;padding:9px 12px;border-radius:16px;font-size:13px;text-align:center;font-weight:700}
-.walkBar{margin-top:10px;padding:9px 12px;border-radius:16px;font-size:13px;background:var(--sky2);color:#3f78c8;line-height:1.55}
-.walkBar .wbMsg{font-size:12px;opacity:.92;margin-top:2px}
+.walkBar{margin-top:10px;padding:12px 14px;border-radius:16px;background:var(--sky2);color:#3f78c8;line-height:1.4}
+.walkBar .wbLbl{font-size:12px;font-weight:700;opacity:.85}
+.walkBar .wbBig{font-size:38px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15;margin:1px 0}
+.walkBar .wbBig small{font-size:15px;margin:0 1px}
+.walkBar .wbInfo{font-size:15px}
+.walkBar .wbMsg{font-size:12px;opacity:.92;margin-top:3px}
 body.dark .walkBar{color:#9cc8ff}
 .m-ok{background:var(--mint2);color:#2fa486}.m-warn{background:var(--lemon2);color:#b77f00}.m-hurry{background:var(--rose2);color:#e0507f}
 
@@ -463,7 +467,7 @@ function renderNow(){
       <div class="lim">🚃 T3は1番線着。乗るなら<b>やや前寄り</b>の車両がおすすめ</div>`;
     msg.innerHTML=`<div class="msg m-${st}">${st==="ok"?"🧸 まだ余裕あるよ、ゆっくり準備してね":st==="warn"?"🧸 そろそろ靴はいて〜！":"🧸 いますぐ出発！いってらっしゃい！"}</div>`;
     const wb=document.getElementById("walkBar");const w=nextDeparture("go",now);
-    if(wb)wb.innerHTML=(w&&w.abs!==f.abs)?`<div class="walkBar"><div>🚶 もう家を出てる人へ：${pill(w.t)} <b>${hm(w.abs)}</b>発まで あと${fmtCount(w.abs-m)} ${plat(w)}</div><div class="wbMsg">🧸 ⚠️家を出るリミットを過ぎたよ！ちゃんともう家を出たかな？</div></div>`:"";
+    if(wb)wb.innerHTML=(w&&w.abs!==f.abs)?`<div class="walkBar"><div class="wbLbl">🚶 もう家を出てる人へ・京急蒲田の次の電車まで</div><div class="wbBig">あと${fmtCount(w.abs-m)}</div><div class="wbInfo">${pill(w.t)} <b>${hm(w.abs)}</b>発 ${plat(w)}</div><div class="wbMsg">🧸 ⚠️家を出るリミットを過ぎたよ！ちゃんともう家を出たかな？</div></div>`:"";
   }else{
     const toDep=f.abs-m;const st=toDep-S.t3>10?"ok":toDep-S.t3>3?"warn":"hurry";hero.className="hero st-"+st;
     const arr=f.abs+rideBk(f);

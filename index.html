@@ -596,9 +596,9 @@ function applyShiftForDate(run){
   // お休みでない日に切り替えたら、残っているお休み表示(.pOff)を消す(クマが残り続ける問題の対策)
   const pr=document.getElementById("pRes");if(pr&&pr.querySelector(".pOff"))pr.innerHTML="";
   if(!sh)return;
-  if(S.tab!=="go")return;
   if(sh.start==null)return;
   const target=sh.start-(+S.arrive||0);
+  if(S.tab!=="go"){info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span>（開始 ${hm(sh.start)}）だよ。帰りは、T3の改札に入れそうな時刻を入れて計算してね`;return}
   document.getElementById("pTime").value=`${pad(Math.floor(target/60))}:${pad(target%60)}`;
   info.innerHTML=`🧸 <span class="sb">${M}/${D}</span> は <span class="sb">${sh.title}</span>（開始 ${hm(sh.start)}）→ T3到着目標 <b>${hm(target)}</b>（開始${(+S.arrive||0)}分前）でセットしたよ`;
   if(run)plan();
@@ -1107,11 +1107,11 @@ function renderOD(){
   f.value=sv[0];t.value=sv[1];f.onchange=renderOD;t.onchange=renderOD;
   document.getElementById("odSwap").onclick=()=>{const x=f.value;f.value=t.value;t.value=x;renderOD()};renderOD()})();
 (function(){setAutoDate()})();
-setTab(S.tab);renderWx();loadWx();
+setTab("go");renderWx();loadWx(); // タブは常に「行き」がデフォルト(帰りは使う時だけ手動で切り替える)
 // シフトCSVのイベント
 document.getElementById("pDate").addEventListener("change",()=>{setManualDate();applyShiftForDate(true)});
-document.getElementById("dToday").onclick=()=>{setManualDate();document.getElementById("pDate").value=ymd(jstNow());applyShiftForDate(true)};
-document.getElementById("dTomorrow").onclick=()=>{setManualDate();const n=jstNow();n.setDate(n.getDate()+1);document.getElementById("pDate").value=ymd(n);applyShiftForDate(true)};
+document.getElementById("dToday").onclick=()=>{setManualDate();if(S.tab!=="go")setTab("go");document.getElementById("pDate").value=ymd(jstNow());applyShiftForDate(true)};
+document.getElementById("dTomorrow").onclick=()=>{setManualDate();if(S.tab!=="go")setTab("go");const n=jstNow();n.setDate(n.getDate()+1);document.getElementById("pDate").value=ymd(n);applyShiftForDate(true)};
 document.getElementById("csvFile").addEventListener("change",ev=>{
   const f=ev.target.files&&ev.target.files[0];if(!f)return;
   f.text().then(t=>{const r=importShiftCSV(t);

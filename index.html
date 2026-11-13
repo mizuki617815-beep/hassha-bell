@@ -137,6 +137,12 @@ body.dark .walkBar{color:#9cc8ff}
 .safeLine{margin-top:8px;padding:8px 12px;border-radius:12px;background:var(--sky2);color:#3f78c8;font-size:13.5px;font-weight:700;line-height:1.5}
 .safeLine.warn{background:#fdecec;color:#c0392b}
 body.dark .safeLine{color:#9cc8ff}
+.paidPanel{margin-top:10px;background:#fdf3f8;border:1.5px solid #f6c6dd;border-radius:14px;padding:10px 12px;font-size:13px;line-height:1.65;color:#55496e}
+.paidPanel .pTtl{font-size:13.5px;font-weight:900;color:#9b7cf0}
+.paidPanel .pTtl .pSub{font-size:11.5px;font-weight:400;color:var(--sub)}
+.paidPanel .pBig{font-size:24px;font-weight:900;color:#3a3350}
+body.dark .paidPanel{background:rgba(244,154,193,.10);border-color:rgba(244,154,193,.35);color:#e8dff2}
+body.dark .paidPanel .pBig{color:#fff}
 body.dark .safeLine.warn{background:rgba(224,82,82,.18);color:#ff9d97}
 .m-ok{background:var(--mint2);color:#2fa486}.m-warn{background:var(--lemon2);color:#b77f00}.m-hurry{background:var(--rose2);color:#e0507f}
 
@@ -362,7 +368,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
       <button class="btn2 sub" id="csvClear" type="button" style="margin-top:0;display:none;font-family:inherit;cursor:pointer">シフトを消す</button>
     </div>
     <div class="note" id="csvStatus"></div>
-    <div class="note" id="paidInfo" style="margin-top:6px"></div>
+    <div class="paidPanel" id="paidInfo"></div>
   </div>
 
   <div class="card">
@@ -669,7 +675,7 @@ let paidCache="";
 function renderPaid(){
   const el=document.getElementById("paidInfo");if(!el)return;
   const c=paidCalc(ymd(jstNow()));
-  let h=`🏖 <b>有休カウンター</b>（3月末で消える分）<br>残り <b>${c.remain}日</b>（基準${c.base}日 − 消化${c.used}日）・全体では約<b>${c.total}日</b>`;
+  let h=`<div class="pTtl">🏖 有休カウンター <span class="pSub">3月末で消える分</span></div><div>残り <span class="pBig">${c.remain}</span> 日（基準${c.base}日 − 消化${c.used}日）・全体では約${c.total}日</div>`;
   if(c.sched>0)h+=`<br>うち${c.sched}日はシフトに入ってるよ（実質あと${c.effRemain}日）`;
   if(c.remain===0)h+=`<br>消える分は全部使い切ったよ🎉`;
   else if(c.need>0)h+=`<br>今月はあと<b>${c.need}日</b>使うとペース通り（目安：月${c.pace.toFixed(1)}日）`;

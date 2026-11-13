@@ -705,7 +705,7 @@ let paidCache="";
 function renderPaid(){
   const el=document.getElementById("paidInfo");if(!el)return;
   const c=paidCalc(ymd(jstNow()));
-  let h=`<div class="pTtl">🏖 有休カウンター <span class="pSub">3月末で消える分</span></div><div class="paidRow"><div class="boardWrap"><img src="paid-bear.webp" alt="ホワイトボードを持つファーちゃん"><div class="boardNum"><span class="bLab">あと</span><span class="bNum">${c.remain}</span><span class="bDay">日</span></div></div><div class="paidTxt"><div>繰り越し分：残り <b>${c.remain}日</b>（今年度 ${c.used}日使用）</div><div>今年度分 20日と合わせて 約<b>${c.total}日</b></div>`;
+  let h=`<div class="pTtl">🏖️有休カウンター🧸💕</div><div class="paidRow"><div class="boardWrap"><img src="paid-bear.webp" alt="ホワイトボードを持つファーちゃん"><div class="boardNum"><span class="bLab">あと</span><span class="bNum">${c.remain}</span><span class="bDay">日</span></div></div><div class="paidTxt"><div>昨年度からの繰り越し分：残り <b>${c.remain}日</b>（今年度 ${c.used}日使用済）</div><div>今年度分 20日と合わせて 残り<b>${c.total}日</b>だよ🧸</div>`;
   if(c.sched>0)h+=`<div>うち${c.sched}日はシフトに入ってるよ（実質あと${c.effRemain}日）</div>`;
   h+=`<div class="paidCap">🧸 ファーちゃん：「${paidComment(c)}」</div>`;
   if(c.effRemain>0)h+=`<div class="paidSub">目安：月${c.pace.toFixed(1)}日ペース</div>`;

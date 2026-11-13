@@ -398,7 +398,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver2.4</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver2.4</span><span class="vDate">11/13</span><span class="vTxt">カウントダウンの下に「京急の運行情報（公式）」ボタンを追加</span></li>
+        <li><span class="vNo">ver2.4</span><span class="vDate">11/13</span><span class="vTxt">カウントダウンの下に「京急の運行情報（公式）」ボタンを追加、洗濯が乾きにくい日にもファーちゃんの絵を表示</span></li>
         <li><span class="vNo">ver2.3</span><span class="vDate">11/13</span><span class="vTxt">天気と洗濯コメントのずれを修正：日付カードと吹き出しに雨の時間帯を表示、クマの天気の絵は出かける時間帯（5〜21時）の天気で決めるように（台風の絵は雨と強風が同じ時間のときだけ）、別の日を選んでいるときは「今日のひとこと」とわかるように</span></li>
         <li><span class="vNo">ver2.2</span><span class="vDate">11/13</span><span class="vTxt">占いの順位でファーちゃんの絵とコメントが変わるように（1〜6位はバンザイ、7〜12位はマグカップ。占い師のファーちゃんは今まで通り）、洗濯日和の日は洗濯ファーちゃん、雨で部屋干しの日は雨の日のファーちゃんを表示。おでかけガイドに、日時を指定して乗換案内をしらべる専用の項目を追加</span></li>
         <li><span class="vNo">ver2.1</span><span class="vDate">11/12</span><span class="vTxt">クマのファーちゃんのひとことを、時間帯ごとに固定（朝・昼・夜で切り替わるよ）</span></li>
@@ -820,8 +820,8 @@ function laundry(sl){
   let ex="";if(lv!=="ng"&&sl.e&&(sl.e.p||0)>=50)ex+=" 夜は雨の心配があるから<b>夕方までに取りこんで</b>ね";
   if(lv!=="ng"&&x.wind>=7)ex+=" 風が強いから<b>洗濯ばさみでしっかり</b>とめてね";
   const body=`<div class="laundry l-${lv}"><span class="lt">🧺 洗濯</span><span>${msg}${ex}<span class="ld">昼間 ${x.t}℃${x.hum!=null?"・湿度"+x.hum+"%":""}・☂${x.p??"-"}%</span></span></div>`;
-  // 洗濯日和(lv=ok)は外干しファーちゃん、雨の日(lv=ng)は雨の日のファーちゃんの絵を添える
-  const lImg=lv==="ok"?"weather/laundry.webp":lv==="ng"?"weather/laundry-rain.webp":null;
+  // 洗濯日和(lv=ok)は外干しファーちゃん、雨の日(lv=ng)は雨の日のファーちゃん、乾きにくい日(lv=so)は曇りの日のファーちゃんの絵を添える
+  const lImg=lv==="ok"?"weather/laundry.webp":lv==="ng"?"weather/laundry-rain.webp":lv==="so"?"weather/laundry-mid.webp":null;
   return lImg?`<div class="ldWrap"><img class="ldBear" src="${lImg}" alt="洗濯をするファーちゃん">${body}</div>`:body;
 }
 function sevNote(sl){const x=sl.sev;if(!x)return "";const a=[];

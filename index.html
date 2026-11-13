@@ -143,6 +143,16 @@ body.dark .safeLine{color:#9cc8ff}
 .paidPanel .pBig{font-size:24px;font-weight:900;color:#3a3350}
 body.dark .paidPanel{background:rgba(244,154,193,.10);border-color:rgba(244,154,193,.35);color:#e8dff2}
 body.dark .paidPanel .pBig{color:#fff}
+.paidRow{display:flex;gap:12px;align-items:flex-start;margin-top:8px}
+.boardWrap{position:relative;width:124px;flex:none}
+.boardWrap img{width:100%;display:block;border-radius:10px}
+.boardNum{position:absolute;left:50%;top:51.5%;transform:translate(-50%,-50%);color:#3a3350;font-weight:900;white-space:nowrap;line-height:1}
+.boardNum .bLab{font-size:10px;margin-right:2px}
+.boardNum .bNum{font-size:29px}
+.boardNum .bDay{font-size:12px;margin-left:1px}
+.paidTxt{flex:1;min-width:0}
+.paidCap{margin-top:6px;font-weight:700}
+.paidSub{font-size:11.5px;color:var(--sub)}
 body.dark .safeLine.warn{background:rgba(224,82,82,.18);color:#ff9d97}
 .m-ok{background:var(--mint2);color:#2fa486}.m-warn{background:var(--lemon2);color:#b77f00}.m-hurry{background:var(--rose2);color:#e0507f}
 
@@ -412,7 +422,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver2.6</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver2.6</span><span class="vDate">11/14</span><span class="vTxt">有休カウンターを追加（3月末で消える分の残り日数と消化ペースを表示）</span></li>
+        <li><span class="vNo">ver2.6</span><span class="vDate">11/14</span><span class="vTxt">有休カウンターを追加（消える分の残り日数とペースを、ファーちゃんのホワイトボードと一言つきで表示）</span></li>
         <li><span class="vNo">ver2.5</span><span class="vDate">11/14</span><span class="vTxt">シフトのある日は、目標の到着時刻までにあと何本電車を逃しても大丈夫かを表示するように</span></li>
         <li><span class="vNo">ver2.4</span><span class="vDate">11/13</span><span class="vTxt">カウントダウンの下に「京急の運行情報（公式）」ボタンを追加、洗濯が乾きにくい日にもファーちゃんの絵を表示、洗濯の風の加点ルールを修正（強風でも加点）</span></li>
         <li><span class="vNo">ver2.3</span><span class="vDate">11/13</span><span class="vTxt">天気と洗濯コメントのずれを修正：日付カードと吹き出しに雨の時間帯を表示、クマの天気の絵は出かける時間帯（5〜21時）の天気で決めるように（台風の絵は雨と強風が同じ時間のときだけ）、別の日を選んでいるときは「今日のひとこと」とわかるように</span></li>
@@ -671,16 +681,23 @@ function paidCalc(today){
   const need=effRemain>0?Math.max(0,Math.ceil(pace)-(monthUsed+monthSched)):0;
   return{base,baseDate,rolled,used,sched,remain,effRemain,total:20+remain,monthsLeft,pace,need,monthUsed};
 }
+function paidComment(c){
+  if(c.remain===0)return "消える分は全部使い切ったよ、お見事！";
+  if(c.rolled)return "新しい年度が始まったよ。今年も計画的に使っていこう";
+  if(c.monthsLeft<=2&&c.effRemain>0)return `3月末まであと少し。あと${c.effRemain}日、計画的に使おう`;
+  if(c.need>0)return `今月はあと${c.need}日使うとペース通りだよ`;
+  return "今月はペース通り。この調子でいこう";
+}
 let paidCache="";
 function renderPaid(){
   const el=document.getElementById("paidInfo");if(!el)return;
   const c=paidCalc(ymd(jstNow()));
-  let h=`<div class="pTtl">🏖 有休カウンター <span class="pSub">3月末で消える分</span></div><div>残り <span class="pBig">${c.remain}</span> 日（基準${c.base}日 − 消化${c.used}日）・全体では約${c.total}日</div>`;
-  if(c.sched>0)h+=`<br>うち${c.sched}日はシフトに入ってるよ（実質あと${c.effRemain}日）`;
-  if(c.remain===0)h+=`<br>消える分は全部使い切ったよ🎉`;
-  else if(c.need>0)h+=`<br>今月はあと<b>${c.need}日</b>使うとペース通り（目安：月${c.pace.toFixed(1)}日）`;
-  else h+=`<br>今月はペース通りだよ（目安：月${c.pace.toFixed(1)}日）`;
-  if(c.rolled)h+=`<br>（4/1に新しい年度の消える分20日へ切り替えたよ）`;
+  let h=`<div class="pTtl">🏖 有休カウンター <span class="pSub">3月末で消える分</span></div><div class="paidRow"><div class="boardWrap"><img src="paid-bear.webp" alt="ホワイトボードを持つファーちゃん"><div class="boardNum"><span class="bLab">あと</span><span class="bNum">${c.remain}</span><span class="bDay">日</span></div></div><div class="paidTxt"><div>全体では約<b>${c.total}日</b>（基準${c.base}日 − 消化${c.used}日）</div>`;
+  if(c.sched>0)h+=`<div>うち${c.sched}日はシフトに入ってるよ（実質あと${c.effRemain}日）</div>`;
+  h+=`<div class="paidCap">🧸 ファーちゃん：「${paidComment(c)}」</div>`;
+  if(c.effRemain>0)h+=`<div class="paidSub">目安：月${c.pace.toFixed(1)}日ペース</div>`;
+  h+=`</div></div>`;
+  if(c.rolled)h+=`<div>（4/1に新しい年度の消える分20日へ切り替えたよ）</div>`;
   if(h!==paidCache){paidCache=h;el.innerHTML=h}
 }
 function renderShiftStatus(msg){

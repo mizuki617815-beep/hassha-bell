@@ -215,7 +215,7 @@ body.dark .steps .pf{color:#9cc8ff}body.dark .steps .pf.arr{color:#cdb8ff}
 .laundry .ld{display:block;font-size:11px;opacity:.8}
 .l-ok{background:var(--mint2);color:#2a8f75}.l-so{background:var(--lemon2);color:#9a6c00}.l-ng{background:var(--sky2);color:#3f78c8}
 .laundry b{color:inherit!important}
-.fBearRow{display:flex;gap:10px;align-items:center;margin-top:10px}.fBearRow img{width:84px;height:84px;border-radius:16px;object-fit:cover;object-position:center 30%;box-shadow:0 2px 8px rgba(183,156,255,.25);flex:0 0 auto}.fBearRow .cap{font-size:12.5px;color:var(--sub);line-height:1.7;background:rgba(183,156,255,.10);border-radius:12px;padding:8px 11px;flex:1}
+.fBearRow{display:flex;gap:10px;align-items:center;margin-top:10px}.fBearRow img{width:84px;height:84px;border-radius:16px;object-fit:cover;object-position:center 30%;box-shadow:0 2px 8px rgba(183,156,255,.25);flex:0 0 auto}.fBearRow .cap{font-size:13.5px;color:var(--ink);line-height:1.65;background:rgba(183,156,255,.10);border-radius:12px;padding:8px 11px;flex:1}
 .ldWrap{display:flex;gap:10px;margin-top:10px;align-items:stretch}.ldWrap .laundry{margin-top:0;flex:1}.ldBear{width:84px;flex:0 0 auto;border-radius:14px;object-fit:cover;object-position:center 30%;box-shadow:0 2px 8px rgba(183,156,255,.25)}
 body.dark .l-ok{color:#8fe0cc}body.dark .l-so{color:#ffd86b}body.dark .l-ng{color:#9cc8ff}
 .fort{display:flex;gap:8px;margin:10px 0}
@@ -395,9 +395,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver2.1</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver2.4</span><span class="vDate">11/13</span><span class="vTxt">占いの順位ファーちゃんの大きさと余白のバランスを整えて、セリフの呼び方を「ファーちゃん」に統一。おでかけの日時指定から「今の時刻」ボタンを外したよ</span></li>
-        <li><span class="vNo">ver2.3</span><span class="vDate">11/13</span><span class="vTxt">占い師のクマちゃんはそのままに、順位のクマちゃんは別枠で表示するよう直したよ。おでかけの日時指定は専用の枠と水色ボタンに分けて分かりやすく</span></li>
-        <li><span class="vNo">ver2.2</span><span class="vDate">11/13</span><span class="vTxt">占いの順位でクマちゃんの絵が変わるように（1〜6位と7〜12位）、洗濯日和の日は洗濯クマちゃんを表示、おでかけガイドに日時を指定して乗換案内をしらべるボタンを追加</span></li>
+        <li><span class="vNo">ver2.2</span><span class="vDate">11/13</span><span class="vTxt">占いの順位でファーちゃんの絵とコメントが変わるように（1〜6位はバンザイ、7〜12位はマグカップ。占い師のファーちゃんは今まで通り）、洗濯日和の日は洗濯ファーちゃん、雨で部屋干しの日は雨の日のファーちゃんを表示。おでかけガイドに、日時を指定して乗換案内をしらべる専用の項目を追加</span></li>
         <li><span class="vNo">ver2.1</span><span class="vDate">11/12</span><span class="vTxt">クマのファーちゃんのひとことを、時間帯ごとに固定（朝・昼・夜で切り替わるよ）</span></li>
         <li><span class="vNo">ver2.0</span><span class="vDate">11/12</span><span class="vTxt">クマのファーちゃんのひとこと、今月の出勤回数、お休みまでの日数</span></li>
         <li><span class="vNo">ver1.8</span><span class="vDate">11/12</span><span class="vTxt">「きょうのファーちゃん占い」にリニューアル（はちみつ度、おととい・きのう・きょうの切り替え、文章を大増量）、細かい不具合の修正</span></li>
@@ -817,8 +815,9 @@ function laundry(sl){
   let ex="";if(lv!=="ng"&&sl.e&&(sl.e.p||0)>=50)ex+=" 夜は雨の心配があるから<b>夕方までに取りこんで</b>ね";
   if(lv!=="ng"&&x.wind>=7)ex+=" 風が強いから<b>洗濯ばさみでしっかり</b>とめてね";
   const body=`<div class="laundry l-${lv}"><span class="lt">🧺 洗濯</span><span>${msg}${ex}<span class="ld">昼間 ${x.t}℃${x.hum!=null?"・湿度"+x.hum+"%":""}・☂${x.p??"-"}%</span></span></div>`;
-  // 洗濯日和(lv=ok)の日は洗濯クマの絵も添える
-  return lv==="ok"?`<div class="ldWrap"><img class="ldBear" src="weather/laundry.webp" alt="洗濯をするクマちゃん">${body}</div>`:body;
+  // 洗濯日和(lv=ok)は外干しファーちゃん、雨の日(lv=ng)は雨の日のファーちゃんの絵を添える
+  const lImg=lv==="ok"?"weather/laundry.webp":lv==="ng"?"weather/laundry-rain.webp":null;
+  return lImg?`<div class="ldWrap"><img class="ldBear" src="${lImg}" alt="洗濯をするファーちゃん">${body}</div>`:body;
 }
 function sevNote(sl){const x=sl.sev;if(!x)return "";const a=[];
   if(x.rain>=20)a.push(`☔ 1時間に<b>${Math.round(x.rain)}mm</b>くらいの強い雨の予報`);else if(x.rain>=10)a.push(`☔ 1時間に${Math.round(x.rain)}mmくらいのやや強い雨の予報`);
@@ -1202,7 +1201,7 @@ const FBEAR=[
 ["11位だよ。今日はがんばりすぎない日にしよう","11位…ぎゅってしてあげるね🧸","しずかに過ごせば大丈夫。早めに寝ようね","11位だよ。お風呂でゆっくり心をほどいてね","今日はおうち時間をたっぷりとろう","11位…つらいときはひとりで抱えないでね","しずかな日だよ。好きなものに囲まれて過ごそう"],
 ["12位だよ…でも月は毎日動くから、明日はきっと上がるよ","12位の日は休む日。自分をいっぱい甘やかしてね","今日は一緒にのんびりしよう🧸 明日はいい日になるよ","12位だよ。今日を乗りきったら、あとは上がるだけ！","いちばん下の日は、いちばん休んでいい日だよ","12位…でもあなたの価値は順位じゃ決まらないよ","今日はふわふわ毛布にくるまってね。そばにいるよ"]];
 const HONEY=[10,9,9,8,7,6,6,5,4,3,2,1];
-const bearSay=(r,day)=>{const i=Math.max(0,Math.min(11,(r||1)-1));const n=Math.floor(new Date(day+"T00:00:00Z").getTime()/86400000);const v=FBEAR[i][n%7];return `<div style="margin-top:10px;padding:10px 12px;border-radius:16px;background:var(--lav2);font-size:14px;font-weight:700;line-height:1.6">🧸ファーちゃん🔮：「${v}」</div>`};
+const bearComment=(r,day)=>{const i=Math.max(0,Math.min(11,(r||1)-1));const n=Math.floor(new Date(day+"T00:00:00Z").getTime()/86400000);return FBEAR[i][n%7]}; // 順位×日の84種コメント(FBEAR)からその日の分を引く
 const honeyHtml=r=>{const h=HONEY[Math.max(0,Math.min(11,(r||1)-1))];return `<span><b>はちみつ度</b>${"🍯".repeat(h)} ${h}/10<br><small style="font-weight:400">今日の運勢の高さを10段階であらわしたもの。順位が上ほど、はちみつがたっぷり</small></span>`};
 // 最初の一言:[月のハウス12]×[総合★段階4(★5/★4/★3/★1-2)]×4 = 192
 const FHEAD=[[["自分が主役になれる日", "あなたの魅力が全開の日", "運が味方してくれる日", "思いきりが吉と出る日"], ["自分らしさが光る日", "前向きな気持ちになれる日", "新しい自分に出会える日", "やる気が自然とわいてくる日"], ["自分のペースを大切にする日", "自分と向き合う日", "自分の気持ちに素直になる日", "いつもの自分で大丈夫な日"], ["自分をいたわってあげる日", "がんばらなくていい日", "自分を甘やかしていい日", "ひと息ついて整える日"]], [["金運と自信がアップする日", "欲しかった物に出会える日", "うれしい臨時収入の予感の日", "好きなものに囲まれる日"], ["お金まわりがいい感じの日", "自分の価値を感じられる日", "いい買い物ができる日", "五感が満たされる日"], ["お財布と相談する日", "持ち物を見直す日", "お金の使い方を考える日", "価値あるものを見きわめる日"], ["ムダづかいに気をつけたい日", "今あるものに感謝する日", "お財布を休ませたい日", "節約がちょうどいい日"]], [["言葉が幸運を運ぶ日", "うれしい連絡が届く日", "ひらめきが冴える日", "伝えたいことが届く日"], ["会話がはずむ日", "ちょっとしたお出かけが吉の日", "学びが楽しい日", "人と話すと元気が出る日"], ["言葉選びがカギの日", "連絡はていねいにする日", "メッセージを見直す日", "情報を整理する日"], ["聞き役にまわるといい日", "おしゃべりで気持ちを軽くする日", "言葉少なでいい日", "返信はゆっくりでいい日"]], [["おうちに幸せが集まる日", "家族や身近な人と笑い合える日", "心から安らげる日", "大切な人のあたたかさを感じる日"], ["おうち時間が充実する日", "心がほっと落ち着く日", "手料理がおいしくできる日", "思い出にふれて元気が出る日"], ["お部屋を整える日", "身近な人を大切にする日", "家のことを片づける日", "気持ちを落ち着ける日"], ["早めに帰って休みたい日", "おうちで心を充電する日", "ひとりでゆっくりしたい日", "甘えていい日"]], [["楽しいことがいっぱいの日", "ときめきがあふれる日", "恋も遊びも大当たりの日", "笑顔がはじける日"], ["遊び心が冴える日", "好きなことで輝ける日", "創作がはかどる日", "おしゃれが楽しい日"], ["ちょっと気分転換したい日", "小さな楽しみを見つける日", "ちょっとだけ遊び心を足す日", "気分を上げる工夫をする日"], ["無理に楽しもうとしなくていい日", "好きなものに癒される日", "楽しみは明日にとっておく日", "のんびりが一番の日"]], [["仕事も体調も絶好調の日", "段取りがばっちり決まる日", "何をやってもはかどる日", "効率がぐんと上がる日"], ["コツコツが実を結ぶ日", "調子を整えられる日", "生活リズムが整う日", "小さな改善がうまくいく日"], ["体のメンテナンスの日", "ていねいさが大事な日", "ペース配分を考える日", "健康を意識する日"], ["疲れをためないようにしたい日", "しっかり休んで整える日", "体をいたわってあげたい日", "早寝が吉の日"]], [["ご縁に恵まれる日", "大切な人と心が通じ合う日", "最高のパートナー運の日", "出会いが広がる日"], ["人とのつながりが楽しい日", "協力するとうまくいく日", "人に恵まれる日", "話し合いがまとまる日"], ["人との距離感を大切にする日", "相手の話をよく聞く日", "相手に合わせすぎない日", "ゆずり合いが大事な日"], ["人づきあいに疲れやすい日", "ひとりの時間も大切にする日", "人の言葉を気にしすぎない日", "自分の心を守る日"]], [["ここ一番の集中力が出る日", "信頼がぐっと深まる日", "深い絆が生まれる日", "奥に眠っていた力が目覚める日"], ["じっくり取り組むと成果が出る日", "本音で話せる日", "秘めた力が発揮できる日", "ひとつのことに集中できる日"], ["気持ちを切り替える日", "見直しや整理に向く日", "こだわりを手放す日", "大事なことを見きわめる日"], ["エネルギーを温存したい日", "心のデトックスの日", "深く考えすぎない日", "休んで回復する日"]], [["世界が広がる日", "新しい発見にワクワクする日", "チャンスが遠くからやってくる日", "夢がふくらむ日"], ["学びがはかどる日", "遠くの人とのご縁がある日", "新しい知識が身につく日", "前向きなアイデアが出る日"], ["視野を広げる準備の日", "計画を立てる日", "次の目標を考える日", "いつもと違う道を選ぶ日"], ["ゆっくり本でも読みたい日", "次の楽しみを考える日", "無理に動かなくていい日", "心の旅を楽しむ日"]], [["がんばりが評価される日", "目標に向かって大きく進める日", "実力を発揮できる日", "大きな一歩を踏み出せる日"], ["仕事で頼りにされる日", "目標が見えてくる日", "信頼がアップする日", "仕事がスムーズな日"], ["責任感が試される日", "優先順位を決める日", "コツコツ積み上げる日", "足もとを固める日"], ["プレッシャーを手放したい日", "完璧を目指さなくていい日", "肩の荷をおろしたい日", "今日は7割で合格の日"]], [["仲間に恵まれる日", "夢が近づく日", "応援してくれる人が増える日", "願いが形になり始める日"], ["友だちとの時間が楽しい日", "チームワークが光る日", "新しいつながりができる日", "みんなで盛り上がれる日"], ["人とのつながりを見直す日", "未来のことを考える日", "人間関係を整える日", "自分の理想を考える日"], ["マイペースでいたい日", "少し距離をおいて休む日", "ひとりの時間を大切にしたい日", "つながりを休む日"]], [["直感が冴えわたる日", "見えないところで運が育つ日", "守られている感じがする日", "夢にヒントがある日"], ["心が静かに整う日", "ひとりの時間が心地いい日", "やさしさがあふれる日", "ゆったり過ごせる日"], ["ひと休みする日", "心をリセットする日", "陰でコツコツする日", "心の声に耳をすます日"], ["ゆっくり眠るのが一番の日", "静かに充電する日", "何もしなくていい日", "心と体をゆるめる日"]]];
@@ -1233,7 +1232,7 @@ async function loadFortuneData(){try{const r=await fetch("fortune.json",{cache:"
 function star(n){return "★".repeat(n)+"<i>"+"★".repeat(5-n)+"</i>"}
 let FOFF=0; // 0=きょう 1=きのう 2=おととい
 document.querySelectorAll("#fDay button").forEach(b=>b.onclick=()=>{FOFF=+b.dataset.v;document.querySelectorAll("#fDay button").forEach(x=>x.classList.toggle("on",x===b));renderFortune()});
-function fBearSet(rank){const el=document.getElementById("fRankBear");if(el)el.src=rank<=6?"fortune-happy.webp":"fortune-cheer.webp";const cap=document.getElementById("fBearCap");if(cap)cap.innerHTML=rank<=6?"🧸 順位のいい日は<b>バンザイのファーちゃん</b>が応援するよ":"🧸 順位がひかえめな日は<b>マグカップのファーちゃん</b>がそっと寄りそうよ"} // 順位クマは占い師クマとは別枠に表示(占い師クマは消さない)
+function fBearSet(rank,day){const el=document.getElementById("fRankBear");if(el)el.src=rank<=6?"fortune-happy.webp":"fortune-cheer.webp";const cap=document.getElementById("fBearCap");if(cap)cap.innerHTML="🧸 <b>ファーちゃん</b>：「"+bearComment(rank,day)+"」"} // 順位ファーちゃん(バンザイ/マグ)がコメントを喋る。占い師ファーちゃんは別枠で不変
 function renderFortune(){
   const now=jstNow();now.setDate(now.getDate()-FOFF);const day=ymd(now);const s=Math.max(0,SIGNS.indexOf(S.sign));
   document.getElementById("fTitle").textContent=`${["きょう","きのう","おととい"][FOFF]}のファーちゃん占い🧸🔮(${now.getMonth()+1}/${now.getDate()})`;
@@ -1241,7 +1240,7 @@ function renderFortune(){
   const jg=FORT&&FORT.jugem&&FORT.jugem[day]&&FORT.jugem[day][S.sign];
   const zt=FORT&&FORT.zt&&FORT.zt[day]&&FORT.zt[day][S.sign];
   if(jg){ // 原宿占い館 塔里木 監修の占いが取れている日はそれを表示
-    fBearSet(+jg.rank);document.getElementById("fMsg").innerHTML=`<span class="rank">${jg.rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br>${esc(jg.content)}`+bearSay(+jg.rank,day);
+    fBearSet(+jg.rank,day);document.getElementById("fMsg").innerHTML=`<span class="rank">${jg.rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br>${esc(jg.content)}`;
     document.getElementById("fStars").innerHTML=[["総合運",jg.total],["恋愛運",jg.love],["仕事運",jg.job],["金運",jg.money]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(Math.max(0,Math.min(5,+v||0)))}</div></div>`).join("");
     document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b>🎨 ${esc(jg.color)}</span><span><b>ラッキーアイテム</b>🎀 ${esc(jg.item)}</span>${honeyHtml(+jg.rank)}`;
     document.getElementById("fSky").innerHTML="";
@@ -1265,7 +1264,7 @@ function renderFortune(){
   const lv=FLOVE2[tierOf(stL)][aspIdx(L.moon,L.venus)][v4],wk=FWORK2[tierOf(stW)][aspIdx(L.moon,L.mars)][(v4+1)%4];
   const mo=FMONEY[tierOf(stM)][aspIdx(L.moon,L.jupiter)][(v4+2)%4];const moonMsg=FMOON[lday][Math.floor(L.sun/30)%2];const item2=FITEM2[Math.floor(L.moon/3)%120];
   const col=SIGN_COL[Math.floor(L.moon/30)];
-  fBearSet(rank);document.getElementById("fMsg").innerHTML=`<span class="rank">${rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br><b>${FHEAD[me.hM-1][tierOf(stT)][lday%4]}</b><br>${tone}${msg}<br>💗 恋愛：${lv}<br>💼 仕事：${wk}<br>💰 金運：${mo}<br>${ph[0]} 今夜の月（${ph[1]}）：${moonMsg}`+(retro.mercury?`<br>📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね`:"")+bearSay(rank,day);
+  fBearSet(rank,day);document.getElementById("fMsg").innerHTML=`<span class="rank">${rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br><b>${FHEAD[me.hM-1][tierOf(stT)][lday%4]}</b><br>${tone}${msg}<br>💗 恋愛：${lv}<br>💼 仕事：${wk}<br>💰 金運：${mo}<br>${ph[0]} 今夜の月（${ph[1]}）：${moonMsg}`+(retro.mercury?`<br>📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね`:"");
   document.getElementById("fStars").innerHTML=[["総合運",starsByRank(all.map(x=>x.total),s)],["恋愛運",starsByRank(all.map(x=>x.love),s)],["仕事運",starsByRank(all.map(x=>x.work),s)],["金運",starsByRank(all.map(x=>x.money),s)]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(v)}</div></div>`).join("");
   document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b><i class="dot" style="background:${col[1]}"></i>${col[0]}</span><span><b>ラッキーアイテム</b>🎀 ${item2}</span>${honeyHtml(rank)}`;
   const sn=x=>SIGNS[Math.floor(x/30)];

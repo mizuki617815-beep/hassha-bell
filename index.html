@@ -153,6 +153,15 @@ body.dark .paidPanel .pBig{color:#fff}
 .paidTxt{flex:1;min-width:0}
 .paidCap{margin-top:6px;font-weight:700}
 .paidSub{font-size:11.5px;color:var(--sub)}
+.paidBars{display:flex;gap:3px;margin-top:10px}
+.pBar{flex:1;text-align:center;min-width:0}
+.pBar .bVal{font-size:10px;font-weight:700;height:13px;color:#55496e}
+.pBar .bWrap{height:30px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.pBar .bUse{width:68%;background:#f06292;border-radius:2px}
+.pBar .bSch{width:68%;background:#f8c8dc;border-radius:2px}
+.pBar .bMon{font-size:9.5px;color:var(--sub);margin-top:2px}
+.pBar .bMon.cur{font-weight:900;color:#e0568b}
+body.dark .pBar .bVal{color:#e8dff2}
 body.dark .safeLine.warn{background:rgba(224,82,82,.18);color:#ff9d97}
 .m-ok{background:var(--mint2);color:#2fa486}.m-warn{background:var(--lemon2);color:#b77f00}.m-hurry{background:var(--rose2);color:#e0507f}
 
@@ -406,8 +415,8 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
         <span>余裕をもたせる(分)</span><input type="number" id="sBuf" min="0" max="30">
         <span>T3 改札→ホーム(帰り・分)</span><input type="number" id="sT3" min="0" max="30">
         <span>シフト開始の何分前にT3に着く(分)</span><input type="number" id="sArr" min="0" max="120">
-        <span>有休：3月末で消える分の残り(基準・日)</span><input type="number" id="sPaidBase" min="0" max="60">
-        <span>有休：基準日</span><input type="date" id="sPaidDate">
+        <span>有休：月ごとの使用日数(今年度)</span><span></span>
+        <div id="sPaidMonths" style="grid-column:1/-1"></div>
         <span>星座</span><select id="sSign" style="flex:none;width:130px"></select>
         <span>画面の色</span>
         <div class="seg" id="sTheme"><button data-v="auto">自動</button><button data-v="light">ライト</button><button data-v="dark">ダーク</button></div>
@@ -422,7 +431,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver2.6</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver2.6</span><span class="vDate">11/14</span><span class="vTxt">有休カウンターを追加（消える分の残り日数とペースを、ファーちゃんのホワイトボードと一言つきで表示）</span></li>
+        <li><span class="vNo">ver2.6</span><span class="vDate">11/14</span><span class="vTxt">有休カウンターを追加（消える分の残り日数とペースをファーちゃんのホワイトボードで表示、月ごとの使用数つき）</span></li>
         <li><span class="vNo">ver2.5</span><span class="vDate">11/14</span><span class="vTxt">シフトのある日は、目標の到着時刻までにあと何本電車を逃しても大丈夫かを表示するように</span></li>
         <li><span class="vNo">ver2.4</span><span class="vDate">11/13</span><span class="vTxt">カウントダウンの下に「京急の運行情報（公式）」ボタンを追加、洗濯が乾きにくい日にもファーちゃんの絵を表示、洗濯の風の加点ルールを修正（強風でも加点）</span></li>
         <li><span class="vNo">ver2.3</span><span class="vDate">11/13</span><span class="vTxt">天気と洗濯コメントのずれを修正：日付カードと吹き出しに雨の時間帯を表示、クマの天気の絵は出かける時間帯（5〜21時）の天気で決めるように（台風の絵は雨と強風が同じ時間のときだけ）、別の日を選んでいるときは「今日のひとこと」とわかるように</span></li>
@@ -479,7 +488,7 @@ let WX={issued:"",source:"",morning:[],days:[]};
 try{const c=JSON.parse(localStorage.getItem("yumebell_wx4")||"null");if(c&&c.days)WX=c}catch(e){}
 
 // ===== 設定 =====
-const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",paidBase:7,paidBaseDate:"2026-11-14"};
+const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",paidMonths:{}};
 try{Object.assign(S,JSON.parse(localStorage.getItem("yumebell")||"{}"))}catch(e){}
 function save(){try{localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
 
@@ -662,24 +671,28 @@ function importShiftCSV(text){
 }
 // ===== 有休カウンター(3月末で時効消滅する分の消化管理) =====
 // 前提: 毎年4/1に20日付与+前年繰越20日=40日を維持し、取得は古い分(消える分)から充てる運用。
-// 残り = 基準値 - 基準日より後に取得した「お休み(有休)」の日数。年度が替わったら消える分は20日に切り替わる。
+// 繰り越し分の残り = 20 - 今年度の使用合計。使用数は、シフトCSVがある月はCSVから、無い月は月別表(S.paidMonths)から数える。
 function paidCalc(today){
   const fyY=(y,m1)=>m1>=4?y:y-1; // 年度の開始年(4月始まり)
   const[ty,tm]=today.split("-").map(Number);const tfy=fyY(ty,tm);
-  let base=+S.paidBase||0,baseDate=S.paidBaseDate||today,rolled=false;
-  const[by,bm]=(baseDate.split("-").map(Number));
-  if(tfy>fyY(by,bm)){base=20;baseDate=`${tfy}-04-01`;rolled=true}
-  const fyEnd=`${tfy+1}-03-31`,mp=today.slice(0,7);
-  let used=0,sched=0,monthUsed=0,monthSched=0;
-  for(const d in SHIFTS){const sh=SHIFTS[d];if(!sh||!sh.off||!/有休/.test(sh.title||""))continue;
-    if(d>baseDate&&d<=today)used++;
-    else if(d>today&&d<=fyEnd){sched++;if(d.slice(0,7)===mp)monthSched++}
-    if(d.slice(0,7)===mp&&d<=today)monthUsed++}
-  const remain=Math.max(0,base-used),effRemain=Math.max(0,remain-sched);
+  const mp=today.slice(0,7);
+  const months=[];for(let i=0;i<12;i++){const y=tfy+Math.floor((3+i)/12),m=(3+i)%12+1;months.push(`${y}-${pad(m)}`)}
+  const csvM={};for(const d in SHIFTS)csvM[d.slice(0,7)]=1;
+  const pm=S.paidMonths||{};
+  let used=0,sched=0,monthUsed=0,monthSched=0;const bars=[];
+  for(const mk of months){
+    let u=0,s=0;
+    if(csvM[mk]){for(const d in SHIFTS){if(d.slice(0,7)!==mk)continue;const sh=SHIFTS[d];if(!sh||!sh.off||!/有休/.test(sh.title||""))continue;if(d<=today)u++;else s++}}
+    else u=+pm[mk]||0;
+    used+=u;sched+=s;if(mk===mp){monthUsed=u;monthSched=s}
+    bars.push({mk,label:+mk.slice(5)+"月",used:u,sched:s,cur:mk===mp});
+  }
+  const remain=Math.max(0,20-used),effRemain=Math.max(0,remain-sched);
   const monthsLeft=(tfy+1)*12+3-(ty*12+tm)+1;
   const pace=monthsLeft>0?effRemain/monthsLeft:effRemain;
   const need=effRemain>0?Math.max(0,Math.ceil(pace)-(monthUsed+monthSched)):0;
-  return{base,baseDate,rolled,used,sched,remain,effRemain,total:20+remain,monthsLeft,pace,need,monthUsed};
+  const rolled=(tm===4&&used===0);
+  return{used,sched,remain,effRemain,total:40-used,monthsLeft,pace,need,monthUsed,bars,rolled};
 }
 function paidComment(c){
   if(c.remain===0)return "消える分は全部使い切ったよ、お見事！";
@@ -692,11 +705,13 @@ let paidCache="";
 function renderPaid(){
   const el=document.getElementById("paidInfo");if(!el)return;
   const c=paidCalc(ymd(jstNow()));
-  let h=`<div class="pTtl">🏖 有休カウンター <span class="pSub">3月末で消える分</span></div><div class="paidRow"><div class="boardWrap"><img src="paid-bear.webp" alt="ホワイトボードを持つファーちゃん"><div class="boardNum"><span class="bLab">あと</span><span class="bNum">${c.remain}</span><span class="bDay">日</span></div></div><div class="paidTxt"><div>全体では約<b>${c.total}日</b>（基準${c.base}日 − 消化${c.used}日）</div>`;
+  let h=`<div class="pTtl">🏖 有休カウンター <span class="pSub">3月末で消える分</span></div><div class="paidRow"><div class="boardWrap"><img src="paid-bear.webp" alt="ホワイトボードを持つファーちゃん"><div class="boardNum"><span class="bLab">あと</span><span class="bNum">${c.remain}</span><span class="bDay">日</span></div></div><div class="paidTxt"><div>繰り越し分：残り <b>${c.remain}日</b>（今年度 ${c.used}日使用）</div><div>今年度分 20日と合わせて 約<b>${c.total}日</b></div>`;
   if(c.sched>0)h+=`<div>うち${c.sched}日はシフトに入ってるよ（実質あと${c.effRemain}日）</div>`;
   h+=`<div class="paidCap">🧸 ファーちゃん：「${paidComment(c)}」</div>`;
   if(c.effRemain>0)h+=`<div class="paidSub">目安：月${c.pace.toFixed(1)}日ペース</div>`;
   h+=`</div></div>`;
+  const mx=Math.max(1,...c.bars.map(b=>b.used+b.sched));
+  h+=`<div class="paidBars">`+c.bars.map(b=>`<div class="pBar"><div class="bVal">${b.used+b.sched>0?b.used+b.sched:""}</div><div class="bWrap"><div class="bSch" style="height:${Math.round(b.sched/mx*100)}%"></div><div class="bUse" style="height:${Math.round(b.used/mx*100)}%"></div></div><div class="bMon${b.cur?" cur":""}">${b.label}</div></div>`).join("")+`</div>`;
   if(c.rolled)h+=`<div>（4/1に新しい年度の消える分20日へ切り替えたよ）</div>`;
   if(h!==paidCache){paidCache=h;el.innerHTML=h}
 }
@@ -1091,10 +1106,16 @@ const sw=document.getElementById("sWalk"),sb=document.getElementById("sBuf"),st3
 sw.value=S.walk;sb.value=S.buf;st3.value=S.t3;
 const sar=document.getElementById("sArr");sar.value=S.arrive;
 sar.oninput=()=>{S.arrive=Math.max(0,Math.min(120,+sar.value||0));save();if(pAuto)setAutoDate();applyShiftForDate(true)};
-const spb=document.getElementById("sPaidBase");spb.value=S.paidBase;
-spb.oninput=()=>{S.paidBase=Math.max(0,Math.min(60,+spb.value||0));save();renderPaid()};
-const spd=document.getElementById("sPaidDate");spd.value=S.paidBaseDate||"";
-spd.onchange=()=>{if(spd.value){S.paidBaseDate=spd.value;save();renderPaid()}};
+const spm=document.getElementById("sPaidMonths");
+if(spm){if(!S.paidMonths)S.paidMonths={};
+  const now0=jstNow(),fy0=now0.getMonth()>=3?now0.getFullYear():now0.getFullYear()-1;
+  let gh=`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">`;
+  for(let i=0;i<12;i++){const y=fy0+Math.floor((3+i)/12),m=(3+i)%12+1,k=`${y}-${pad(m)}`;
+    gh+=`<label style="font-size:11px;color:var(--sub);display:flex;flex-direction:column;gap:2px">${m}月<input type="number" min="0" max="31" data-pm="${k}" value="${S.paidMonths[k]??""}" placeholder="0" style="width:100%;box-sizing:border-box"></label>`}
+  gh+=`</div><div class="note" style="margin-top:4px">シフトCSVを読み込んだ月は自動で数えるので、入力が要るのは未読込の月だけ</div>`;
+  spm.innerHTML=gh;
+  spm.querySelectorAll("input[data-pm]").forEach(inp=>{inp.oninput=()=>{S.paidMonths[inp.dataset.pm]=inp.value===""?0:Math.max(0,Math.min(31,+inp.value||0));save();renderPaid()}});
+}
 sw.oninput=()=>{S.walk=Math.max(0,+sw.value||0);save();renderNow()};
 sb.oninput=()=>{S.buf=Math.max(0,+sb.value||0);save();renderNow()};
 st3.oninput=()=>{S.t3=Math.max(0,+st3.value||0);save();renderNow()};

@@ -398,7 +398,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver2.4</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver2.4</span><span class="vDate">11/13</span><span class="vTxt">カウントダウンの下に「京急の運行情報（公式）」ボタンを追加、洗濯が乾きにくい日にもファーちゃんの絵を表示</span></li>
+        <li><span class="vNo">ver2.4</span><span class="vDate">11/13</span><span class="vTxt">カウントダウンの下に「京急の運行情報（公式）」ボタンを追加、洗濯が乾きにくい日にもファーちゃんの絵を表示、洗濯の風の加点ルールを修正（強風でも加点）</span></li>
         <li><span class="vNo">ver2.3</span><span class="vDate">11/13</span><span class="vTxt">天気と洗濯コメントのずれを修正：日付カードと吹き出しに雨の時間帯を表示、クマの天気の絵は出かける時間帯（5〜21時）の天気で決めるように（台風の絵は雨と強風が同じ時間のときだけ）、別の日を選んでいるときは「今日のひとこと」とわかるように</span></li>
         <li><span class="vNo">ver2.2</span><span class="vDate">11/13</span><span class="vTxt">占いの順位でファーちゃんの絵とコメントが変わるように（1〜6位はバンザイ、7〜12位はマグカップ。占い師のファーちゃんは今まで通り）、洗濯日和の日は洗濯ファーちゃん、雨で部屋干しの日は雨の日のファーちゃんを表示。おでかけガイドに、日時を指定して乗換案内をしらべる専用の項目を追加</span></li>
         <li><span class="vNo">ver2.1</span><span class="vDate">11/12</span><span class="vTxt">クマのファーちゃんのひとことを、時間帯ごとに固定（朝・昼・夜で切り替わるよ）</span></li>
@@ -813,7 +813,7 @@ function laundry(sl){
   const x=sl.dry;if(!x)return "";const p=x.p||0;let lv,msg;
   if(x.wet||p>=60){lv="ng";msg="🏠 <b>部屋干し</b>がいいよ。昼間に雨が降りそう"}
   else if(p>=40){lv="so";msg="🤔 <b>ちょっと心配</b>。干すなら軒下か、早めに取りこんでね"}
-  else{let sc=0;sc+=x.sun>=.6?2:x.sun>=.3?1:0;sc+=x.t>=20?2:x.t>=12?1:0;sc+=x.wind>=2&&x.wind<=6?1:0;if(x.hum!=null)sc+=x.hum<=50?2:x.hum<=65?1:x.hum>=80?-1:0;
+  else{let sc=0;sc+=x.sun>=.6?2:x.sun>=.3?1:0;sc+=x.t>=20?2:x.t>=12?1:0;sc+=x.wind>=2?1:0;if(x.hum!=null)sc+=x.hum<=50?2:x.hum<=65?1:x.hum>=80?-1:0;
     if(sc>=5){lv="ok";msg="✨ <b>よく乾くよ！</b>外干しびより。厚手のものもいけそう"}
     else if(sc>=3){lv="ok";msg="👕 <b>外干しOK</b>。薄手のものならしっかり乾くよ"}
     else{lv="so";msg="🌥 <b>乾きにくいかも</b>。外に干せるけど、厚手のものは部屋干しと合わせてね"}}

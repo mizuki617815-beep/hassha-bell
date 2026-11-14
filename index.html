@@ -1460,6 +1460,16 @@ function scoreSign(L,s,retro){
 // その日のめぐり(日付と星座から毎日決まる値 -1〜1)。月の位置だけだと同じ順位が2〜3日続きやすいので、総合の点に少し足して順位を動かす。同じ日なら何度開いても同じ
 const FLUCK=2;
 function dayLuck(day,s){let h=2166136261;for(const c of day+"#"+s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}h^=h>>>15;h=Math.imul(h,2246822507);h^=h>>>13;return ((h>>>0)/4294967295)*2-1}
+// 計算しただけの順位(その日のめぐり込み)。前の日・前々日との比較用
+function rawOrder(day){const t=new Date(day+"T12:00:00+09:00").getTime();const L=ASTRO.lonAll(t);const retro={mercury:ASTRO.retro("mercury",t),venus:ASTRO.retro("venus",t),mars:ASTRO.retro("mars",t)};
+  const all=SIGNS.map((_,i)=>scoreSign(L,i,retro));all.forEach((x,i)=>x.total+=FLUCK*dayLuck(day,i));
+  return all.map((x,i)=>[x.total+x.moon*.01,i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1])}
+// 前の日と同じ順位になった星座は、3回に1回くらいの確率でとなりの順位と入れかえる(3日連続になるときは必ず入れかえる)。前の日と同じ順位が出る割合は約7%
+const FSWAP=0.35;
+function fixRepeat(o,day){const d=new Date(day+"T12:00:00+09:00");const dd=n=>{const x=new Date(d.getTime()-n*86400000);return new Date(x.getTime()+9*3600000).toISOString().slice(0,10)};
+  const y1=rawOrder(dd(1)),y2=rawOrder(dd(2));o=o.slice();
+  for(let p=0;p<12;p++){const s=o[p];if(y1.indexOf(s)===p&&(y2.indexOf(s)===p||(dayLuck(day+"swap",s)+1)/2<FSWAP)){const q=p<11?p+1:p-1;[o[p],o[q]]=[o[q],o[p]]}}
+  return o}
 function starsByRank(vals,s){const sorted=vals.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]);const r=sorted.findIndex(x=>x[1]===s);return r<2?5:r<5?4:r<8?3:r<10?2:1}
 let FORT=null;
 async function loadFortuneData(){try{const r=await fetch("fortune.json",{cache:"no-store"});if(r.ok){FORT=await r.json();renderFortune()}}catch(e){}}
@@ -1485,7 +1495,7 @@ function renderFortune(){
   const t=new Date(day+"T12:00:00+09:00").getTime();
   const L=ASTRO.lonAll(t);const retro={mercury:ASTRO.retro("mercury",t),venus:ASTRO.retro("venus",t),mars:ASTRO.retro("mars",t)};
   const all=SIGNS.map((_,i)=>scoreSign(L,i,retro));all.forEach((x,i)=>x.total+=FLUCK*dayLuck(day,i));
-  const order=all.map((x,i)=>[x.total+x.moon*.01,i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);const rank=order.indexOf(s)+1;
+  const order=fixRepeat(all.map((x,i)=>[x.total+x.moon*.01,i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]),day);const rank=order.indexOf(s)+1;
   const me=all[s];const H=HOUSE[me.hM-1];
   // 月の満ち欠け(太陽と月の角度)と、月が星座のどのあたりにいるか(デーカン)
   const el=((L.moon-L.sun)%360+360)%360;const ph=FPHASE[Math.floor(((el+22.5)%360)/45)];

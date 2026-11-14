@@ -146,6 +146,11 @@ body.dark .paidPanel{background:rgba(244,154,193,.10);border-color:rgba(244,154,
 body.dark .bdayIn{background:linear-gradient(135deg,rgba(240,98,146,.22),rgba(120,160,255,.18));border-color:rgba(244,154,193,.5);color:#f2e9f7}
 .otPanel{margin-top:10px;background:#f3f0fd;border:1.5px solid #cfc2ee;border-radius:14px;padding:10px 12px;font-size:13px;line-height:1.65;color:#55496e}
 .otPanel .pTtl{font-size:13.5px;font-weight:900;color:#7a5fd0}
+.otPanel .otBig{font-size:23px;font-weight:900;color:#3a3350}
+body.dark .otPanel .otBig{color:#fff}
+.otPanel .otHist{font-size:11.5px;color:var(--sub);margin-top:2px}
+.otPanel .otHist b{color:#55496e}
+body.dark .otPanel .otHist b{color:#e8dff2}
 body.dark .otPanel{background:rgba(154,127,208,.12);border-color:rgba(154,127,208,.4);color:#e8dff2}
 .pBar .bYen{font-size:8px;color:var(--sub);white-space:nowrap;margin-top:1px}
 .pBar .otUse{background:#a58ae0}
@@ -447,7 +452,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver2.8</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver2.8</span><span class="vDate">11/14</span><span class="vTxt">残業がんばりカウンターを追加（残業時給と、月ごとの残業時間・残業代のグラフ。金額は給与明細の値、今月分はシフトからの確定分を表示）</span></li>
+        <li><span class="vNo">ver2.8</span><span class="vDate">11/14</span><span class="vTxt">残業がんばりカウンターを追加（残業時給とその推移、月ごとの残業時間・残業代のグラフ。金額は給与明細の値、今月分はシフトからの確定分を表示）</span></li>
         <li><span class="vNo">ver2.7</span><span class="vDate">11/14</span><span class="vTxt">シフトの控え機能を追加（消す前に自動で控えを保存して、復元ボタンで消えた日だけ足し戻せるようにした）</span></li>
         <li><span class="vNo">ver2.6</span><span class="vDate">11/14</span><span class="vTxt">有休カウンターを追加（消える分の残り日数とペースをファーちゃんのホワイトボードで表示、月ごとの使用数つき）</span></li>
         <li><span class="vNo">ver2.5</span><span class="vDate">11/14</span><span class="vTxt">シフトのある日は、目標の到着時刻までにあと何本電車を逃しても大丈夫かを表示するように</span></li>
@@ -506,7 +511,7 @@ let WX={issued:"",source:"",morning:[],days:[]};
 try{const c=JSON.parse(localStorage.getItem("yumebell_wx4")||"null");if(c&&c.days)WX=c}catch(e){}
 
 // ===== 設定 =====
-const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",paidMonths:{},otRate:0,otMonths:{}};
+const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",paidMonths:{},otRate:0,otRateHist:[],otMonths:{}};
 try{Object.assign(S,JSON.parse(localStorage.getItem("yumebell")||"{}"))}catch(e){}
 function save(){try{localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
 
@@ -765,14 +770,19 @@ function otCalc(today){
     else if(mk===mp){const k=otKakutei(mk);if(k!=null&&k>0){b.h=k/60;b.kak=k;b.t="kak"}}
     bars.push(b);
   }
-  return{bars,totH,totY,estH,estY,rate:+S.otRate||0};
+  const hist=(S.otRateHist||[]).map(e=>({fy:+e.fy,rate:+e.rate})).filter(e=>e.fy>0&&e.rate>0);
+  if(!hist.some(e=>e.fy===tfy))hist.push({fy:tfy,rate:+S.otRate||0});
+  hist.sort((a,b)=>a.fy-b.fy);
+  const histD=hist.map(e=>({label:`令和${e.fy-2018}年度`,rate:e.fy===tfy?(+S.otRate||e.rate):e.rate,cur:e.fy===tfy}));
+  return{bars,totH,totY,estH,estY,rate:+S.otRate||0,hist:histD};
 }
 let otCache="";
 function renderOt(){
   const el=document.getElementById("otInfo");if(!el)return;
   const c=otCalc(ymd(jstNow()));
   let h=`<div class="pTtl">🌙残業がんばりカウンター🧸</div>`;
-  h+=`<div>残業時給 <b>¥${c.rate.toLocaleString()}</b>（今年度）</div>`;
+  h+=`<div>残業時給 <span class="otBig">¥${c.rate.toLocaleString()}</span>（今年度）</div>`;
+  if(c.hist.length)h+=`<div class="otHist">時給の推移：${c.hist.map(e=>`${e.label} <b>¥${e.rate.toLocaleString()}</b>`).join(" → ")}</div>`;
   h+=`<div>今年度の支給済み累計 <b>${c.totH}h</b> ・ <b>¥${c.totY.toLocaleString()}</b>${c.estH?`（＋見込み ${c.estH}h・¥${c.estY.toLocaleString()}）`:""}</div>`;
   const mx=Math.max(1,...c.bars.map(b=>b.h));
   h+=`<div class="paidBars">`+c.bars.map(b=>{

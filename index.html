@@ -452,7 +452,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver2.8</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver2.8</span><span class="vDate">11/14</span><span class="vTxt">残業がんばりカウンターを追加（残業時給とその推移、月ごとの残業時間・残業代のグラフ。金額は給与明細の値、今月分はシフトからの確定分を表示）</span></li>
+        <li><span class="vNo">ver2.8</span><span class="vDate">11/14</span><span class="vTxt">残業がんばりカウンターを追加（残業時給とその推移、月ごとの残業時間・残業代のグラフ。金額は給与明細の値、明細がまだの月は見込みを表示）</span></li>
         <li><span class="vNo">ver2.7</span><span class="vDate">11/14</span><span class="vTxt">シフトの控え機能を追加（消す前に自動で控えを保存して、復元ボタンで消えた日だけ足し戻せるようにした）</span></li>
         <li><span class="vNo">ver2.6</span><span class="vDate">11/14</span><span class="vTxt">有休カウンターを追加（消える分の残り日数とペースをファーちゃんのホワイトボードで表示、月ごとの使用数つき）</span></li>
         <li><span class="vNo">ver2.5</span><span class="vDate">11/14</span><span class="vTxt">シフトのある日は、目標の到着時刻までにあと何本電車を逃しても大丈夫かを表示するように</span></li>
@@ -513,7 +513,6 @@ try{const c=JSON.parse(localStorage.getItem("yumebell_wx4")||"null");if(c&&c.day
 // ===== 設定 =====
 const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",paidMonths:{},otRate:0,otRateHist:[],otMonths:{}};
 try{Object.assign(S,JSON.parse(localStorage.getItem("yumebell")||"{}"))}catch(e){}
-if(S.otMonths&&S.otMonths["2026-10"]&&S.otMonths["2026-10"].t==="est")delete S.otMonths["2026-10"]; // 10月分の見込み仮置きは廃止(明細が出てから記載する)
 function save(){try{localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
 
 // ===== 日付 =====
@@ -749,15 +748,7 @@ function renderPaid(){
   if(h!==paidCache){paidCache=h;el.innerHTML=h}
 }
 // ===== 残業がんばりカウンター(時給+月ごとの残業時間・残業代) =====
-// 金額・時間の正は給与明細(S.otMonths、設定で編集可)。今月分だけ、読み込んだシフトから確定残業を自動表示する。
-function otKakutei(mk){ // その月の確定残業(分)。シフトが無い月は null
-  let has=false,sched=0,wd=0;
-  for(const d in SHIFTS){if(d.slice(0,7)!==mk)continue;const sh=SHIFTS[d];if(!sh)continue;has=true;
-    if(sh.off){if(/有休/.test(sh.title||"")){wd++;sched+=480}continue}
-    if(sh.start==null)continue;let sp=sh.end-sh.start;if(sp<=0)sp+=1440;sched+=sp>360?sp-60:sp;wd++}
-  if(!has)return null;
-  const k=sched-wd*480;return k>0?k:0;
-}
+// 金額・時間の正は給与明細(S.otMonths、設定で編集可)。明細がまだの完了月は見込み(est)を置ける。進行中の今月は何も表示しない(本人の希望)。
 function otCalc(today){
   const fyY=(y,m1)=>m1>=4?y:y-1;
   const[ty,tm]=today.split("-").map(Number);const tfy=fyY(ty,tm);const mp=today.slice(0,7);
@@ -768,7 +759,6 @@ function otCalc(today){
     const e=om[mk];
     if(e&&(+e.h>0||+e.y>0)){b.h=+e.h||0;b.y=+e.y||0;b.t=e.t||"pay";
       if(b.t==="pay"){totH+=b.h;totY+=b.y}else{estH+=b.h;estY+=b.y}}
-    else if(mk===mp){const k=otKakutei(mk);if(k!=null&&k>0){b.h=k/60;b.kak=k;b.t="kak"}}
     bars.push(b);
   }
   const hist=(S.otRateHist||[]).map(e=>({fy:+e.fy,rate:+e.rate})).filter(e=>e.fy>0&&e.rate>0);
@@ -787,12 +777,10 @@ function renderOt(){
   h+=`<div>今年度の支給済み累計 <b>${c.totH}h</b> ・ <b>¥${c.totY.toLocaleString()}</b>${c.estH?`（＋見込み ${c.estH}h・¥${c.estY.toLocaleString()}）`:""}</div>`;
   const mx=Math.max(1,...c.bars.map(b=>b.h));
   h+=`<div class="paidBars">`+c.bars.map(b=>{
-    const val=b.t==="kak"?`${Math.floor(b.kak/60)}h${pad(b.kak%60)}`:b.h?`${b.h}h`:"";
-    const cls=b.t==="pay"?"bUse otUse":b.t==="est"?"bUse otEst":b.t==="kak"?"bUse otKak":"bUse otEst";
+    const val=b.h?`${b.h}h`:"";
+    const cls=b.t==="pay"?"bUse otUse":"bUse otEst";
     const yen=b.y?`¥${(b.y/10000).toFixed(1)}万`:"";
     return `<div class="pBar"><div class="bVal">${val}</div><div class="bWrap"><div class="${cls}" style="height:${Math.round(b.h/mx*100)}%"></div></div><div class="bMon${b.cur?" cur":""}">${b.label}</div><div class="bYen">${yen}</div></div>`}).join("")+`</div>`;
-  const cur=c.bars.find(b=>b.cur);
-  if(cur&&cur.t==="kak")h+=`<div class="paidSub">今月はシフトからの確定分だよ（追加残業はまだ入ってない）</div>`;
   if(c.bars.some(b=>b.t==="est"))h+=`<div class="paidSub">薄い色は、明細が出る前の見込みだよ</div>`;
   if(h!==otCache){otCache=h;el.innerHTML=h}
 }
@@ -1213,7 +1201,7 @@ if(som){if(!S.otMonths)S.otMonths={};
   let oh=`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">`;
   for(let i=0;i<12;i++){const y=fy1+Math.floor((3+i)/12),m=(3+i)%12+1,k=`${y}-${pad(m)}`,e=S.otMonths[k]||{};
     oh+=`<label style="font-size:11px;color:var(--sub);display:flex;flex-direction:column;gap:2px">${m}月<input type="number" min="0" max="200" data-oth="${k}" value="${e.h??""}" placeholder="時間" style="width:100%;box-sizing:border-box"><input type="number" min="0" max="999999" data-oty="${k}" value="${e.y??""}" placeholder="金額" style="width:100%;box-sizing:border-box"></label>`}
-  oh+=`</div><div class="note" style="margin-top:4px">給与明細の「残業時間・残業代」をそのまま入れる欄（入力した月は支給済みとして集計する）。今月分は空にしておくと、シフトから確定分を自動表示する</div>`;
+  oh+=`</div><div class="note" style="margin-top:4px">給与明細の「残業時間・残業代」をそのまま入れる欄（入力した月は支給済みとして集計する）</div>`;
   som.innerHTML=oh;
   const updOt=k=>{const hi=som.querySelector(`input[data-oth="${k}"]`),yi=som.querySelector(`input[data-oty="${k}"]`);
     const hv=Math.max(0,+hi.value||0),yv=Math.max(0,+yi.value||0);

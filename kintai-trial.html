@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>勤怠（試作）｜ゆめいろ発車ベル</title>
+<style>
+:root{
+  --ink:#5b4a6b; --sub:#a291b3; --line:#f0e6fa;
+  --lav:#b79cff; --lav2:#efe7ff; --pink:#ff9fcf; --pink2:#ffe6f3; --mint:#7fdcc5; --mint2:#e2f9f3;
+  --sky:#8ec5ff; --sky2:#e3f1ff; --lemon:#ffd86b; --lemon2:#fff6d8; --rose:#ff7aa8; --rose2:#ffe3ee;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{color:var(--ink);font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;-webkit-font-smoothing:antialiased;
+  background:linear-gradient(170deg,#ffe3f1 0%,#efe4ff 38%,#dff0ff 72%,#e3fbf4 100%) fixed;min-height:100vh}
+.wrap{max-width:480px;margin:0 auto;padding:14px 14px 60px}
+.trial{background:var(--lemon2);border:2px dashed var(--lemon);border-radius:14px;padding:8px 12px;font-size:12px;margin-bottom:10px}
+.card{background:rgba(255,255,255,.92);border:2px solid #f3d9e8;border-radius:20px;padding:14px;margin-bottom:12px;box-shadow:0 6px 18px rgba(150,110,200,.12)}
+h1{font-size:19px;margin:4px 0 10px;text-align:center}
+h2{font-size:15px;margin:0 0 8px}
+.mon{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mon b{font-size:18px}
+button,.btn{font-family:inherit;color:var(--ink);border:2px solid #ecd6f5;background:#fff;border-radius:999px;padding:7px 14px;font-size:13px;cursor:pointer}
+button.main{background:linear-gradient(135deg,var(--pink),var(--lav));color:#fff;border:0;font-weight:bold}
+button.on{background:var(--lav);color:#fff;border-color:var(--lav)}
+.bear{display:flex;gap:10px;align-items:flex-start}
+.bear .ic{font-size:30px;line-height:1}
+.bubble{flex:1;background:var(--pink2);border-radius:14px;padding:8px 12px;font-size:13.5px;line-height:1.55}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.sum div{background:var(--lav2);border-radius:14px;padding:8px 10px}
+.sum small{display:block;font-size:11px;color:var(--sub)}
+.sum b{font-size:17px}
+.sum .big{grid-column:1/3;background:linear-gradient(135deg,var(--pink2),var(--lav2))}
+.sum .big b{font-size:21px}
+.note{font-size:11.5px;color:var(--sub);line-height:1.5;margin-top:6px}
+.day{display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.day:last-child{border-bottom:0}
+.dd{width:46px;text-align:center;font-size:13px;line-height:1.2}
+.dd small{display:block;font-size:10.5px;color:var(--sub)}
+.dd.sun{color:var(--rose)} .dd.sat{color:#5f9be0}
+.dm{flex:1;font-size:12.5px;line-height:1.45}
+.dm .t{font-weight:bold;font-size:13.5px}
+.dm .s{color:var(--sub);font-size:11px}
+.chip{font-size:11px;border-radius:999px;padding:3px 8px;white-space:nowrap}
+.chip.plan{background:#f4f0f8;color:var(--sub)}
+.chip.fix{background:var(--mint2);color:#2f9b80}
+.chip.off{background:var(--sky2);color:#4f8dd0}
+.chip.paid{background:var(--lemon2);color:#b9871a}
+.add{color:var(--rose);font-weight:bold}
+.isToday{background:#fff8fc;border-radius:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+/* 入力シート */
+#sheet{position:fixed;inset:0;background:rgba(80,60,110,.35);display:none;align-items:flex-end;justify-content:center;z-index:50}
+#sheet.show{display:flex}
+.panel{background:#fff;width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+.panel label{display:block;font-size:12px;color:var(--sub);margin-top:10px}
+.panel input[type=time],.panel input[type=text],.panel input[type=number],.set input{font-family:inherit;font-size:17px;color:var(--ink);border:2px solid #ecd6f5;border-radius:12px;padding:7px 10px;width:100%;background:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.calc{background:var(--lav2);border-radius:14px;padding:8px 12px;margin-top:12px;font-size:13px;line-height:1.6}
+.set label{display:block;font-size:12px;color:var(--sub);margin-top:10px}
+.ok{color:#2f9b80}.ng{color:var(--rose)}
+/* 印刷(PDF) */
+#print{display:none}
+@media print{
+  body{background:#fff}
+  .wrap{display:none}
+  #print{display:block;font-size:10.5pt;color:#000;padding:10mm}
+  #print table{width:100%;border-collapse:collapse}
+  #print th,#print td{border:1px solid #999;padding:3px 5px;text-align:center}
+  #print td.l{text-align:left}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="trial">🧪 これは試作ページだよ。アプリ本体には反映されてないので、気軽にさわってね。</div>
+  <h1>🧸 勤怠ノート</h1>
+
+  <div class="card">
+    <div class="mon">
+      <button id="prev">◀</button>
+      <b id="monLabel"></b>
+      <button id="next">▶</button>
+    </div>
+    <div class="bear" style="margin-top:12px">
+      <div class="ic">🧸</div>
+      <div class="bubble" id="bubble"></div>
+    </div>
+    <div class="sum" id="sum"></div>
+    <div class="note" id="sumNote"></div>
+  </div>
+
+  <div class="card">
+    <h2>📅 毎日の記録</h2>
+    <div class="note" style="margin-top:0">日付をタップして入力。シフトの予定時刻が最初から入ってるよ。</div>
+    <div id="days"></div>
+  </div>
+
+  <div class="card set">
+    <h2>📤 出力・読み込み</h2>
+    <div class="row">
+      <button id="csvOut">CSVで保存</button>
+      <label class="btn" for="csvIn">CSVを読み込む</label>
+      <input type="file" id="csvIn" accept=".csv,text/csv" style="display:none">
+      <button id="pdfOut">PDFにする</button>
+    </div>
+    <div class="note">PDFは、開いた画面の「共有」→「プリント」→ 2本指で広げるとPDFで保存できるよ。</div>
+    <div class="row">
+      <label class="btn" for="shiftIn">🗓 シフトCSVを読み込む</label>
+      <input type="file" id="shiftIn" accept=".csv,text/csv" style="display:none">
+    </div>
+    <div class="note" id="shiftNote"></div>
+  </div>
+
+  <div class="card set">
+    <h2>☁️ Googleスプレッドシートに保存</h2>
+    <label>つなぎ先のURL（Apps Scriptの「ウェブアプリ」のURL）</label>
+    <input type="text" id="gUrl" placeholder="https://script.google.com/macros/s/…/exec">
+    <div class="row">
+      <button id="gSave" class="main">つなぐ・今すぐ保存</button>
+      <button id="gLoad">シートから復元</button>
+    </div>
+    <div class="note" id="gNote"></div>
+  </div>
+
+  <div class="card set">
+    <h2>⚙️ 計算の設定</h2>
+    <label>残業単価（円/時間）</label>
+    <input type="number" id="rate" inputmode="numeric">
+    <label>この月の公休日数（ふだん10日・2月は9日）</label>
+    <input type="number" id="koukyu" inputmode="numeric">
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)"><input type="checkbox" id="paid8" style="width:auto"> 有休の日を実働8時間として数える</label>
+    <div class="note">ルール：所定＝（暦の日数−公休）×8h。拘束6時間超のシフトは休憩60分。残業は月合計で30分未満切り捨て・30分以上切り上げ。</div>
+  </div>
+</div>
+
+<div id="sheet"><div class="panel" id="panel"></div></div>
+<div id="print"></div>
+
+<script>
+// ===== 共通 =====
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const WD="日月火水木金土";
+const hm=m=>m==null?"--:--":`${Math.floor(m/60)}:${pad(m%60)}`;
+const dur=m=>{const s=m<0?"-":"";m=Math.abs(Math.round(m));return`${s}${Math.floor(m/60)}h${pad(m%60)}`};
+const toMin=v=>{if(!v)return null;const[h,m]=v.split(":").map(Number);return h*60+m};
+const toTime=m=>m==null?"":`${pad(Math.floor(m/60)%24)}:${pad(m%60)}`;
+const jstNow=()=>new Date(Date.now()+(new Date().getTimezoneOffset()+540)*60000);
+function load(k,def){try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?def:v}catch(e){return def}}
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+// アプリ本体のデータ(シフト・設定)を読む
+const SHIFT_KEY="yumebell_shifts_v1";
+let SHIFTS=load(SHIFT_KEY,{});
+const APP=load("yumebell",{});
+
+// 勤怠データ
+const KEY="yumebell_kintai_v1";
+let KT=load(KEY,{days:{},koukyu:{},rate:null,paid8:true,url:"",lastSync:null,dirty:false});
+KT.days=KT.days||{};KT.koukyu=KT.koukyu||{};
+function save(){
+  KT.dirty=true;store(KEY,KT);autoBackup();scheduleSync();
+}
+// 自動の控え(端末内に日ごと最大3つ)
+function autoBackup(){
+  const t=ymd(jstNow());const bk=load(KEY+"_bk",[]);
+  const i=bk.findIndex(b=>b.at===t);const snap={at:t,days:KT.days};
+  if(i>=0)bk[i]=snap;else bk.unshift(snap);
+  store(KEY+"_bk",bk.slice(0,3));
+}
+
+let cur=(()=>{const n=jstNow();return{y:n.getFullYear(),m:n.getMonth()+1}})();
+const mkey=()=>`${cur.y}-${pad(cur.m)}`;
+const daysIn=(y,m)=>new Date(y,m,0).getDate();
+const rate=()=>+KT.rate||+APP.otRate||0;
+const koukyu=(y,m)=>{const k=`${y}-${pad(m)}`;return KT.koukyu[k]!=null?+KT.koukyu[k]:(m===2?9:10)};
+const isPaid=sh=>sh&&sh.off&&/有休/.test(sh.title||"");
+
+// ===== 1日の計算 =====
+// 拘束が6時間(360分)を超えると休憩60分
+const stdBreak=span=>span>360?60:0;
+function dayCalc(d){
+  const sh=SHIFTS[d],e=KT.days[d];
+  let plan=null;
+  if(sh&&!sh.off&&sh.start!=null&&sh.end!=null){
+    let span=sh.end-sh.start;if(span<0)span+=1440;
+    plan={start:sh.start,end:sh.end,span,brk:stdBreak(span),work:span-stdBreak(span)};
+  }
+  if(isPaid(sh)&&KT.paid8)plan={paid:true,work:480};
+  let act=null;
+  if(e&&e.in!=null&&e.out!=null){
+    let span=e.out-e.in;if(span<0)span+=1440;
+    const brk=e.brk!=null?e.brk:stdBreak(span);
+    act={start:e.in,end:e.out,span,brk,work:span-brk};
+  }
+  const planW=plan?plan.work:0;
+  const actW=act?act.work:null;
+  // 早上がりはない前提：予定より短くても相殺しない
+  const eff=actW==null?planW:Math.max(actW,planW);
+  const extra=actW==null?0:Math.max(0,actW-planW);
+  return{sh,e,plan,act,planW,eff,extra,fixed:!!(e&&e.fixed)};
+}
+// 残業の丸め：30分未満切り捨て・30分以上切り上げ(月合計で1回)
+const roundOT=min=>{const h=Math.floor(min/60),r=min%60;return r>=30?h+1:h};
+
+function monthCalc(y,m){
+  const n=daysIn(y,m);let planSum=0,effSum=0,extraSum=0,fixedDays=0,workDays=0;
+  for(let i=1;i<=n;i++){const d=`${y}-${pad(m)}-${pad(i)}`;const c=dayCalc(d);
+    planSum+=c.planW;effSum+=c.eff;extraSum+=c.extra;if(c.fixed)fixedDays++;if(c.planW>0||c.act)workDays++}
+  const kou=koukyu(y,m),shotei=(n-kou)*480;
+  const kakutei=Math.max(0,planSum-shotei);
+  const ot=Math.max(0,effSum-shotei);
+  const otH=roundOT(ot);
+  return{n,kou,shotei,planSum,effSum,extraSum,kakutei,ot,otH,yen:otH*rate(),fixedDays,workDays};
+}
+
+// ===== 画面 =====
+function render(){
+  const y=cur.y,m=cur.m,c=monthCalc(y,m);
+  document.getElementById("monLabel").textContent=`${y}年${m}月`;
+  const hasShift=Object.keys(SHIFTS).some(k=>k.startsWith(mkey()));
+  document.getElementById("sum").innerHTML=`
+    <div><small>今月の所定（線）</small><b>${dur(c.shotei)}</b><small>出勤${c.n-c.kou}日×8h</small></div>
+    <div><small>シフトの予定合計</small><b>${dur(c.planSum)}</b></div>
+    <div><small>確定残業</small><b>${dur(c.kakutei)}</b></div>
+    <div><small>追加残業（入力済み）</small><b class="add">+${dur(c.extraSum)}</b></div>
+    <div class="big"><small>今月の残業 見込み（${dur(c.ot)} → 丸め）</small><b>${c.otH}時間 ・ ¥${c.yen.toLocaleString()}</b></div>`;
+  document.getElementById("sumNote").textContent=`入力済み ${c.fixedDays}日 / 出勤 ${c.workDays}日。まだ入力してない日は予定どおりで計算してるよ。残業代は翌月支給。`;
+  // クマちゃん
+  let t;
+  if(!hasShift)t="ママ、この月のシフトがまだ入ってないみたい。シフトCSVを読み込むと、予定の時間を全部入れておくよ🧸";
+  else if(c.kakutei>0)t=`ママ、今月はシフトの時点で確定残業が${dur(c.kakutei)}あるよ。いっぱい頑張ってるね、えらいよ🧸`;
+  else t="ママ、今月はシフトどおりなら残業なしだよ。無理しないでね🧸";
+  if(c.extraSum>0)t+=`<br>追加残業も+${dur(c.extraSum)}。おつかれさま、帰ったらゆっくり休もうね。`;
+  document.getElementById("bubble").innerHTML=t;
+  // 日ごと
+  const today=ymd(jstNow());let h="";
+  for(let i=1;i<=c.n;i++){
+    const d=`${y}-${pad(m)}-${pad(i)}`,dc=dayCalc(d),w=new Date(y,m-1,i).getDay();
+    let main,sub="",chip;
+    if(dc.act){
+      main=`${hm(dc.act.start)}〜${hm(dc.act.end)}　休${dc.act.brk}分`;
+      sub=`実働 ${dur(dc.act.work)}`+(dc.extra?`　<span class="add">追加 +${dur(dc.extra)}</span>`:"")+(dc.e.memo?`　📝${esc(dc.e.memo)}`:"");
+      chip=dc.fixed?`<span class="chip fix">確定✓</span>`:`<span class="chip plan">入力中</span>`;
+    }else if(dc.plan&&!dc.plan.paid){
+      main=`${hm(dc.plan.start)}〜${hm(dc.plan.end)}　休${dc.plan.brk}分`;
+      sub=`予定 ${dur(dc.plan.work)}　${esc(dc.sh.title)}`;chip=`<span class="chip plan">予定</span>`;
+    }else if(isPaid(dc.sh)){
+      main="有休";sub=KT.paid8?"8時間として数えるよ":"";chip=`<span class="chip paid">有休</span>`;
+    }else if(dc.sh&&dc.sh.off){
+      main="お休み";chip=`<span class="chip off">休</span>`;
+    }else{
+      main=`<span style="color:var(--sub)">シフトなし</span>`;chip="";
+    }
+    if(dc.e&&dc.e.memo&&!dc.act)sub+=`　📝${esc(dc.e.memo)}`;
+    h+=`<div class="day${d===today?" isToday":""}" data-d="${d}">
+      <div class="dd ${w===0?"sun":w===6?"sat":""}">${m}/${i}<small>${WD[w]}</small></div>
+      <div class="dm"><div class="t">${main}</div><div class="s">${sub}</div></div>${chip}</div>`;
+  }
+  const el=document.getElementById("days");el.innerHTML=h;
+  el.querySelectorAll(".day").forEach(r=>r.onclick=()=>openDay(r.dataset.d));
+  // 設定欄
+  document.getElementById("rate").value=rate();
+  document.getElementById("koukyu").value=koukyu(y,m);
+  document.getElementById("paid8").checked=!!KT.paid8;
+  document.getElementById("gUrl").value=KT.url||"";
+  const sk=Object.keys(SHIFTS).filter(k=>k.startsWith(mkey()));
+  document.getElementById("shiftNote").textContent=sk.length?`この月のシフト：${sk.length}日分あるよ`:"この月のシフトはまだないよ";
+  renderSync();
+}
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// ===== 入力シート =====
+function openDay(d){
+  const dc=dayCalc(d),e=KT.days[d]||{};
+  const [Y,M,D]=d.split("-").map(Number),w=new Date(Y,M-1,D).getDay();
+  const pin=e.in!=null?e.in:(dc.plan&&!dc.plan.paid?dc.plan.start:null);
+  const pout=e.out!=null?e.out:(dc.plan&&!dc.plan.paid?dc.plan.end:null);
+  const p=document.getElementById("panel");
+  p.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <b style="font-size:17px">${M}/${D}（${WD[w]}）</b><button id="xClose">とじる</button></div>
+    <div class="note">${dc.sh?`シフト：${esc(dc.sh.title)}`:"シフトなし"}${dc.plan&&!dc.plan.paid?`（予定 実働${dur(dc.plan.work)}）`:""}</div>
+    <div class="two">
+      <div><label>出勤</label><input type="time" id="xIn" value="${toTime(pin)}"></div>
+      <div><label>退勤</label><input type="time" id="xOut" value="${toTime(pout)}"></div>
+    </div>
+    <label>休憩（取れた分）</label>
+    <div class="row" id="xBrk" style="margin-top:4px">
+      <button data-b="60">60分</button><button data-b="30">30分</button><button data-b="0">0分</button>
+      <input type="number" id="xBrkN" inputmode="numeric" placeholder="ほか(分)" style="width:110px;font-size:14px">
+    </div>
+    <label>備考</label>
+    <input type="text" id="xMemo" value="${esc(e.memo)}" placeholder="例：遅延対応で延長">
+    <div class="calc" id="xCalc"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="main" id="xFix" style="flex:1">確定する</button>
+      ${dc.plan&&!dc.plan.paid?`<button id="xAsPlan" style="flex:1">予定どおりで確定</button>`:""}
+    </div>
+    <div class="row"><button id="xDel" style="font-size:12px">この日の入力を消す</button></div>`;
+  let brk=e.brk!=null?e.brk:null;
+  const span=()=>{const a=toMin(xIn.value),b=toMin(xOut.value);if(a==null||b==null)return null;let s=b-a;if(s<0)s+=1440;return s};
+  const curBrk=()=>{const s=span();return brk!=null?brk:(s==null?0:stdBreak(s))};
+  const xIn=p.querySelector("#xIn"),xOut=p.querySelector("#xOut");
+  function upd(){
+    const s=span(),b=curBrk();
+    p.querySelectorAll("#xBrk button").forEach(x=>x.classList.toggle("on",+x.dataset.b===b));
+    if(s==null){p.querySelector("#xCalc").textContent="出勤と退勤を入れてね";return}
+    const w=s-b,pw=dc.plan&&!dc.plan.paid?dc.plan.work:0,ex=Math.max(0,w-pw);
+    p.querySelector("#xCalc").innerHTML=`拘束 ${dur(s)} − 休憩 ${b}分 ＝ 実働 <b>${dur(w)}</b>`+
+      (pw?`<br>予定 ${dur(pw)} → 追加残業 <b class="add">+${dur(ex)}</b>`:"")+
+      (b<stdBreak(s)?`<br>🧸 休憩が${stdBreak(s)-b}分足りなかった分は、労働時間に入るよ`:"");
+  }
+  p.querySelectorAll("#xBrk button").forEach(x=>x.onclick=()=>{brk=+x.dataset.b;p.querySelector("#xBrkN").value="";upd()});
+  p.querySelector("#xBrkN").oninput=ev=>{const v=ev.target.value;brk=v===""?null:Math.max(0,+v);upd()};
+  xIn.oninput=upd;xOut.oninput=upd;upd();
+  const close=()=>document.getElementById("sheet").classList.remove("show");
+  p.querySelector("#xClose").onclick=close;
+  p.querySelector("#xFix").onclick=()=>{
+    const a=toMin(xIn.value),b=toMin(xOut.value),memo=p.querySelector("#xMemo").value.trim();
+    if(a==null||b==null){if(memo){KT.days[d]={memo,fixed:false};save();close();render();return}alert("出勤と退勤を入れてね");return}
+    KT.days[d]={in:a,out:b,brk:curBrk(),memo,fixed:true};save();close();render();
+  };
+  const ap=p.querySelector("#xAsPlan");
+  if(ap)ap.onclick=()=>{KT.days[d]={in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:p.querySelector("#xMemo").value.trim(),fixed:true};save();close();render()};
+  p.querySelector("#xDel").onclick=()=>{if(!confirm("この日の入力を消す？"))return;delete KT.days[d];save();close();render()};
+  document.getElementById("sheet").classList.add("show");
+}
+document.getElementById("sheet").onclick=ev=>{if(ev.target.id==="sheet")ev.target.classList.remove("show")};
+
+// ===== 月の切り替え・設定 =====
+document.getElementById("prev").onclick=()=>{cur.m--;if(cur.m<1){cur.m=12;cur.y--}render()};
+document.getElementById("next").onclick=()=>{cur.m++;if(cur.m>12){cur.m=1;cur.y++}render()};
+document.getElementById("rate").onchange=ev=>{KT.rate=Math.max(0,+ev.target.value||0);save();render()};
+document.getElementById("koukyu").onchange=ev=>{KT.koukyu[mkey()]=Math.max(0,Math.min(15,+ev.target.value||0));save();render()};
+document.getElementById("paid8").onchange=ev=>{KT.paid8=ev.target.checked;save();render()};
+
+// ===== CSV =====
+const CSV_HEAD=["日付","シフト","出勤","退勤","休憩(分)","実働","予定の実働","追加残業","備考","確定"];
+function monthRows(y,m){
+  const rows=[CSV_HEAD];
+  for(let i=1;i<=daysIn(y,m);i++){const d=`${y}-${pad(m)}-${pad(i)}`,c=dayCalc(d);
+    rows.push([d,c.sh?c.sh.title:"",c.act?toTime(c.act.start):"",c.act?toTime(c.act.end):"",c.act?c.act.brk:"",
+      c.act?dur(c.act.work):"",c.planW?dur(c.planW):"",c.extra?dur(c.extra):"",c.e&&c.e.memo||"",c.fixed?"✓":""])}
+  const s=monthCalc(y,m);
+  rows.push([]);
+  rows.push(["所定",dur(s.shotei)],["予定合計",dur(s.planSum)],["確定残業",dur(s.kakutei)],["追加残業",dur(s.extraSum)],["残業(丸め)",s.otH+"時間"],["時間外手当",s.yen]);
+  return rows;
+}
+const csvLine=r=>r.map(v=>{v=String(v??"");return/[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v}).join(",");
+document.getElementById("csvOut").onclick=()=>{
+  const txt="﻿"+monthRows(cur.y,cur.m).map(csvLine).join("\r\n");
+  const blob=new Blob([txt],{type:"text/csv"}),a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download=`勤怠_${mkey()}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+};
+function parseCSV(text){
+  const rows=[];let row=[],cell="",q=false;text=String(text).replace(/^﻿/,"");
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){cell+='"';i++}else q=false}else cell+=c}
+    else if(c==='"')q=true;else if(c===","){row.push(cell);cell=""}
+    else if(c==="\n"||c==="\r"){if(c==="\r"&&text[i+1]==="\n")i++;row.push(cell);rows.push(row);row=[];cell=""}
+    else cell+=c}
+  if(cell!==""||row.length){row.push(cell);rows.push(row)}
+  return rows;
+}
+document.getElementById("csvIn").onchange=ev=>{
+  const f=ev.target.files[0];if(!f)return;
+  f.text().then(t=>{let n=0;
+    for(const r of parseCSV(t)){const d=(r[0]||"").trim();if(!/^\d{4}-\d{2}-\d{2}$/.test(d))continue;
+      const a=toMin(r[2]),b=toMin(r[3]);
+      if(a!=null&&b!=null){KT.days[d]={in:a,out:b,brk:r[4]===""?null:+r[4],memo:r[8]||"",fixed:r[9]==="✓"};n++}
+      else if(r[8]){KT.days[d]={memo:r[8],fixed:false};n++}}
+    if(n){save();render();alert(`${n}日分を読み込んだよ`)}else alert("読み込める行が見つからなかったよ（このページで保存したCSVの形か確認してね）");
+  });ev.target.value="";
+};
+// シフトCSV(アプリ本体と同じ形：date,title,category)
+function hm4(v){v=String(v).replace(/\D/g,"");if(v.length<3)return null;v=v.padStart(4,"0");const h=+v.slice(0,-2),mi=+v.slice(-2);if(h>29||mi>59)return null;return h*60+mi}
+function shiftFromTitle(t){t=String(t||"");
+  if(/お休み/.test(t))return{title:t,off:true,start:null,end:null};
+  const m=t.match(/(\d{3,4})\s*[-–ー~〜]\s*(\d{3,4})/);
+  if(/^(cx|CX)/.test(t)&&m)return{title:t,off:false,start:hm4(m[1]),end:hm4(m[2])};return null}
+document.getElementById("shiftIn").onchange=ev=>{
+  const f=ev.target.files[0];if(!f)return;
+  f.text().then(t=>{let n=0;for(const r of parseCSV(t)){const d=(r[0]||"").trim();if(!/^\d{4}-\d{2}-\d{2}$/.test(d))continue;
+    const sh=shiftFromTitle(r[1]);if(!sh)continue;SHIFTS[d]=sh;n++}
+    if(n){store(SHIFT_KEY,SHIFTS);render();alert(`シフト${n}件を読み込んだよ`)}else alert("シフトが見つからなかったよ");
+  });ev.target.value="";
+};
+
+// ===== PDF(印刷) =====
+document.getElementById("pdfOut").onclick=()=>{
+  const rows=monthRows(cur.y,cur.m),s=monthCalc(cur.y,cur.m);
+  let h=`<h2 style="margin:0 0 6px">勤怠表　${cur.y}年${cur.m}月</h2><table><tr>${CSV_HEAD.slice(0,9).map(x=>`<th>${x}</th>`).join("")}</tr>`;
+  for(const r of rows.slice(1)){if(!/^\d{4}-/.test(r[0]||""))continue;const [Y,M,D]=r[0].split("-").map(Number);
+    h+=`<tr><td>${M}/${D}(${WD[new Date(Y,M-1,D).getDay()]})</td>${r.slice(1,9).map((v,i)=>`<td${i===7?' class="l"':""}>${esc(v)}</td>`).join("")}</tr>`}
+  h+=`</table><p style="margin-top:8px">所定 ${dur(s.shotei)}（出勤${s.n-s.kou}日×8h）／予定合計 ${dur(s.planSum)}／確定残業 ${dur(s.kakutei)}／追加残業 ${dur(s.extraSum)}<br>
+    残業 ${dur(s.ot)} → <b>${s.otH}時間</b>　時間外手当 見込み <b>¥${s.yen.toLocaleString()}</b>（単価 ¥${rate().toLocaleString()}）</p>`;
+  document.getElementById("print").innerHTML=h;window.print();
+};
+
+// ===== Googleスプレッドシート =====
+let syncTimer=null;
+function scheduleSync(){if(!KT.url)return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>sync(),1500)}
+function payload(){
+  const months={};for(const d in KT.days)months[d.slice(0,7)]=1;months[mkey()]=1;
+  const tabs={};for(const k in months){const[y,m]=k.split("-").map(Number);tabs[k]=monthRows(y,m)}
+  return{app:"yumebell-kintai",v:1,at:new Date().toISOString(),data:{days:KT.days,koukyu:KT.koukyu,rate:KT.rate,paid8:KT.paid8},tabs};
+}
+async function sync(manual){
+  if(!KT.url)return;
+  try{
+    const r=await fetch(KT.url,{method:"POST",body:JSON.stringify(payload())});
+    const t=await r.text();if(!/ok/.test(t))throw new Error(t.slice(0,80));
+    KT.lastSync=new Date().toISOString();KT.dirty=false;store(KEY,KT);renderSync(manual?"✅ シートに保存したよ":"");
+  }catch(e){renderSync("⚠️ シートに送れなかったよ。電波のいいところでもう一度ためしてね",true)}
+}
+function renderSync(msg,ng){
+  const el=document.getElementById("gNote");if(!el)return;
+  let t=msg||"";
+  if(!t){if(!KT.url)t="まだつないでないよ。下の手順でURLを用意してね。";
+    else if(KT.dirty)t="⏳ まだシートに送ってない変更があるよ";
+    else if(KT.lastSync){const d=new Date(KT.lastSync);t=`☁️ 最後に保存：${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${pad(d.getMinutes())}`}}
+  el.innerHTML=`<span class="${ng?"ng":"ok"}">${t}</span>`;
+}
+document.getElementById("gSave").onclick=()=>{
+  const u=document.getElementById("gUrl").value.trim();
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(u)){renderSync("⚠️ URLの形がちがうみたい（https://script.google.com/macros/s/…/exec）",true);return}
+  KT.url=u;store(KEY,KT);renderSync("送信中…");sync(true);
+};
+document.getElementById("gLoad").onclick=async()=>{
+  const u=KT.url||document.getElementById("gUrl").value.trim();if(!u){renderSync("⚠️ 先にURLを入れてね",true);return}
+  if(!confirm("シートに保存してある記録で、この端末の記録を置きかえる？"))return;
+  try{const r=await fetch(u);const j=await r.json();if(!j||!j.days)throw 0;
+    KT.days=j.days;KT.koukyu=j.koukyu||{};if(j.rate)KT.rate=j.rate;if(j.paid8!=null)KT.paid8=j.paid8;KT.url=u;KT.dirty=false;store(KEY,KT);render();renderSync("✅ シートから復元したよ");
+  }catch(e){renderSync("⚠️ 復元できなかったよ（まだ一度も保存してないか、URLがちがうかも）",true)}
+};
+window.addEventListener("online",()=>{if(KT.dirty)sync()});
+if(KT.dirty)setTimeout(()=>sync(),2000);
+
+render();
+</script>
+</body>
+</html>

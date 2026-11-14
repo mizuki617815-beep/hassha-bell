@@ -23,7 +23,7 @@ body{color:var(--ink);font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN",
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
   background-image:radial-gradient(circle at 12% 18%,#fff 0 2px,transparent 3px),radial-gradient(circle at 80% 8%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 65% 40%,#fff 0 2px,transparent 3px),radial-gradient(circle at 25% 70%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 90% 85%,#fff 0 2px,transparent 3px)}
 .wrap{position:relative;max-width:480px;margin:0 auto;padding:14px 14px 96px}
-#navWx,#navFortune,#navTrain,#navPlan,#navSet{scroll-margin-top:10px}
+#navWx,#navFortune,#navTrain,#navPlan,#navSet,#paidInfo{scroll-margin-top:10px}
 #jumpNav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;display:flex;gap:2px;width:min(94vw,430px);background:rgba(255,255,255,.96);border:2px solid #f3d9e8;border-radius:999px;padding:6px;box-shadow:0 8px 24px rgba(90,60,140,.28)}
 #jumpNav button{flex:1;border:0;background:transparent;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 0 6px;border-radius:999px;color:var(--sub)}
 #jumpNav .nIco{font-size:21px;line-height:1.15}
@@ -460,7 +460,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver2.9</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver2.9</span><span class="vDate">11/14</span><span class="vTxt">下部に固定ナビを追加（天気・占い・電車・あした・設定へワンタップで移動できる）</span></li>
+        <li><span class="vNo">ver2.9</span><span class="vDate">11/14</span><span class="vTxt">下部に固定ナビを追加（天気・占い・電車・あした・カウンター・設定へワンタップで移動できる）</span></li>
         <li><span class="vNo">ver2.8</span><span class="vDate">11/14</span><span class="vTxt">残業がんばりカウンターを追加（残業時給とその推移、月ごとの残業時間・残業代のグラフ。金額は給与明細の値、明細がまだの月は見込みを表示）</span></li>
         <li><span class="vNo">ver2.7</span><span class="vDate">11/14</span><span class="vTxt">シフトの控え機能を追加（消す前に自動で控えを保存して、復元ボタンで消えた日だけ足し戻せるようにした）</span></li>
         <li><span class="vNo">ver2.6</span><span class="vDate">11/14</span><span class="vTxt">有休カウンターを追加（消える分の残り日数とペースをファーちゃんのホワイトボードで表示、月ごとの使用数つき）</span></li>
@@ -492,7 +492,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
   </div>
 </div>
 
-<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
+<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="paidInfo"><span class="nIco">🧸</span><span class="nLbl">カウンター</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
 <script>
 // 時刻表データ(京急空港線 2025年12月13日改正＋2026年11月ダイヤ変更ぶん)。発車:京急公式各駅時刻表/NAVITIME、到着:NAVITIME(2026/11/10取得)、ダイヤ変更ぶん:京急公式ニュースリリース(2026/11/11確認)
 function T(s){return s.split(" ").map(x=>{const [d,r,t,p]=x.split(",");return {m:+d,r:+r,t,p:+p}})}
@@ -1654,7 +1654,7 @@ setInterval(()=>{renderCheer(false);renderBday()},60000);
 const navBtns=[...document.querySelectorAll("#jumpNav button")];
 function navOn(id){navBtns.forEach(b=>b.classList.toggle("on",b.dataset.t===id))}
 navBtns.forEach(b=>b.addEventListener("click",()=>{const el=document.getElementById(b.dataset.t);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});navOn(b.dataset.t)}}));
-if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)navOn(e.target.id)})},{rootMargin:"-35% 0px -60% 0px"});["navWx","navFortune","navTrain","navPlan","navSet"].forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
+if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","paidInfo","navSet"];const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
 // ===== 更新ボタン・下に引っぱって更新 =====
 function hardReload(){const p=document.getElementById("ptr");p.textContent="🔄 更新中…";p.style.transform="translate(-50%,12px)";setTimeout(()=>location.reload(),150)}
 document.getElementById("reloadBtn").onclick=hardReload;

@@ -617,7 +617,7 @@ let WX={issued:"",source:"",morning:[],days:[]};
 try{const c=JSON.parse(localStorage.getItem("yumebell_wx4")||"null");if(c&&c.days)WX=c}catch(e){}
 
 // ===== 設定 =====
-const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",paidMonths:{},otRate:0,otRateHist:[],otMonths:{}};
+const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",paidMonths:{},otRate:0,otRateHist:[],otMonths:{}}; // 個人の数字は端末内(yumebell)にだけ保存する。公開リポジトリなのでここに本人の値を書かない
 try{Object.assign(S,JSON.parse(localStorage.getItem("yumebell")||"{}"))}catch(e){}
 function save(){try{localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
 

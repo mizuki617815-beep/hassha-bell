@@ -460,7 +460,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.0</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver3.0</span><span class="vDate">11/14</span><span class="vTxt">占いの「恋愛運」を「家族運」に（ふたりの時間・夫婦向けの文章に書きかえ）、金運の文言を修正</span></li>
+        <li><span class="vNo">ver3.0</span><span class="vDate">11/14</span><span class="vTxt">占いの「恋愛運」を「夫婦運」に（ふたりの時間の文章に書きかえ）、金運の文言を修正</span></li>
         <li><span class="vNo">ver2.9</span><span class="vDate">11/14</span><span class="vTxt">下部に固定ナビを追加（天気・占い・電車・あした・カウンター・設定へワンタップで移動できる）</span></li>
         <li><span class="vNo">ver2.8</span><span class="vDate">11/14</span><span class="vTxt">残業がんばりカウンターを追加（残業時給とその推移、月ごとの残業時間・残業代のグラフ。金額は給与明細の値、明細がまだの月は見込みを表示）</span></li>
         <li><span class="vNo">ver2.7</span><span class="vDate">11/14</span><span class="vTxt">シフトの控え機能を追加（消す前に自動で控えを保存して、復元ボタンで消えた日だけ足し戻せるようにした）</span></li>
@@ -1472,7 +1472,7 @@ function renderFortune(){
   const zt=FORT&&FORT.zt&&FORT.zt[day]&&FORT.zt[day][S.sign];
   if(jg){ // 原宿占い館 塔里木 監修の占いが取れている日はそれを表示
     fBearSet(+jg.rank,day);document.getElementById("fMsg").innerHTML=`<span class="rank">${jg.rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br>${esc(jg.content)}`;
-    document.getElementById("fStars").innerHTML=[["総合運",jg.total],["家族運",jg.love],["仕事運",jg.job],["金運",jg.money]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(Math.max(0,Math.min(5,+v||0)))}</div></div>`).join("");
+    document.getElementById("fStars").innerHTML=[["総合運",jg.total],["夫婦運",jg.love],["仕事運",jg.job],["金運",jg.money]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(Math.max(0,Math.min(5,+v||0)))}</div></div>`).join("");
     document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b>🎨 ${esc(jg.color)}</span><span><b>ラッキーアイテム</b>🎀 ${esc(jg.item)}</span>${honeyHtml(+jg.rank)}`;
     document.getElementById("fSky").innerHTML="";
     document.getElementById("fCredit").innerHTML=`占い：powered by <a href="https://jugemkey.jp/api/" target="_blank" rel="noopener">JugemKey</a>・【PR】<a href="https://uranai-tarim.jp/" target="_blank" rel="noopener">原宿占い館 塔里木</a>`;
@@ -1495,8 +1495,8 @@ function renderFortune(){
   const lv=FLOVE2[tierOf(stL)][aspIdx(L.moon,L.venus)][v4],wk=FWORK2[tierOf(stW)][aspIdx(L.moon,L.mars)][(v4+1)%4];
   const mo=FMONEY[tierOf(stM)][aspIdx(L.moon,L.jupiter)][(v4+2)%4];const moonMsg=FMOON[lday][Math.floor(L.sun/30)%2];const item2=FITEM2[Math.floor(L.moon/3)%120];
   const col=SIGN_COL[Math.floor(L.moon/30)];
-  fBearSet(rank,day);document.getElementById("fMsg").innerHTML=`<span class="rank">${rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br><b>${FHEAD[me.hM-1][tierOf(stT)][lday%4]}</b><br>${tone}${msg}<br>🏠 家族：${lv}<br>💼 仕事：${wk}<br>💰 金運：${mo}<br>${ph[0]} 今夜の月（${ph[1]}）：${moonMsg}`+(retro.mercury?`<br>📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね`:"");
-  document.getElementById("fStars").innerHTML=[["総合運",starsByRank(all.map(x=>x.total),s)],["家族運",starsByRank(all.map(x=>x.love),s)],["仕事運",starsByRank(all.map(x=>x.work),s)],["金運",starsByRank(all.map(x=>x.money),s)]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(v)}</div></div>`).join("");
+  fBearSet(rank,day);document.getElementById("fMsg").innerHTML=`<span class="rank">${rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br><b>${FHEAD[me.hM-1][tierOf(stT)][lday%4]}</b><br>${tone}${msg}<br>💗 夫婦：${lv}<br>💼 仕事：${wk}<br>💰 金運：${mo}<br>${ph[0]} 今夜の月（${ph[1]}）：${moonMsg}`+(retro.mercury?`<br>📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね`:"");
+  document.getElementById("fStars").innerHTML=[["総合運",starsByRank(all.map(x=>x.total),s)],["夫婦運",starsByRank(all.map(x=>x.love),s)],["仕事運",starsByRank(all.map(x=>x.work),s)],["金運",starsByRank(all.map(x=>x.money),s)]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(v)}</div></div>`).join("");
   document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b><i class="dot" style="background:${col[1]}"></i>${col[0]}</span><span><b>ラッキーアイテム</b>🎀 ${item2}</span>${honeyHtml(rank)}`;
   const sn=x=>SIGNS[Math.floor(x/30)];
   document.getElementById("fSky").innerHTML=`🌙 今日の星の動き：月は${sn(L.moon)}(あなたの第${me.hM}ハウス)・太陽は${sn(L.sun)}・金星は${sn(L.venus)}${retro.venus?"(逆行中)":""}・水星は${sn(L.mercury)}${retro.mercury?"(逆行中)":""}`;

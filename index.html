@@ -492,6 +492,7 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
   </div>
 </div>
 
+<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
 <script>
 // 時刻表データ(京急空港線 2025年12月13日改正＋2026年11月ダイヤ変更ぶん)。発車:京急公式各駅時刻表/NAVITIME、到着:NAVITIME(2026/11/10取得)、ダイヤ変更ぶん:京急公式ニュースリリース(2026/11/11確認)
 function T(s){return s.split(" ").map(x=>{const [d,r,t,p]=x.split(",");return {m:+d,r:+r,t,p:+p}})}
@@ -1667,6 +1668,5 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){navigator.service
 setInterval(renderNow,1000);setInterval(renderWx,60000);setInterval(loadWx,30*60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){loadWx();loadJMA();renderCheer(true)}});
 </script>
-<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
 </body>
 </html>

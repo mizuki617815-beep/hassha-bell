@@ -513,6 +513,7 @@ try{const c=JSON.parse(localStorage.getItem("yumebell_wx4")||"null");if(c&&c.day
 // ===== 設定 =====
 const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",paidMonths:{},otRate:0,otRateHist:[],otMonths:{}};
 try{Object.assign(S,JSON.parse(localStorage.getItem("yumebell")||"{}"))}catch(e){}
+if(S.otMonths&&S.otMonths["2026-10"]&&S.otMonths["2026-10"].t==="est")delete S.otMonths["2026-10"]; // 10月分の見込み仮置きは廃止(明細が出てから記載する)
 function save(){try{localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
 
 // ===== 日付 =====

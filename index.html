@@ -540,7 +540,7 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
         <span>残業：時給(円)</span><input type="number" id="sOtRate" min="0" max="99999">
         <span>残業：月ごとの時間・金額(今年度)</span><span></span>
         <div id="sOtMonths" style="grid-column:1/-1"></div>
-        <span>お誕生日(月/日)</span><input type="text" id="sBday" placeholder="例 1/23" inputmode="numeric" style="width:130px;flex:none">
+        <span>お誕生日(月/日)</span><span style="display:flex;gap:4px;align-items:center"><select id="sBdayM" style="flex:none;width:64px"></select>月<select id="sBdayD" style="flex:none;width:64px"></select>日</span>
         <span>星座</span><select id="sSign" style="flex:none;width:130px"></select>
         <span>画面の色</span>
         <div class="seg" id="sTheme"><button data-v="auto">自動</button><button data-v="light">ライト</button><button data-v="dark">ダーク</button></div>
@@ -1301,8 +1301,12 @@ if(spm){if(!S.paidMonths)S.paidMonths={};
   spm.querySelectorAll("input[data-pm]").forEach(inp=>{inp.oninput=()=>{S.paidMonths[inp.dataset.pm]=inp.value===""?0:Math.max(0,Math.min(31,+inp.value||0));save();renderPaid()}});
 }
 const sor=document.getElementById("sOtRate");
-{const sb=document.getElementById("sBday");if(sb){const f=v=>{if(!v)return"";const[m,d]=v.split("-").map(Number);return`${m}/${d}`};sb.value=f(S.bday);
-  sb.onchange=()=>{const m=sb.value.match(/^\s*(\d{1,2})\s*[\/\-月.]\s*(\d{1,2})/);if(m&&+m[1]>=1&&+m[1]<=12&&+m[2]>=1&&+m[2]<=31)S.bday=`${String(+m[1]).padStart(2,"0")}-${String(+m[2]).padStart(2,"0")}`;else delete S.bday;sb.value=f(S.bday);save();if(typeof renderBday==="function"){bdayCache=null;renderBday()}}}}
+{const bm=document.getElementById("sBdayM"),bd=document.getElementById("sBdayD");if(bm&&bd){
+  bm.innerHTML='<option value="">--</option>'+Array.from({length:12},(_,k)=>`<option value="${k+1}">${k+1}</option>`).join("");
+  bd.innerHTML='<option value="">--</option>'+Array.from({length:31},(_,k)=>`<option value="${k+1}">${k+1}</option>`).join("");
+  if(S.bday){const[m,d]=S.bday.split("-").map(Number);bm.value=m;bd.value=d}
+  const upd=()=>{if(bm.value&&bd.value)S.bday=`${String(bm.value).padStart(2,"0")}-${String(bd.value).padStart(2,"0")}`;else delete S.bday;save();if(typeof renderBday==="function"){bdayCache=null;renderBday()}};
+  bm.onchange=upd;bd.onchange=upd}}
 if(sor){sor.value=S.otRate||"";sor.oninput=()=>{S.otRate=Math.max(0,+sor.value||0);save();renderOt()}}
 const som=document.getElementById("sOtMonths");
 if(som){if(!S.otMonths)S.otMonths={};

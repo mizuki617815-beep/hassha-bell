@@ -497,8 +497,8 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
       <summary style="font-size:13px;font-weight:bold;cursor:pointer">📤 出力・☁️ スプレッドシート・⚙️ 計算の設定</summary>
       <div class="ktRow">
         <button class="ktBtn" id="ktCsvOut" type="button">CSVで保存</button>
-        <label class="ktBtn" for="ktCsvIn">CSVを読み込む</label>
-        <input type="file" id="ktCsvIn" accept=".csv,text/csv" style="display:none">
+        <label class="ktBtn" for="ktCsvIn">CSV・タイムシートを読み込む</label>
+        <input type="file" id="ktCsvIn" style="display:none">
         <button class="ktBtn" id="ktPdfOut" type="button">PDFにする</button>
       </div>
       <div class="ktNote">PDFは「共有」→「プリント」→ プレビューを2本指で広げるとPDFで保存できるよ。</div>
@@ -1988,13 +1988,39 @@ function parseCSV(text){const rows=[];let row=[],cell="",q=false;text=String(tex
     else if(c==='"')q=true;else if(c===","){row.push(cell);cell=""}
     else if(c==="\n"||c==="\r"){if(c==="\r"&&text[i+1]==="\n")i++;row.push(cell);rows.push(row);row=[];cell=""}else cell+=c}
   if(cell!==""||row.length){row.push(cell);rows.push(row)}return rows}
+// タイムシートアプリのテキスト出力（「日付,出勤,退勤,休憩,備考」）を読む。タイムシートが正なので、その日の記録を上書きする
+function parseTimesheet(t){
+  t=String(t).replace(/^﻿/,"").replace(/\r\n?/g,"\n");
+  const tot=t.match(/就業時間[^:：]*[:：]\s*(\d+):(\d{2})/);
+  const body=t.split(/\n\s*交通費/)[0];const rows=[];let last=null;
+  for(const line of body.split("\n")){
+    const m=line.match(/^\s*(\d{4}-\d{2}-\d{2})\s*,\s*(\d{1,2}:\d{2})\s*,\s*(\d{1,2}:\d{2})\s*,\s*(\d*)\s*,?(.*)$/);
+    if(m){last={d:m[1],in:toMin(m[2]),out:toMin(m[3]),brk:m[4]===""?null:+m[4],memo:m[5].trim()};rows.push(last);continue}
+    if(/^\s*(日付|期間|就業時間|タイムシート)/.test(line)||!line.trim()){if(!line.trim())last=last;continue}
+    if(last)last.memo=(last.memo?last.memo+" ":"")+line.trim(); // 備考が複数行のとき
+  }
+  return{rows,total:tot?(+tot[1])*60+(+tot[2]):null};
+}
 $("ktCsvIn").onchange=ev=>{const f=ev.target.files[0];if(!f)return;
-  f.text().then(t=>{let n=0;
+  f.text().then(t=>{
+    if(/^\s*﻿?\s*タイムシート/.test(t)||/日付\s*,\s*出勤\s*,\s*退勤\s*,\s*休憩/.test(t)){
+      const{rows,total}=parseTimesheet(t);if(!rows.length){alert("タイムシートの記録が見つからなかったよ");return}
+      const over=rows.filter(r=>KT.days[r.d]&&KT.days[r.d].fixed).length;
+      if(over&&!confirm(`入力済みの${over}日も、タイムシートの内容で上書きするよ。いい？`))return;
+      const ms={};
+      for(const r of rows){KT.days[r.d]={in:r.in,out:r.out,brk:r.brk,memo:r.memo,fixed:true};
+        let sp=r.out-r.in;if(sp<0)sp+=1440;const b=r.brk!=null?r.brk:stdBreak(sp);const k=r.d.slice(0,7);
+        ms[k]=ms[k]||{n:0,w:0};ms[k].n++;ms[k].w+=sp-b}
+      ktSave();const ks=Object.keys(ms).sort();const[y,m]=ks[ks.length-1].split("-").map(Number);cur={y,m};render();if(typeof renderOt==="function")renderOt();
+      let msg=ks.map(k=>`${+k.slice(5)}月：${ms[k].n}日分・実働 ${JDUR(ms[k].w)}`).join("\n");
+      if(total!=null&&ks.length===1)msg+=ms[ks[0]].w===total?`\nタイムシートの就業時間 ${JDUR(total)} と一致✓`:`\n⚠️ タイムシートの就業時間 ${JDUR(total)} とちがうよ`;
+      alert("🧸 タイムシートを読み込んだよ\n"+msg);return}
+    let n=0;
     for(const r of parseCSV(t)){const d=(r[0]||"").trim();if(!/^\d{4}-\d{2}-\d{2}$/.test(d))continue;
       const a=toMin(r[2]),b=toMin(r[3]);
       if(a!=null&&b!=null){KT.days[d]={in:a,out:b,brk:(r[4]||"")===""?null:+r[4],memo:r[8]||"",fixed:r[9]==="✓"};n++}
       else if(r[8]){KT.days[d]={memo:r[8],fixed:false};n++}}
-    if(n){ktSave();render();alert(`${n}日分を読み込んだよ`)}else alert("読み込める行が見つからなかったよ（勤怠ノートで保存したCSVか確認してね）")});
+    if(n){ktSave();render();alert(`${n}日分を読み込んだよ`)}else alert("読み込める行が見つからなかったよ（勤怠ノートで保存したCSVか、タイムシートのテキストか確認してね）")});
   ev.target.value=""};
 $("ktPdfOut").onclick=()=>{
   const s=monthCalc(cur.y,cur.m),rows=monthRows(cur.y,cur.m);

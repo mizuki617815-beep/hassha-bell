@@ -323,7 +323,12 @@ body.dark .alert.lv1{background:#4a4020;color:#ffd86b;border-color:#6b5a2a}
 .ktBtn.main{background:linear-gradient(135deg,var(--pink),var(--lav));color:#fff;border:0;font-weight:bold}
 .ktBtn.on{background:var(--lav);color:#fff;border-color:var(--lav)}
 .ktBear{display:flex;gap:8px;align-items:flex-start;margin-top:10px}
-.ktBear .ic{font-size:26px;line-height:1}
+.ktBear .ic{width:64px;flex:none;line-height:0}.ktBear .ic img{width:64px;height:auto;display:block}
+.ktToday{margin-top:10px;background:rgba(255,255,255,.55);border:2px solid var(--line);border-radius:16px;padding:10px 12px}
+.ktToday .tl{font-size:12px;color:var(--sub)}
+.ktToday .tm{font-weight:bold;font-size:14px;margin-top:2px}
+.ktToday+.ktToday{margin-top:8px}
+body.dark .ktToday{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12)}
 .ktBubble{flex:1;background:var(--pink2);border-radius:14px;padding:8px 11px;font-size:13px;line-height:1.55}
 .ktSum{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
 .ktSum>div{background:var(--lav2);border-radius:13px;padding:7px 10px}
@@ -480,11 +485,12 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
       <b id="ktMonLabel"></b>
       <button class="ktBtn" id="ktNext" type="button">▶</button>
     </div>
-    <div class="ktBear"><div class="ic">🧸</div><div class="ktBubble" id="ktBubble"></div></div>
+    <div class="ktBear"><div class="ic"><img src="kintai-bear.webp" alt="クマのファーちゃん" width="64"></div><div class="ktBubble" id="ktBubble"></div></div>
+    <div id="ktTodayWrap"></div>
     <div class="ktSum" id="ktSum"></div>
     <div class="ktNote" id="ktSumNote"></div>
     <details style="margin-top:10px" id="ktDaysWrap">
-      <summary style="font-size:13px;font-weight:bold;cursor:pointer">📅 毎日の記録（タップで入力）</summary>
+      <summary style="font-size:13px;font-weight:bold;cursor:pointer">📅 今月の一覧（ほかの日もここから入力）</summary>
       <div class="ktDays" id="ktDays"></div>
     </details>
     <details style="margin-top:10px" class="ktSet">
@@ -506,7 +512,7 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
       <label>この月の公休日数（ふだん10日・2月は9日）</label>
       <input type="number" id="ktKoukyu" inputmode="numeric">
       <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="ktPaid8" style="width:auto"> 有休の日を実働8時間として数える</label>
-      <div class="ktNote">ルール：所定＝（暦の日数−公休）×8h（有休の日も出勤日に数える）。拘束6時間超のシフトは休憩60分。残業は月合計で30分未満切り捨て・30分以上切り上げ。単価は残業カウンターの設定を使うよ。</div>
+      <div class="ktNote">ルール：所定＝（暦の日数−公休）×8h（有休の日も出勤日に数える）。拘束6時間超のシフトは休憩60分。残業は月の合計で、30分未満は切り捨て・30分以上は切り上げ。単価は残業カウンターの設定を使うよ。</div>
     </details>
   </div>
 
@@ -1858,11 +1864,11 @@ function render(){
   let payLine="";
   if(c.pay){const all=c.workDays>0&&c.fixedDays>=c.workDays,ok=c.pay.h===c.otH&&c.pay.y===c.yen;payLine=`<small>明細：${c.pay.h}時間・¥${c.pay.y.toLocaleString()} ${!all?"（全部の日を入力すると照らし合わせるよ）":ok?'<span class="ktOk">✓ 一致</span>':'<span class="ktNg">✗ ちがうよ</span>'}</small>`}
   $("ktSum").innerHTML=`
-    <div><small>今月の所定（線）</small><b>${DUR(c.shotei)}</b><small>出勤${c.n-c.kou}日×8h</small></div>
-    <div><small>シフトの予定合計</small><b>${DUR(c.planSum)}</b></div>
+    <div><small>今月の所定労働時間</small><b>${DUR(c.shotei)}</b><small>出勤${c.n-c.kou}日×8h</small></div>
+    <div><small>シフトの全労働時間</small><b>${DUR(c.planSum)}</b></div>
     <div><small>確定残業</small><b>${DUR(c.kakutei)}</b></div>
     <div><small>追加残業（入力済み）</small><b class="ktAdd">+${DUR(c.extraSum)}</b></div>
-    <div class="big"><small>残業 見込み（${DUR(c.ot)} → 丸め）</small><b>${c.otH}時間 ・ ¥${c.yen.toLocaleString()}</b>${payLine}</div>`;
+    <div class="big"><small>残業 見込み（${JDUR(c.ot)}${c.ot%60===0?"":c.ot%60>=30?" → 30分以上なので切り上げ":" → 30分未満なので切り捨て"}）</small><b>${c.otH}時間 ・ ¥${c.yen.toLocaleString()}</b>${payLine}</div>`;
   $("ktSumNote").textContent=`入力済み ${c.fixedDays}日 / 出勤 ${c.workDays}日。入力してない日は予定どおりで計算してるよ。残業代は翌月支給。`;
   let t;
   if(!hasShift)t="ママ、この月のシフトがまだ入ってないみたい。シフトCSVを読み込むと、予定の時間を全部入れておくよ🧸";
@@ -1870,6 +1876,7 @@ function render(){
   else t="ママ、この月はシフトどおりなら残業なしだよ。無理しないでね🧸";
   if(c.extraSum>0)t+=`<br>追加残業も${JDUR(c.extraSum)}。おつかれさま、帰ったらゆっくり休もうね。`;
   $("ktBubble").innerHTML=t;
+  renderToday();
   const today=YMD(NOW());let h="";
   for(let i=1;i<=c.n;i++){
     const d=`${key}-${P(i)}`,dc=dayCalc(d),w=new Date(y,m-1,i).getDay();let main,sub="",chip="";
@@ -1891,6 +1898,29 @@ function render(){
   syncNote();
 }
 window.ktRender=render;
+// 今日(と、まだ入力してない昨日)の記録カード：予定どおりならワンタップで確定
+function renderToday(){
+  const w=$("ktTodayWrap");if(!w)return;
+  const n=NOW(),t=YMD(n),yd=new Date(n);yd.setDate(yd.getDate()-1);const y=YMD(yd);
+  const card=(d,label)=>{const dc=dayCalc(d),[Y,M,D]=d.split("-").map(Number),wd=WD[new Date(Y,M-1,D).getDay()];
+    const usePlan=dc.plan&&!dc.plan.paid;let body,btns="";
+    if(dc.act){body=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分　実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加 +${DUR(dc.extra)}</span>`:"")+(dc.fixed?"　✓":"");
+      btns=`<button class="ktBtn" type="button" data-edit="${d}">直す</button>`}
+    else if(usePlan){body=`予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分　実働 ${DUR(dc.plan.work)}`;
+      btns=`<button class="ktBtn main" type="button" data-plan="${d}">予定どおりで確定</button><button class="ktBtn" type="button" data-edit="${d}">時刻を直す</button>`}
+    else if(isPaid(dc.sh))body="有休の日だよ。ゆっくりしてね🧸";
+    else if(dc.sh&&dc.sh.off)body="お休みの日だよ🧸";
+    else{body="シフトなし";btns=`<button class="ktBtn" type="button" data-edit="${d}">入力する</button>`}
+    return`<div class="ktToday"><div class="tl">${label}　${M}/${D}（${wd}）${dc.sh?"　"+ESC(dc.sh.title):""}</div><div class="tm">${body}</div>${btns?`<div class="ktRow">${btns}</div>`:""}</div>`};
+  let h="";const yc=dayCalc(y);
+  if(yc.plan&&!yc.plan.paid&&!yc.act)h+=card(y,"きのう（まだ入力してないよ）");
+  h+=card(t,"きょう");
+  w.innerHTML=h;
+  w.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openDay(b.dataset.edit));
+  w.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{const d=b.dataset.plan,dc=dayCalc(d);
+    KT.days[d]={in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:(KT.days[d]&&KT.days[d].memo)||"",fixed:true};
+    ktSave();render();if(typeof renderOt==="function")renderOt()});
+}
 
 function openDay(d){
   const dc=dayCalc(d),e=KT.days[d]||{};const[Y,M,D]=d.split("-").map(Number),w=new Date(Y,M-1,D).getDay();
@@ -1937,9 +1967,9 @@ const HEAD=["日付","シフト","出勤","退勤","休憩(分)","実働","予�
 function monthRows(y,m){
   const s=monthCalc(y,m),rows=[];
   rows.push(["確認欄",`${y}年${m}月`]);
-  rows.push(["所定（線）",`${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）`]);
-  rows.push(["シフトの予定合計",DUR(s.planSum)],["確定残業",DUR(s.kakutei)],["追加残業",DUR(s.extraSum)]);
-  rows.push(["残業（丸める前）",DUR(s.ot)],["残業（丸め後）",`${s.otH}時間`],["残業単価",`¥${RATE().toLocaleString()}`],["時間外手当（見込み）",`¥${s.yen.toLocaleString()}`]);
+  rows.push(["今月の所定労働時間",`${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）`]);
+  rows.push(["シフトの全労働時間",DUR(s.planSum)],["確定残業",DUR(s.kakutei)],["追加残業",DUR(s.extraSum)]);
+  rows.push(["残業（そのまま）",DUR(s.ot)],["残業（切り上げ・切り捨て後）",`${s.otH}時間（30分以上は切り上げ・30分未満は切り捨て）`],["残業単価",`¥${RATE().toLocaleString()}`],["時間外手当（見込み）",`¥${s.yen.toLocaleString()}`]);
   rows.push(["明細の数字",s.pay?`${s.pay.h}時間・¥${s.pay.y.toLocaleString()}`:"（明細が出たら残業カウンターに入力）",s.pay?(!(s.workDays>0&&s.fixedDays>=s.workDays)?"全部の日を入力すると照らし合わせるよ":(s.pay.h===s.otH&&s.pay.y===s.yen)?"✓ 一致":"✗ ちがう"):""]);
   rows.push(["入力済みの日",`${s.fixedDays}日 / 出勤${s.workDays}日`]);
   rows.push([]);rows.push(HEAD);
@@ -1971,7 +2001,7 @@ $("ktPdfOut").onclick=()=>{
   let h=`<h2 style="margin:0 0 6px">勤怠表　${cur.y}年${cur.m}月</h2><table><tr>${HEAD.slice(0,9).map(x=>`<th>${x}</th>`).join("")}</tr>`;
   for(const r of rows){if(!/^\d{4}-\d{2}-\d{2}$/.test(r[0]||""))continue;const[Y,M,D]=r[0].split("-").map(Number);
     h+=`<tr><td>${M}/${D}(${WD[new Date(Y,M-1,D).getDay()]})</td>${r.slice(1,9).map((v,i)=>`<td${i===7?' class="l"':""}>${ESC(v)}</td>`).join("")}</tr>`}
-  h+=`</table><p style="margin-top:8px">所定 ${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）／予定合計 ${DUR(s.planSum)}／確定残業 ${DUR(s.kakutei)}／追加残業 ${DUR(s.extraSum)}<br>残業 ${DUR(s.ot)} → <b>${s.otH}時間</b>　時間外手当 見込み <b>¥${s.yen.toLocaleString()}</b>（単価 ¥${RATE().toLocaleString()}）</p>`;
+  h+=`</table><p style="margin-top:8px">所定労働時間 ${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）／シフトの全労働時間 ${DUR(s.planSum)}／確定残業 ${DUR(s.kakutei)}／追加残業 ${DUR(s.extraSum)}<br>残業 ${DUR(s.ot)} →（30分以上は切り上げ・30分未満は切り捨て）<b>${s.otH}時間</b>　時間外手当 見込み <b>¥${s.yen.toLocaleString()}</b>（単価 ¥${RATE().toLocaleString()}）</p>`;
   $("ktPrint").innerHTML=h;document.body.classList.add("ktPrinting");
   const off=()=>{document.body.classList.remove("ktPrinting");window.removeEventListener("afterprint",off)};
   window.addEventListener("afterprint",off);window.print();setTimeout(off,60000)};

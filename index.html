@@ -2025,7 +2025,8 @@ function parseTimesheet(t){
 $("ktCsvIn").onchange=ev=>{const f=ev.target.files[0];if(!f)return;
   f.text().then(t=>{
     if(/^\s*﻿?\s*タイムシート/.test(t)||/日付\s*,\s*出勤\s*,\s*退勤\s*,\s*休憩/.test(t)){
-      const{rows,total}=parseTimesheet(t);if(!rows.length){alert("タイムシートの記録が見つからなかったよ");return}
+      const pr=parseTimesheet(t);const today=YMD(NOW());const rows=pr.rows.filter(r=>r.d<=today),skip=pr.rows.length-rows.length,total=skip?null:pr.total; // 今日より先の日はまだ働いていないので読み込まない
+      if(!rows.length){alert(skip?"今日より先の日だけだったから、読み込まなかったよ":"タイムシートの記録が見つからなかったよ");return}
       const over=rows.filter(r=>KT.days[r.d]&&KT.days[r.d].fixed).length;
       if(over&&!confirm(`入力済みの${over}日も、タイムシートの内容で上書きするよ。いい？`))return;
       const ms={};
@@ -2035,6 +2036,7 @@ $("ktCsvIn").onchange=ev=>{const f=ev.target.files[0];if(!f)return;
       ktSave();const ks=Object.keys(ms).sort();const[y,m]=ks[ks.length-1].split("-").map(Number);cur={y,m};render();if(typeof renderOt==="function")renderOt();
       let msg=ks.map(k=>`${+k.slice(5)}月：${ms[k].n}日分・実働 ${JDUR(ms[k].w)}`).join("\n");
       if(total!=null&&ks.length===1)msg+=ms[ks[0]].w===total?`\nタイムシートの就業時間 ${JDUR(total)} と一致✓`:`\n⚠️ タイムシートの就業時間 ${JDUR(total)} とちがうよ`;
+      if(skip)msg+=`\n今日より先の${skip}日は、まだ働いてないから読み込まなかったよ（予定はシフトから出るよ）`;
       alert("🧸 タイムシートを読み込んだよ\n"+msg);return}
     if(/^\s*\uFEFF?\s*date\s*,\s*title/i.test(t)&&typeof importShiftCSV==="function"){
       const r=importShiftCSV(t);

@@ -1892,6 +1892,7 @@ function render(){
   {const n=NOW();if(n.getDate()>=25){const pm=new Date(n.getFullYear(),n.getMonth()-1,1),pk=mk(pm.getFullYear(),pm.getMonth()+1);
     const e=(typeof S!=="undefined"&&S.otMonths&&S.otMonths[pk])||null;
     if(!(e&&e.t==="pay"))t=`ママ、給料日だね！おつかれさま💕 ${pm.getMonth()+1}月に働いた分の明細が届いたら、⚙️設定の残業の「${pm.getMonth()+1}月勤務」の欄に入れてね🧸<br>`+t}}
+  {const mn=missingDays().length;if(mn)t=`ママ、まだ記録してない日が${mn}日あるよ。下のカードからつけてね🧸<br>`+t}
   $("ktBubble").innerHTML=t;
   renderToday();
   const today=YMD(NOW());let h="";
@@ -1915,10 +1916,22 @@ function render(){
   syncNote();
 }
 window.ktRender=render;
-// 今日(と、まだ入力してない昨日)の記録カード：予定どおりならワンタップで確定
+// 記録わすれ対策：まだ入力してない日(勤務の予定があって、終わっている日)を探す。
+// 一度も記録していない人(β版で使っていない間)には出さないよう、最初に記録した日より前は数えない。
+function missingDays(){
+  const fx=Object.keys(KT.days).filter(d=>KT.days[d]&&KT.days[d].in!=null).sort();if(!fx.length)return[];
+  const n=NOW(),today=YMD(n),nowMin=n.getHours()*60+n.getMinutes(),out=[];
+  for(let i=31;i>=0;i--){const x=new Date(n);x.setDate(x.getDate()-i);const d=YMD(x);if(d<fx[0])continue;
+    const dc=dayCalc(d);if(!(dc.plan&&!dc.plan.paid)||dc.act)continue;
+    if(d===today&&nowMin<dc.plan.end)continue; // 今日はシフトが終わってから
+    out.push(d)}
+  return out;
+}
+window.ktMissing=missingDays;
+// 入力してない日＋きょうの記録カード：予定どおりならワンタップで確定
 function renderToday(){
   const w=$("ktTodayWrap");if(!w)return;
-  const n=NOW(),t=YMD(n),yd=new Date(n);yd.setDate(yd.getDate()-1);const y=YMD(yd);
+  const t=YMD(NOW());
   const card=(d,label)=>{const dc=dayCalc(d),[Y,M,D]=d.split("-").map(Number),wd=WD[new Date(Y,M-1,D).getDay()];
     const usePlan=dc.plan&&!dc.plan.paid;let body,btns="";
     if(dc.act){body=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分　実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加 +${DUR(dc.extra)}</span>`:"")+(dc.fixed?"　✓":"");
@@ -1929,15 +1942,32 @@ function renderToday(){
     else if(dc.sh&&dc.sh.off)body="お休みの日だよ🧸";
     else{body="シフトなし";btns=`<button class="ktBtn" type="button" data-edit="${d}">入力する</button>`}
     return`<div class="ktToday"><div class="tl">${label}　${M}/${D}（${wd}）${dc.sh?"　"+ESC(dc.sh.title):""}</div><div class="tm">${body}</div>${btns?`<div class="ktRow">${btns}</div>`:""}</div>`};
-  let h="";const yc=dayCalc(y);
-  if(yc.plan&&!yc.plan.paid&&!yc.act)h+=card(y,"きのう（まだ入力してないよ）");
+  const miss=missingDays().filter(d=>d!==t);let h="";
+  if(miss.length){
+    h+=`<div class="ktToday" style="border-color:var(--pink)"><div class="tm">📝 まだ記録してない日が${miss.length}日あるよ</div>`+
+      (miss.length>=2?`<div class="ktRow"><button class="ktBtn main" type="button" id="ktAllPlan">${miss.length}日とも予定どおりで確定</button></div><div class="ktNote">延長した日や休憩が取れなかった日は、先にその日だけ「時刻を直す」でなおしてね</div>`:"")+`</div>`;
+    h+=miss.map(d=>card(d,"まだ記録してないよ")).join("")}
   h+=card(t,"きょう");
   w.innerHTML=h;
+  const fix=d=>{const dc=dayCalc(d);if(!(dc.plan&&!dc.plan.paid))return;KT.days[d]={in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:(KT.days[d]&&KT.days[d].memo)||"",fixed:true}};
+  const done=()=>{ktSave();render();if(typeof renderOt==="function")renderOt();ktChip()};
   w.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openDay(b.dataset.edit));
-  w.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{const d=b.dataset.plan,dc=dayCalc(d);
-    KT.days[d]={in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:(KT.days[d]&&KT.days[d].memo)||"",fixed:true};
-    ktSave();render();if(typeof renderOt==="function")renderOt()});
+  w.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{fix(b.dataset.plan);done()});
+  if($("ktAllPlan"))$("ktAllPlan").onclick=()=>{if(!confirm(`${miss.length}日とも予定どおりで確定する？`))return;miss.forEach(fix);done()};
 }
+// メイン画面のクマの吹き出しのバッジに「勤怠の記録まだ」を出す(アプリの中だけで動く)
+function ktChip(){
+  const box=document.getElementById("cheerChips");if(!box)return;
+  let el=document.getElementById("ktChipEl");const n=missingDays().length;
+  if(!n){if(el)el.remove();return}
+  if(!el){el=document.createElement("span");el.id="ktChipEl";el.className="chip";el.style.cursor="pointer";el.style.background="var(--pink2)";
+    el.onclick=()=>{const k=$("navKintai");if(k)k.scrollIntoView({behavior:"smooth",block:"start"})}}
+  el.textContent=`📝 勤怠の記録まだ ${n}日`;if(el.parentNode!==box)box.prepend(el);
+}
+window.ktChip=ktChip;
+if(typeof renderCheer==="function"){const _rc=renderCheer;renderCheer=function(){const r=_rc.apply(this,arguments);try{ktChip()}catch(e){}return r}}
+setInterval(()=>{try{ktChip();renderToday()}catch(e){}},60000);
+
 
 function openDay(d){
   const dc=dayCalc(d),e=KT.days[d]||{};const[Y,M,D]=d.split("-").map(Number),w=new Date(Y,M-1,D).getDay();
@@ -2086,7 +2116,7 @@ window.addEventListener("online",()=>{if(KT.dirty)sync()});
 if(KT.dirty)setTimeout(sync,3000);
 // シフトの読み込み・削除・復元のあとに表示を更新
 ["csvFile","csvClear","csvRestore"].forEach(id=>{const el=$(id);if(el)el.addEventListener(id==="csvFile"?"change":"click",()=>setTimeout(render,600))});
-render();
+render();ktChip();
 })();
 </script>
 

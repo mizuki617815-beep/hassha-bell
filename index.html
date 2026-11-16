@@ -2417,10 +2417,10 @@ window.recRefresh=()=>{badge();if(draft&&R.m[draft.pk]&&(+R.m[draft.pk].u||0)>(d
 
 // ===== 画面 =====
 let tab="in",selP=latestPay(),selFY=fyOfPay(latestPay()),flash="",selItem="",editP=null,editW=null;
-// ファーちゃんのセリフ（歌が大好き）。前向きなものだけ
+// ファーちゃんのセリフ（歌と甘いものが好きな女の子。歌はたまに入る程度）。前向きなものだけ
 const UP_PRAISE=["手取り、去年の同じ月よりふえてるよ！ママ、ほんとにがんばってるね✨","すごいすごい！去年よりふえてる〜！ママはえらいなぁ💕","ふえてる〜！ママのがんばり、ちゃんと数字に出てるよ✨"];
-const UP_PLAN=["お祝いに、いっしょにパンケーキ食べに行きたいな🥞🧸","カラオケ行こうよ！ファーちゃん、ママのために1曲歌うね🎤🧸","うれしくて歌いたくなっちゃった♪ ららら〜🎵🧸","ごほうびに、ふたりでカフェ行きたいな☕🧸","今夜はふたりでカラオケ大会しよ🎤🎶"];
-const SONG_CHEERS=["おつかれさまの歌、歌ってあげるね♪ ママはえらい〜🎵🧸","ふんふふ〜ん♪ 今月の明細、きれいにしまっておいたよ📚🧸"];
+const UP_PLAN=["お祝いに、いっしょにパンケーキ食べに行きたいな🥞🧸","カラオケ行こうよ！ファーちゃん、ママのために1曲歌うね🎤🧸","ごほうびに、ふたりでカフェ行きたいな☕🧸","ケーキ屋さんで好きなケーキ選ぼうよ🍰🧸","おいしいチョコでお祝いしたいな🍫🧸","はちみつたっぷりのおやつ食べたいな🍯🧸","ヨーグレット買ってほしいな…えへへ🧸"];
+const SONG_CHEERS=["おつかれさまの歌、歌ってあげるね♪ ママはえらい〜🎵🧸","今月の明細、きれいにしまっておいたよ📚 ごほうびにチョコひとつどうぞ🍫🧸"];
 const pick=a=>a[Math.floor(Math.random()*a.length)],dayPick=a=>a[jstNow().getDate()%a.length];
 const bearSay=t=>`<div class="recBear"><img src="rec-bear.webp" alt=""><div>${t}</div></div>`;
 // 保存したときのひとこと：去年の同じ月（賞与は去年の同じ賞与）より手取りがふえていたら、ほめてお出かけのおねだり
@@ -2430,13 +2430,13 @@ function saveFlash(pk){const e=R.m[pk],p=R.m[addM(pk,-12)],b=R.b[pk],pb=R.b[addM
   return"🧸 "+pick(CHEERS.concat(SONG_CHEERS))}
 // タブのいちばん上のひとこと
 function tabSay(){
-  if(tab==="in")return dayPick(["明細がきたら、ここに入れてね。ファーちゃんが歌いながら整理しておくよ♪📚","ふんふ〜ん♪ 今日も記録室をおそうじ中だよ🧹 明細、いつでも待ってるね","ママの明細、ひとつずつ大事にしまっておくね📚🎵"]);
+  if(tab==="in")return dayPick(["明細がきたら、ここに入れてね。ファーちゃんがきれいに整理しておくよ📚","今日も記録室をおそうじ中だよ🧹 明細、いつでも待ってるね","ママの明細、ひとつずつ大事にしまっておくね📚 ふんふ〜ん♪"]);
   if(tab==="see"){const k=Object.keys(R.m).filter(x=>live(R.m[x])&&+R.m[x].n).sort().pop(),p=k&&R.m[addM(k,-12)];
     if(k&&live(p)&&(+R.m[k].n||0)>(+p.n||0))return`最近の手取り、去年の同じ月よりふえてるね！ママ、がんばってるね✨ ${dayPick(UP_PLAN)}`;
-    return dayPick(["ママのがんばりの記録だよ📈 ゆっくり見ていってね♪","グラフ、見やすく並べておいたよ♪ ららら〜🎵","ママが毎月がんばってきたあしあとだよ📈🧸"])}
+    return dayPick(["ママのがんばりの記録だよ📈 ゆっくり見ていってね","グラフ、見やすく並べておいたよ。はちみつなめながら見よっか🍯","ママが毎月がんばってきたあしあとだよ📈🧸"])}
   const t=fyTotals(selFY),pv=fyTotals(selFY-1),cur=fyOfPay(latestPay());
   if(selFY<cur&&pv.cnt&&t.n+t.bn>pv.n+pv.bn)return`${selFY}年度、去年度より手取りがふえてるよ！すごいね〜✨ ${dayPick(UP_PLAN)}`;
-  return dayPick(["1年ぶんのまとめだよ。ママ、ほんとにおつかれさま💕 ごほうびの歌をプレゼント♪🎵","今年度もいっしょにがんばってるね！ファーちゃん、ずっと応援してるよ🎤🧸"])}
+  return dayPick(["1年ぶんのまとめだよ。ママ、ほんとにおつかれさま💕 ごほうびにケーキ食べよ🍰","今年度もいっしょにがんばってるね！ファーちゃん、ずっと応援してるよ🧸","1年ぶん、よくがんばりました💮 ごほうびの歌をプレゼント♪🎵"])}
 const CHEERS=["今月もおつかれさま！ママ、えらいよ🧸","記録ありがと！ちゃんと見守ってるからね🧸","今月もがんばったね〜。ごほうびにはちみつちょうだい🍯","ばっちり記録できたよ！来月もいっしょにがんばろ🧸","おつかれさま！ママのがんばり、ぜんぶ覚えておくね📚"];
 // 明細の内訳: items={kin:勤怠,pay:支給,ded:控除,tot:合計} それぞれ {項目名:数値}。memo=備考
 const CATS=[["kin","⏱ 勤怠"],["pay","💴 支給"],["ded","🧾 控除"],["tot","🧮 合計"]];
@@ -2745,7 +2745,7 @@ function bindImp(){const b=$r("recBody");
     for(const x of imp){if(!x.on||!x.key)continue;const r=x.r,items={};for(const[c]of CATS)if(Object.keys(r[c]||{}).length)items[c]=r[c];
       const e={g:r.g,n:r.n??"",items,u:now};if(x.memo.trim())e.memo=x.memo.trim();
       if(r.kind==="bonus")R.b[x.key]=e;else{Object.assign(e,{oh:r.oh,oy:r.oy,otSet:true});R.m[x.key]=e;mirrorOt(x.key)}n++}
-    imp=null;draft=null;touch();if(typeof renderOt==="function")renderOt();badge();flash=`🧸 ${n}件の明細を記録室に入れたよ！ママ、おつかれさま📚 うれしくて歌っちゃう♪ 「📈 みる」で推移も見てみてね`;draw();$r("recBody").scrollTop=0};
+    imp=null;draft=null;touch();if(typeof renderOt==="function")renderOt();badge();flash=`🧸 ${n}件の明細を記録室に入れたよ！ママ、おつかれさま📚 「📈 みる」で推移も見てみてね`;draw();$r("recBody").scrollTop=0};
   const c=$r("rImpCancel");if(c)c.onclick=()=>{imp=null;draw()}}
 function draw(){const b=$r("recBody");if(!b)return;
   if(tab==="in"&&imp){document.querySelectorAll("#recTabs button").forEach(x=>x.classList.toggle("on",x.dataset.t===tab));b.innerHTML=drawImp();bindImp();return}

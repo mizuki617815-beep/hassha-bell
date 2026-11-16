@@ -378,6 +378,11 @@ body.dark .ktBtn.main{background:linear-gradient(135deg,var(--pink),var(--lav));
 .ktBrkLine{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;font-size:13.5px}
 .ktFixBar{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom));margin:14px -16px calc(-18px - env(safe-area-inset-bottom));padding:10px 16px calc(14px + env(safe-area-inset-bottom));background:inherit;border-top:1px solid var(--line)}
 .ktFixBar .ktBtn{width:100%;font-size:17px;padding:14px;border-radius:16px}
+.ktDayBtn{flex:1;font-size:15px!important;padding:11px 8px!important;border-radius:14px!important}
+.ktSumBtn{list-style:none;cursor:pointer;font-size:14px;font-weight:bold;padding:11px 14px;border:2px solid var(--line);border-radius:14px;background:rgba(255,255,255,.5);display:flex;align-items:center;gap:8px}
+.ktSumBtn::-webkit-details-marker{display:none}.ktSumBtn small{font-weight:normal;font-size:11px;color:var(--sub)}
+.ktSumBtn::after{content:"▼";margin-left:auto;font-size:11px;color:var(--sub)}details[open]>.ktSumBtn::after{content:"▲"}
+body.dark .ktSumBtn{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12)}
 .ktOtBox{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px;background:var(--pink2);border-radius:14px;padding:8px 10px}
 .ktOtBox b{font-size:16px;color:var(--rose);text-align:center;flex:1}
 .ktCalc{background:var(--lav2);border-radius:14px;padding:8px 12px;margin-top:12px;font-size:13px;line-height:1.6}
@@ -512,7 +517,7 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
     <div class="ktSum" id="ktSum"></div>
     <div class="ktNote" id="ktSumNote"></div>
     <details style="margin-top:10px" id="ktDaysWrap">
-      <summary style="font-size:13px;font-weight:bold;cursor:pointer">📅 今月の一覧（ほかの日もここから入力）</summary>
+      <summary class="ktSumBtn">📅 今月の勤務記録<small>ほかの日もここから</small></summary>
       <div class="ktDays" id="ktDays"></div>
     </details>
     <details style="margin-top:10px" class="ktSet">
@@ -1959,9 +1964,9 @@ function renderToday(){
   const card=(d,label)=>{const dc=dayCalc(d),[Y,M,D]=d.split("-").map(Number),wd=WD[new Date(Y,M-1,D).getDay()];
     const usePlan=dc.plan&&!dc.plan.paid;let body,btns="";
     if(dc.act){body=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分　実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"")+(dc.fixed?"　✓":"");
-      btns=`<button class="ktBtn" type="button" data-edit="${d}">直す</button>`}
+      btns=`<button class="ktBtn" type="button" data-edit="${d}">✏️ 記録を変える</button>`}
     else if(usePlan){body=`予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分　実働 ${DUR(dc.plan.work)}`;
-      btns=`<button class="ktBtn main" type="button" data-plan="${d}">予定どおりで記録</button><button class="ktBtn" type="button" data-edit="${d}">時刻を直す</button>`}
+      btns=`<button class="ktBtn main ktDayBtn" type="button" data-plan="${d}">🌸 定時で記録</button><button class="ktBtn ktDayBtn" type="button" data-zan="${d}">⏰ 残業を記録</button>`}
     else if(isPaid(dc.sh))body="有休の日だよ。ゆっくりしてね🧸";
     else if(dc.sh&&dc.sh.off)body="お休みの日だよ🧸";
     else{body="シフトなし";btns=`<button class="ktBtn" type="button" data-edit="${d}">入力する</button>`}
@@ -1969,13 +1974,14 @@ function renderToday(){
   const miss=missingDays().filter(d=>d!==t);let h="";
   if(miss.length){
     h+=`<div class="ktToday" style="border-color:var(--pink)"><div class="tm">📝 まだ記録してない日が${miss.length}日あるよ</div>`+
-      (miss.length>=2?`<div class="ktRow"><button class="ktBtn main" type="button" id="ktAllPlan">${miss.length}日とも予定どおりで記録</button></div><div class="ktNote">延長した日や休憩が取れなかった日は、先にその日だけ「時刻を直す」でなおしてね</div>`:"")+`</div>`;
+      (miss.length>=2?`<div class="ktRow"><button class="ktBtn main" type="button" id="ktAllPlan">${miss.length}日とも定時で記録</button></div><div class="ktNote">残業した日や休憩が少なかった日は、先にその日だけ「⏰ 残業を記録」で入れてね</div>`:"")+`</div>`;
     h+=miss.map(d=>card(d,"まだ記録してないよ")).join("")}
   h+=card(t,"きょう");
   w.innerHTML=h;
   const fix=d=>{const dc=dayCalc(d);if(!(dc.plan&&!dc.plan.paid))return;setDay(d,{in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:(KT.days[d]&&KT.days[d].memo)||"",fixed:true})};
   const done=()=>{ktSave();render();if(typeof renderOt==="function")renderOt();ktChip()};
   w.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openDay(b.dataset.edit));
+  w.querySelectorAll("[data-zan]").forEach(b=>b.onclick=()=>openDay(b.dataset.zan,"zan"));
   w.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{fix(b.dataset.plan);done()});
   if($("ktAllPlan"))$("ktAllPlan").onclick=()=>{if(!confirm(`${miss.length}日とも予定どおりで記録する？`))return;miss.forEach(fix);done()};
 }
@@ -1993,7 +1999,7 @@ if(typeof renderCheer==="function"){const _rc=renderCheer;renderCheer=function()
 setInterval(()=>{try{ktChip();renderToday()}catch(e){}},60000);
 
 
-function openDay(d){
+function openDay(d,startMode){
   const dc=dayCalc(d),e=KT.days[d]||{};const[Y,M,D]=d.split("-").map(Number),w=new Date(Y,M-1,D).getDay();
   const usePlan=dc.plan&&!dc.plan.paid;
   const pin=e.in!=null?e.in:(usePlan?dc.plan.start:null),pout=e.out!=null?e.out:(usePlan?dc.plan.end:null);
@@ -2012,7 +2018,7 @@ function openDay(d){
     <div class="ktCalc" id="kxCalc"></div>
     <div class="ktRow" style="justify-content:space-between;margin-top:10px"><span></span><button class="ktBtn" id="kxDel" type="button" style="font-size:11.5px">この日の入力を消す</button></div>
     <div class="ktFixBar"><button class="ktBtn main" id="kxFix" type="button">✔ この内容で記録する</button></div>`;
-  let mode=usePlan?((pout!=null&&pout!==dc.plan.end)?"zan":"teiji"):"free";
+  let mode=usePlan?(startMode||((pout!=null&&pout!==dc.plan.end)?"zan":"teiji")):"free";
   const xIn=$("kxIn"),xOut=$("kxOut");let brk=e.brk!=null?e.brk:null;
   const span=()=>{const a=toMin(xIn.value),b=toMin(xOut.value);if(a==null||b==null)return null;let s=b-a;if(s<0)s+=1440;return s};
   const curBrk=()=>{const s=span();return brk!=null?brk:(s==null?0:stdBreak(s))};

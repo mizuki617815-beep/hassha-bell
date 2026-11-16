@@ -659,7 +659,7 @@ details.recBox[open] summary:before{content:"▾ "}
     <div class="sec">🗒️ 勤怠ノート<span class="ktBeta">β版</span></div>
     <div class="ktNote" style="margin-top:0">β版だよ。計算のたしかめ中なので、記録は今まで通りタイムシートとタイムツリーにも残してね。</div>
     <button type="button" class="recOpen" id="recOpen"><span class="ri"><img src="rec-bear.webp" alt="本棚の前で資料を整理するファーちゃん" width="58" height="58"></span><span class="rt"><b>📚 ファーちゃんの記録室</b><small>給料・ボーナスの明細／源泉徴収票／年度のまとめ</small></span><span class="ra">›</span></button>
-    <div class="impBox"><button type="button" class="impBtn" id="impBtn">📥 ファイルを読み込む<small>シフト・タイムシート・明細PDF、なんでもOK</small></button><input type="file" id="impAll" multiple accept=".csv,.pdf,.zip,.json,text/csv,application/pdf,application/zip,application/json" style="display:none"><div id="impList"></div></div>
+    <div class="impBox"><button type="button" class="impBtn" id="impBtn">📥 ファイルを読み込む<small>シフト・タイムシート・明細PDF、なんでもOK</small></button><input type="file" id="impAll" multiple style="display:none"><div id="impList"></div></div>
     <div class="ktMon" style="margin-top:8px">
       <button class="ktBtn" id="ktPrev" type="button">◀</button>
       <b id="ktMonLabel"></b>
@@ -2907,7 +2907,7 @@ function status(){const t=jstNow(),y=t.getFullYear(),m=t.getMonth()+1,d=t.getDat
   else if(d>=25)sh=hasShift(nextK)?{ok:true,txt:`${nm}月のシフト`}:{ok:false,lv:d>=last-1?3:2,txt:`${nm}月のシフト`,when:`${m}/${last}までに`};
   else if(d>=20)sh=hasShift(nextK)?{ok:true,txt:`${nm}月のシフト`}:{ok:false,lv:0,soon:true,txt:`${nm}月のシフト`,when:"25日ごろに出るよ"};
   else sh={ok:true,txt:`${m}月のシフト`};
-  if(!o.ts){try{const ks=Object.keys(KT.days).filter(k=>KT.days[k]&&KT.days[k].fixed).sort();if(ks.length){o.ts=ks.pop();sv(o)}}catch(e){}} // 前に読み込んだぶん（勤怠ノートの記録ずみの日）から
+  if(!o.ts){try{const D=(JSON.parse(localStorage.getItem("yumebell_kintai_v1")||"{}").days)||{};const ks=Object.keys(D).filter(k=>D[k]&&D[k].fixed).sort();if(ks.length){o.ts=ks.pop();sv(o)}}catch(e){}} // 前に読み込んだぶん（勤怠ノートの記録ずみの日）から
   let ts=null;if(!o.tsOff){const done=!!o.ts&&o.ts.slice(0,7)>=prevK;ts={ok:done,lv:done?0:d>=20?2:1,txt:`${+prevK.slice(5)}月のタイムシート`,when:done?"":d>=20?`${m}/25の明細までに`:`${m}/20ごろまでに`}}
   return{sh,ts}}
 window.impNag=()=>{const{sh,ts}=status(),btn=(t,s)=>`<button type="button" class="recNag" onclick="window.impPick()">${t}<span>${s} ›</span></button>`;
@@ -2928,8 +2928,10 @@ function refresh(){drawList();if(typeof renderCheer==="function")renderCheer(tru
 window.impRefresh=refresh;
 window.impPick=()=>{const i=document.getElementById("impAll");if(i)i.click()};
 async function handle(files){const pdf=[],csv=[],js=[],other=[];
-  for(const f of files){const n=f.name.toLowerCase();
-    if(/\.(pdf|zip)$/.test(n)||/pdf|zip/.test(f.type))pdf.push(f);else if(/\.json$/.test(n)||/json/.test(f.type))js.push(f);else if(/\.(csv|txt)$/.test(n)||/csv|text/.test(f.type))csv.push(f);else other.push(f)}
+  // 拡張子がないファイルもあるので、中身の先頭で見分ける（%PDF→PDF、PK→zip、{→控え、それ以外の文字→CSV）
+  for(const f of files){let h="";try{h=new TextDecoder("latin1").decode(await f.slice(0,8).arrayBuffer())}catch(e){}
+    if(/^%PDF/.test(h)||/^PK/.test(h))pdf.push(f);else if(/^\s*\{/.test(h))js.push(f);
+    else if(/\.(png|jpe?g|heic|gif|mov|mp4)$/i.test(f.name))other.push(f);else csv.push(f)}
   const kt=document.getElementById("ktCsvIn");
   for(const f of csv){if(!kt)break;const dt=new DataTransfer();dt.items.add(f);kt.files=dt.files;kt.dispatchEvent(new Event("change"));await new Promise(r=>setTimeout(r,800))}
   for(const f of js)if(window.recImportJson)window.recImportJson(f);

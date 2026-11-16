@@ -724,7 +724,7 @@ details.recBox[open] summary:before{content:"▾ "}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.3</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚記録室を追加（カウンターの「記録室をひらく」から）：毎月の給料明細とボーナスを記録して、手取りや残業のグラフ、去年との比較、年度のまとめが見られるように。明細と勤怠ノートがずれていたら、見直す日の候補を教えてくれるよ。明細の内訳（社会保険料・年金・税金・手当など）も項目ごとに推移が見られるよ。📄明細PDF（フォルダごとの.zipもOK）を読み込むと、iPhoneの中だけで読み取って一気に入れられるよ🧸</span></li>
+        <li><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚記録室を追加（カウンターの「記録室をひらく」から）：毎月の給料明細とボーナスを記録して、手取りや残業のグラフ、去年との比較、年度のまとめが見られるように。明細と勤怠ノートがずれていたら、見直す日の候補を教えてくれるよ。明細の内訳（社会保険料・年金・税金・手当など）も項目ごとに推移が見られるよ。📄明細PDF（フォルダごとの.zipもOK）を読み込むと、iPhoneの中だけで読み取って一気に入れられるよ。🗂まとめに🧾源泉徴収票の欄も追加🧸</span></li>
         <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板を下のほうに大きく</span></li>
         <li><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
         <li><span class="vNo">ver3.0</span><span class="vDate">11/15</span><span class="vTxt">勤怠ノート（β版）を追加：シフトから予定の時間を自動で入れて、就業時間・確定残業・追加残業・残業代の見込みを計算、CSV・PDF・Googleスプレッドシートに保存。下のボタン「カウンター」を「きろく」に。占いの「恋愛運」を「夫婦運」に（ふたりの時間の文章に書きかえ）、金運の文言を修正</span></li>
@@ -2376,7 +2376,7 @@ const $r=id=>document.getElementById(id);
 const YEN=v=>`¥${Math.round(+v||0).toLocaleString()}`;
 const MAN=v=>`${((+v||0)/10000).toFixed(1)}万`;
 let R;try{R=JSON.parse(localStorage.getItem(RK)||"null")}catch(e){}
-R=Object.assign({sync:true,m:{},b:{}},R||{});if(!R.m)R.m={};if(!R.b)R.b={};
+R=Object.assign({sync:true,m:{},b:{},w:{}},R||{});if(!R.m)R.m={};if(!R.b)R.b={};if(!R.w)R.w={};
 function storeR(){try{localStorage.setItem(RK,JSON.stringify(R))}catch(e){}}
 function touch(){storeR();if(R.sync&&window.ktTouch)window.ktTouch()}
 const addM=(k,n)=>{let[y,m]=k.split("-").map(Number);m+=n;while(m>12){m-=12;y++}while(m<1){m+=12;y--}return`${y}-${P2(m)}`};
@@ -2399,9 +2399,9 @@ function mirrorOt(pk){const e=R.m[pk],w=addM(pk,-1);if(!S.otMonths)S.otMonths={}
   save()}
 
 // ===== 同期(勤怠ノートの sync から呼ばれる) =====
-window.recForSync=()=>R.sync?{m:R.m,b:R.b}:null;
+window.recForSync=()=>R.sync?{m:R.m,b:R.b,w:R.w}:null;
 window.recMerge=rr=>{const out={changed:false,remoteOld:false};if(!R.sync)return out;rr=rr||{};
-  for(const kind of["m","b"]){const L=R[kind],X=rr[kind]||{};
+  for(const kind of["m","b","w"]){const L=R[kind],X=rr[kind]||{};
     for(const k of new Set([...Object.keys(L),...Object.keys(X)])){const a=L[k],b=X[k],au=a?(+a.u||0):-1,bu=b?(+b.u||0):-1;
       if(bu>au){L[k]=b;out.changed=true;if(kind==="m")mirrorOt(k)}else if(au>bu)out.remoteOld=true}}
   if(out.changed){storeR();if(typeof renderOt==="function")renderOt()}
@@ -2514,6 +2514,26 @@ function fyTotals(fy){const ms=fyMonths(fy);let g=0,n=0,cnt=0,oh=0,oy=0,bg=0,bnn
   for(const k of ms){const e=R.m[k];if(live(e)&&(+e.g||+e.n)){g+=+e.g||0;n+=+e.n||0;cnt++;sh+=shaho(e);zei+=zeikin(e);tk+=tatekae(e)}const o=otOf(k);if(o){oh+=o.h;oy+=o.y}
     const b=R.b[k];if(live(b)){bg+=+b.g||0;bnn+=+b.n||0;sh+=shaho(b);zei+=zeikin(b)}}
   return{g:g-tk,n,cnt,oh,oy,bg,bn:bnn,sh,zei,tk}}
+// 源泉徴収票（暦年ごと）。R.w[西暦]={pay支払金額,after給与所得控除後,ded所得控除の合計,tax源泉徴収税額,shaho社会保険料等,seiho生命保険料控除,kiso基礎控除,memo摘要,u}
+const GW=[["pay","支払金額"],["after","給与所得控除後の金額"],["ded","所得控除の額の合計額"],["tax","源泉徴収税額"],["shaho","社会保険料等の金額"],["seiho","生命保険料の控除額"],["kiso","基礎控除の額"]];
+let selW=null;
+function drawGensen(){const cy=+todayK().slice(0,4);if(selW==null){const ks=Object.keys(R.w).filter(k=>live(R.w[k])).sort();selW=ks.length?+ks[ks.length-1]:cy-1}
+  const e=live(R.w[selW])?R.w[selW]:{},rw=selW-2018;
+  // 明細から出した同じ年（1〜12月支給）の合計
+  let g=0,tax=0,sh=0,n=0;for(let m=1;m<=12;m++){const k=`${selW}-${P2(m)}`;for(const x of[R.m[k],R.b[k]]){if(!live(x))continue;g+=(+x.g||0)-tatekae(x);tax+=sumIt(x,"ded",/所得税/);sh+=shaho(x);if(x===R.m[k])n++}}
+  let h=`<div class="recBox"><div class="bt">🧾 源泉徴収票</div><div class="recNav"><button id="rWPrev">‹</button><div>${selW}年分<small>令和${rw}年分（1〜12月に支給された分）</small></div><button id="rWNext">›</button></div>
+    <div class="recGrid">${GW.map(([k,l])=>`<label>${l}<input type="number" inputmode="numeric" min="0" data-gw="${k}" value="${e[k]??""}" placeholder="0"></label>`).join("")}</div>
+    <label class="recMemoL">摘要<textarea id="rWMemo" rows="2" placeholder="例：定額減税 30,000円">${(e.memo||"").replace(/</g,"&lt;")}</textarea></label>
+    <button class="recSave" id="rWSave" style="font-size:15px;padding:10px">✔ ${selW}年分を記録する</button>`;
+  if(n)h+=`<div class="recNote">📄 明細から出した${selW}年1〜12月支給の合計（${n}か月分${n<12?"・全部そろってないよ":""}）：総支給 ${YEN(g)}（立替精算をのぞく）、所得税 ${YEN(tax)}、社会保険料 ${YEN(sh)}。非課税の手当や年末調整があるので、源泉徴収票とぴったりは合わないこともあるよ</div>`;
+  const ys=Object.keys(R.w).filter(k=>live(R.w[k])).sort();
+  if(ys.length>1)h+=`<table class="recTbl" style="margin-top:8px"><tr><th>年分</th><th>支払金額</th><th>源泉徴収税額</th><th>社会保険料等</th></tr>${ys.map(y=>`<tr><td>${y}</td><td>${YEN(R.w[y].pay)}</td><td>${YEN(R.w[y].tax)}</td><td>${YEN(R.w[y].shaho)}</td></tr>`).join("")}</table>`;
+  return h+`</div>`}
+function bindGensen(){const on=(id,f)=>{const el=$r(id);if(el)el.onclick=f};
+  on("rWPrev",()=>{selW--;draw()});on("rWNext",()=>{selW++;draw()});
+  on("rWSave",()=>{const e={u:Date.now()};let any=false;document.querySelectorAll("input[data-gw]").forEach(i=>{const v=i.value.trim();if(v!==""){e[i.dataset.gw]=Math.max(0,+v||0);any=true}});
+    const m=$r("rWMemo").value.trim();if(m){e.memo=m;any=true}
+    R.w[selW]=any?e:{del:true,u:e.u};touch();flash="";draw()})}
 function drawSum(){
   const t=fyTotals(selFY),p=fyTotals(selFY-1),cur=fyOfPay(latestPay());
   let paid=null;try{const end=`${selFY+1}-03-31`,today=todayK();paid=paidCalc(today<end?today:end);if(paid.fy!==selFY)paid=null}catch(e){}
@@ -2533,6 +2553,7 @@ function drawSum(){
     <div class="wide"><small>🏖️ 有休を使った日（${selFY}年度）</small><b>${paid?paid.used+"日":"—"}</b>${paid&&paid.sched?`<small>ほかに予定 ${paid.sched}日</small>`:""}</div>
   </div>`;
   h+=`<div class="recNote">${selFY===cur?"今年度はとちゅうまでの合計だよ。":""}${t.tk?`立替精算（出張の交通費など）${YEN(t.tk)}は給料じゃないから、総支給・年収から外してるよ。`:""}社会保険料・税金は、明細の内訳がある月だけの合計。給料は支給月（4月〜翌3月）で数えてるよ。有休は有休カウンターと同じ数え方（働いた日の年度）</div>`;
+  h+=drawGensen();
   h+=`<div class="recBox" style="margin-top:12px"><div class="bt">⚙️ 記録室の設定</div>
     <div class="recRow"><label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" id="rSync" ${R.sync?"checked":""}> ☁️ スプレッドシートにも同期する</label></div>
     <div class="recNote">勤怠ノートと同じシートに送るよ（同じシートにつないだ端末でも見られる）。オフにすると、この端末だけに保存。${ktLinked()?"":"<b>いまは勤怠ノートがシートにつながってないから、この端末だけに保存されるよ</b>"}</div>
@@ -2674,6 +2695,7 @@ function draw(){const b=$r("recBody");if(!b)return;
   const on=(id,f)=>{const el=$r(id);if(el)el.onclick=f};
   on("rPrev",()=>{selP=addM(selP,-1);flash="";draft=null;draw()});on("rNext",()=>{selP=addM(selP,1);flash="";draft=null;draw()});
   {const si=$r("rItem");if(si)si.onchange=()=>{selItem=si.value;draw()}}
+  if(tab==="sum")bindGensen();
   on("rFyPrev",()=>{selFY--;draw()});on("rFyNext",()=>{selFY++;draw()});
   on("rPdfBtn",()=>$r("rPdf").click());
   {const pf=$r("rPdf");if(pf)pf.onchange=()=>{const fs=[...pf.files];pf.value="";if(fs.length)readSlips(fs)}}
@@ -2688,12 +2710,12 @@ function draw(){const b=$r("recBody");if(!b)return;
   on("rDel",()=>{if(!confirm("この月の記録を消す？（残業カウンターの明細も消えるよ）"))return;const now=Date.now();
     R.m[selP]={del:true,u:now};if(R.b[selP])R.b[selP]={del:true,u:now};draft=null;mirrorOt(selP);touch();if(typeof renderOt==="function")renderOt();badge();flash="";draw()});
   const sy=$r("rSync");if(sy)sy.onchange=()=>{R.sync=sy.checked;storeR();if(window.ktTouch)window.ktTouch()};
-  on("rExp",()=>{const blob=new Blob([JSON.stringify({app:"yumebell-rec",v:1,at:new Date().toISOString(),m:R.m,b:R.b})],{type:"application/json"});
+  on("rExp",()=>{const blob=new Blob([JSON.stringify({app:"yumebell-rec",v:1,at:new Date().toISOString(),m:R.m,b:R.b,w:R.w})],{type:"application/json"});
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`kirokushitsu-${todayK()}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)});
   on("rImp",()=>$r("rFile").click());
   const fi=$r("rFile");if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;
     try{const j=JSON.parse(await f.text());if(j.app!=="yumebell-rec")throw 0;let c=0;
-      for(const kind of["m","b"])for(const k in(j[kind]||{})){const a=R[kind][k],b=j[kind][k];if((+b.u||0)>(a?(+a.u||0):-1)){R[kind][k]=b;c++;if(kind==="m")mirrorOt(k)}}
+      for(const kind of["m","b","w"])for(const k in(j[kind]||{})){const a=R[kind][k],b=j[kind][k];if((+b.u||0)>(a?(+a.u||0):-1)){R[kind][k]=b;c++;if(kind==="m")mirrorOt(k)}}
       touch();if(typeof renderOt==="function")renderOt();badge();alert(`読み込んだよ（${c}件）`);draw()}
     catch(e){alert("記録室のファイルじゃないみたい")}fi.value=""};
 }

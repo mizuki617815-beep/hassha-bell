@@ -933,17 +933,25 @@ function renderPaid(){
 // ===== 残業がんばりカウンター(時給+月ごとの残業時間・残業代) =====
 // 金額・時間の正は給与明細(S.otMonths、設定で編集可)。明細がまだの完了月は見込み(est)を置ける。進行中の今月は何も表示しない(本人の希望)。
 // 1つの勤務月を「予定(シフトの確定残業)→見込み(勤怠ノートの実績)→明細(給料日に入力)」の3段階で追う。支給は翌月25日。
+// 給料日(毎月25日)・賞与(夏6/30・冬12/10)：土日なら前の平日（2026-11-16）
+function payDay(y,m1,d){const t=new Date(y,m1-1,d);while(t.getDay()===0||t.getDay()===6)t.setDate(t.getDate()-1);return t}
+const MDW=t=>`${t.getMonth()+1}/${t.getDate()}(${"日月火水木金土"[t.getDay()]})`;
+function nextPays(today){const[y,m,d]=today.split("-").map(Number),now=new Date(y,m-1,d);
+  let sal=payDay(y,m,25);if(sal<now)sal=payDay(y+(m===12?1:0),m%12+1,25);
+  const bs=[[y,6,30,"夏の賞与"],[y,12,10,"冬の賞与"],[y+1,6,30,"夏の賞与"]].map(([a,b,c,n])=>({t:payDay(a,b,c),n})).filter(x=>x.t>=now);
+  return{sal,bon:bs[0]}}
 function otCalc(today){
   const fyY=(y,m1)=>m1>=4?y:y-1;
   const[ty,tm]=today.split("-").map(Number);const tfy=fyY(ty,tm);const mp=today.slice(0,7);
   const months=[];for(let i=0;i<12;i++){const y=tfy+Math.floor((3+i)/12),m=(3+i)%12+1;months.push(`${y}-${pad(m)}`)}
   const om=S.otMonths||{};const bars=[];let totH=0,totY=0,estH=0,estY=0;
   for(const mk of months){
-    const[y,m]=mk.split("-").map(Number);const pay=new Date(y,m,25);
-    const b={mk,label:m+"月",cur:mk===mp,h:0,y:0,t:"",stage:"",payLabel:`${pay.getMonth()+1}/25支給`,check:""};
+    const[y,m]=mk.split("-").map(Number);const pay=payDay(m===12?y+1:y,m%12+1,25);
+    const b={mk,label:m+"月",cur:mk===mp,h:0,y:0,t:"",stage:"",payLabel:`${MDW(pay)}支給`,check:""};
     const e=om[mk],k=window.ktMonth?window.ktMonth(mk):null;
     if(e&&e.t==="pay"&&(+e.h>0||+e.y>0)){b.h=+e.h||0;b.y=+e.y||0;b.t="pay";b.stage="明細";totH+=b.h;totY+=b.y;
       if(k&&mk<mp&&k.workDays&&k.fixedDays>=k.workDays)b.check=(k.otH===b.h&&k.yen===b.y)?"✓":"✗"}
+    else if(mk===mp&&k&&k.hasShift){b.h=k.otH;b.y=k.yen;b.t="est";b.stage="見込み（今月）"}
     else if(mk<mp&&k&&k.fixedDays){b.h=k.otH;b.y=k.yen;b.t="est";b.stage="見込み";estH+=b.h;estY+=b.y}
     else if(k&&k.hasShift){b.h=k.kakH;b.y=k.kakY;b.t="plan";b.stage=mk===mp?"予定（今月）":"予定"}
     else if(e&&(+e.h>0||+e.y>0)){b.h=+e.h||0;b.y=+e.y||0;b.t="est";b.stage="見込み";estH+=b.h;estY+=b.y}
@@ -969,7 +977,8 @@ function renderOt(){
     const cls=b.t==="pay"?"bUse otUse":b.t==="plan"?"bUse otEst otPlan":"bUse otEst";
     const yen=b.y?`¥${(b.y/10000).toFixed(1)}万`:"";
     return `<div class="pBar"><div class="bVal">${val}</div><div class="bWrap"><div class="${cls}" style="height:${Math.round(b.h/mx*100)}%"></div></div><div class="bMon${b.cur?" cur":""}">${b.label}</div><div class="bYen">${yen}</div></div>`}).join("")+`</div>`;
-  h+=`<div class="paidSub">濃い色＝明細、薄い色＝見込み（勤怠ノート）、点線＝予定（シフトの確定残業）。支給は翌月25日</div>`;
+  h+=`<div class="paidSub">濃い色＝明細、薄い色＝見込み（勤怠ノート。今月はシフト＋記録した残業）、点線＝予定（シフトの確定残業）。支給は翌月25日（土日なら前の平日）</div>`;
+  {const np=nextPays(ymd(jstNow()));h+=`<div class="paidSub" style="margin-top:4px">💰 次の給料日 <b>${MDW(np.sal)}</b>${np.bon?`　🎁 次の${np.bon.n} <b>${MDW(np.bon.t)}</b>`:""}</div>`}
   {const show=c.bars.filter(b=>b.stage).slice(-3).reverse();
    if(show.length)h+=`<div class="otStages">`+show.map(b=>`<div class="otStage"><span class="otChip ${b.t}">${b.stage}</span><b>${b.label}勤務</b>・${b.payLabel}　${b.h}h・¥${b.y.toLocaleString()}${b.check?` <span class="${b.check==="✓"?"ktOk":"ktNg"}">${b.check==="✓"?"✓ 勤怠ノートと一致":"✗ 勤怠ノートとちがう"}</span>`:""}</div>`).join("")+`</div>`}
   if(h!==otCache){otCache=h;el.innerHTML=h}
@@ -1956,7 +1965,7 @@ function render(){
   else if(c.kakutei>0)t=`ママ、この月はシフトの時点で確定残業が${JDUR(c.kakutei)}あるよ。いっぱい頑張ってるね🧸`;
   else t="ママ、この月はシフトどおりなら残業なしだよ。無理しないでね🧸";
   if(c.extraSum>0)t+=`<br>追加残業も${JDUR(c.extraSum)}。おつかれさま、帰ったらゆっくり休もうね。`;
-  {const n=NOW();if(n.getDate()>=25){const pm=new Date(n.getFullYear(),n.getMonth()-1,1),pk=mk(pm.getFullYear(),pm.getMonth()+1);
+  {const n=NOW();if(n>=payDay(n.getFullYear(),n.getMonth()+1,25)){const pm=new Date(n.getFullYear(),n.getMonth()-1,1),pk=mk(pm.getFullYear(),pm.getMonth()+1);
     const e=(typeof S!=="undefined"&&S.otMonths&&S.otMonths[pk])||null;
     if(!(e&&e.t==="pay"))t=`ママ、給料日だね！おつかれさま💕 ${pm.getMonth()+1}月に働いた分の明細が届いたら、⚙️設定の残業の「${pm.getMonth()+1}月勤務」の欄に入れてね🧸<br>`+t}}
   $("ktBubble").innerHTML=t;

@@ -471,7 +471,8 @@ body.dark .impBtn{background:#2a2340;color:#d9c6ff}
 .impRow .st{margin-left:auto;font-size:11.5px;white-space:nowrap}.impRow .ok{color:#2f9e6a}.impRow .ng{color:#d0457f;font-weight:bold}.impRow .wait{color:var(--sub)}
 .impOff{font-size:10.5px;color:var(--sub);background:none;border:0;text-decoration:underline;font-family:inherit;padding:0 4px;cursor:pointer}
 .recNag{display:block;width:100%;text-align:left;font-family:inherit;font-size:14px;line-height:1.45;color:var(--ink);background:linear-gradient(135deg,#fff0f8,#f3ecff);border:2px solid #f4b6d6;border-radius:12px;padding:6px 9px;margin:0 0 6px;cursor:pointer}
-.recNag span{display:block;font-size:11.5px;color:#c2508a;font-weight:bold}
+.recNag{display:flex!important;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px!important;padding:3px 9px!important;margin:0 0 4px!important;border-width:1.5px!important;border-radius:999px!important}
+.recNag span{margin-left:auto;font-size:14px;color:#c2508a;font-weight:bold}
 body.dark .recNag{background:#3a2d52;border-color:#8a4f78}
 .recOpen .rBadge{display:inline-block;margin-top:3px;background:#fff;color:#c2508a;font-size:11px;font-weight:bold;border-radius:999px;padding:1px 8px;align-self:flex-start}
 #recSheet{position:fixed;inset:0;background:rgba(80,60,110,.38);display:none;align-items:flex-end;justify-content:center;z-index:95}
@@ -1259,10 +1260,9 @@ function renderCheer(force){
     const seed=now.getDate()+M*31,pick=a=>a[seed%a.length];
     if(same(payDay(Y,6,30))||same(payDay(Y,12,10)))payMsg=`🎁 ママ、今日は${M<=6?"夏":"冬"}のボーナスの日！半年おつかれさま💕 `+pick(PAY_ONEDARI_BONUS)+"<br>";
     else if(same(payDay(Y,M,25)))payMsg="💰 ママ、今日は給料日！今月もおつかれさま💕 "+pick(PAY_ONEDARI)+"<br>"}
-  let recMsg=window.impNag?window.impNag():"";if(!recMsg){const r=window.recMissing&&window.recMissing();if(r){const L=[`ママ、${r.t}明細、もう届いてるかな？ 手があいたときに、わたしの記録室にしまっておいてくれたらうれしいな📚`,`ねぇママ、${r.t}明細、ひまなときでいいから見せてほしいな。ファーちゃんがきれいに整理しておくね📚`,`ママ、${r.t}明細のおへやがまだ空っぽなの…🧸 あわてなくていいから、時間があるときにお願いね📚`];
-    recMsg=`<button type="button" class="recNag" onclick="window.recOpenAt('${r.k}')">${L[now.getDate()%L.length].replace(r.t+"明細",`<b>${r.t}明細</b>`)}<span>記録室をひらく ›</span></button>`}}
-  const verMsg=window.verNag?window.verNag():"";
-  document.getElementById("cheerTxt").innerHTML=verMsg+recMsg+payMsg+pre+cheerPick(key,CHEER[key]);
+  let recMsg=window.impNag?window.impNag():"";if(!recMsg){const r=window.recMissing&&window.recMissing();if(r)recMsg=`<button type="button" class="recNag" onclick="window.recOpenAt('${r.k}')">📚 <b>${r.t}明細</b>入れてね<span>›</span></button>`}
+  const verMsg=window.verNag?window.verNag():"";if(verMsg)recMsg=verMsg; // お知らせは1つだけ（週間天気を下に押し出さないように、1行の帯）
+  document.getElementById("cheerTxt").innerHTML=recMsg+payMsg+pre+cheerPick(key,CHEER[key]);
   // バッジ
   const chips=[];const has=Object.keys(SHIFTS).length>0;
   if(has){const mc=monthCount(now);if(mc.total)chips.push(`🗓 今月 ${mc.cnt}回出勤`);
@@ -2916,16 +2916,16 @@ const VK="yumebell_seenVer";
 function verNag(){const li=document.querySelector("#verHist li");if(!li)return"";const v=(li.querySelector(".vNo")||{}).textContent||"";
   let seen="";try{seen=localStorage.getItem(VK)||""}catch(e){}if(!v||seen===v)return"";
   const t=((li.querySelector(".vTxt")||{}).textContent||"").split("。")[0].replace(/🧸$/,"");
-  return`<button type="button" class="recNag" onclick="window.verSeen()">🎉 ママ、アプリが<b>${v}</b>になったよ！ ${t}。ほかにも新しくなったところがあるから見てみてね🧸<span>アップデート履歴を見る ›</span></button>`}
+  return`<button type="button" class="recNag" onclick="window.verSeen()" title="${t.replace(/"/g,"")}">🎉 <b>${v}</b>になったよ！見てみてね<span>›</span></button>`}
 window.verSeen=()=>{const li=document.querySelector("#verHist li"),v=li&&(li.querySelector(".vNo")||{}).textContent;try{if(v)localStorage.setItem(VK,v)}catch(e){}
   const d=document.getElementById("verHist");if(d){d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"})}if(typeof renderCheer==="function")renderCheer(true)};
 window.verNag=verNag;window.impNag=()=>impNag0();
-function impNag0(){const{sh,ts}=status(),btn=(t,s)=>`<button type="button" class="recNag" onclick="window.impPick()">${t}<span>${s} ›</span></button>`;
-  if(!sh.ok&&sh.lv>=3)return btn(`🗓 ママ、<b>${sh.txt}</b>がまだ入ってないよ！ 出てたらタイムツリーに入れて、CSVにして読み込んでね。おうちを出る時間が出せなくなっちゃうの…🧸`,"シフトを読み込む");
-  if(!sh.ok&&sh.lv===2)return btn(`🗓 ママ、<b>${sh.txt}</b>、もう出たかな？ 出てたら読み込んでおいてね🧸`,"シフトを読み込む");
-  if(ts&&!ts.ok&&ts.lv===2)return btn(`⏱ ママ、<b>${ts.txt}</b>、そろそろ入れておこっか。25日の明細とくらべられるようにしておくね🧸`,"タイムシートを読み込む");
+function impNag0(){const{sh,ts}=status(),btn=(t,s)=>`<button type="button" class="recNag" onclick="window.impPick()">${t}<span>›</span></button>`;
+  if(!sh.ok&&sh.lv>=3)return btn(`🗓 <b>${sh.txt}</b>がまだだよ！`,"");
+  if(!sh.ok&&sh.lv===2)return btn(`🗓 <b>${sh.txt}</b>、もう出たかな？`,"");
+  if(ts&&!ts.ok&&ts.lv===2)return btn(`⏱ <b>${ts.txt}</b>、そろそろ入れてね`,"");
   if(window.recMissing&&window.recMissing())return"";// 明細は記録室のお知らせにまかせる
-  if(ts&&!ts.ok&&ts.lv===1)return btn(`⏱ ママ、先月もおつかれさま！ 手があいたら<b>${ts.txt}</b>を入れておいてね🧸`,"タイムシートを読み込む");
+  if(ts&&!ts.ok&&ts.lv===1)return btn(`⏱ 手があいたら<b>${ts.txt}</b>を入れてね`,"");
   return""}
 function drawList(){const el=document.getElementById("impList");if(!el)return;const{sh,ts}=status(),r=window.recMissing&&window.recMissing();
   const row=(ic,txt,ok,when,extra,soon)=>`<div class="impRow">${ic} ${txt}${extra||""}<span class="st ${ok?"ok":soon?"wait":when?"ng":"wait"}">${ok?"✅ 入ってるよ":when?"⏳ "+when:""}</span></div>`;

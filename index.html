@@ -533,8 +533,6 @@ body.dark .cheer:after{border-color:#5a3a5c}
     </div>
     <div class="note" id="csvStatus"></div>
     <button class="btn2 sub" id="csvRestore" type="button" style="display:none;font-family:inherit;cursor:pointer;font-size:12px;margin-top:6px"></button>
-    <div class="paidPanel" id="paidInfo"></div>
-    <div class="otPanel" id="otInfo"></div>
   </div>
 
   <div class="card" id="navKintai">
@@ -579,6 +577,12 @@ body.dark .cheer:after{border-color:#5a3a5c}
       <div class="ktNote">読み込み直したいときに。消す前の記録は端末内に1つ控えを残すよ（シフトは「あした」のカードの「シフトを消す」で別に消せるよ）。</div>
       <div class="ktNote">ルール：所定＝（暦の日数−公休）×8h（有休の日も出勤日に数える）。拘束6時間超のシフトは休憩60分。残業は月の合計で、30分未満は切り捨て・30分以上は切り上げ。単価は残業カウンターの設定を使うよ。</div>
     </details>
+  </div>
+
+  <!-- 有休・残業カウンター(下のボタンの順に合わせて、勤怠ノートのあと) -->
+  <div class="card" id="navCount">
+    <div class="paidPanel" id="paidInfo" style="margin-top:0"></div>
+    <div class="otPanel" id="otInfo"></div>
   </div>
 
   <div class="card">

@@ -634,7 +634,7 @@ details.recBox[open] summary:before{content:"▾ "}
   <div class="card" id="navKintai">
     <div class="sec">🗒️ 勤怠ノート<span class="ktBeta">β版</span></div>
     <div class="ktNote" style="margin-top:0">β版だよ。計算のたしかめ中なので、記録は今まで通りタイムシートとタイムツリーにも残してね。</div>
-    <button type="button" class="recOpen" id="recOpen"><span class="ri"><img src="rec-bear.webp" alt="本棚の前で資料を整理するファーちゃん" width="58" height="58"></span><span class="rt"><b>📚 記録室をひらく</b><small>給料・ボーナスの明細／源泉徴収票／年度のまとめ</small></span><span class="ra">›</span></button>
+    <button type="button" class="recOpen" id="recOpen"><span class="ri"><img src="rec-bear.webp" alt="本棚の前で資料を整理するファーちゃん" width="58" height="58"></span><span class="rt"><b>📚 ファーちゃんの記録室</b><small>給料・ボーナスの明細／源泉徴収票／年度のまとめ</small></span><span class="ra">›</span></button>
     <div class="ktMon" style="margin-top:8px">
       <button class="ktBtn" id="ktPrev" type="button">◀</button>
       <b id="ktMonLabel"></b>
@@ -2764,7 +2764,7 @@ function badge(){const btn=$r("recOpen");if(!btn)return;const rt=btn.querySelect
   if(need)bd.textContent=`💰 ${+latestPay().slice(5)}月の明細きた？`;else if(bd)bd.remove()}
 document.addEventListener("DOMContentLoaded",()=>{
   const sh=document.createElement("div");sh.id="recSheet";
-  sh.innerHTML=`<div class="recPanel"><div class="recHead"><img class="rhI" src="rec-bear.webp" alt=""><h3>📚 記録室</h3><button class="recX" id="recX" aria-label="とじる">✕</button></div>
+  sh.innerHTML=`<div class="recPanel"><div class="recHead"><img class="rhI" src="rec-bear.webp" alt=""><h3>📚 ファーちゃんの記録室</h3><button class="recX" id="recX" aria-label="とじる">✕</button></div>
     <div class="recTabs" id="recTabs"><button data-t="in">📝 入れる</button><button data-t="see">📈 みる</button><button data-t="sum">🗂 まとめ</button></div>
     <div class="recBody" id="recBody"></div></div>`;
   document.body.appendChild(sh);

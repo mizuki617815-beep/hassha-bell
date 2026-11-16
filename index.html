@@ -27,7 +27,8 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
 #jumpNav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;display:flex;gap:2px;width:min(94vw,430px);background:rgba(255,255,255,.96);border:2px solid #f3d9e8;border-radius:999px;padding:6px;box-shadow:0 8px 24px rgba(90,60,140,.28)}
 #jumpNav button{flex:1;border:0;background:transparent;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 0 6px;border-radius:999px;color:var(--sub)}
 #jumpNav .nIco{font-size:21px;line-height:1.15}
-#jumpNav .nLbl{font-size:11px;font-weight:900}
+#jumpNav .nLbl{font-size:11px;font-weight:900;white-space:nowrap;letter-spacing:-.03em}
+#jumpNav button{min-width:0}
 #jumpNav button.on{background:#fdeef5;color:#e0447c}
 body.dark #jumpNav{background:rgba(43,36,66,.96);border-color:#5a4d80;box-shadow:0 8px 24px rgba(0,0,0,.45)}
 body.dark #jumpNav button.on{background:#4a3f6b;color:#ffb7d5}
@@ -78,12 +79,15 @@ body.dark .wxBear{border-color:#4a3f6b}
 .bubble{position:relative;flex:1;background:#fff;border-radius:20px 20px 20px 6px;padding:9px 13px;font-size:14px;line-height:1.55;border:2px solid var(--pink2)}
 .bubble b{color:#e0609a}
 .cheer{position:relative;margin-top:10px;background:#fff;border:2px solid var(--pink2);border-radius:14px;padding:6px 10px;font-size:13px;line-height:1.5;color:var(--ink)}
-.cheer:before,.cheer:after{content:"";position:absolute;left:44px;border:solid transparent}
-.cheer:before{top:-12px;border-width:0 9px 12px;border-bottom-color:var(--pink2)}
-.cheer:after{top:-8px;left:46px;border-width:0 7px 9px;border-bottom-color:#fff}
+.cheer{padding-left:56px!important;min-height:52px}
+.cheer:before{content:"";position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:50%;background:#fff0f8 url(kintai-face.webp) center/cover no-repeat;border:2px solid var(--pink)!important}
+.cheer:after{display:none}
+.cheer:before,.cheer:after{border-width:2px}
+
+
 .cheer b{color:#e0609a}
 #cheerTxt{display:inline}.cheer .chips{display:inline;margin:0}.cheer .chip{display:inline-block;font-size:10.5px;padding:1px 7px;margin:2px 0 0 4px;vertical-align:1px}
-body.dark .cheer{background:#2e2747;border-color:#5a3a5c}body.dark .cheer:before{border-bottom-color:#5a3a5c}body.dark .cheer:after{border-bottom-color:#2e2747}body.dark .cheer b{color:#ff9fcf}
+body.dark .cheer{background:#2e2747;border-color:#5a3a5c}body.dark body.dark body.dark .cheer b{color:#ff9fcf}
 #pCheer{margin-top:8px;padding:8px 12px;border-radius:14px;background:var(--pink2);font-size:13.5px;font-weight:700;line-height:1.6;color:var(--ink)}
 #pCheer:empty{display:none}
 .cheerRen{display:inline-block;font-size:12px;color:#e0609a}
@@ -381,10 +385,11 @@ body.dark .ktBtn.main{background:linear-gradient(135deg,var(--pink),var(--lav));
 .ktAskRow{display:flex;gap:10px;align-items:center}
 .ktAskIc{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 12%;background:#fff;border:2px solid var(--pink);flex:none}
 .ktAskMsg{flex:1}
-.ktAsk{margin-top:10px;background:var(--pink2);border:2px solid var(--pink);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;font-weight:bold}
+.ktAsk{margin-top:4px;font-size:12.5px;font-weight:bold;color:var(--rose);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ktAsk .ktBtn{font-size:12px;padding:3px 12px}
 .ktAsk small{font-weight:normal;font-size:12px}
-body.dark .ktAsk{background:rgba(255,159,207,.15)}
-.ktEditBtn{border:0!important;color:#fff!important;font-weight:bold;background:linear-gradient(135deg,#8ec5ff,#b79cff)!important;box-shadow:0 3px 10px rgba(120,110,220,.35)}
+
+.ktEditBtn{border:0!important;color:#4a3560!important;font-weight:bold;background:#ffd86b!important;box-shadow:0 3px 10px rgba(0,0,0,.25)}
 .ktQuit{position:absolute;inset:0;background:rgba(40,30,60,.55);display:flex;align-items:center;justify-content:center;border-radius:24px 24px 0 0;z-index:5}
 .ktQuitBox{background:var(--card,#fff);color:var(--ink);border-radius:18px;padding:16px;width:86%;display:flex;flex-direction:column;gap:10px;text-align:center}
 body.dark .ktQuitBox{background:#2a2340}
@@ -636,7 +641,7 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
   </div>
 </div>
 
-<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navKintai"><span class="nIco">🧸</span><span class="nLbl">きろく</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
+<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="paidInfo"><span class="nIco">📊</span><span class="nLbl">カウンター</span></button><button data-t="navKintai"><span class="nIco">🧸</span><span class="nLbl">きろく</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
 <script>
 // 時刻表データ(京急空港線 2025年12月13日改正＋2026年11月ダイヤ変更ぶん)。発車:京急公式各駅時刻表/NAVITIME、到着:NAVITIME(2026/11/10取得)、ダイヤ変更ぶん:京急公式ニュースリリース(2026/11/11確認)
 function T(s){return s.split(" ").map(x=>{const [d,r,t,p]=x.split(",");return {m:+d,r:+r,t,p:+p}})}
@@ -1824,7 +1829,7 @@ setInterval(()=>{renderCheer(false);renderBday()},60000);
 const navBtns=[...document.querySelectorAll("#jumpNav button")];
 function navOn(id){navBtns.forEach(b=>b.classList.toggle("on",b.dataset.t===id))}
 navBtns.forEach(b=>b.addEventListener("click",()=>{const el=document.getElementById(b.dataset.t);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});navOn(b.dataset.t)}}));
-if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","navKintai","navSet"];const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
+if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","paidInfo","navKintai","navSet"];const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
 // ===== 更新ボタン・下に引っぱって更新 =====
 function hardReload(){const p=document.getElementById("ptr");p.textContent="🔄 更新中…";p.style.transform="translate(-50%,12px)";setTimeout(()=>location.reload(),150)}
 document.getElementById("reloadBtn").onclick=hardReload;
@@ -1992,8 +1997,8 @@ function ktChip(){
   let el=document.getElementById("ktAskBox");
   if(!askToday()){if(el)el.remove();return}
   if(!el){el=document.createElement("div");el.id="ktAskBox";el.className="ktAsk";
-    el.innerHTML=`<div class="ktAskRow"><img src="kintai-bear.webp" alt="" class="ktAskIc"><div class="ktAskMsg">⏰ ママ、おつかれさま！今日は残業した？<br><small>残業してない日は、ファーちゃん🧸が定時で記録しておくね！</small></div></div><button class="ktBtn main ktDayBtn" type="button" id="ktAskBtn">⏰ 残業を記録</button>`;
-    box.after(el); // 天気のクマの吹き出しとは別の、勤怠ノートのファーちゃんのお知らせとして出す
+    el.innerHTML=`⏰ ママ、今日は残業した？してなければ定時で記録しておくね！<button class="ktBtn main" type="button" id="ktAskBtn">残業を記録</button>`;
+    const ch=document.getElementById("cheerChips");box.insertBefore(el,ch||null); // 吹き出しの中に小さく(週間天気を下に押し出さない)
     el.querySelector("#ktAskBtn").onclick=()=>openDay(YMD(NOW()),"zan")}
 }
 window.ktChip=ktChip;

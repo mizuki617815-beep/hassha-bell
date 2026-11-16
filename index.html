@@ -410,8 +410,10 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
 .otChip.pay{background:var(--mint2);color:#2f9b80}.otChip.est{background:var(--pink2);color:var(--rose)}.otChip.plan{background:var(--lav2);color:var(--lav)}
 #ktPrint{display:none}
 @media print{
-  body{background:#fff!important}
+  html,body,body.dark{background:#fff none!important;background-attachment:scroll!important;color-scheme:light!important}
+  body:before,body:after{display:none!important;content:none!important}
   body.ktPrinting>*:not(#ktPrint){display:none!important}
+  body.ktPrinting #ktPrint *{background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;color:#000!important}
   body.ktPrinting #ktPrint{display:block;font-size:10.5pt;color:#000;padding:8mm}
   #ktPrint table{width:100%;border-collapse:collapse}
   #ktPrint th,#ktPrint td{border:1px solid #999;padding:3px 5px;text-align:center}
@@ -552,14 +554,14 @@ body.dark .cheer:after{border-color:#5a3a5c}
       <div class="ktDays" id="ktDays"></div>
     </details>
     <details style="margin-top:10px" class="ktSet">
-      <summary style="font-size:13px;font-weight:bold;cursor:pointer">📤 出力・☁️ スプレッドシート・⚙️ 計算の設定</summary>
+      <summary style="font-size:13px;font-weight:bold;cursor:pointer">📥 入力・📤 出力・☁️ スプレッドシート・⚙️ 計算の設定</summary>
       <div class="ktRow">
         <button class="ktBtn" id="ktCsvOut" type="button">CSVで保存</button>
         <label class="ktBtn" for="ktCsvIn">CSV・タイムシートを読み込む</label>
         <input type="file" id="ktCsvIn" style="display:none">
         <button class="ktBtn" id="ktPdfOut" type="button">PDFにする</button>
       </div>
-      <div class="ktNote">PDFは「共有」→「プリント」→ プレビューを2本指で広げるとPDFで保存できるよ。</div>
+      <div class="ktNote">「PDFにする」を押したら、右上の「プリント」は押さずに（プリンタがないと押せないよ）、その左の共有ボタン（□に↑）→「ファイルに保存」でPDFになるよ。</div>
       <label>Googleスプレッドシートのつなぎ先（…/exec で終わるURL）</label>
       <input type="text" id="ktUrl" placeholder="https://script.google.com/macros/s/…/exec">
       <div class="ktRow">

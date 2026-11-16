@@ -364,7 +364,15 @@ body.dark .ktToday{background:rgba(255,255,255,.05);border-color:rgba(255,255,25
 .ktTwo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 .ktPanel input{box-sizing:border-box;min-width:0;max-width:100%}
 .ktPanel input[type=time]{-webkit-appearance:none;appearance:none;display:block}
-.ktBigTime{font-size:28px!important;font-weight:bold;text-align:center;padding:10px!important;margin-top:4px;background:var(--pink2)!important;border-color:var(--pink)!important}
+.ktBigTime{margin-top:4px;background:var(--pink2);border:2px solid var(--pink);border-radius:14px;padding:8px 10px}
+.ktBigTime input{outline:none;border:0!important;background:transparent!important;width:100%!important;font-size:28px!important;font-weight:bold;text-align:center;padding:2px!important;color:var(--ink)}
+.ktBigTime input::-webkit-date-and-time-value{text-align:center}
+.ktChoice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.ktCh{font-family:inherit;color:var(--ink);background:rgba(255,255,255,.55);border:2px solid var(--line);border-radius:18px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.ktCh .ic{font-size:26px;line-height:1.1}.ktCh b{font-size:15px}.ktCh small{font-size:11px;color:var(--sub)}
+.ktCh.on{border-color:var(--pink);background:var(--pink2);box-shadow:0 0 0 3px rgba(255,159,207,.25)}
+body.dark .ktCh{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12)}body.dark .ktCh.on{border-color:var(--pink);background:rgba(255,159,207,.18)}
+body.dark .ktBtn.main{background:linear-gradient(135deg,var(--pink),var(--lav));color:#fff;border:0}
 .ktOtLine{font-size:13px;margin-top:6px;text-align:center}
 .ktInRow{display:flex;align-items:center;gap:8px;margin-top:10px}.ktInRow label{margin:0!important;white-space:nowrap}.ktInRow input{width:120px!important;font-size:15px!important;padding:5px 8px!important}
 .ktBrkLine{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;font-size:13.5px}
@@ -1993,21 +2001,27 @@ function openDay(d){
   // 「何時に終わったか」を入れると追加残業が自動で出る(本人の記録の仕方に合わせる)
   p.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:17px">${M}/${D}（${WD[w]}）</b><button class="ktBtn" id="kxClose" type="button">とじる</button></div>
     <div class="ktNote">${dc.sh?`シフト：${ESC(dc.sh.title)}`:"シフトなし"}${usePlan?`（予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}・実働${DUR(dc.plan.work)}）`:""}</div>
-    <label>🏁 何時に終わった？（退勤）</label>
-    <input type="time" id="kxOut" class="ktBigTime" value="${toTime(pout)}">
-    <div class="ktOtLine" id="kxOtLine"></div>
+    ${usePlan?`<div class="ktChoice"><button type="button" id="kxTeiji" class="ktCh"><span class="ic">🌸</span><b>定時で終わった</b><small>${HM(dc.plan.end)}に終わり</small></button><button type="button" id="kxZan" class="ktCh"><span class="ic">⏰</span><b>残業した</b><small>終わった時刻を入れる</small></button></div>`:""}
+    <div id="kxOutWrap"><label>🏁 何時に終わった？（退勤）</label>
+    <div class="ktBigTime"><input type="time" id="kxOut" value="${toTime(pout)}"></div>
+    <div class="ktOtLine" id="kxOtLine"></div></div>
     <div class="ktInRow"><label for="kxIn">出勤</label><input type="time" id="kxIn" value="${toTime(pin)}"><span class="ktNote" style="margin:0">${usePlan?"早出の日だけ直してね":""}</span></div>
     <div class="ktBrkLine"><span id="kxBrkTxt">☕ 休憩 60分（いつもどおり）</span><button class="ktBtn" type="button" id="kxBrkToggle" style="font-size:11.5px;padding:4px 10px">休憩が少なかった？</button></div>
     <div id="kxBrkMore" style="display:none"><div class="ktRow" id="kxBrk" style="margin-top:6px"><button class="ktBtn" type="button" data-b="30">30分だけ</button><button class="ktBtn" type="button" data-b="0">とれなかった</button><input type="number" id="kxBrkN" inputmode="numeric" placeholder="ほか(分)" style="width:96px;font-size:14px"><button class="ktBtn" type="button" data-b="60" style="font-size:11.5px">60分に戻す</button></div></div>
     <label>📝 備考</label><input type="text" id="kxMemo" value="${ESC(e.memo)}" placeholder="例：遅延対応で追加残業">
     <div class="ktCalc" id="kxCalc"></div>
-    <div class="ktRow" style="justify-content:space-between;margin-top:10px">${usePlan?`<button class="ktBtn" id="kxAsPlan" type="button" style="font-size:12px">予定どおりで記録</button>`:"<span></span>"}<button class="ktBtn" id="kxDel" type="button" style="font-size:11.5px">この日の入力を消す</button></div>
+    <div class="ktRow" style="justify-content:space-between;margin-top:10px"><span></span><button class="ktBtn" id="kxDel" type="button" style="font-size:11.5px">この日の入力を消す</button></div>
     <div class="ktFixBar"><button class="ktBtn main" id="kxFix" type="button">✔ この内容で記録する</button></div>`;
+  let mode=usePlan?((pout!=null&&pout!==dc.plan.end)?"zan":"teiji"):"free";
   const xIn=$("kxIn"),xOut=$("kxOut");let brk=e.brk!=null?e.brk:null;
   const span=()=>{const a=toMin(xIn.value),b=toMin(xOut.value);if(a==null||b==null)return null;let s=b-a;if(s<0)s+=1440;return s};
   const curBrk=()=>{const s=span();return brk!=null?brk:(s==null?0:stdBreak(s))};
   const ext=()=>{if(!usePlan)return 0;const b=toMin(xOut.value);if(b==null)return 0;let x=b-dc.plan.end%1440;if(x<-720)x+=1440;if(x>720)x-=1440;return x};
+  function setMode(m){mode=m;if(usePlan){$("kxTeiji").classList.toggle("on",m==="teiji");$("kxZan").classList.toggle("on",m==="zan");
+      $("kxOutWrap").style.display=m==="zan"?"":"none";if(m==="teiji")xOut.value=toTime(dc.plan.end);
+      else if(toMin(xOut.value)===dc.plan.end){xOut.value=toTime((dc.plan.end+30)%1440)}}upd()}
   function upd(){const s=span(),b=curBrk();
+    $("kxFix").textContent=mode==="teiji"?(b<stdBreak(s||0)?"✔ 定時（休憩少なめ）で記録する":"✔ 定時で記録する"):mode==="zan"?"✔ 残業ありで記録する":"✔ この内容で記録する";
     p.querySelectorAll("#kxBrk button").forEach(x=>x.classList.toggle("on",+x.dataset.b===b&&b!==60));
     {const sp=span(),std=sp==null?60:stdBreak(sp);$("kxBrkTxt").textContent=std===0?"☕ 休憩なし（6時間以下）":b>=std?`☕ 休憩 ${b}分（いつもどおり）`:`☕ 休憩 ${b}分だけ（${std-b}分とれなかった）`;
      if(b<std)$("kxBrkMore").style.display="";}
@@ -2021,7 +2035,9 @@ function openDay(d){
   p.querySelectorAll("#kxBrk button").forEach(x=>x.onclick=()=>{brk=+x.dataset.b;$("kxBrkN").value="";if(brk===60)$("kxBrkMore").style.display="none";upd()});
   $("kxBrkToggle").onclick=()=>{const m=$("kxBrkMore");m.style.display=m.style.display==="none"?"":"none"};
   $("kxBrkN").oninput=ev=>{const v=ev.target.value;brk=v===""?null:Math.max(0,+v);upd()};
-  xIn.oninput=upd;xOut.oninput=upd;upd();
+  xIn.oninput=upd;xOut.oninput=upd;
+  if(usePlan){$("kxTeiji").onclick=()=>setMode("teiji");$("kxZan").onclick=()=>{setMode("zan");try{xOut.focus()}catch(e){}}}
+  setMode(mode);
   const close=()=>$("ktSheet").classList.remove("show"),done=()=>{ktSave();close();render();if(typeof renderOt==="function")renderOt();ktChip()};
   $("kxClose").onclick=close;
   $("kxFix").onclick=()=>{const a=toMin(xIn.value),b=toMin(xOut.value),memo=$("kxMemo").value.trim();

@@ -1899,8 +1899,8 @@ function render(){
   for(let i=1;i<=c.n;i++){
     const d=`${key}-${P(i)}`,dc=dayCalc(d),w=new Date(y,m-1,i).getDay();let main,sub="",chip="";
     if(dc.act){main=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分`;
-      sub=`実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加 +${DUR(dc.extra)}</span>`:"");
-      chip=dc.fixed?`<span class="ktChip fix">確定✓</span>`:`<span class="ktChip plan">入力中</span>`}
+      sub=`実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"");
+      chip=dc.fixed?`<span class="ktChip fix">記録済み✓</span>`:`<span class="ktChip plan">入力中</span>`}
     else if(dc.plan&&!dc.plan.paid){main=`${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分`;
       sub=`予定 ${DUR(dc.plan.work)}　${ESC(dc.sh.title)}`;chip=`<span class="ktChip plan">予定</span>`}
     else if(isPaid(dc.sh)){main="有休";sub=KT.paid8?"8時間として数えるよ":"";chip=`<span class="ktChip paid">有休</span>`}
@@ -1934,10 +1934,10 @@ function renderToday(){
   const t=YMD(NOW());
   const card=(d,label)=>{const dc=dayCalc(d),[Y,M,D]=d.split("-").map(Number),wd=WD[new Date(Y,M-1,D).getDay()];
     const usePlan=dc.plan&&!dc.plan.paid;let body,btns="";
-    if(dc.act){body=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分　実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加 +${DUR(dc.extra)}</span>`:"")+(dc.fixed?"　✓":"");
+    if(dc.act){body=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分　実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"")+(dc.fixed?"　✓":"");
       btns=`<button class="ktBtn" type="button" data-edit="${d}">直す</button>`}
     else if(usePlan){body=`予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分　実働 ${DUR(dc.plan.work)}`;
-      btns=`<button class="ktBtn main" type="button" data-plan="${d}">予定どおりで確定</button><button class="ktBtn" type="button" data-edit="${d}">時刻を直す</button>`}
+      btns=`<button class="ktBtn main" type="button" data-plan="${d}">予定どおりで記録</button><button class="ktBtn" type="button" data-edit="${d}">時刻を直す</button>`}
     else if(isPaid(dc.sh))body="有休の日だよ。ゆっくりしてね🧸";
     else if(dc.sh&&dc.sh.off)body="お休みの日だよ🧸";
     else{body="シフトなし";btns=`<button class="ktBtn" type="button" data-edit="${d}">入力する</button>`}
@@ -1945,7 +1945,7 @@ function renderToday(){
   const miss=missingDays().filter(d=>d!==t);let h="";
   if(miss.length){
     h+=`<div class="ktToday" style="border-color:var(--pink)"><div class="tm">📝 まだ記録してない日が${miss.length}日あるよ</div>`+
-      (miss.length>=2?`<div class="ktRow"><button class="ktBtn main" type="button" id="ktAllPlan">${miss.length}日とも予定どおりで確定</button></div><div class="ktNote">延長した日や休憩が取れなかった日は、先にその日だけ「時刻を直す」でなおしてね</div>`:"")+`</div>`;
+      (miss.length>=2?`<div class="ktRow"><button class="ktBtn main" type="button" id="ktAllPlan">${miss.length}日とも予定どおりで記録</button></div><div class="ktNote">延長した日や休憩が取れなかった日は、先にその日だけ「時刻を直す」でなおしてね</div>`:"")+`</div>`;
     h+=miss.map(d=>card(d,"まだ記録してないよ")).join("")}
   h+=card(t,"きょう");
   w.innerHTML=h;
@@ -1953,7 +1953,7 @@ function renderToday(){
   const done=()=>{ktSave();render();if(typeof renderOt==="function")renderOt();ktChip()};
   w.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openDay(b.dataset.edit));
   w.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{fix(b.dataset.plan);done()});
-  if($("ktAllPlan"))$("ktAllPlan").onclick=()=>{if(!confirm(`${miss.length}日とも予定どおりで確定する？`))return;miss.forEach(fix);done()};
+  if($("ktAllPlan"))$("ktAllPlan").onclick=()=>{if(!confirm(`${miss.length}日とも予定どおりで記録する？`))return;miss.forEach(fix);done()};
 }
 // メイン画面のクマの吹き出しのバッジに「勤怠の記録まだ」を出す(アプリの中だけで動く)
 function ktChip(){
@@ -1981,7 +1981,7 @@ function openDay(d){
     <div class="ktRow" id="kxBrk" style="margin-top:4px"><button class="ktBtn" type="button" data-b="60">60分</button><button class="ktBtn" type="button" data-b="30">30分</button><button class="ktBtn" type="button" data-b="0">0分</button><input type="number" id="kxBrkN" inputmode="numeric" placeholder="ほか(分)" style="width:105px;font-size:14px"></div>
     <label>備考</label><input type="text" id="kxMemo" value="${ESC(e.memo)}" placeholder="例：遅延対応で延長">
     <div class="ktCalc" id="kxCalc"></div>
-    <div class="ktRow" style="margin-top:12px"><button class="ktBtn main" id="kxFix" type="button" style="flex:1">確定する</button>${usePlan?`<button class="ktBtn" id="kxAsPlan" type="button" style="flex:1">予定どおりで確定</button>`:""}</div>
+    <div class="ktRow" style="margin-top:12px"><button class="ktBtn main" id="kxFix" type="button" style="flex:1">記録する</button>${usePlan?`<button class="ktBtn" id="kxAsPlan" type="button" style="flex:1">予定どおりで記録</button>`:""}</div>
     <div class="ktRow"><button class="ktBtn" id="kxDel" type="button" style="font-size:11.5px">この日の入力を消す</button></div>`;
   const xIn=$("kxIn"),xOut=$("kxOut");let brk=e.brk!=null?e.brk:null;
   const span=()=>{const a=toMin(xIn.value),b=toMin(xOut.value);if(a==null||b==null)return null;let s=b-a;if(s<0)s+=1440;return s};
@@ -2014,7 +2014,7 @@ $("ktKoukyu").onchange=ev=>{KT.koukyu[mk(cur.y,cur.m)]=Math.max(0,Math.min(15,+e
 $("ktPaid8").onchange=ev=>{KT.paid8=ev.target.checked;ktSave();render()};
 
 // ===== CSV・シート用の表 =====
-const HEAD=["日付","シフト","出勤","退勤","休憩(分)","実働","予定の実働","追加残業","備考","確定"];
+const HEAD=["日付","シフト","出勤","退勤","休憩(分)","実働","予定の実働","追加残業","備考","記録済み"];
 function monthRows(y,m){
   const s=monthCalc(y,m),rows=[];
   rows.push(["確認欄",`${y}年${m}月`]);

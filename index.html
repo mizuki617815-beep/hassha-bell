@@ -565,8 +565,7 @@ body.dark .cheer:after{border-color:#5a3a5c}
       <label>Googleスプレッドシートのつなぎ先（…/exec で終わるURL）</label>
       <input type="text" id="ktUrl" placeholder="https://script.google.com/macros/s/…/exec">
       <div class="ktRow">
-        <button class="ktBtn main" id="ktGSave" type="button">つなぐ・今すぐ保存</button>
-        <button class="ktBtn" id="ktGLoad" type="button">今すぐそろえる</button>
+        <button class="ktBtn main" id="ktGSave" type="button">🔄 今すぐそろえる</button>
       </div>
       <div class="ktNote" id="ktGNote"></div>
       <label>このiPhoneで記録する人の名前（例：ファーちゃん、パパ）</label>
@@ -2218,8 +2217,10 @@ const okUrl=u=>/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(u);
 $("ktGSave").onclick=()=>{const u=$("ktUrl").value.trim();
   if(!okUrl(u)){syncNote("⚠️ URLの形がちがうみたい（https://script.google.com/macros/s/…/exec）",true);return}
   if(KT.url!==u)joining=true;KT.url=u;store();syncNote("シートとそろえてるよ…");sync(true)};
-$("ktGLoad").onclick=()=>{const u=$("ktUrl").value.trim()||KT.url;if(!okUrl(u)){syncNote("⚠️ 先にURLを入れてね",true);return}
-  KT.url=u;store();syncNote("シートとそろえてるよ…");sync(true)};
+// ボタンは1つ。URLが変わったときだけ「つなぐ」表示（2026-11-16）
+const gBtnLbl=()=>{const u=$("ktUrl").value.trim();$("ktGSave").textContent=(!KT.url||u!==KT.url)?"🔗 このURLにつなぐ":"🔄 今すぐそろえる"};
+$("ktUrl").addEventListener("input",gBtnLbl);setTimeout(gBtnLbl,0);
+$("ktGSave").addEventListener("click",()=>setTimeout(gBtnLbl,0));
 $("ktWho").onchange=ev=>{KT.who=ev.target.value.trim().slice(0,20);store();render()};
 window.addEventListener("online",()=>sync());
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")sync()});

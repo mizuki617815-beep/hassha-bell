@@ -364,6 +364,9 @@ body.dark .ktToday{background:rgba(255,255,255,.05);border-color:rgba(255,255,25
 .ktTwo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 .ktPanel input{box-sizing:border-box;min-width:0;max-width:100%}
 .ktPanel input[type=time]{-webkit-appearance:none;appearance:none;display:block}
+.ktBigTime{font-size:28px!important;font-weight:bold;text-align:center;padding:10px!important;margin-top:4px;background:var(--pink2)!important;border-color:var(--pink)!important}
+.ktOtLine{font-size:13px;margin-top:6px;text-align:center}
+.ktInRow{display:flex;align-items:center;gap:8px;margin-top:10px}.ktInRow label{margin:0!important;white-space:nowrap}.ktInRow input{width:120px!important;font-size:15px!important;padding:5px 8px!important}
 .ktOtBox{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px;background:var(--pink2);border-radius:14px;padding:8px 10px}
 .ktOtBox b{font-size:16px;color:var(--rose);text-align:center;flex:1}
 .ktCalc{background:var(--lav2);border-radius:14px;padding:8px 12px;margin-top:12px;font-size:13px;line-height:1.6}
@@ -1984,17 +1987,15 @@ function openDay(d){
   const usePlan=dc.plan&&!dc.plan.paid;
   const pin=e.in!=null?e.in:(usePlan?dc.plan.start:null),pout=e.out!=null?e.out:(usePlan?dc.plan.end:null);
   const p=$("ktPanel");
-  // 追加残業は「シフトの終わりから何分のびたか」で入れる(退勤の時刻は自動で決まる)
-  const otBtns=usePlan?`<label>⏰ 追加残業（シフトの終わり ${HM(dc.plan.end)} からのびた分）</label>
-    <div class="ktOtBox"><button class="ktBtn" type="button" data-ot="-15">−15分</button><b id="kxOtVal">なし</b><button class="ktBtn" type="button" data-ot="15">＋15分</button></div>
-    <div class="ktRow" style="margin-top:6px"><button class="ktBtn" type="button" data-otset="0">なし</button><button class="ktBtn" type="button" data-otadd="30">＋30分</button><button class="ktBtn" type="button" data-otadd="60">＋1時間</button><button class="ktBtn" type="button" data-otadd="120">＋2時間</button></div>`:"";
+  // 「何時に終わったか」を入れると追加残業が自動で出る(本人の記録の仕方に合わせる)
   p.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:17px">${M}/${D}（${WD[w]}）</b><button class="ktBtn" id="kxClose" type="button">とじる</button></div>
     <div class="ktNote">${dc.sh?`シフト：${ESC(dc.sh.title)}`:"シフトなし"}${usePlan?`（予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}・実働${DUR(dc.plan.work)}）`:""}</div>
-    ${otBtns}
+    <label>🏁 何時に終わった？（退勤）</label>
+    <input type="time" id="kxOut" class="ktBigTime" value="${toTime(pout)}">
+    <div class="ktOtLine" id="kxOtLine"></div>
+    <div class="ktInRow"><label for="kxIn">出勤</label><input type="time" id="kxIn" value="${toTime(pin)}"><span class="ktNote" style="margin:0">${usePlan?"早出の日だけ直してね":""}</span></div>
     <label>☕ 休憩</label>
     <div class="ktRow" id="kxBrk" style="margin-top:4px"><button class="ktBtn" type="button" data-b="60">60分とれた</button><button class="ktBtn" type="button" data-b="30">30分だけ</button><button class="ktBtn" type="button" data-b="0">とれなかった</button><input type="number" id="kxBrkN" inputmode="numeric" placeholder="ほか(分)" style="width:96px;font-size:14px"></div>
-    <details id="kxTimes" style="margin-top:10px"${usePlan?"":" open"}><summary style="font-size:12.5px;color:var(--sub);cursor:pointer">🕒 出勤・退勤の時刻を直接入れる${usePlan?"（早出のときなど）":""}</summary>
-      <div class="ktTwo"><div><label>出勤</label><input type="time" id="kxIn" value="${toTime(pin)}"></div><div><label>退勤</label><input type="time" id="kxOut" value="${toTime(pout)}"></div></div></details>
     <label>📝 備考</label><input type="text" id="kxMemo" value="${ESC(e.memo)}" placeholder="例：遅延対応で追加残業">
     <div class="ktCalc" id="kxCalc"></div>
     <div class="ktRow" style="margin-top:12px"><button class="ktBtn main" id="kxFix" type="button" style="flex:1">記録する</button>${usePlan?`<button class="ktBtn" id="kxAsPlan" type="button" style="flex:1">予定どおりで記録</button>`:""}</div>
@@ -2003,19 +2004,15 @@ function openDay(d){
   const span=()=>{const a=toMin(xIn.value),b=toMin(xOut.value);if(a==null||b==null)return null;let s=b-a;if(s<0)s+=1440;return s};
   const curBrk=()=>{const s=span();return brk!=null?brk:(s==null?0:stdBreak(s))};
   const ext=()=>{if(!usePlan)return 0;const b=toMin(xOut.value);if(b==null)return 0;let x=b-dc.plan.end%1440;if(x<-720)x+=1440;if(x>720)x-=1440;return x};
-  const setExt=x=>{if(!usePlan)return;x=Math.max(0,Math.min(12*60,x));xOut.value=toTime((dc.plan.end+x)%1440);upd()};
   function upd(){const s=span(),b=curBrk();
     p.querySelectorAll("#kxBrk button").forEach(x=>x.classList.toggle("on",+x.dataset.b===b));
-    if(usePlan){const x=ext();$("kxOtVal").textContent=x>0?`＋${JDUR(x)}（${HM((dc.plan.end+x)%1440)}まで）`:"なし"}
+    if(usePlan){const x=ext();$("kxOtLine").innerHTML=x>0?`シフトの終わり ${HM(dc.plan.end)} から <b class="ktAdd">＋${JDUR(x)}</b> のびたよ`:x<0?`シフトの終わり ${HM(dc.plan.end)} より早いよ（時刻を確かめてね）`:`シフトの終わり ${HM(dc.plan.end)} どおり`}
     if(s==null){$("kxCalc").textContent="出勤と退勤を入れてね";return}
     const wk=s-b,std=stdBreak(s),miss=Math.max(0,std-b);
     if(usePlan){const pw=dc.plan.work,ex=Math.max(0,wk-pw),x=Math.max(0,ext()),early=Math.max(0,ex-x-miss);
       let parts=[];if(x)parts.push(`のびた分 ${JDUR(x)}`);if(miss)parts.push(`休憩がとれなかった分 ${JDUR(miss)}`);if(early)parts.push(`早出など ${JDUR(early)}`);
       $("kxCalc").innerHTML=`予定 ${DUR(pw)}　→　実働 <b>${DUR(wk)}</b><br>追加残業 <b class="ktAdd">+${DUR(ex)}</b>${parts.length?`（${parts.join("＋")}）`:""}`}
     else $("kxCalc").innerHTML=`拘束 ${DUR(s)} − 休憩 ${b}分 ＝ 実働 <b>${DUR(wk)}</b>`+(miss?`<br>🧸 休憩がとれなかった${miss}分は、労働時間に入るよ`:"")}
-  p.querySelectorAll("[data-ot]").forEach(x=>x.onclick=()=>setExt(Math.max(0,ext())+(+x.dataset.ot)));
-  p.querySelectorAll("[data-otadd]").forEach(x=>x.onclick=()=>setExt(Math.max(0,ext())+(+x.dataset.otadd)));
-  p.querySelectorAll("[data-otset]").forEach(x=>x.onclick=()=>setExt(+x.dataset.otset));
   p.querySelectorAll("#kxBrk button").forEach(x=>x.onclick=()=>{brk=+x.dataset.b;$("kxBrkN").value="";upd()});
   $("kxBrkN").oninput=ev=>{const v=ev.target.value;brk=v===""?null:Math.max(0,+v);upd()};
   xIn.oninput=upd;xOut.oninput=upd;upd();

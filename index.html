@@ -1880,13 +1880,14 @@ function dayCalc(d){
   const planW=plan?plan.work:0,actW=act?act.work:null;
   const eff=actW==null?planW:Math.max(actW,planW);
   const extra=(actW==null||!plan)?0:Math.max(0,actW-planW); // シフトがない日は内訳(追加残業)を出せない
-  return{sh,e,plan,act,planW,eff,extra,fixed:!!(e&&e.fixed)};
+  const auto=!act&&!!plan&&d<YMD(NOW()); // 残業した日だけ記録する運用：記録のない過去の日は定時(有休)として自動で記録済み扱い
+  return{sh,e,plan,act,planW,eff,extra,fixed:!!(e&&e.fixed),auto};
 }
 const roundOT=min=>{const h=Math.floor(min/60);return min%60>=30?h+1:h};
 function monthCalc(y,m){
   const n=daysIn(y,m);let planSum=0,effSum=0,extraSum=0,fixedDays=0,workDays=0;
   for(let i=1;i<=n;i++){const c=dayCalc(`${mk(y,m)}-${P(i)}`);
-    planSum+=c.planW;effSum+=c.eff;extraSum+=c.extra;if(c.fixed)fixedDays++;if(c.planW>0||c.act)workDays++}
+    planSum+=c.planW;effSum+=c.eff;extraSum+=c.extra;if(c.fixed||c.auto)fixedDays++;if(c.planW>0||c.act)workDays++}
   const kou=koukyu(y,m),shotei=(n-kou)*480,kakutei=Math.max(0,planSum-shotei),ot=Math.max(0,effSum-shotei),otH=roundOT(ot);
   const pm=(typeof S!=="undefined"&&S.otMonths&&S.otMonths[mk(y,m)])||null;
   const pay=pm&&pm.t==="pay"&&(+pm.h>0||+pm.y>0)?{h:+pm.h||0,y:+pm.y||0}:null;
@@ -1910,7 +1911,7 @@ function render(){
     <div><small>確定残業</small><b>${DUR(c.kakutei)}</b></div>
     <div><small>追加残業（入力済み）</small><b class="ktAdd">+${DUR(c.extraSum)}</b></div>
     <div class="big"><small>残業 見込み（${JDUR(c.ot)}${c.ot%60===0?"":c.ot%60>=30?" → 30分以上なので切り上げ":" → 30分未満なので切り捨て"}）</small><b>${c.otH}時間 ・ ¥${c.yen.toLocaleString()}</b>${payLine}</div>`;
-  $("ktSumNote").textContent=`入力済み ${c.fixedDays}日 / 出勤 ${c.workDays}日。入力してない日は予定どおりで計算してるよ。残業代は翌月支給。`;
+  $("ktSumNote").textContent=`記録済み ${c.fixedDays}日 / 出勤 ${c.workDays}日（残業を記録してない日は定時として自動で記録）。残業代は翌月25日支給。`;
   let t;
   if(!hasShift)t="ママ、この月のシフトがまだ入ってないみたい。シフトCSVを読み込むと、予定の時間を全部入れておくよ🧸";
   else if(c.kakutei>0)t=`ママ、この月はシフトの時点で確定残業が${JDUR(c.kakutei)}あるよ。いっぱい頑張ってるね🧸`;
@@ -1919,7 +1920,7 @@ function render(){
   {const n=NOW();if(n.getDate()>=25){const pm=new Date(n.getFullYear(),n.getMonth()-1,1),pk=mk(pm.getFullYear(),pm.getMonth()+1);
     const e=(typeof S!=="undefined"&&S.otMonths&&S.otMonths[pk])||null;
     if(!(e&&e.t==="pay"))t=`ママ、給料日だね！おつかれさま💕 ${pm.getMonth()+1}月に働いた分の明細が届いたら、⚙️設定の残業の「${pm.getMonth()+1}月勤務」の欄に入れてね🧸<br>`+t}}
-  {const mn=missingDays().length;if(mn)t=`ママ、まだ記録してない日が${mn}日あるよ。下のカードからつけてね🧸<br>`+t}
+  if(askToday())t="ママ、おつかれさま！今日は残業した？　残業した日だけ「⏰ 残業を記録」を押してね。残業してない日は、ファーちゃん🧸が定時で記録しておくね！<br>"+t;
   $("ktBubble").innerHTML=t;
   renderToday();
   const today=YMD(NOW());let h="";
@@ -1930,7 +1931,7 @@ function render(){
       chip=dc.fixed?`<span class="ktChip fix">記録済み✓</span>`:`<span class="ktChip plan">入力中</span>`;
       if(dc.e.by&&dc.e.by!==(KT.who||""))sub+=`　✍️${ESC(dc.e.by)}`}
     else if(dc.plan&&!dc.plan.paid){main=`${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分`;
-      sub=`予定 ${DUR(dc.plan.work)}　${ESC(dc.sh.title)}`;chip=`<span class="ktChip plan">予定</span>`}
+      sub=dc.auto?`定時（シフトどおり・自動）　${ESC(dc.sh.title)}`:`予定 ${DUR(dc.plan.work)}　${ESC(dc.sh.title)}`;chip=dc.auto?`<span class="ktChip fix">定時✓</span>`:`<span class="ktChip plan">予定</span>`}
     else if(isPaid(dc.sh)){main="有休";sub=KT.paid8?"8時間として数えるよ":"";chip=`<span class="ktChip paid">有休</span>`}
     else if(dc.sh&&dc.sh.off){main="お休み";chip=`<span class="ktChip off">休</span>`}
     else main=`<span style="color:var(--sub)">シフトなし</span>`;
@@ -1945,17 +1946,10 @@ function render(){
   syncNote();
 }
 window.ktRender=render;
-// 記録わすれ対策：まだ入力してない日(勤務の予定があって、終わっている日)を探す。
-// 一度も記録していない人(β版で使っていない間)には出さないよう、最初に記録した日より前は数えない。
-function missingDays(){
-  const fx=Object.keys(KT.days).filter(d=>KT.days[d]&&KT.days[d].in!=null).sort();if(!fx.length)return[];
-  const n=NOW(),today=YMD(n),nowMin=n.getHours()*60+n.getMinutes(),out=[];
-  for(let i=31;i>=0;i--){const x=new Date(n);x.setDate(x.getDate()-i);const d=YMD(x);if(d<fx[0])continue;
-    const dc=dayCalc(d);if(!(dc.plan&&!dc.plan.paid)||dc.act)continue;
-    if(d===today&&nowMin<dc.plan.end)continue; // 今日はシフトが終わってから
-    out.push(d)}
-  return out;
-}
+// 「今日は残業した？」：きょうのシフトが終わっていて、まだ記録がないときだけ聞く(してなければ翌日から定時で自動扱い)
+function askToday(){const n=NOW(),t=YMD(n),dc=dayCalc(t);if(!(dc.plan&&!dc.plan.paid)||dc.act)return false;
+  return n.getHours()*60+n.getMinutes()>=dc.plan.end}
+function missingDays(){return askToday()?[YMD(NOW())]:[]}
 window.ktMissing=missingDays;
 // 入力してない日＋きょうの記録カード：予定どおりならワンタップで確定
 function renderToday(){
@@ -1964,26 +1958,23 @@ function renderToday(){
   const card=(d,label)=>{const dc=dayCalc(d),[Y,M,D]=d.split("-").map(Number),wd=WD[new Date(Y,M-1,D).getDay()];
     const usePlan=dc.plan&&!dc.plan.paid;let body,btns="";
     if(dc.act){body=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分　実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"")+(dc.fixed?"　✓":"");
-      btns=`<button class="ktBtn" type="button" data-edit="${d}">✏️ 記録を変える</button>`}
-    else if(usePlan){body=`予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分　実働 ${DUR(dc.plan.work)}`;
-      btns=`<button class="ktBtn main ktDayBtn" type="button" data-plan="${d}">🌸 定時で記録</button><button class="ktBtn ktDayBtn" type="button" data-zan="${d}">⏰ 残業を記録</button>`}
+      btns=`<button class="ktBtn" type="button" data-edit="${d}">✏️ 勤怠記録を見る・変える</button>`}
+    else if(usePlan){body=`予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分　実働 ${DUR(dc.plan.work)}`+(dc.auto?"　✓ 定時":"");
+      btns=`<button class="ktBtn ${dc.auto?"":"main "}ktDayBtn" type="button" data-zan="${d}">⏰ 残業を記録</button>`}
     else if(isPaid(dc.sh))body="有休の日だよ。ゆっくりしてね🧸";
     else if(dc.sh&&dc.sh.off)body="お休みの日だよ🧸";
     else{body="シフトなし";btns=`<button class="ktBtn" type="button" data-edit="${d}">入力する</button>`}
     return`<div class="ktToday"><div class="tl">${label}　${M}/${D}（${wd}）${dc.sh?"　"+ESC(dc.sh.title):""}</div><div class="tm">${body}</div>${btns?`<div class="ktRow">${btns}</div>`:""}</div>`};
-  const miss=missingDays().filter(d=>d!==t);let h="";
-  if(miss.length){
-    h+=`<div class="ktToday" style="border-color:var(--pink)"><div class="tm">📝 まだ記録してない日が${miss.length}日あるよ</div>`+
-      (miss.length>=2?`<div class="ktRow"><button class="ktBtn main" type="button" id="ktAllPlan">${miss.length}日とも定時で記録</button></div><div class="ktNote">残業した日や休憩が少なかった日は、先にその日だけ「⏰ 残業を記録」で入れてね</div>`:"")+`</div>`;
-    h+=miss.map(d=>card(d,"まだ記録してないよ")).join("")}
-  h+=card(t,"きょう");
+  let h="";
+  {const y=new Date(NOW());y.setDate(y.getDate()-1);const yd=YMD(y),yc=dayCalc(yd);
+   if(yc.auto&&!yc.e)h+=card(yd,"きのう（残業してなければ、このままでOK）")}
+  h+=card(t,askToday()?"きょう　🧸 おつかれさま！残業した？":"きょう");
   w.innerHTML=h;
   const fix=d=>{const dc=dayCalc(d);if(!(dc.plan&&!dc.plan.paid))return;setDay(d,{in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:(KT.days[d]&&KT.days[d].memo)||"",fixed:true})};
   const done=()=>{ktSave();render();if(typeof renderOt==="function")renderOt();ktChip()};
   w.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openDay(b.dataset.edit));
   w.querySelectorAll("[data-zan]").forEach(b=>b.onclick=()=>openDay(b.dataset.zan,"zan"));
   w.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{fix(b.dataset.plan);done()});
-  if($("ktAllPlan"))$("ktAllPlan").onclick=()=>{if(!confirm(`${miss.length}日とも予定どおりで記録する？`))return;miss.forEach(fix);done()};
 }
 // メイン画面のクマの吹き出しのバッジに「勤怠の記録まだ」を出す(アプリの中だけで動く)
 function ktChip(){
@@ -1992,7 +1983,7 @@ function ktChip(){
   if(!n){if(el)el.remove();return}
   if(!el){el=document.createElement("span");el.id="ktChipEl";el.className="chip";el.style.cursor="pointer";el.style.background="var(--pink2)";
     el.onclick=()=>{const k=$("navKintai");if(k)k.scrollIntoView({behavior:"smooth",block:"start"})}}
-  el.textContent=`📝 勤怠の記録まだ ${n}日`;if(el.parentNode!==box)box.prepend(el);
+  el.textContent="⏰ 今日は残業した？";if(el.parentNode!==box)box.prepend(el);
 }
 window.ktChip=ktChip;
 if(typeof renderCheer==="function"){const _rc=renderCheer;renderCheer=function(){const r=_rc.apply(this,arguments);try{ktChip()}catch(e){}return r}}

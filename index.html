@@ -452,7 +452,9 @@ body.dark #payCd{background:rgba(255,255,255,.06);border-color:rgba(244,154,193,
 body.dark #payCd b{color:#ff9fc0}
 /* ===== 記録室 (2026-11-17) ===== */
 .recOpen{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:12px 14px;border:0;border-radius:18px;cursor:pointer;font-family:inherit;text-align:left;color:#fff;background:linear-gradient(135deg,#b79cff,#ff9fcf);box-shadow:0 4px 14px rgba(183,156,255,.35)}
-.recOpen .ri{font-size:28px;line-height:1}
+.recOpen .ri{flex:none;width:58px;height:58px;border-radius:50%;overflow:hidden;background:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(120,80,150,.25)}
+.recOpen .ri img{width:100%;height:100%;object-fit:cover;display:block}
+.recHead .rhI{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--pink)}
 .recOpen .rt{flex:1;display:flex;flex-direction:column;gap:2px}
 .recOpen .rt b{font-size:16px}
 .recOpen .rt small{font-size:11px;opacity:.95}
@@ -632,6 +634,7 @@ details.recBox[open] summary:before{content:"▾ "}
   <div class="card" id="navKintai">
     <div class="sec">🗒️ 勤怠ノート<span class="ktBeta">β版</span></div>
     <div class="ktNote" style="margin-top:0">β版だよ。計算のたしかめ中なので、記録は今まで通りタイムシートとタイムツリーにも残してね。</div>
+    <button type="button" class="recOpen" id="recOpen"><span class="ri"><img src="rec-bear.webp" alt="本棚の前で資料を整理するファーちゃん" width="58" height="58"></span><span class="rt"><b>📚 記録室をひらく</b><small>給料・ボーナスの明細／源泉徴収票／年度のまとめ</small></span><span class="ra">›</span></button>
     <div class="ktMon" style="margin-top:8px">
       <button class="ktBtn" id="ktPrev" type="button">◀</button>
       <b id="ktMonLabel"></b>
@@ -672,11 +675,10 @@ details.recBox[open] summary:before{content:"▾ "}
     </details>
   </div>
 
-  <!-- 有休・残業カウンター(下のボタンの順に合わせて、勤怠ノートのあと) -->
+  <!-- 有休・残業カウンター(下のボタンの順に合わせて、勤怠ノートのあと)。記録室のボタンは勤怠ノートへ移した -->
   <div class="card" id="navCount">
     <div class="paidPanel" id="paidInfo" style="margin-top:0"></div>
     <div class="otPanel" id="otInfo"></div>
-    <button type="button" class="recOpen" id="recOpen"><span class="ri">📚</span><span class="rt"><b>記録室をひらく</b><small>給料・ボーナスの明細／グラフ／年度のまとめ</small></span><span class="ra">›</span></button>
   </div>
 
   <div class="card">
@@ -724,7 +726,7 @@ details.recBox[open] summary:before{content:"▾ "}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.3</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚記録室を追加（カウンターの「記録室をひらく」から）：毎月の給料明細とボーナスを記録して、手取りや残業のグラフ、去年との比較、年度のまとめが見られるように。明細と勤怠ノートがずれていたら、見直す日の候補を教えてくれるよ。明細の内訳（社会保険料・年金・税金・手当など）も項目ごとに推移が見られるよ。📄明細PDF（フォルダごとの.zipもOK）を読み込むと、iPhoneの中だけで読み取って一気に入れられるよ（12月の年末調整にも対応）。記録ずみの月は見るだけの表示で、書きかえは「✏️書きかえる」から。🗂まとめに🧾源泉徴収票の欄も追加。下のボタン「きろく」は「おしごと」に🧸</span></li>
+        <li><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚記録室を追加（勤怠ノートの「記録室をひらく」から）：毎月の給料明細とボーナスを記録して、手取りや残業のグラフ、去年との比較、年度のまとめが見られるように。明細と勤怠ノートがずれていたら、見直す日の候補を教えてくれるよ。明細の内訳（社会保険料・年金・税金・手当など）も項目ごとに推移が見られるよ。📄明細PDF（フォルダごとの.zipもOK）を読み込むと、iPhoneの中だけで読み取って一気に入れられるよ（12月の年末調整にも対応）。記録ずみの月は見るだけの表示で、書きかえは「✏️書きかえる」から。🗂まとめに🧾源泉徴収票の欄も追加。下のボタン「きろく」は「おしごと」に🧸</span></li>
         <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板を下のほうに大きく</span></li>
         <li><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
         <li><span class="vNo">ver3.0</span><span class="vDate">11/15</span><span class="vTxt">勤怠ノート（β版）を追加：シフトから予定の時間を自動で入れて、就業時間・確定残業・追加残業・残業代の見込みを計算、CSV・PDF・Googleスプレッドシートに保存。下のボタン「カウンター」を「きろく」に。占いの「恋愛運」を「夫婦運」に（ふたりの時間の文章に書きかえ）、金運の文言を修正</span></li>
@@ -2458,7 +2460,7 @@ function drawIn(){
   if(!draft||draft.pk!==pk)draft={pk,at:Date.now(),items:JSON.parse(JSON.stringify(e.items||{})),memo:e.memo||"",f:{}};const F=(id,v)=>draft.f[id]!=null?draft.f[id]:(v??""),ot=otOf(pk),w=addM(pk,-1),bn=bonusOf(pk),be=bn&&live(R.b[pk])?R.b[pk]:{};
   const[y,m]=pk.split("-").map(Number),isFuture=pk>latestPay();
   let h=`<div class="recNav"><button id="rPrev">‹</button><div>${y}年${m}月の給料<small>${MDW(salDate(pk))}支給${isFuture?"（まだ先）":""}</small></div><button id="rNext">›</button></div>`;
-  if(flash)h+=`<div class="recBear"><img src="kintai-face.webp" alt=""><div>${flash}</div></div>`;
+  if(flash)h+=`<div class="recBear"><img src="rec-bear.webp" alt=""><div>${flash}</div></div>`;
   h+=`<div class="recBox recPdf"><button class="ktBtn main" id="rPdfBtn">📄 明細PDFを読み込む</button><input type="file" id="rPdf" accept=".pdf,.zip,application/pdf,application/zip" multiple style="display:none">
     <div class="recNote" id="rImpMsg">${impMsg||"PDF（何枚でも）か、フォルダごとダウンロードした .zip を選んでね。iPhoneの中だけで読むよ"}</div></div>`;
   if((live(R.m[pk])||(bn&&live(R.b[pk])))&&editP!==pk)return h+viewIn(pk,e,ot,w,bn,be);
@@ -2762,7 +2764,7 @@ function badge(){const btn=$r("recOpen");if(!btn)return;const rt=btn.querySelect
   if(need)bd.textContent=`💰 ${+latestPay().slice(5)}月の明細きた？`;else if(bd)bd.remove()}
 document.addEventListener("DOMContentLoaded",()=>{
   const sh=document.createElement("div");sh.id="recSheet";
-  sh.innerHTML=`<div class="recPanel"><div class="recHead"><h3>📚 記録室</h3><button class="recX" id="recX" aria-label="とじる">✕</button></div>
+  sh.innerHTML=`<div class="recPanel"><div class="recHead"><img class="rhI" src="rec-bear.webp" alt=""><h3>📚 記録室</h3><button class="recX" id="recX" aria-label="とじる">✕</button></div>
     <div class="recTabs" id="recTabs"><button data-t="in">📝 入れる</button><button data-t="see">📈 みる</button><button data-t="sum">🗂 まとめ</button></div>
     <div class="recBody" id="recBody"></div></div>`;
   document.body.appendChild(sh);

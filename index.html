@@ -1964,16 +1964,17 @@ function render(){
   const today=YMD(NOW());let h="";
   for(let i=1;i<=c.n;i++){
     const d=`${key}-${P(i)}`,dc=dayCalc(d),w=new Date(y,m-1,i).getDay();let main,sub="",chip="";
-    if(dc.act){main=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分`;
+    const yuu=isPaid(dc.sh)||!!(dc.e&&/有[休給]/.test(dc.e.memo||"")); // タイムシートに有休ボタンがなく便宜上の時刻で入れているので、時刻は出さない
+    if(yuu){main="🏖️ 有休";sub=(dc.act||KT.paid8)?"勤務なし・8時間として計算":"勤務なし";chip=`<span class="ktChip paid">有休</span>`}
+    else if(dc.act){main=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分`;
       sub=`実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"");
       chip=dc.fixed?`<span class="ktChip fix">記録済み✓</span>`:`<span class="ktChip plan">入力中</span>`;
       if(dc.e.by&&dc.e.by!==(KT.who||""))sub+=`　✍️${ESC(dc.e.by)}`}
     else if(dc.plan&&!dc.plan.paid){main=`${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分`;
       sub=dc.auto?`定時（シフトどおり・自動）　${ESC(dc.sh.title)}`:`予定 ${DUR(dc.plan.work)}　${ESC(dc.sh.title)}`;chip=dc.auto?`<span class="ktChip fix">定時✓</span>`:`<span class="ktChip plan">予定</span>`}
-    else if(isPaid(dc.sh)){main="有休";sub=KT.paid8?"8時間として数えるよ":"";chip=`<span class="ktChip paid">有休</span>`}
     else if(dc.sh&&dc.sh.off){main="お休み";chip=`<span class="ktChip off">休</span>`}
     else main=`<span style="color:var(--sub)">シフトなし</span>`;
-    if(dc.e&&dc.e.memo)sub+=`　📝${ESC(dc.e.memo)}`;
+    if(dc.e&&dc.e.memo&&!(yuu&&/^\s*有[休給]\s*$/.test(dc.e.memo)))sub+=`　📝${ESC(dc.e.memo)}`;
     h+=`<div class="ktDay${d===today?" today":""}" data-d="${d}"><div class="ktDd ${w===0?"sun":w===6?"sat":""}">${m}/${i}<small>${WD[w]}</small></div><div class="ktDm"><div class="t">${main}</div><div class="s">${sub}</div></div>${chip}</div>`;
   }
   $("ktDays").innerHTML=h;
@@ -2171,6 +2172,7 @@ $("ktPdfOut").onclick=()=>{
   const s=monthCalc(cur.y,cur.m),rows=monthRows(cur.y,cur.m);
   let h=`<h2 style="margin:0 0 6px">勤怠表　${cur.y}年${cur.m}月</h2><table><tr>${HEAD.slice(0,9).map(x=>`<th>${x}</th>`).join("")}</tr>`;
   for(const r of rows){if(!/^\d{4}-\d{2}-\d{2}$/.test(r[0]||""))continue;const[Y,M,D]=r[0].split("-").map(Number);
+    {const dc=dayCalc(r[0]);if(isPaid(dc.sh)||(dc.e&&/有[休給]/.test(dc.e.memo||""))){r[2]=r[3]=r[4]="";r[8]=r[8]||"有休"}}
     h+=`<tr><td>${M}/${D}(${WD[new Date(Y,M-1,D).getDay()]})</td>${r.slice(1,9).map((v,i)=>`<td${i===7?' class="l"':""}>${ESC(v)}</td>`).join("")}</tr>`}
   h+=`</table><p style="margin-top:8px">所定労働時間 ${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）／シフトの全労働時間 ${DUR(s.planSum)}／確定残業 ${DUR(s.kakutei)}／追加残業 ${DUR(s.extraSum)}<br>残業 ${DUR(s.ot)} →（30分以上は切り上げ・30分未満は切り捨て）<b>${s.otH}時間</b>　時間外手当 見込み <b>¥${s.yen.toLocaleString()}</b>（単価 ¥${RATE().toLocaleString()}）</p>`;
   $("ktPrint").innerHTML=h;document.body.classList.add("ktPrinting");

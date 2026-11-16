@@ -432,6 +432,8 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
 .datebox>div:last-child{display:flex;align-items:center;gap:6px}
 .reload{margin-top:0!important;white-space:nowrap;padding:4px 10px!important}
 .clock{font-size:26px!important}
+.clkLbl{font-size:10px;font-weight:700;line-height:1.2;color:#b39ae8;text-align:center;white-space:nowrap}
+body.dark .clkLbl{color:#cbb8ff}
 .cheer{margin-left:46px!important;padding-left:10px!important;min-height:0}
 .cheer:before{width:38px!important;height:38px!important;left:-47px!important;top:0!important}
 .cheer:after{display:block!important;content:"";position:absolute;left:-8px;top:12px;width:12px;height:12px;background:inherit;border:solid var(--pink2);border-width:0 0 2px 2px!important;transform:rotate(45deg)}
@@ -554,7 +556,7 @@ details.recBox[open] summary:before{content:"▾ "}
       <div class="date" id="date">--月--日</div>
       <div class="subrow"><span id="dtype" class="badge b-wd">平日ダイヤ</span><span id="holiName"></span></div>
     </div>
-    <div style="text-align:right"><div class="clock" id="clock">--:--:--</div><button class="reload" id="reloadBtn">🔄 更新</button></div>
+    <div style="text-align:right"><span class="clkLbl">現在<br>時刻</span><div class="clock" id="clock">--:--:--</div><button class="reload" id="reloadBtn">🔄 更新</button></div>
   </div>
 
   <div id="bdayBar" style="display:none"></div>

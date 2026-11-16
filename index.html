@@ -459,6 +459,9 @@ body.dark #payCd b{color:#ff9fc0}
 .recOpen .rt b{font-size:16px}
 .recOpen .rt small{font-size:11px;opacity:.95}
 .recOpen .ra{font-size:26px;font-weight:bold}
+.recNag{display:block;width:100%;text-align:left;font-family:inherit;font-size:14px;line-height:1.45;color:var(--ink);background:linear-gradient(135deg,#fff0f8,#f3ecff);border:2px solid #f4b6d6;border-radius:12px;padding:6px 9px;margin:0 0 6px;cursor:pointer}
+.recNag span{display:block;font-size:11.5px;color:#c2508a;font-weight:bold}
+body.dark .recNag{background:#3a2d52;border-color:#8a4f78}
 .recOpen .rBadge{display:inline-block;margin-top:3px;background:#fff;color:#c2508a;font-size:11px;font-weight:bold;border-radius:999px;padding:1px 8px;align-self:flex-start}
 #recSheet{position:fixed;inset:0;background:rgba(80,60,110,.38);display:none;align-items:flex-end;justify-content:center;z-index:95}
 #recSheet.show{display:flex}
@@ -1232,7 +1235,8 @@ function renderCheer(force){
     const seed=now.getDate()+M*31,pick=a=>a[seed%a.length];
     if(same(payDay(Y,6,30))||same(payDay(Y,12,10)))payMsg=`🎁 ママ、今日は${M<=6?"夏":"冬"}のボーナスの日！半年おつかれさま💕 `+pick(PAY_ONEDARI_BONUS)+"<br>";
     else if(same(payDay(Y,M,25)))payMsg="💰 ママ、今日は給料日！今月もおつかれさま💕 "+pick(PAY_ONEDARI)+"<br>"}
-  document.getElementById("cheerTxt").innerHTML=payMsg+pre+cheerPick(key,CHEER[key]);
+  let recMsg="";{const r=window.recMissing&&window.recMissing();if(r)recMsg=`<button type="button" class="recNag" onclick="window.recOpenAt('${r.k}')">📚 ママ、<b>${r.t}明細</b>がまだ記録室に入ってないよ！<span>タップして入れる ›</span></button>`}
+  document.getElementById("cheerTxt").innerHTML=recMsg+payMsg+pre+cheerPick(key,CHEER[key]);
   // バッジ
   const chips=[];const has=Object.keys(SHIFTS).length>0;
   if(has){const mc=monthCount(now);if(mc.total)chips.push(`🗓 今月 ${mc.cnt}回出勤`);
@@ -2758,10 +2762,18 @@ function draw(){const b=$r("recBody");if(!b)return;
 function openRec(){selP=latestPay();flash="";draft=null;editP=null;editW=null;tab=R.m[selP]&&live(R.m[selP])?"see":"in";$r("recSheet").classList.add("show");draw()}
 function closeRec(){$r("recSheet").classList.remove("show")}
 // 給料日を過ぎて、その月の明細がまだなら、ボタンに小さくお知らせ
-function badge(){const btn=$r("recOpen");if(!btn)return;const rt=btn.querySelector(".rt");let bd=btn.querySelector(".rBadge");
-  const need=!live(R.m[latestPay()]);
-  if(need&&!bd){bd=document.createElement("span");bd.className="rBadge";rt.appendChild(bd)}
-  if(need)bd.textContent=`💰 ${+latestPay().slice(5)}月の明細きた？`;else if(bd)bd.remove()}
+// 給料日・賞与の日を過ぎてもその明細がまだなら、トップのファーちゃんのコメントでお知らせ（ボタンのバッジはやめた）
+function recMissing(){if(!Object.values(R.m).some(live))return null; // 記録室を使ってない人には出さない
+  const t=jstNow(),td=new Date(t.getFullYear(),t.getMonth(),t.getDate()),md=d=>`${d.getMonth()+1}/${d.getDate()}`;
+  const k=latestPay();
+  // 賞与：いちばん新しい賞与の日を過ぎて、次の給料日までに入っていなければ
+  const Y=td.getFullYear(),bk=[`${Y}-12`,`${Y}-06`,`${Y-1}-12`].find(b=>td>=bonDate(b));
+  if(td>bonDate(bk)&&td-bonDate(bk)<40*864e5&&!live(R.b[bk]))return{k:bk,t:`${md(bonDate(bk))}の${bonusOf(bk).n}`};
+  if(td>salDate(k)&&!live(R.m[k]))return{k,t:`${md(salDate(k))}支給の給料`};
+  return null}
+window.recMissing=recMissing;
+window.recOpenAt=k=>{openRec();selP=k;tab="in";draw()};
+function badge(){const bd=document.querySelector("#recOpen .rBadge");if(bd)bd.remove();if(typeof renderCheer==="function")renderCheer(true)}
 document.addEventListener("DOMContentLoaded",()=>{
   const sh=document.createElement("div");sh.id="recSheet";
   sh.innerHTML=`<div class="recPanel"><div class="recHead"><img class="rhI" src="rec-bear.webp" alt=""><h3>📚 ファーちゃんの記録室</h3><button class="recX" id="recX" aria-label="とじる">✕</button></div>

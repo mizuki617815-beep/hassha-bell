@@ -510,9 +510,12 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
       <input type="text" id="ktUrl" placeholder="https://script.google.com/macros/s/…/exec">
       <div class="ktRow">
         <button class="ktBtn main" id="ktGSave" type="button">つなぐ・今すぐ保存</button>
-        <button class="ktBtn" id="ktGLoad" type="button">シートから復元</button>
+        <button class="ktBtn" id="ktGLoad" type="button">今すぐそろえる</button>
       </div>
       <div class="ktNote" id="ktGNote"></div>
+      <label>このiPhoneで記録する人の名前（例：ファーちゃん、パパ）</label>
+      <input type="text" id="ktWho" placeholder="だれが記録したか、シートと一覧に出るよ">
+      <div class="ktNote">同じURLをつないだiPhoneどうしは、勤怠の記録とシフトが自動でそろうよ（開いたとき・記録したとき）。同じ日を2人が直したら、あとから直したほうが残るよ。URLは2人だけの秘密にしてね。</div>
       <label>この月の公休日数（ふだん10日・2月は9日）</label>
       <input type="number" id="ktKoukyu" inputmode="numeric">
       <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="ktPaid8" style="width:auto"> 有休の日を実働8時間として数える</label>
@@ -1827,8 +1830,9 @@ const ESC=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&g
 const $=id=>document.getElementById(id);
 const KEY="yumebell_kintai_v1";
 let KT;try{KT=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
-KT=Object.assign({days:{},koukyu:{},paid8:true,url:"",lastSync:null,dirty:false},KT||{});
+KT=Object.assign({days:{},koukyu:{},paid8:true,url:"",lastSync:null,dirty:false,who:"",setU:0},KT||{});
 function store(){try{localStorage.setItem(KEY,JSON.stringify(KT))}catch(e){}}
+function setDay(d,o){o.u=Date.now();o.by=KT.who||"";KT.days[d]=o} // いつ・だれが記録したか(同期で新しいほうを優先するため)
 function ktSave(){KT.dirty=true;store();backup();scheduleSync()}
 function backup(){ // 端末内に日ごとの控えを最大3つ
   try{const t=YMD(NOW());const bk=JSON.parse(localStorage.getItem(KEY+"_bk")||"[]");
@@ -1900,7 +1904,8 @@ function render(){
     const d=`${key}-${P(i)}`,dc=dayCalc(d),w=new Date(y,m-1,i).getDay();let main,sub="",chip="";
     if(dc.act){main=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分`;
       sub=`実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"");
-      chip=dc.fixed?`<span class="ktChip fix">記録済み✓</span>`:`<span class="ktChip plan">入力中</span>`}
+      chip=dc.fixed?`<span class="ktChip fix">記録済み✓</span>`:`<span class="ktChip plan">入力中</span>`;
+      if(dc.e.by&&dc.e.by!==(KT.who||""))sub+=`　✍️${ESC(dc.e.by)}`}
     else if(dc.plan&&!dc.plan.paid){main=`${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分`;
       sub=`予定 ${DUR(dc.plan.work)}　${ESC(dc.sh.title)}`;chip=`<span class="ktChip plan">予定</span>`}
     else if(isPaid(dc.sh)){main="有休";sub=KT.paid8?"8時間として数えるよ":"";chip=`<span class="ktChip paid">有休</span>`}
@@ -1913,6 +1918,7 @@ function render(){
   $("ktDays").querySelectorAll(".ktDay").forEach(r=>r.onclick=()=>openDay(r.dataset.d));
   $("ktKoukyu").value=koukyu(y,m);$("ktPaid8").checked=!!KT.paid8;
   if(document.activeElement!==$("ktUrl"))$("ktUrl").value=KT.url||"";
+  if(document.activeElement!==$("ktWho"))$("ktWho").value=KT.who||"";
   syncNote();
 }
 window.ktRender=render;
@@ -1949,7 +1955,7 @@ function renderToday(){
     h+=miss.map(d=>card(d,"まだ記録してないよ")).join("")}
   h+=card(t,"きょう");
   w.innerHTML=h;
-  const fix=d=>{const dc=dayCalc(d);if(!(dc.plan&&!dc.plan.paid))return;KT.days[d]={in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:(KT.days[d]&&KT.days[d].memo)||"",fixed:true}};
+  const fix=d=>{const dc=dayCalc(d);if(!(dc.plan&&!dc.plan.paid))return;setDay(d,{in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:(KT.days[d]&&KT.days[d].memo)||"",fixed:true})};
   const done=()=>{ktSave();render();if(typeof renderOt==="function")renderOt();ktChip()};
   w.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openDay(b.dataset.edit));
   w.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{fix(b.dataset.plan);done()});
@@ -1997,10 +2003,10 @@ function openDay(d){
   const close=()=>$("ktSheet").classList.remove("show"),done=()=>{ktSave();close();render();if(typeof renderOt==="function")renderOt()};
   $("kxClose").onclick=close;
   $("kxFix").onclick=()=>{const a=toMin(xIn.value),b=toMin(xOut.value),memo=$("kxMemo").value.trim();
-    if(a==null||b==null){if(memo){KT.days[d]={memo,fixed:false};done();return}alert("出勤と退勤を入れてね");return}
-    KT.days[d]={in:a,out:b,brk:curBrk(),memo,fixed:true};done()};
-  if($("kxAsPlan"))$("kxAsPlan").onclick=()=>{KT.days[d]={in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:$("kxMemo").value.trim(),fixed:true};done()};
-  $("kxDel").onclick=()=>{if(!confirm("この日の入力を消す？"))return;delete KT.days[d];done()};
+    if(a==null||b==null){if(memo){setDay(d,{memo,fixed:false});done();return}alert("出勤と退勤を入れてね");return}
+    setDay(d,{in:a,out:b,brk:curBrk(),memo,fixed:true});done()};
+  if($("kxAsPlan"))$("kxAsPlan").onclick=()=>{setDay(d,{in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:$("kxMemo").value.trim(),fixed:true});done()};
+  $("kxDel").onclick=()=>{if(!confirm("この日の入力を消す？"))return;setDay(d,{del:true});done()};
   $("ktSheet").classList.add("show");
 }
 $("ktSheet").onclick=ev=>{if(ev.target.id==="ktSheet")ev.target.classList.remove("show")};
@@ -2009,12 +2015,12 @@ $("ktNext").onclick=()=>{cur.m++;if(cur.m>12){cur.m=1;cur.y++}render()};
 $("ktReset").onclick=()=>{const n=Object.keys(KT.days).length;if(!n){alert("勤怠の記録はまだないよ");return}
   if(!confirm(`勤怠の記録（${n}日分）を全部消す？\n消す前の記録は端末内に控えを1つ残すよ。`))return;
   try{localStorage.setItem(KEY+"_reset",JSON.stringify({at:new Date().toISOString(),days:KT.days}))}catch(e){}
-  KT.days={};ktSave();render();if(typeof renderOt==="function")renderOt();alert("🧸 勤怠の記録を消したよ。タイムシートを読み込み直してね")};
-$("ktKoukyu").onchange=ev=>{KT.koukyu[mk(cur.y,cur.m)]=Math.max(0,Math.min(15,+ev.target.value||0));ktSave();render()};
-$("ktPaid8").onchange=ev=>{KT.paid8=ev.target.checked;ktSave();render()};
+  {const nowU=Date.now();for(const d in KT.days)KT.days[d]={del:true,u:nowU,by:KT.who||""}}ktSave();render();if(typeof renderOt==="function")renderOt();alert("🧸 勤怠の記録を消したよ。タイムシートを読み込み直してね")};
+$("ktKoukyu").onchange=ev=>{KT.koukyu[mk(cur.y,cur.m)]=Math.max(0,Math.min(15,+ev.target.value||0));KT.setU=Date.now();ktSave();render()};
+$("ktPaid8").onchange=ev=>{KT.paid8=ev.target.checked;KT.setU=Date.now();ktSave();render()};
 
 // ===== CSV・シート用の表 =====
-const HEAD=["日付","シフト","出勤","退勤","休憩(分)","実働","予定の実働","追加残業","備考","記録済み"];
+const HEAD=["日付","シフト","出勤","退勤","休憩(分)","実働","予定の実働","追加残業","備考","記録済み","記録した人"];
 function monthRows(y,m){
   const s=monthCalc(y,m),rows=[];
   rows.push(["確認欄",`${y}年${m}月`]);
@@ -2026,7 +2032,7 @@ function monthRows(y,m){
   rows.push([]);rows.push(HEAD);
   for(let i=1;i<=s.n;i++){const d=`${mk(y,m)}-${P(i)}`,c=dayCalc(d);
     rows.push([d,c.sh?c.sh.title:"",c.act?toTime(c.act.start):"",c.act?toTime(c.act.end):"",c.act?String(c.act.brk):"",
-      c.act?DUR(c.act.work):"",c.planW?DUR(c.planW):"",c.extra?DUR(c.extra):"",c.e&&c.e.memo||"",c.fixed?"✓":""])}
+      c.act?DUR(c.act.work):"",c.planW?DUR(c.planW):"",c.extra?DUR(c.extra):"",c.e&&c.e.memo||"",c.fixed?"✓":"",c.e&&c.e.by||""])}
   return rows;
 }
 const csvLine=r=>r.map(v=>{v=String(v??"");return/[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v}).join(",");
@@ -2060,7 +2066,7 @@ $("ktCsvIn").onchange=ev=>{const f=ev.target.files[0];if(!f)return;
       const over=rows.filter(r=>KT.days[r.d]&&KT.days[r.d].fixed).length;
       if(over&&!confirm(`入力済みの${over}日も、タイムシートの内容で上書きするよ。いい？`))return;
       const ms={};
-      for(const r of rows){KT.days[r.d]={in:r.in,out:r.out,brk:r.brk,memo:r.memo,fixed:true};
+      for(const r of rows){setDay(r.d,{in:r.in,out:r.out,brk:r.brk,memo:r.memo,fixed:true});
         let sp=r.out-r.in;if(sp<0)sp+=1440;const b=r.brk!=null?r.brk:stdBreak(sp);const k=r.d.slice(0,7);
         ms[k]=ms[k]||{n:0,w:0};ms[k].n++;ms[k].w+=sp-b}
       ktSave();const ks=Object.keys(ms).sort();const[y,m]=ks[ks.length-1].split("-").map(Number);cur={y,m};render();if(typeof renderOt==="function")renderOt();
@@ -2076,8 +2082,8 @@ $("ktCsvIn").onchange=ev=>{const f=ev.target.files[0];if(!f)return;
     let n=0;
     for(const r of parseCSV(t)){const d=(r[0]||"").trim();if(!/^\d{4}-\d{2}-\d{2}$/.test(d))continue;
       const a=toMin(r[2]),b=toMin(r[3]);
-      if(a!=null&&b!=null){KT.days[d]={in:a,out:b,brk:(r[4]||"")===""?null:+r[4],memo:r[8]||"",fixed:r[9]==="✓"};n++}
-      else if(r[8]){KT.days[d]={memo:r[8],fixed:false};n++}}
+      if(a!=null&&b!=null){setDay(d,{in:a,out:b,brk:(r[4]||"")===""?null:+r[4],memo:r[8]||"",fixed:r[9]==="✓"});n++}
+      else if(r[8]){setDay(d,{memo:r[8],fixed:false});n++}}
     if(n){ktSave();render();alert(`${n}日分を読み込んだよ`)}else alert("読み込める行が見つからなかったよ（勤怠ノートで保存したCSVか、タイムシートのテキストか確認してね）")});
   ev.target.value=""};
 $("ktPdfOut").onclick=()=>{
@@ -2090,30 +2096,53 @@ $("ktPdfOut").onclick=()=>{
   const off=()=>{document.body.classList.remove("ktPrinting");window.removeEventListener("afterprint",off)};
   window.addEventListener("afterprint",off);window.print();setTimeout(off,60000)};
 
-// ===== Googleスプレッドシート =====
-let timer=null;
-function scheduleSync(){if(!KT.url)return;clearTimeout(timer);timer=setTimeout(sync,1500)}
-function payload(){const ms={};for(const d in KT.days)ms[d.slice(0,7)]=1;ms[mk(cur.y,cur.m)]=1;
+// ===== Googleスプレッドシート(双方向の同期) =====
+// シートが受け渡しの場所。開いたとき・記録したときに「シートを読む→日ごとに新しいほう(u)を残す→シートへ送る」。
+// シフトは丸ごと1組で、最後に変えたほう(shiftsAt)を優先。勤怠の数字はシートと端末内だけで、GitHubには出ない。
+const SHU_KEY="yumebell_shifts_at";
+const shiftsAt=()=>{let v=+localStorage.getItem(SHU_KEY)||0;if(!v&&Object.keys(SH()).length)v=1;return v};
+if(typeof saveShifts==="function"){const _ss=saveShifts;window._ktRawSaveShifts=_ss;
+  saveShifts=function(){const r=_ss.apply(this,arguments);try{localStorage.setItem(SHU_KEY,String(Date.now()))}catch(e){}scheduleSync();return r}}
+let timer=null,syncing=false;
+function scheduleSync(){if(!KT.url)return;clearTimeout(timer);timer=setTimeout(()=>sync(),1500)}
+function payload(){const ms={};for(const d in KT.days)if(!KT.days[d].del)ms[d.slice(0,7)]=1;ms[mk(cur.y,cur.m)]=1;
   const tabs={};for(const k in ms){const[y,m]=k.split("-").map(Number);tabs[k]=monthRows(y,m)}
-  return{app:"yumebell-kintai",v:1,at:new Date().toISOString(),data:{days:KT.days,koukyu:KT.koukyu,paid8:KT.paid8},tabs}}
-async function sync(manual){if(!KT.url)return;
-  try{const r=await fetch(KT.url,{method:"POST",body:JSON.stringify(payload())});const t=await r.text();if(!/ok/.test(t))throw 0;
-    KT.lastSync=new Date().toISOString();KT.dirty=false;store();syncNote(manual?"✅ シートに保存したよ":"")}
-  catch(e){syncNote("⚠️ シートに送れなかったよ。電波のいいところでもう一度ためしてね",true)}}
+  return{app:"yumebell-kintai",v:2,at:new Date().toISOString(),
+    data:{days:KT.days,koukyu:KT.koukyu,paid8:KT.paid8,setU:KT.setU||0,shifts:SH(),shiftsAt:shiftsAt()},tabs}}
+function mergeRemote(j){let changed=false,remoteOld=false;
+  const rd=(j&&j.days)||{};
+  for(const d of new Set([...Object.keys(rd),...Object.keys(KT.days)])){const a=KT.days[d],b=rd[d];const au=a?(+a.u||0):-1,bu=b?(+b.u||0):-1;
+    if(bu>au){KT.days[d]=b;changed=true}else if(au>bu||(a&&!b))remoteOld=true}
+  if((+j.setU||0)>(KT.setU||0)){KT.koukyu=j.koukyu||{};if(j.paid8!=null)KT.paid8=j.paid8;KT.setU=+j.setU;changed=true}else if((KT.setU||0)>(+j.setU||0))remoteOld=true;
+  let shChanged=false;const la=shiftsAt(),ra=+j.shiftsAt||0;
+  if(ra>la&&j.shifts&&typeof SHIFTS!=="undefined"){SHIFTS=j.shifts;try{(window._ktRawSaveShifts||saveShifts)();localStorage.setItem(SHU_KEY,String(ra))}catch(e){}shChanged=true;changed=true}
+  else if(la>ra)remoteOld=true;
+  return{changed,remoteOld,shChanged}}
+function refreshAll(shChanged){render();if(typeof renderOt==="function")renderOt();ktChip();
+  if(shChanged){try{if(typeof renderShiftStatus==="function")renderShiftStatus();if(typeof applyShiftForDate==="function")applyShiftForDate(true);if(typeof renderCheer==="function")renderCheer(true);if(typeof renderPaid==="function")renderPaid()}catch(e){}}}
+async function sync(manual){if(!KT.url||syncing)return;syncing=true;
+  try{let j={};try{const r=await fetch(KT.url,{cache:"no-store"});j=await r.json()||{}}catch(e){if(manual)throw e}
+    const m=mergeRemote(j);store();if(m.changed)refreshAll(m.shChanged);
+    if(m.remoteOld||KT.dirty||manual){const r=await fetch(KT.url,{method:"POST",body:JSON.stringify(payload())});const t=await r.text();if(!/ok/.test(t))throw 0}
+    KT.lastSync=new Date().toISOString();KT.dirty=false;store();syncNote(manual?(m.changed?"✅ シートとそろえたよ（新しい記録を取りこんだよ）":"✅ シートとそろえたよ"):"")}
+  catch(e){syncNote("⚠️ シートとつながらなかったよ。電波のいいところでもう一度ためしてね",true)}
+  finally{syncing=false}}
 function syncNote(msg,ng){const el=$("ktGNote");if(!el)return;let t=msg||"";
   if(!t){if(!KT.url)t="まだつないでないよ";else if(KT.dirty)t="⏳ まだシートに送ってない変更があるよ";
-    else if(KT.lastSync){const d=new Date(KT.lastSync);t=`☁️ 最後に保存：${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${P(d.getMinutes())}`}}
+    else if(KT.lastSync){const d=new Date(KT.lastSync);t=`☁️ 最後にそろえた：${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${P(d.getMinutes())}`}}
   el.innerHTML=`<span class="${ng?"ktNg":"ktOk"}">${t}</span>`}
+const okUrl=u=>/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(u);
 $("ktGSave").onclick=()=>{const u=$("ktUrl").value.trim();
-  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(u)){syncNote("⚠️ URLの形がちがうみたい（https://script.google.com/macros/s/…/exec）",true);return}
-  KT.url=u;store();syncNote("送信中…");sync(true)};
-$("ktGLoad").onclick=async()=>{const u=KT.url||$("ktUrl").value.trim();if(!u){syncNote("⚠️ 先にURLを入れてね",true);return}
-  if(!confirm("シートに保存してある記録で、この端末の勤怠を置きかえる？"))return;
-  try{const r=await fetch(u);const j=await r.json();if(!j||!j.days)throw 0;
-    KT.days=j.days;KT.koukyu=j.koukyu||{};if(j.paid8!=null)KT.paid8=j.paid8;KT.url=u;KT.dirty=false;store();render();syncNote("✅ シートから復元したよ")}
-  catch(e){syncNote("⚠️ 復元できなかったよ（まだ一度も保存してないか、URLがちがうかも）",true)}};
-window.addEventListener("online",()=>{if(KT.dirty)sync()});
-if(KT.dirty)setTimeout(sync,3000);
+  if(!okUrl(u)){syncNote("⚠️ URLの形がちがうみたい（https://script.google.com/macros/s/…/exec）",true);return}
+  KT.url=u;store();syncNote("シートとそろえてるよ…");sync(true)};
+$("ktGLoad").onclick=()=>{const u=$("ktUrl").value.trim()||KT.url;if(!okUrl(u)){syncNote("⚠️ 先にURLを入れてね",true);return}
+  KT.url=u;store();syncNote("シートとそろえてるよ…");sync(true)};
+$("ktWho").onchange=ev=>{KT.who=ev.target.value.trim().slice(0,20);store();render()};
+window.addEventListener("online",()=>sync());
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")sync()});
+setInterval(()=>{if(document.visibilityState==="visible")sync()},180000);
+if(KT.url)setTimeout(()=>sync(),2500);
+
 // シフトの読み込み・削除・復元のあとに表示を更新
 ["csvFile","csvClear","csvRestore"].forEach(id=>{const el=$(id);if(el)el.addEventListener(id==="csvFile"?"change":"click",()=>setTimeout(render,600))});
 render();ktChip();

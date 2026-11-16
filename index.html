@@ -2417,6 +2417,26 @@ window.recRefresh=()=>{badge();if(draft&&R.m[draft.pk]&&(+R.m[draft.pk].u||0)>(d
 
 // ===== 画面 =====
 let tab="in",selP=latestPay(),selFY=fyOfPay(latestPay()),flash="",selItem="",editP=null,editW=null;
+// ファーちゃんのセリフ（歌が大好き）。前向きなものだけ
+const UP_PRAISE=["手取り、去年の同じ月よりふえてるよ！ママ、ほんとにがんばってるね✨","すごいすごい！去年よりふえてる〜！ママはえらいなぁ💕","ふえてる〜！ママのがんばり、ちゃんと数字に出てるよ✨"];
+const UP_PLAN=["お祝いに、いっしょにパンケーキ食べに行きたいな🥞🧸","カラオケ行こうよ！ファーちゃん、ママのために1曲歌うね🎤🧸","うれしくて歌いたくなっちゃった♪ ららら〜🎵🧸","ごほうびに、ふたりでカフェ行きたいな☕🧸","今夜はふたりでカラオケ大会しよ🎤🎶"];
+const SONG_CHEERS=["おつかれさまの歌、歌ってあげるね♪ ママはえらい〜🎵🧸","ふんふふ〜ん♪ 今月の明細、きれいにしまっておいたよ📚🧸"];
+const pick=a=>a[Math.floor(Math.random()*a.length)],dayPick=a=>a[jstNow().getDate()%a.length];
+const bearSay=t=>`<div class="recBear"><img src="rec-bear.webp" alt=""><div>${t}</div></div>`;
+// 保存したときのひとこと：去年の同じ月（賞与は去年の同じ賞与）より手取りがふえていたら、ほめてお出かけのおねだり
+function saveFlash(pk){const e=R.m[pk],p=R.m[addM(pk,-12)],b=R.b[pk],pb=R.b[addM(pk,-12)];
+  if(live(b)&&live(pb)&&(+b.n||0)>(+pb.n||0))return`🧸 ボーナス、去年よりふえてるよ！すごいね〜✨ ${pick(UP_PLAN)}`;
+  if(live(e)&&live(p)&&(+e.n||0)>(+p.n||0))return`🧸 ${pick(UP_PRAISE)} ${pick(UP_PLAN)}`;
+  return"🧸 "+pick(CHEERS.concat(SONG_CHEERS))}
+// タブのいちばん上のひとこと
+function tabSay(){
+  if(tab==="in")return dayPick(["明細がきたら、ここに入れてね。ファーちゃんが歌いながら整理しておくよ♪📚","ふんふ〜ん♪ 今日も記録室をおそうじ中だよ🧹 明細、いつでも待ってるね","ママの明細、ひとつずつ大事にしまっておくね📚🎵"]);
+  if(tab==="see"){const k=Object.keys(R.m).filter(x=>live(R.m[x])&&+R.m[x].n).sort().pop(),p=k&&R.m[addM(k,-12)];
+    if(k&&live(p)&&(+R.m[k].n||0)>(+p.n||0))return`最近の手取り、去年の同じ月よりふえてるね！ママ、がんばってるね✨ ${dayPick(UP_PLAN)}`;
+    return dayPick(["ママのがんばりの記録だよ📈 ゆっくり見ていってね♪","グラフ、見やすく並べておいたよ♪ ららら〜🎵","ママが毎月がんばってきたあしあとだよ📈🧸"])}
+  const t=fyTotals(selFY),pv=fyTotals(selFY-1),cur=fyOfPay(latestPay());
+  if(selFY<cur&&pv.cnt&&t.n+t.bn>pv.n+pv.bn)return`${selFY}年度、去年度より手取りがふえてるよ！すごいね〜✨ ${dayPick(UP_PLAN)}`;
+  return dayPick(["1年ぶんのまとめだよ。ママ、ほんとにおつかれさま💕 ごほうびの歌をプレゼント♪🎵","今年度もいっしょにがんばってるね！ファーちゃん、ずっと応援してるよ🎤🧸"])}
 const CHEERS=["今月もおつかれさま！ママ、えらいよ🧸","記録ありがと！ちゃんと見守ってるからね🧸","今月もがんばったね〜。ごほうびにはちみつちょうだい🍯","ばっちり記録できたよ！来月もいっしょにがんばろ🧸","おつかれさま！ママのがんばり、ぜんぶ覚えておくね📚"];
 // 明細の内訳: items={kin:勤怠,pay:支給,ded:控除,tot:合計} それぞれ {項目名:数値}。memo=備考
 const CATS=[["kin","⏱ 勤怠"],["pay","💴 支給"],["ded","🧾 控除"],["tot","🧮 合計"]];
@@ -2465,7 +2485,7 @@ function drawIn(){
   if(!draft||draft.pk!==pk)draft={pk,at:Date.now(),items:JSON.parse(JSON.stringify(e.items||{})),memo:e.memo||"",f:{}};const F=(id,v)=>draft.f[id]!=null?draft.f[id]:(v??""),ot=otOf(pk),w=addM(pk,-1),bn=bonusOf(pk),be=bn&&live(R.b[pk])?R.b[pk]:{};
   const[y,m]=pk.split("-").map(Number),isFuture=pk>latestPay();
   let h=`<div class="recNav"><button id="rPrev">‹</button><div>${y}年${m}月の給料<small>${MDW(salDate(pk))}支給${isFuture?"（まだ先）":""}</small></div><button id="rNext">›</button></div>`;
-  if(flash)h+=`<div class="recBear"><img src="rec-bear.webp" alt=""><div>${flash}</div></div>`;
+  h+=bearSay(flash||tabSay());
   h+=`<div class="recBox recPdf"><button class="ktBtn main" id="rPdfBtn">📄 明細PDFを読み込む</button><input type="file" id="rPdf" accept=".pdf,.zip,application/pdf,application/zip" multiple style="display:none">
     <div class="recNote" id="rImpMsg">${impMsg||"PDF（何枚でも）か、フォルダごとダウンロードした .zip を選んでね。iPhoneの中だけで読むよ"}</div></div>`;
   if((live(R.m[pk])||(bn&&live(R.b[pk])))&&editP!==pk)return h+viewIn(pk,e,ot,w,bn,be);
@@ -2513,7 +2533,7 @@ function fyNav(){return`<div class="recNav"><button id="rFyPrev">‹</button><di
 function drawSee(){
   const ms=fyMonths(selFY),lb=ms.map(k=>+k.slice(5)+"月");
   const net=ms.map(k=>live(R.m[k])?+R.m[k].n||0:0),oh=ms.map(k=>{const o=otOf(k);return o?o.h:0});
-  let h=fyNav();
+  let h=fyNav()+bearSay(tabSay());
   h+=`<div class="recBox"><div class="bt">💰 毎月の手取り</div>${bars(net,lb,MAN)}</div>`;
   {const names=[];for(const k in R.m){const e=R.m[k];if(!live(e)||!e.items)continue;for(const[c]of CATS)for(const n in(e.items[c]||{})){const id=c+"|"+n;if(!names.includes(id))names.push(id)}}
    const order=Object.fromEntries(CATS.map(([c],i)=>[c,i]));names.sort((a,b)=>order[a.split("|")[0]]-order[b.split("|")[0]]);
@@ -2568,7 +2588,7 @@ function drawSum(){
   const t=fyTotals(selFY),p=fyTotals(selFY-1),cur=fyOfPay(latestPay());
   let paid=null;try{const end=`${selFY+1}-03-31`,today=todayK();paid=paidCalc(today<end?today:end);if(paid.fy!==selFY)paid=null}catch(e){}
   const diff=(a,b)=>b&&selFY<cur?`<small class="${a-b>=0?"recUp":"recDown"}">前年度より ${(a-b>=0?"+":"")+(a-b).toLocaleString()}円</small>`:"";
-  let h=fyNav();
+  let h=fyNav()+bearSay(tabSay());
   h+=`<div class="recSum">
     <div class="wide"><small>年収（給料＋賞与の総支給）</small><b>${YEN(t.g+t.bg)}</b>${diff(t.g+t.bg,p.g+p.bg)}</div>
     <div><small>給料の総支給（立替精算をのぞく）</small><b>${YEN(t.g)}</b></div>
@@ -2725,7 +2745,7 @@ function bindImp(){const b=$r("recBody");
     for(const x of imp){if(!x.on||!x.key)continue;const r=x.r,items={};for(const[c]of CATS)if(Object.keys(r[c]||{}).length)items[c]=r[c];
       const e={g:r.g,n:r.n??"",items,u:now};if(x.memo.trim())e.memo=x.memo.trim();
       if(r.kind==="bonus")R.b[x.key]=e;else{Object.assign(e,{oh:r.oh,oy:r.oy,otSet:true});R.m[x.key]=e;mirrorOt(x.key)}n++}
-    imp=null;draft=null;touch();if(typeof renderOt==="function")renderOt();badge();flash=`🧸 ${n}件の明細を記録室に入れたよ！ママ、おつかれさま📚 「📈 みる」で推移も見てみてね`;draw();$r("recBody").scrollTop=0};
+    imp=null;draft=null;touch();if(typeof renderOt==="function")renderOt();badge();flash=`🧸 ${n}件の明細を記録室に入れたよ！ママ、おつかれさま📚 うれしくて歌っちゃう♪ 「📈 みる」で推移も見てみてね`;draw();$r("recBody").scrollTop=0};
   const c=$r("rImpCancel");if(c)c.onclick=()=>{imp=null;draw()}}
 function draw(){const b=$r("recBody");if(!b)return;
   if(tab==="in"&&imp){document.querySelectorAll("#recTabs button").forEach(x=>x.classList.toggle("on",x.dataset.t===tab));b.innerHTML=drawImp();bindImp();return}
@@ -2747,7 +2767,7 @@ function draw(){const b=$r("recBody");if(!b)return;
     R.m[selP]={g,n,oh,oy,otSet:true,u:now};if(Object.keys(items).length)R.m[selP].items=items;if((draft.memo||"").trim())R.m[selP].memo=draft.memo.trim();draft=null;editP=null;mirrorOt(selP);
     if(bonusOf(selP)){const bg=inputVal("rBG"),bn=inputVal("rBN");if(bg!==""||bn!=="")R.b[selP]={g:bg,n:bn,u:now};else if(R.b[selP])R.b[selP]={del:true,u:now}}
     touch();if(typeof renderOt==="function")renderOt();badge();
-    flash="🧸 "+CHEERS[Math.floor(Math.random()*CHEERS.length)];draw();$r("recBody").scrollTop=0});
+    flash=saveFlash(selP);draw();$r("recBody").scrollTop=0});
   on("rDel",()=>{if(!confirm("この月の記録を消す？（残業カウンターの明細も消えるよ）"))return;const now=Date.now();
     R.m[selP]={del:true,u:now};if(R.b[selP])R.b[selP]={del:true,u:now};draft=null;editP=null;mirrorOt(selP);touch();if(typeof renderOt==="function")renderOt();badge();flash="";draw()});
   const sy=$r("rSync");if(sy)sy.onchange=()=>{R.sync=sy.checked;storeR();if(window.ktTouch)window.ktTouch()};

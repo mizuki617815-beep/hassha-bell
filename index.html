@@ -358,7 +358,7 @@ body.dark .ktToday{background:rgba(255,255,255,.05);border-color:rgba(255,255,25
 .ktOk{color:#2f9b80}.ktNg{color:var(--rose)}
 #ktSheet{position:fixed;inset:0;background:rgba(80,60,110,.38);display:none;align-items:flex-end;justify-content:center;z-index:90}
 #ktSheet.show{display:flex}
-.ktPanel{background:#fff;color:var(--ink);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+.ktPanel{position:relative;background:#fff;color:var(--ink);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
 .ktPanel label{display:block;font-size:12px;color:var(--sub);margin-top:10px}
 .ktPanel input{font-family:inherit;font-size:17px;color:var(--ink);border:2px solid #ecd6f5;border-radius:12px;padding:7px 10px;width:100%;background:transparent}
 .ktTwo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
@@ -382,6 +382,9 @@ body.dark .ktBtn.main{background:linear-gradient(135deg,var(--pink),var(--lav));
 .ktAsk small{font-weight:normal;font-size:12px}
 body.dark .ktAsk{background:rgba(255,159,207,.15)}
 .ktEditBtn{border:2px solid var(--lav)!important;color:var(--lav)!important;font-weight:bold;background:rgba(183,156,255,.12)!important}
+.ktQuit{position:absolute;inset:0;background:rgba(40,30,60,.55);display:flex;align-items:center;justify-content:center;border-radius:24px 24px 0 0;z-index:5}
+.ktQuitBox{background:var(--card,#fff);color:var(--ink);border-radius:18px;padding:16px;width:86%;display:flex;flex-direction:column;gap:10px;text-align:center}
+body.dark .ktQuitBox{background:#2a2340}
 .ktDayBtn{flex:1;font-size:15px!important;padding:11px 8px!important;border-radius:14px!important}
 .ktSumBtn{list-style:none;cursor:pointer;font-size:14px;font-weight:bold;padding:11px 14px;border:2px solid var(--line);border-radius:14px;background:rgba(255,255,255,.5);display:flex;align-items:center;gap:8px}
 .ktSumBtn::-webkit-details-marker{display:none}.ktSumBtn small{font-weight:normal;font-size:11px;color:var(--sub)}
@@ -2040,8 +2043,14 @@ function openDay(d,startMode){
   xIn.oninput=upd;xOut.oninput=upd;
   if(usePlan){$("kxTeiji").onclick=()=>setMode("teiji");$("kxZan").onclick=()=>{setMode("zan");try{xOut.focus()}catch(e){}}}
   setMode(mode);
-  const close=()=>$("ktSheet").classList.remove("show"),done=()=>{ktSave();close();render();if(typeof renderOt==="function")renderOt();ktChip()};
-  $("kxClose").onclick=close;
+  const close=()=>{$("ktSheet").classList.remove("show");$("ktSheet").onclick=sheetBg},done=()=>{ktSave();close();render();if(typeof renderOt==="function")renderOt();ktChip()};
+  // 入力を変えたまま閉じようとしたら「記録して閉じる／記録しないで閉じる」を聞く
+  const snap=()=>[xIn.value,xOut.value,brk,$("kxMemo").value,mode].join("|");const first=snap();
+  const tryClose=()=>{if(snap()===first){close();return}
+    const q=document.createElement("div");q.className="ktQuit";
+    q.innerHTML=`<div class="ktQuitBox"><b>入力した内容、どうする？</b><button class="ktBtn main ktDayBtn" type="button" data-q="save">✔ 記録して閉じる</button><button class="ktBtn ktDayBtn" type="button" data-q="drop">記録しないで閉じる</button><button class="ktBtn" type="button" data-q="back" style="font-size:12px">入力にもどる</button></div>`;
+    p.appendChild(q);q.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{const k=b.dataset.q;q.remove();if(k==="save")$("kxFix").click();else if(k==="drop")close()})};
+  $("kxClose").onclick=tryClose;$("ktSheet").onclick=ev=>{if(ev.target.id==="ktSheet")tryClose()};
   $("kxFix").onclick=()=>{const a=toMin(xIn.value),b=toMin(xOut.value),memo=$("kxMemo").value.trim();
     if(a==null||b==null){if(memo){setDay(d,{memo,fixed:false});done();return}alert("出勤と退勤を入れてね");return}
     setDay(d,{in:a,out:b,brk:curBrk(),memo,fixed:true});done()};
@@ -2049,7 +2058,7 @@ function openDay(d,startMode){
   $("kxDel").onclick=()=>{if(!confirm("この日の入力を消す？"))return;setDay(d,{del:true});done()};
   $("ktSheet").classList.add("show");
 }
-$("ktSheet").onclick=ev=>{if(ev.target.id==="ktSheet")ev.target.classList.remove("show")};
+const sheetBg=ev=>{if(ev.target.id==="ktSheet")ev.target.classList.remove("show")};$("ktSheet").onclick=sheetBg;
 $("ktPrev").onclick=()=>{cur.m--;if(cur.m<1){cur.m=12;cur.y--}render()};
 $("ktNext").onclick=()=>{cur.m++;if(cur.m>12){cur.m=1;cur.y++}render()};
 $("ktReset").onclick=()=>{const n=Object.keys(KT.days).length;if(!n){alert("勤怠の記録はまだないよ");return}

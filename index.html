@@ -1235,7 +1235,8 @@ function renderCheer(force){
     const seed=now.getDate()+M*31,pick=a=>a[seed%a.length];
     if(same(payDay(Y,6,30))||same(payDay(Y,12,10)))payMsg=`🎁 ママ、今日は${M<=6?"夏":"冬"}のボーナスの日！半年おつかれさま💕 `+pick(PAY_ONEDARI_BONUS)+"<br>";
     else if(same(payDay(Y,M,25)))payMsg="💰 ママ、今日は給料日！今月もおつかれさま💕 "+pick(PAY_ONEDARI)+"<br>"}
-  let recMsg="";{const r=window.recMissing&&window.recMissing();if(r)recMsg=`<button type="button" class="recNag" onclick="window.recOpenAt('${r.k}')">📚 ママ、<b>${r.t}明細</b>がまだ記録室に入ってないよ！<span>タップして入れる ›</span></button>`}
+  let recMsg="";{const r=window.recMissing&&window.recMissing();if(r){const L=[`ママ、${r.t}明細、もう届いてるかな？ 手があいたときに、わたしの記録室にしまっておいてくれたらうれしいな📚`,`ねぇママ、${r.t}明細、ひまなときでいいから見せてほしいな。ファーちゃんがきれいに整理しておくね📚`,`ママ、${r.t}明細のおへやがまだ空っぽなの…🧸 あわてなくていいから、時間があるときにお願いね📚`];
+    recMsg=`<button type="button" class="recNag" onclick="window.recOpenAt('${r.k}')">${L[now.getDate()%L.length].replace(r.t+"明細",`<b>${r.t}明細</b>`)}<span>記録室をひらく ›</span></button>`}}
   document.getElementById("cheerTxt").innerHTML=recMsg+payMsg+pre+cheerPick(key,CHEER[key]);
   // バッジ
   const chips=[];const has=Object.keys(SHIFTS).length>0;
@@ -2762,14 +2763,14 @@ function draw(){const b=$r("recBody");if(!b)return;
 function openRec(){selP=latestPay();flash="";draft=null;editP=null;editW=null;tab=R.m[selP]&&live(R.m[selP])?"see":"in";$r("recSheet").classList.add("show");draw()}
 function closeRec(){$r("recSheet").classList.remove("show")}
 // 給料日を過ぎて、その月の明細がまだなら、ボタンに小さくお知らせ
-// 給料日・賞与の日を過ぎてもその明細がまだなら、トップのファーちゃんのコメントでお知らせ（ボタンのバッジはやめた）
+// 給料日・賞与の日から1週間たってもその明細がまだなら（急かさないように1週間待つ）、トップのファーちゃんのコメントでお知らせ（ボタンのバッジはやめた）
 function recMissing(){if(!Object.values(R.m).some(live))return null; // 記録室を使ってない人には出さない
   const t=jstNow(),td=new Date(t.getFullYear(),t.getMonth(),t.getDate()),md=d=>`${d.getMonth()+1}/${d.getDate()}`;
   const k=latestPay();
   // 賞与：いちばん新しい賞与の日を過ぎて、次の給料日までに入っていなければ
   const Y=td.getFullYear(),bk=[`${Y}-12`,`${Y}-06`,`${Y-1}-12`].find(b=>td>=bonDate(b));
-  if(td>bonDate(bk)&&td-bonDate(bk)<40*864e5&&!live(R.b[bk]))return{k:bk,t:`${md(bonDate(bk))}の${bonusOf(bk).n}`};
-  if(td>salDate(k)&&!live(R.m[k]))return{k,t:`${md(salDate(k))}支給の給料`};
+  if(td-bonDate(bk)>=7*864e5&&td-bonDate(bk)<40*864e5&&!live(R.b[bk]))return{k:bk,t:`${md(bonDate(bk))}の${bonusOf(bk).n}`};
+  if(td-salDate(k)>=7*864e5&&!live(R.m[k]))return{k,t:`${md(salDate(k))}支給の給料`};
   return null}
 window.recMissing=recMissing;
 window.recOpenAt=k=>{openRec();selP=k;tab="in";draw()};

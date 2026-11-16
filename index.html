@@ -2610,18 +2610,21 @@ function slipParse(pages){
     if(!label||!val)continue;const v=num(val);if(v==null)continue;
     if(!cat){out.warn.push(`読まなかった欄：${label}`);continue}
     out[cat][label]=v}
+  // 支給の欄にある「休業控除」「時間減額」などは差し引く項目なのでマイナスにする（昔の明細）
+  for(const k in out.pay)if(/控除|減額/.test(k)&&out.pay[k]>0)out.pay[k]=-out.pay[k];
   // 4) 備考
   if(memoH){const ms=page0.filter(c=>c.y<memoH.y-1).sort((a,b)=>Math.abs(b.y-a.y)>2.5?b.y-a.y:a.x-b.x);
     let lines=[],ly=null;for(const c of ms){if(ly===null||Math.abs(c.y-ly)>2.5){lines.push(c.s);ly=c.y}else lines[lines.length-1]+=c.s}
-    out.memo=lines.map(s=>s.trim()).filter(Boolean).join(" / ")}
+    out.memo=lines.map(s=>s.trim().replace(/Powered by TCPDF.*$/i,"").trim()).filter(Boolean).join(" / ")}
   // 5) 検算
   const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
-  const T=out.tot,pk=Object.keys(T).find(k=>/支給合計/.test(k)),dk=Object.keys(T).find(k=>/控除合計/.test(k)),nk=Object.keys(T).find(k=>/差引支給|差引額|手取/.test(k));
+  const T=out.tot,pk=Object.keys(T).find(k=>/支給合計|総支給/.test(k)),dk=Object.keys(T).find(k=>/控除合計/.test(k)),nk=Object.keys(T).find(k=>/差引支給|差引額|手取/.test(k));
+  {const pk0=pk&&T[pk];if(pk0!=null){const d=sum(out.pay)-pk0;if(Math.abs(d)>=1){const c=Object.keys(out.pay).filter(k=>Math.abs(out.pay[k]*2-d)<1);if(c.length===1){out.pay[c[0]]=-out.pay[c[0]];out.warn.push(`「${c[0]}」は差し引く項目として計算したよ`)}}}}
   out.check=[];
   if(pk)out.check.push({n:"支給の合計",ok:Math.abs(sum(out.pay)-T[pk])<1,a:sum(out.pay),b:T[pk]});else out.warn.push("支給合計額が見つからない");
   if(dk)out.check.push({n:"控除の合計",ok:Math.abs(sum(out.ded)-T[dk])<1,a:sum(out.ded),b:T[dk]});
   if(pk&&dk&&nk)out.check.push({n:"差引支給額",ok:Math.abs(T[pk]-T[dk]-T[nk])<1,a:T[pk]-T[dk],b:T[nk]});
-  out.ok=!!out.y&&out.warn.filter(w=>!/^読まなかった欄/.test(w)).length===0&&out.check.length>0&&out.check.every(c=>c.ok);
+  out.ok=!!out.y&&out.warn.filter(w=>!/^読まなかった欄|差し引く項目として/.test(w)).length===0&&out.check.length>0&&out.check.every(c=>c.ok);
   out.g=pk?T[pk]:sum(out.pay);out.n=nk?T[nk]:null;
   const ohk=Object.keys(out.kin).find(k=>/残業|時間外/.test(k));out.oh=ohk!=null?out.kin[ohk]:"";
   const oyk=Object.keys(out.pay).find(k=>/時間外|残業/.test(k));out.oy=oyk!=null?out.pay[oyk]:"";

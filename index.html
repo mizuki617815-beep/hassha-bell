@@ -2612,6 +2612,10 @@ function drawFc(fy,t){const cur=fyOfPay(latestPay());
     <div class="recNote" style="margin:2px 0 6px">実際：年収 ${MAN1(ag)}／手取り ${MAN1(an)}</div>
     <table class="fcTbl"><tr><th>いつの予想</th><th>年収の予想</th><th>手取りの予想</th></tr>${snaps.map(k=>`<tr><td>${+k.slice(5)}月支給まで</td><td>${MAN1(R.f[k].g)}<small>${d(R.f[k].g,ag)}</small></td><td>${MAN1(R.f[k].n)}<small>${d(R.f[k].n,an)}</small></td></tr>`).join("")}</table>
     <div class="recNote">＋は予想が実際より多かった、−は少なかった、だよ</div></div>`}
+// 明細の勤怠欄の有休（「有休・有給・年休」を含む項目）。明細の勤怠は前の月に働いた分なので、5月〜翌4月支給の明細を足す
+function slipPaid(fy){let sum=0,hit=false;for(let i=0;i<12;i++){const k=addM(`${fy}-05`,i),e=R.m[k];if(!live(e)||!e.items||!e.items.kin)continue;
+  for(const n in e.items.kin)if(/有休|有給|年休/.test(n)&&!/残|時間/.test(n)){sum+=+e.items.kin[n]||0;hit=true}}
+  return hit?Math.round(sum*10)/10:null}
 function fyTotals(fy){const ms=fyMonths(fy);let g=0,n=0,cnt=0,oh=0,oy=0,bg=0,bnn=0,sh=0,zei=0,tk=0;
   for(const k of ms){const e=R.m[k];if(live(e)&&(+e.g||+e.n)){g+=+e.g||0;n+=+e.n||0;cnt++;sh+=shaho(e);zei+=zeikin(e);tk+=tatekae(e)}const o=otOf(k);if(o){oh+=o.h;oy+=o.y}
     const b=R.b[k];if(live(b)){bg+=+b.g||0;bnn+=+b.n||0;sh+=shaho(b);zei+=zeikin(b)}}
@@ -2659,7 +2663,8 @@ function drawSum(){
     <div><small>社会保険料（健保・年金・雇用など）</small><b>${t.sh?YEN(t.sh):"—"}</b></div>
     <div><small>税金（所得税・住民税）</small><b>${t.zei?YEN(t.zei):"—"}</b></div>
     <div class="wide"><small>${sofar}手取りの合計（給料＋賞与）</small><b>${YEN(t.n+t.bn)}</b>${diff(t.n+t.bn,p.n+p.bn)}</div>
-    <div class="wide"><small>🏖️ 有休を使った日（${selFY}年度）</small><b>${paid?paid.used+"日":"—"}</b>${paid&&paid.sched?`<small>ほかに予定 ${paid.sched}日</small>`:""}</div>
+    ${(()=>{const sp=slipPaid(selFY),useSlip=sp!=null&&(!paid||!paid.used);
+      return`<div class="wide"><small>🏖️ 有休を使った日（${selFY}年度）</small><b>${useSlip?sp+"日":paid?paid.used+"日":"—"}</b>${useSlip?`<small>📄 明細の勤怠欄から数えたよ（${selFY}年4月〜${selFY+1}年3月に働いた分）</small>`:paid&&paid.sched?`<small>ほかに予定 ${paid.sched}日</small>`:""}</div>`})()}
   </div>`;
   h+=`<div class="recNote">${selFY===cur?"今年度はとちゅうまでの合計だよ。":""}${t.tk?`立替精算（出張の交通費など）${YEN(t.tk)}は給料じゃないから、総支給・年収から外してるよ。`:""}社会保険料・税金は、明細の内訳がある月だけの合計。給料は支給月（4月〜翌3月）で数えてるよ。有休は有休カウンターと同じ数え方（働いた日の年度）</div>`;
   h+=drawGensen();

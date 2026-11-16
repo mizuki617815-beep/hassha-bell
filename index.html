@@ -378,10 +378,13 @@ body.dark .ktBtn.main{background:linear-gradient(135deg,var(--pink),var(--lav));
 .ktBrkLine{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;font-size:13.5px}
 .ktFixBar{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom));margin:14px -16px calc(-18px - env(safe-area-inset-bottom));padding:10px 16px max(34px,calc(22px + env(safe-area-inset-bottom)));background:inherit;border-top:1px solid var(--line)}
 .ktFixBar .ktBtn{width:100%;font-size:17px;padding:14px;border-radius:16px}
-.ktAsk{margin-top:8px;background:var(--pink2);border:2px solid var(--pink);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;font-weight:bold}
+.ktAskRow{display:flex;gap:10px;align-items:center}
+.ktAskIc{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 12%;background:#fff;border:2px solid var(--pink);flex:none}
+.ktAskMsg{flex:1}
+.ktAsk{margin-top:10px;background:var(--pink2);border:2px solid var(--pink);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;font-weight:bold}
 .ktAsk small{font-weight:normal;font-size:12px}
 body.dark .ktAsk{background:rgba(255,159,207,.15)}
-.ktEditBtn{border:2px solid var(--lav)!important;color:var(--lav)!important;font-weight:bold;background:rgba(183,156,255,.12)!important}
+.ktEditBtn{border:0!important;color:#fff!important;font-weight:bold;background:linear-gradient(135deg,#8ec5ff,#b79cff)!important;box-shadow:0 3px 10px rgba(120,110,220,.35)}
 .ktQuit{position:absolute;inset:0;background:rgba(40,30,60,.55);display:flex;align-items:center;justify-content:center;border-radius:24px 24px 0 0;z-index:5}
 .ktQuitBox{background:var(--card,#fff);color:var(--ink);border-radius:18px;padding:16px;width:86%;display:flex;flex-direction:column;gap:10px;text-align:center}
 body.dark .ktQuitBox{background:#2a2340}
@@ -633,7 +636,7 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
   </div>
 </div>
 
-<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="paidInfo"><span class="nIco">🧸</span><span class="nLbl">きろく</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
+<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navKintai"><span class="nIco">🧸</span><span class="nLbl">きろく</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
 <script>
 // 時刻表データ(京急空港線 2025年12月13日改正＋2026年11月ダイヤ変更ぶん)。発車:京急公式各駅時刻表/NAVITIME、到着:NAVITIME(2026/11/10取得)、ダイヤ変更ぶん:京急公式ニュースリリース(2026/11/11確認)
 function T(s){return s.split(" ").map(x=>{const [d,r,t,p]=x.split(",");return {m:+d,r:+r,t,p:+p}})}
@@ -1821,7 +1824,7 @@ setInterval(()=>{renderCheer(false);renderBday()},60000);
 const navBtns=[...document.querySelectorAll("#jumpNav button")];
 function navOn(id){navBtns.forEach(b=>b.classList.toggle("on",b.dataset.t===id))}
 navBtns.forEach(b=>b.addEventListener("click",()=>{const el=document.getElementById(b.dataset.t);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});navOn(b.dataset.t)}}));
-if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","paidInfo","navSet"];const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
+if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","navKintai","navSet"];const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
 // ===== 更新ボタン・下に引っぱって更新 =====
 function hardReload(){const p=document.getElementById("ptr");p.textContent="🔄 更新中…";p.style.transform="translate(-50%,12px)";setTimeout(()=>location.reload(),150)}
 document.getElementById("reloadBtn").onclick=hardReload;
@@ -1989,8 +1992,8 @@ function ktChip(){
   let el=document.getElementById("ktAskBox");
   if(!askToday()){if(el)el.remove();return}
   if(!el){el=document.createElement("div");el.id="ktAskBox";el.className="ktAsk";
-    el.innerHTML=`<div>⏰ ママ、おつかれさま！今日は残業した？<br><small>残業してない日は、ファーちゃん🧸が定時で記録しておくね！</small></div><button class="ktBtn main ktDayBtn" type="button" id="ktAskBtn">⏰ 残業を記録</button>`;
-    const txt=document.getElementById("cheerTxt");(txt&&txt.parentNode===box?txt:box.lastChild).after(el);
+    el.innerHTML=`<div class="ktAskRow"><img src="kintai-bear.webp" alt="" class="ktAskIc"><div class="ktAskMsg">⏰ ママ、おつかれさま！今日は残業した？<br><small>残業してない日は、ファーちゃん🧸が定時で記録しておくね！</small></div></div><button class="ktBtn main ktDayBtn" type="button" id="ktAskBtn">⏰ 残業を記録</button>`;
+    box.after(el); // 天気のクマの吹き出しとは別の、勤怠ノートのファーちゃんのお知らせとして出す
     el.querySelector("#ktAskBtn").onclick=()=>openDay(YMD(NOW()),"zan")}
 }
 window.ktChip=ktChip;

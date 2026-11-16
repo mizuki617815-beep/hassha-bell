@@ -367,6 +367,9 @@ body.dark .ktToday{background:rgba(255,255,255,.05);border-color:rgba(255,255,25
 .ktBigTime{font-size:28px!important;font-weight:bold;text-align:center;padding:10px!important;margin-top:4px;background:var(--pink2)!important;border-color:var(--pink)!important}
 .ktOtLine{font-size:13px;margin-top:6px;text-align:center}
 .ktInRow{display:flex;align-items:center;gap:8px;margin-top:10px}.ktInRow label{margin:0!important;white-space:nowrap}.ktInRow input{width:120px!important;font-size:15px!important;padding:5px 8px!important}
+.ktBrkLine{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;font-size:13.5px}
+.ktFixBar{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom));margin:14px -16px calc(-18px - env(safe-area-inset-bottom));padding:10px 16px calc(14px + env(safe-area-inset-bottom));background:inherit;border-top:1px solid var(--line)}
+.ktFixBar .ktBtn{width:100%;font-size:17px;padding:14px;border-radius:16px}
 .ktOtBox{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px;background:var(--pink2);border-radius:14px;padding:8px 10px}
 .ktOtBox b{font-size:16px;color:var(--rose);text-align:center;flex:1}
 .ktCalc{background:var(--lav2);border-radius:14px;padding:8px 12px;margin-top:12px;font-size:13px;line-height:1.6}
@@ -1994,18 +1997,20 @@ function openDay(d){
     <input type="time" id="kxOut" class="ktBigTime" value="${toTime(pout)}">
     <div class="ktOtLine" id="kxOtLine"></div>
     <div class="ktInRow"><label for="kxIn">出勤</label><input type="time" id="kxIn" value="${toTime(pin)}"><span class="ktNote" style="margin:0">${usePlan?"早出の日だけ直してね":""}</span></div>
-    <label>☕ 休憩</label>
-    <div class="ktRow" id="kxBrk" style="margin-top:4px"><button class="ktBtn" type="button" data-b="60">60分とれた</button><button class="ktBtn" type="button" data-b="30">30分だけ</button><button class="ktBtn" type="button" data-b="0">とれなかった</button><input type="number" id="kxBrkN" inputmode="numeric" placeholder="ほか(分)" style="width:96px;font-size:14px"></div>
+    <div class="ktBrkLine"><span id="kxBrkTxt">☕ 休憩 60分（いつもどおり）</span><button class="ktBtn" type="button" id="kxBrkToggle" style="font-size:11.5px;padding:4px 10px">休憩が少なかった？</button></div>
+    <div id="kxBrkMore" style="display:none"><div class="ktRow" id="kxBrk" style="margin-top:6px"><button class="ktBtn" type="button" data-b="30">30分だけ</button><button class="ktBtn" type="button" data-b="0">とれなかった</button><input type="number" id="kxBrkN" inputmode="numeric" placeholder="ほか(分)" style="width:96px;font-size:14px"><button class="ktBtn" type="button" data-b="60" style="font-size:11.5px">60分に戻す</button></div></div>
     <label>📝 備考</label><input type="text" id="kxMemo" value="${ESC(e.memo)}" placeholder="例：遅延対応で追加残業">
     <div class="ktCalc" id="kxCalc"></div>
-    <div class="ktRow" style="margin-top:12px"><button class="ktBtn main" id="kxFix" type="button" style="flex:1">記録する</button>${usePlan?`<button class="ktBtn" id="kxAsPlan" type="button" style="flex:1">予定どおりで記録</button>`:""}</div>
-    <div class="ktRow"><button class="ktBtn" id="kxDel" type="button" style="font-size:11.5px">この日の入力を消す</button></div>`;
+    <div class="ktRow" style="justify-content:space-between;margin-top:10px">${usePlan?`<button class="ktBtn" id="kxAsPlan" type="button" style="font-size:12px">予定どおりで記録</button>`:"<span></span>"}<button class="ktBtn" id="kxDel" type="button" style="font-size:11.5px">この日の入力を消す</button></div>
+    <div class="ktFixBar"><button class="ktBtn main" id="kxFix" type="button">✔ この内容で記録する</button></div>`;
   const xIn=$("kxIn"),xOut=$("kxOut");let brk=e.brk!=null?e.brk:null;
   const span=()=>{const a=toMin(xIn.value),b=toMin(xOut.value);if(a==null||b==null)return null;let s=b-a;if(s<0)s+=1440;return s};
   const curBrk=()=>{const s=span();return brk!=null?brk:(s==null?0:stdBreak(s))};
   const ext=()=>{if(!usePlan)return 0;const b=toMin(xOut.value);if(b==null)return 0;let x=b-dc.plan.end%1440;if(x<-720)x+=1440;if(x>720)x-=1440;return x};
   function upd(){const s=span(),b=curBrk();
-    p.querySelectorAll("#kxBrk button").forEach(x=>x.classList.toggle("on",+x.dataset.b===b));
+    p.querySelectorAll("#kxBrk button").forEach(x=>x.classList.toggle("on",+x.dataset.b===b&&b!==60));
+    {const sp=span(),std=sp==null?60:stdBreak(sp);$("kxBrkTxt").textContent=std===0?"☕ 休憩なし（6時間以下）":b>=std?`☕ 休憩 ${b}分（いつもどおり）`:`☕ 休憩 ${b}分だけ（${std-b}分とれなかった）`;
+     if(b<std)$("kxBrkMore").style.display="";}
     if(usePlan){const x=ext();$("kxOtLine").innerHTML=x>0?`シフトの終わり ${HM(dc.plan.end)} から <b class="ktAdd">＋${JDUR(x)}</b> のびたよ`:x<0?`シフトの終わり ${HM(dc.plan.end)} より早いよ（時刻を確かめてね）`:`シフトの終わり ${HM(dc.plan.end)} どおり`}
     if(s==null){$("kxCalc").textContent="出勤と退勤を入れてね";return}
     const wk=s-b,std=stdBreak(s),miss=Math.max(0,std-b);
@@ -2013,7 +2018,8 @@ function openDay(d){
       let parts=[];if(x)parts.push(`のびた分 ${JDUR(x)}`);if(miss)parts.push(`休憩がとれなかった分 ${JDUR(miss)}`);if(early)parts.push(`早出など ${JDUR(early)}`);
       $("kxCalc").innerHTML=`予定 ${DUR(pw)}　→　実働 <b>${DUR(wk)}</b><br>追加残業 <b class="ktAdd">+${DUR(ex)}</b>${parts.length?`（${parts.join("＋")}）`:""}`}
     else $("kxCalc").innerHTML=`拘束 ${DUR(s)} − 休憩 ${b}分 ＝ 実働 <b>${DUR(wk)}</b>`+(miss?`<br>🧸 休憩がとれなかった${miss}分は、労働時間に入るよ`:"")}
-  p.querySelectorAll("#kxBrk button").forEach(x=>x.onclick=()=>{brk=+x.dataset.b;$("kxBrkN").value="";upd()});
+  p.querySelectorAll("#kxBrk button").forEach(x=>x.onclick=()=>{brk=+x.dataset.b;$("kxBrkN").value="";if(brk===60)$("kxBrkMore").style.display="none";upd()});
+  $("kxBrkToggle").onclick=()=>{const m=$("kxBrkMore");m.style.display=m.style.display==="none"?"":"none"};
   $("kxBrkN").oninput=ev=>{const v=ev.target.value;brk=v===""?null:Math.max(0,+v);upd()};
   xIn.oninput=upd;xOut.oninput=upd;upd();
   const close=()=>$("ktSheet").classList.remove("show"),done=()=>{ktSave();close();render();if(typeof renderOt==="function")renderOt();ktChip()};

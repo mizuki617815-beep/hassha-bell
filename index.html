@@ -459,6 +459,14 @@ body.dark #payCd b{color:#ff9fc0}
 .recOpen .rt b{font-size:16px}
 .recOpen .rt small{font-size:11px;opacity:.95}
 .recOpen .ra{font-size:26px;font-weight:bold}
+.impBox{margin-top:10px;background:var(--lav2);border-radius:16px;padding:8px}
+body.dark .impBox{background:rgba(201,168,255,.12)}
+.impBtn{display:block;width:100%;font-family:inherit;border:2px dashed #c9a8ff;background:#fff;color:#7a55d6;border-radius:12px;padding:8px;font-size:15px;font-weight:bold;cursor:pointer}
+body.dark .impBtn{background:#2a2340;color:#d9c6ff}
+.impBtn small{display:block;font-size:11px;font-weight:normal;color:var(--sub)}
+.impRow{display:flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 4px 0}
+.impRow .st{margin-left:auto;font-size:11.5px;white-space:nowrap}.impRow .ok{color:#2f9e6a}.impRow .ng{color:#d0457f;font-weight:bold}.impRow .wait{color:var(--sub)}
+.impOff{font-size:10.5px;color:var(--sub);background:none;border:0;text-decoration:underline;font-family:inherit;padding:0 4px;cursor:pointer}
 .recNag{display:block;width:100%;text-align:left;font-family:inherit;font-size:14px;line-height:1.45;color:var(--ink);background:linear-gradient(135deg,#fff0f8,#f3ecff);border:2px solid #f4b6d6;border-radius:12px;padding:6px 9px;margin:0 0 6px;cursor:pointer}
 .recNag span{display:block;font-size:11.5px;color:#c2508a;font-weight:bold}
 body.dark .recNag{background:#3a2d52;border-color:#8a4f78}
@@ -636,7 +644,7 @@ details.recBox[open] summary:before{content:"▾ "}
     <div class="result" id="pRes"></div>
     <div id="pCheer"></div>
     <div class="row" style="margin-top:10px">
-      <label class="btn2 sub" for="csvFile" style="margin-top:0;flex:1;cursor:pointer">🗓 シフトCSVを読み込む</label>
+      <label class="btn2 sub" for="csvFile" style="display:none">🗓 シフトCSVを読み込む</label>
       <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
       <button class="btn2 sub" id="csvClear" type="button" style="margin-top:0;display:none;font-family:inherit;cursor:pointer;font-size:11.5px;padding:5px 10px">シフトを消す</button>
     </div>
@@ -648,6 +656,7 @@ details.recBox[open] summary:before{content:"▾ "}
     <div class="sec">🗒️ 勤怠ノート<span class="ktBeta">β版</span></div>
     <div class="ktNote" style="margin-top:0">β版だよ。計算のたしかめ中なので、記録は今まで通りタイムシートとタイムツリーにも残してね。</div>
     <button type="button" class="recOpen" id="recOpen"><span class="ri"><img src="rec-bear.webp" alt="本棚の前で資料を整理するファーちゃん" width="58" height="58"></span><span class="rt"><b>📚 ファーちゃんの記録室</b><small>給料・ボーナスの明細／源泉徴収票／年度のまとめ</small></span><span class="ra">›</span></button>
+    <div class="impBox"><button type="button" class="impBtn" id="impBtn">📥 ファイルを読み込む<small>シフト・タイムシート・明細PDF、なんでもOK</small></button><input type="file" id="impAll" multiple accept=".csv,.pdf,.zip,.json,text/csv,application/pdf,application/zip,application/json" style="display:none"><div id="impList"></div></div>
     <div class="ktMon" style="margin-top:8px">
       <button class="ktBtn" id="ktPrev" type="button">◀</button>
       <b id="ktMonLabel"></b>
@@ -665,7 +674,7 @@ details.recBox[open] summary:before{content:"▾ "}
       <summary style="font-size:13px;font-weight:bold;cursor:pointer">📥 入力・📤 出力・☁️ スプレッドシート・⚙️ 計算の設定</summary>
       <div class="ktRow">
         <button class="ktBtn" id="ktCsvOut" type="button">CSVで保存</button>
-        <label class="ktBtn" for="ktCsvIn">CSV・タイムシートを読み込む</label>
+        
         <input type="file" id="ktCsvIn" style="display:none">
         <button class="ktBtn" id="ktPdfOut" type="button">PDFにする</button>
       </div>
@@ -1247,7 +1256,7 @@ function renderCheer(force){
     const seed=now.getDate()+M*31,pick=a=>a[seed%a.length];
     if(same(payDay(Y,6,30))||same(payDay(Y,12,10)))payMsg=`🎁 ママ、今日は${M<=6?"夏":"冬"}のボーナスの日！半年おつかれさま💕 `+pick(PAY_ONEDARI_BONUS)+"<br>";
     else if(same(payDay(Y,M,25)))payMsg="💰 ママ、今日は給料日！今月もおつかれさま💕 "+pick(PAY_ONEDARI)+"<br>"}
-  let recMsg="";{const r=window.recMissing&&window.recMissing();if(r){const L=[`ママ、${r.t}明細、もう届いてるかな？ 手があいたときに、わたしの記録室にしまっておいてくれたらうれしいな📚`,`ねぇママ、${r.t}明細、ひまなときでいいから見せてほしいな。ファーちゃんがきれいに整理しておくね📚`,`ママ、${r.t}明細のおへやがまだ空っぽなの…🧸 あわてなくていいから、時間があるときにお願いね📚`];
+  let recMsg=window.impNag?window.impNag():"";if(!recMsg){const r=window.recMissing&&window.recMissing();if(r){const L=[`ママ、${r.t}明細、もう届いてるかな？ 手があいたときに、わたしの記録室にしまっておいてくれたらうれしいな📚`,`ねぇママ、${r.t}明細、ひまなときでいいから見せてほしいな。ファーちゃんがきれいに整理しておくね📚`,`ママ、${r.t}明細のおへやがまだ空っぽなの…🧸 あわてなくていいから、時間があるときにお願いね📚`];
     recMsg=`<button type="button" class="recNag" onclick="window.recOpenAt('${r.k}')">${L[now.getDate()%L.length].replace(r.t+"明細",`<b>${r.t}明細</b>`)}<span>記録室をひらく ›</span></button>`}}
   document.getElementById("cheerTxt").innerHTML=recMsg+payMsg+pre+cheerPick(key,CHEER[key]);
   // バッジ
@@ -2298,7 +2307,7 @@ $("ktCsvIn").onchange=ev=>{const f=ev.target.files[0];if(!f)return;
       for(const r of rows){setDay(r.d,{in:r.in,out:r.out,brk:r.brk,memo:r.memo,fixed:true});
         let sp=r.out-r.in;if(sp<0)sp+=1440;const b=r.brk!=null?r.brk:stdBreak(sp);const k=r.d.slice(0,7);
         ms[k]=ms[k]||{n:0,w:0};ms[k].n++;ms[k].w+=sp-b}
-      ktSave();const ks=Object.keys(ms).sort();const[y,m]=ks[ks.length-1].split("-").map(Number);cur={y,m};render();if(typeof renderOt==="function")renderOt();
+      ktSave();try{const mx=rows.map(r=>r.d).sort().pop();const o=JSON.parse(localStorage.getItem("yumebell_imp")||"{}");if(!o.ts||mx>o.ts){o.ts=mx;localStorage.setItem("yumebell_imp",JSON.stringify(o))}}catch(e){}const ks=Object.keys(ms).sort();const[y,m]=ks[ks.length-1].split("-").map(Number);cur={y,m};render();if(typeof renderOt==="function")renderOt();
       let msg=ks.map(k=>`${+k.slice(5)}月：${ms[k].n}日分・実働 ${JDUR(ms[k].w)}`).join("\n");
       if(total!=null&&ks.length===1)msg+=ms[ks[0]].w===total?`\nタイムシートの就業時間 ${JDUR(total)} と一致✓`:`\n⚠️ タイムシートの就業時間 ${JDUR(total)} とちがうよ`;
       if(skip)msg+=`\n今日より先の${skip}日は、まだ働いてないから読み込まなかったよ（予定はシフトから出るよ）`;
@@ -2505,8 +2514,8 @@ function drawIn(){
   const[y,m]=pk.split("-").map(Number),isFuture=pk>latestPay();
   let h=`<div class="recNav"><button id="rPrev">‹</button><div>${y}年${m}月の給料<small>${MDW(salDate(pk))}支給${isFuture?"（まだ先）":""}</small></div><button id="rNext">›</button></div>`;
   h+=bearSay(flash||tabSay());
-  h+=`<div class="recBox recPdf"><button class="ktBtn main" id="rPdfBtn">📄 明細PDFを読み込む</button><input type="file" id="rPdf" accept=".pdf,.zip,application/pdf,application/zip" multiple style="display:none">
-    <div class="recNote" id="rImpMsg">${impMsg||"PDF（何枚でも）か、フォルダごとダウンロードした .zip を選んでね。iPhoneの中だけで読むよ"}</div></div>`;
+  h+=`<div class="recBox recPdf"><button class="ktBtn main" id="rPdfBtn">📥 ファイルを読み込む</button><input type="file" id="rPdf" accept=".pdf,.zip,application/pdf,application/zip" multiple style="display:none">
+    <div class="recNote" id="rImpMsg">${impMsg||"明細のPDF（何枚でも）か、フォルダごとダウンロードした .zip を選んでね。iPhoneの中だけで読むよ（シフトやタイムシートのCSVもここから入れられるよ）"}</div></div>`;
   if((live(R.m[pk])||(bn&&live(R.b[pk])))&&editP!==pk)return h+viewIn(pk,e,ot,w,bn,be);
   h+=`<div class="recNote" style="margin:-2px 0 8px">✏️ 書きかえ中だよ。終わったら下の「この内容で記録する」を押してね</div>`;
   h+=`<div class="recBox"><div class="bt">💰 給料明細</div><div class="recGrid">
@@ -2820,7 +2829,7 @@ function draw(){const b=$r("recBody");if(!b)return;
   {const si=$r("rItem");if(si)si.onchange=()=>{selItem=si.value;draw()}}
   if(tab==="sum")bindGensen();
   on("rFyPrev",()=>{selFY--;draw()});on("rFyNext",()=>{selFY++;draw()});
-  on("rPdfBtn",()=>$r("rPdf").click());
+  on("rPdfBtn",()=>window.impPick?window.impPick():$r("rPdf").click());
   on("rEdit",()=>{editP=selP;draft=null;flash="";draw()});
   on("rEditCancel",()=>{editP=null;draft=null;draw()});
   {const pf=$r("rPdf");if(pf)pf.onchange=()=>{const fs=[...pf.files];pf.value="";if(fs.length)readSlips(fs)}}
@@ -2844,6 +2853,8 @@ function draw(){const b=$r("recBody");if(!b)return;
       touch();if(typeof renderOt==="function")renderOt();badge();alert(`読み込んだよ（${c}件）`);draw()}
     catch(e){alert("記録室のファイルじゃないみたい")}fi.value=""};
 }
+window.recReadSlips=fs=>{openRec();tab="in";draw();readSlips(fs)};
+window.recImportJson=f=>{openRec();tab="sum";draw();const fi=$r("rFile");if(!fi)return;const dt=new DataTransfer();dt.items.add(f);fi.files=dt.files;fi.onchange()};
 function openRec(){selP=latestPay();flash="";draft=null;editP=null;editW=null;tab=R.m[selP]&&live(R.m[selP])?"see":"in";$r("recSheet").classList.add("show");draw()}
 function closeRec(){$r("recSheet").classList.remove("show")}
 // 給料日を過ぎて、その月の明細がまだなら、ボタンに小さくお知らせ
@@ -2874,5 +2885,59 @@ document.addEventListener("DOMContentLoaded",()=>{
 </script>
 
 
+<script>
+// ===== 📥 ファイルの読み込みをひとつに＋読み込むタイミングのお知らせ (2026-11-17) =====
+// 選んだファイルを中身で見分ける：PDF・zip→記録室の明細／CSV→勤怠ノートの読み込み（タイムシート・シフト・勤怠CSVを中で見分ける）／json→記録室の控え
+// お知らせ（トップのファーちゃんのひとこと、いちばん急ぎの1つだけ）：
+//  シフト：来月分が入っていなければ25日から。月末の前日・当日は強め。今月分がないときもすぐ
+//  タイムシート：先月分を読んでいなければ1日から、20日からは強め（25日の明細の照らし合わせに間に合うように）。「もう使わない」にしたら出さない
+//  明細：給料日・賞与の日から1週間後から（記録室の recMissing）
+(function(){
+const IK="yumebell_imp",P2=n=>String(n).padStart(2,"0");
+const ld=()=>{try{return JSON.parse(localStorage.getItem(IK)||"{}")}catch(e){return{}}},sv=o=>{try{localStorage.setItem(IK,JSON.stringify(o))}catch(e){}};
+const mk=(y,m)=>{while(m>12){m-=12;y++}while(m<1){m+=12;y--}return`${y}-${P2(m)}`};
+const hasShift=k=>typeof SHIFTS!=="undefined"&&Object.keys(SHIFTS).some(d=>d.startsWith(k));
+function status(){const t=jstNow(),y=t.getFullYear(),m=t.getMonth()+1,d=t.getDate(),last=new Date(y,m,0).getDate(),o=ld();
+  const thisK=mk(y,m),nextK=mk(y,m+1),prevK=mk(y,m-1),nm=+nextK.slice(5);
+  let sh;
+  if(!hasShift(thisK))sh={ok:false,lv:3,txt:`${m}月のシフト`,when:"いますぐ"};
+  else if(d>=25)sh=hasShift(nextK)?{ok:true,txt:`${nm}月のシフト`}:{ok:false,lv:d>=last-1?3:2,txt:`${nm}月のシフト`,when:`${m}/${last}までに`};
+  else if(d>=20)sh=hasShift(nextK)?{ok:true,txt:`${nm}月のシフト`}:{ok:false,lv:0,soon:true,txt:`${nm}月のシフト`,when:"25日ごろに出るよ"};
+  else sh={ok:true,txt:`${m}月のシフト`};
+  if(!o.ts){try{const ks=Object.keys(KT.days).filter(k=>KT.days[k]&&KT.days[k].fixed).sort();if(ks.length){o.ts=ks.pop();sv(o)}}catch(e){}} // 前に読み込んだぶん（勤怠ノートの記録ずみの日）から
+  let ts=null;if(!o.tsOff){const done=!!o.ts&&o.ts.slice(0,7)>=prevK;ts={ok:done,lv:done?0:d>=20?2:1,txt:`${+prevK.slice(5)}月のタイムシート`,when:done?"":d>=20?`${m}/25の明細までに`:`${m}/20ごろまでに`}}
+  return{sh,ts}}
+window.impNag=()=>{const{sh,ts}=status(),btn=(t,s)=>`<button type="button" class="recNag" onclick="window.impPick()">${t}<span>${s} ›</span></button>`;
+  if(!sh.ok&&sh.lv>=3)return btn(`🗓 ママ、<b>${sh.txt}</b>がまだ入ってないよ！ 出てたらタイムツリーに入れて、CSVにして読み込んでね。おうちを出る時間が出せなくなっちゃうの…🧸`,"シフトを読み込む");
+  if(!sh.ok&&sh.lv===2)return btn(`🗓 ママ、<b>${sh.txt}</b>、もう出たかな？ 出てたら読み込んでおいてね🧸`,"シフトを読み込む");
+  if(ts&&!ts.ok&&ts.lv===2)return btn(`⏱ ママ、<b>${ts.txt}</b>、そろそろ入れておこっか。25日の明細とくらべられるようにしておくね🧸`,"タイムシートを読み込む");
+  if(window.recMissing&&window.recMissing())return"";// 明細は記録室のお知らせにまかせる
+  if(ts&&!ts.ok&&ts.lv===1)return btn(`⏱ ママ、先月もおつかれさま！ 手があいたら<b>${ts.txt}</b>を入れておいてね🧸`,"タイムシートを読み込む");
+  return""};
+function drawList(){const el=document.getElementById("impList");if(!el)return;const{sh,ts}=status(),r=window.recMissing&&window.recMissing();
+  const row=(ic,txt,ok,when,extra,soon)=>`<div class="impRow">${ic} ${txt}${extra||""}<span class="st ${ok?"ok":soon?"wait":when?"ng":"wait"}">${ok?"✅ 入ってるよ":when?"⏳ "+when:""}</span></div>`;
+  let h=row("🗓",sh.txt,sh.ok,sh.when,"",sh.soon);
+  if(ts)h+=row("⏱",ts.txt,ts.ok,ts.when,` <button type="button" class="impOff" id="impTsOff">もう使わない</button>`);
+  h+=r?row("📄",`${r.t}明細`,false,"まだだよ"):row("📄","給料の明細",true,"");
+  el.innerHTML=h;const off=document.getElementById("impTsOff");
+  if(off)off.onclick=()=>{if(!confirm("タイムシートのお知らせを止める？（勤怠ノートだけで記録するようになったら）"))return;const o=ld();o.tsOff=true;sv(o);refresh()}}
+function refresh(){drawList();if(typeof renderCheer==="function")renderCheer(true)}
+window.impRefresh=refresh;
+window.impPick=()=>{const i=document.getElementById("impAll");if(i)i.click()};
+async function handle(files){const pdf=[],csv=[],js=[],other=[];
+  for(const f of files){const n=f.name.toLowerCase();
+    if(/\.(pdf|zip)$/.test(n)||/pdf|zip/.test(f.type))pdf.push(f);else if(/\.json$/.test(n)||/json/.test(f.type))js.push(f);else if(/\.(csv|txt)$/.test(n)||/csv|text/.test(f.type))csv.push(f);else other.push(f)}
+  const kt=document.getElementById("ktCsvIn");
+  for(const f of csv){if(!kt)break;const dt=new DataTransfer();dt.items.add(f);kt.files=dt.files;kt.dispatchEvent(new Event("change"));await new Promise(r=>setTimeout(r,800))}
+  for(const f of js)if(window.recImportJson)window.recImportJson(f);
+  if(pdf.length&&window.recReadSlips)window.recReadSlips(pdf);
+  if(other.length)alert(`🧸 ${other.map(f=>f.name).join("、")} は読めないファイルみたい（シフト・タイムシートのCSV、明細のPDF・zipを選んでね）`);
+  setTimeout(refresh,1500)}
+document.addEventListener("DOMContentLoaded",()=>{const b=document.getElementById("impBtn"),i=document.getElementById("impAll");
+  if(b)b.onclick=()=>i.click();if(i)i.onchange=()=>{const fs=[...i.files];i.value="";if(fs.length)handle(fs)};
+  drawList();if(typeof renderCheer==="function")renderCheer(true)});
+setInterval(drawList,60000);
+})();
+</script>
 </body>
 </html>

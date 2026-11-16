@@ -378,6 +378,10 @@ body.dark .ktBtn.main{background:linear-gradient(135deg,var(--pink),var(--lav));
 .ktBrkLine{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;font-size:13.5px}
 .ktFixBar{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom));margin:14px -16px calc(-18px - env(safe-area-inset-bottom));padding:10px 16px max(34px,calc(22px + env(safe-area-inset-bottom)));background:inherit;border-top:1px solid var(--line)}
 .ktFixBar .ktBtn{width:100%;font-size:17px;padding:14px;border-radius:16px}
+.ktAsk{margin-top:8px;background:var(--pink2);border:2px solid var(--pink);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;font-weight:bold}
+.ktAsk small{font-weight:normal;font-size:12px}
+body.dark .ktAsk{background:rgba(255,159,207,.15)}
+.ktEditBtn{border:2px solid var(--lav)!important;color:var(--lav)!important;font-weight:bold;background:rgba(183,156,255,.12)!important}
 .ktDayBtn{flex:1;font-size:15px!important;padding:11px 8px!important;border-radius:14px!important}
 .ktSumBtn{list-style:none;cursor:pointer;font-size:14px;font-weight:bold;padding:11px 14px;border:2px solid var(--line);border-radius:14px;background:rgba(255,255,255,.5);display:flex;align-items:center;gap:8px}
 .ktSumBtn::-webkit-details-marker{display:none}.ktSumBtn small{font-weight:normal;font-size:11px;color:var(--sub)}
@@ -1920,7 +1924,6 @@ function render(){
   {const n=NOW();if(n.getDate()>=25){const pm=new Date(n.getFullYear(),n.getMonth()-1,1),pk=mk(pm.getFullYear(),pm.getMonth()+1);
     const e=(typeof S!=="undefined"&&S.otMonths&&S.otMonths[pk])||null;
     if(!(e&&e.t==="pay"))t=`ママ、給料日だね！おつかれさま💕 ${pm.getMonth()+1}月に働いた分の明細が届いたら、⚙️設定の残業の「${pm.getMonth()+1}月勤務」の欄に入れてね🧸<br>`+t}}
-  if(askToday())t="ママ、おつかれさま！今日は残業した？　残業した日だけ「⏰ 残業を記録」を押してね。残業してない日は、ファーちゃん🧸が定時で記録しておくね！<br>"+t;
   $("ktBubble").innerHTML=t;
   renderToday();
   const today=YMD(NOW());let h="";
@@ -1958,7 +1961,7 @@ function renderToday(){
   const card=(d,label)=>{const dc=dayCalc(d),[Y,M,D]=d.split("-").map(Number),wd=WD[new Date(Y,M-1,D).getDay()];
     const usePlan=dc.plan&&!dc.plan.paid;let body,btns="";
     if(dc.act){body=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分　実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"")+(dc.fixed?"　✓":"");
-      btns=`<button class="ktBtn" type="button" data-edit="${d}">✏️ 勤怠記録を見る・変える</button>`}
+      btns=`<button class="ktBtn ktDayBtn ktEditBtn" type="button" data-edit="${d}">✏️ この日の勤怠記録を見る・変える</button>`}
     else if(usePlan){body=`予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分　実働 ${DUR(dc.plan.work)}`+(dc.auto?"　✓ 定時":"");
       btns=`<button class="ktBtn ${dc.auto?"":"main "}ktDayBtn" type="button" data-zan="${d}">⏰ 残業を記録</button>`}
     else if(isPaid(dc.sh))body="有休の日だよ。ゆっくりしてね🧸";
@@ -1976,14 +1979,16 @@ function renderToday(){
   w.querySelectorAll("[data-zan]").forEach(b=>b.onclick=()=>openDay(b.dataset.zan,"zan"));
   w.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{fix(b.dataset.plan);done()});
 }
-// メイン画面のクマの吹き出しのバッジに「勤怠の記録まだ」を出す(アプリの中だけで動く)
+// いちばん上のクマの吹き出しに「今日は残業した？」と⏰ボタンを出す(いつもの朝・昼・夜・お休み前のメッセージはそのまま残す)
 function ktChip(){
-  const box=document.getElementById("cheerChips");if(!box)return;
-  let el=document.getElementById("ktChipEl");const n=missingDays().length;
-  if(!n){if(el)el.remove();return}
-  if(!el){el=document.createElement("span");el.id="ktChipEl";el.className="chip";el.style.cursor="pointer";el.style.background="var(--pink2)";
-    el.onclick=()=>{const k=$("navKintai");if(k)k.scrollIntoView({behavior:"smooth",block:"start"})}}
-  el.textContent="⏰ 今日は残業した？";if(el.parentNode!==box)box.prepend(el);
+  const box=document.getElementById("cheer");if(!box)return;
+  const old=document.getElementById("ktChipEl");if(old)old.remove();
+  let el=document.getElementById("ktAskBox");
+  if(!askToday()){if(el)el.remove();return}
+  if(!el){el=document.createElement("div");el.id="ktAskBox";el.className="ktAsk";
+    el.innerHTML=`<div>⏰ ママ、おつかれさま！今日は残業した？<br><small>残業してない日は、ファーちゃん🧸が定時で記録しておくね！</small></div><button class="ktBtn main ktDayBtn" type="button" id="ktAskBtn">⏰ 残業を記録</button>`;
+    const txt=document.getElementById("cheerTxt");(txt&&txt.parentNode===box?txt:box.lastChild).after(el);
+    el.querySelector("#ktAskBtn").onclick=()=>openDay(YMD(NOW()),"zan")}
 }
 window.ktChip=ktChip;
 if(typeof renderCheer==="function"){const _rc=renderCheer;renderCheer=function(){const r=_rc.apply(this,arguments);try{ktChip()}catch(e){}return r}}

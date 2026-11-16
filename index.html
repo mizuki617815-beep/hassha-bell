@@ -518,6 +518,14 @@ details.recBox summary{cursor:pointer;list-style:none}
 details.recBox summary::-webkit-details-marker{display:none}
 details.recBox summary:before{content:"▸ ";color:var(--sub)}
 details.recBox[open] summary:before{content:"▾ "}
+.recPdf{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.recPdf .ktBtn{font-size:14px;padding:9px 16px}
+.recImp.ng{border-color:var(--rose)}
+.recImpHd{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;cursor:pointer}
+.recImpHd input{width:20px;height:20px;margin-top:2px;flex:none}
+.recImpIt{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12px}
+.recImpIt b{text-align:right}
+.recSave:disabled{opacity:.45}
 .recRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
 .recRow .ktBtn{font-size:12.5px}
 </style>
@@ -716,7 +724,7 @@ details.recBox[open] summary:before{content:"▾ "}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.3</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚記録室を追加（カウンターの「記録室をひらく」から）：毎月の給料明細とボーナスを記録して、手取りや残業のグラフ、去年との比較、年度のまとめが見られるように。明細と勤怠ノートがずれていたら、見直す日の候補を教えてくれるよ。明細の内訳（社会保険料・年金・税金・手当など）も項目ごとに推移が見られるよ🧸</span></li>
+        <li><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚記録室を追加（カウンターの「記録室をひらく」から）：毎月の給料明細とボーナスを記録して、手取りや残業のグラフ、去年との比較、年度のまとめが見られるように。明細と勤怠ノートがずれていたら、見直す日の候補を教えてくれるよ。明細の内訳（社会保険料・年金・税金・手当など）も項目ごとに推移が見られるよ。📄明細PDF（フォルダごとの.zipもOK）を読み込むと、iPhoneの中だけで読み取って一気に入れられるよ🧸</span></li>
         <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板を下のほうに大きく</span></li>
         <li><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
         <li><span class="vNo">ver3.0</span><span class="vDate">11/15</span><span class="vTxt">勤怠ノート（β版）を追加：シフトから予定の時間を自動で入れて、就業時間・確定残業・追加残業・残業代の見込みを計算、CSV・PDF・Googleスプレッドシートに保存。下のボタン「カウンター」を「きろく」に。占いの「恋愛運」を「夫婦運」に（ふたりの時間の文章に書きかえ）、金運の文言を修正</span></li>
@@ -2398,7 +2406,7 @@ window.recMerge=rr=>{const out={changed:false,remoteOld:false};if(!R.sync)return
       if(bu>au){L[k]=b;out.changed=true;if(kind==="m")mirrorOt(k)}else if(au>bu)out.remoteOld=true}}
   if(out.changed){storeR();if(typeof renderOt==="function")renderOt()}
   return out};
-window.recRefresh=()=>{badge();if($r("recSheet")&&$r("recSheet").classList.contains("show"))draw()};
+window.recRefresh=()=>{badge();if(draft&&R.m[draft.pk]&&(+R.m[draft.pk].u||0)>(draft.at||0))draft=null;if($r("recSheet")&&$r("recSheet").classList.contains("show"))draw()};
 
 // ===== 画面 =====
 let tab="in",selP=latestPay(),selFY=fyOfPay(latestPay()),flash="",selItem="";
@@ -2447,10 +2455,12 @@ function checkHtml(pk){
 
 function drawIn(){
   const pk=selP,e=live(R.m[pk])?R.m[pk]:{};
-  if(!draft||draft.pk!==pk)draft={pk,items:JSON.parse(JSON.stringify(e.items||{})),memo:e.memo||"",f:{}};const F=(id,v)=>draft.f[id]!=null?draft.f[id]:(v??""),ot=otOf(pk),w=addM(pk,-1),bn=bonusOf(pk),be=bn&&live(R.b[pk])?R.b[pk]:{};
+  if(!draft||draft.pk!==pk)draft={pk,at:Date.now(),items:JSON.parse(JSON.stringify(e.items||{})),memo:e.memo||"",f:{}};const F=(id,v)=>draft.f[id]!=null?draft.f[id]:(v??""),ot=otOf(pk),w=addM(pk,-1),bn=bonusOf(pk),be=bn&&live(R.b[pk])?R.b[pk]:{};
   const[y,m]=pk.split("-").map(Number),isFuture=pk>latestPay();
   let h=`<div class="recNav"><button id="rPrev">‹</button><div>${y}年${m}月の給料<small>${MDW(salDate(pk))}支給${isFuture?"（まだ先）":""}</small></div><button id="rNext">›</button></div>`;
   if(flash)h+=`<div class="recBear"><img src="kintai-face.webp" alt=""><div>${flash}</div></div>`;
+  h+=`<div class="recBox recPdf"><button class="ktBtn main" id="rPdfBtn">📄 明細PDFを読み込む</button><input type="file" id="rPdf" accept=".pdf,.zip,application/pdf,application/zip" multiple style="display:none">
+    <div class="recNote" id="rImpMsg">${impMsg||"PDF（何枚でも）か、フォルダごとダウンロードした .zip を選んでね。iPhoneの中だけで読むよ"}</div></div>`;
   h+=`<div class="recBox"><div class="bt">💰 給料明細</div><div class="recGrid">
     <label>総支給額（円）<input id="rG" type="number" inputmode="numeric" min="0" value="${F("rG",e.g)}" placeholder="0"></label>
     <label>手取り・差引支給額（円）<input id="rN" type="number" inputmode="numeric" min="0" value="${F("rN",e.n)}" placeholder="0"></label>
@@ -2530,13 +2540,143 @@ function drawSum(){
     <div class="recNote">機種変更のときの控えに。書き出したファイルには給料の数字が入ってるから、人に送らないでね</div></div>`;
   return h}
 
+// 給与明細のテキスト(位置つき)から、年月・勤怠/支給/控除/合計・備考を取り出す。
+// items: [{str,x,y,w?}]（PDFの座標。yは上が大きい）。会社名・所属・社員番号・氏名など、表の外の文字は使わずに捨てる。
+function slipParse(pages){
+  const NUMRE=/^[△▲\-−]?[\d,，.:：]+$/;
+  const num=s=>{s=String(s).replace(/[，,\s]/g,"").replace(/：/g,":");const neg=/^[△▲\-−]/.test(s);s=s.replace(/^[△▲\-−]/,"");
+    const t=s.match(/^(\d+):(\d{1,2})$/);let v=t?+t[1]+(+t[2])/60:+s;if(isNaN(v))return null;v=Math.round(v*100)/100;return neg?-v:v};
+  const out={title:"",y:0,m:0,kind:"",kin:{},pay:{},ded:{},tot:{},memo:"",warn:[]};
+  // 1) 近い文字をつなげて「セル」にする（pdf.jsは幅wがあるので、すき間が小さいものをつなぐ）
+  let cells=[];
+  for(const items of pages){
+    const its=items.map(i=>({s:String(i.str).replace(/\n/g,""),x:+i.x,y:+i.y,w:+i.w||0})).filter(i=>i.s.trim()!=="");
+    its.sort((a,b)=>Math.abs(b.y-a.y)>2.5?b.y-a.y:a.x-b.x);
+    for(const it of its){const c=cells[cells.length-1];
+      if(c&&c.page===pages.indexOf(items)&&Math.abs(c.y-it.y)<=2.5&&c.w&&it.x-(c.x+c.w)<4&&it.x>=c.x){c.s+=it.s;c.w=Math.max(c.w,it.x+it.w-c.x)}
+      else cells.push({s:it.s,x:it.x,y:it.y,w:it.w,page:pages.indexOf(items)})}
+  }
+  cells.forEach(c=>c.t=c.s.replace(/\s+/g,""));
+  // 2) タイトル（◯年◯月給与／賞与）
+  for(const c of cells){const m=c.t.match(/(\d{4})年(\d{1,2})月(?:分)?(給与|給料|賞与)/);if(m){out.y=+m[1];out.m=+m[2];out.kind=m[3]==="賞与"?"bonus":"pay";out.title=`${m[1]}年${+m[2]}月${m[3]}`;break}}
+  if(!out.y){
+    // タイトルが細切れのときは、同じ行をつなげて探す
+    const rows={};for(const c of cells){const k=c.page+":"+Math.round(c.y);(rows[k]=rows[k]||[]).push(c)}
+    for(const k in rows){const t=rows[k].sort((a,b)=>a.x-b.x).map(c=>c.t).join("");const m=t.match(/(\d{4})年(\d{1,2})月(?:分)?(給与|給料|賞与)/);if(m){out.y=+m[1];out.m=+m[2];out.kind=m[3]==="賞与"?"bonus":"pay";out.title=`${m[1]}年${+m[2]}月${m[3]}`;break}}
+  }
+  if(!out.y){const all=cells.map(c=>c.t).join("");const m=all.match(/(\d{4})年[^\d]{0,6}?(夏|冬)[^\d]{0,4}賞与/);if(m){out.y=+m[1];out.m=m[2]==="夏"?6:12;out.kind="bonus";out.title=`${m[1]}年${m[2]}の賞与`}}
+  if(!out.y)out.warn.push("「◯年◯月給与」が見つからない");
+  // 3) 表の見出し（勤怠・支給・控除・合計）
+  const page0=cells.filter(c=>c.page===0);
+  const H={};for(const name of["勤怠","支給","控除","その他","予備","合計"]){const h=page0.filter(c=>c.t===name).sort((a,b)=>b.y-a.y)[0];if(h)H[name]=h}
+  if(!H["支給"]||!H["控除"]){out.warn.push("表（支給・控除）が見つからない");return out}
+  const topY=Math.max(...["勤怠","支給","控除"].filter(n=>H[n]).map(n=>H[n].y))+3;
+  const memoH=page0.filter(c=>/^備考/.test(c.t)&&c.y<topY).sort((a,b)=>b.y-a.y)[0];
+  const cols=["勤怠","支給","控除"].filter(n=>H[n]).map(n=>({n,x:H[n].x}));
+  const c4x=Math.min(...["その他","予備","合計"].filter(n=>H[n]).map(n=>H[n].x).concat([Infinity]));
+  if(isFinite(c4x))cols.push({n:"右",x:c4x});
+  cols.sort((a,b)=>a.x-b.x);
+  const colOf=x=>{let r=null;for(const c of cols)if(x>=c.x-6)r=c.n;return r};
+  // 表の範囲：見出しより下、備考より上
+  const bottom=memoH?memoH.y+3:-Infinity;
+  const body=page0.filter(c=>c.y<topY&&c.y>bottom&&!Object.values(H).includes(c));
+  const rows={};
+  for(const c of body){const col=colOf(c.x);if(!col)continue;const k=col+"|"+Math.round(c.y/3);(rows[k]=rows[k]||{col,y:c.y,cells:[]}).cells.push(c)}
+  const catOf=(col,y)=>{if(col==="勤怠")return"kin";if(col==="支給")return"pay";if(col==="控除")return"ded";
+    if(col==="右"){if(H["合計"]&&y<H["合計"].y-1)return"tot";return null}return null};
+  for(const k in rows){const r=rows[k],cat=catOf(r.col,r.y);const cs=r.cells.sort((a,b)=>a.x-b.x);
+    const label=cs.filter(c=>!NUMRE.test(c.t)).map(c=>c.t).join("");const val=cs.filter(c=>NUMRE.test(c.t)).map(c=>c.t).join("");
+    if(!label||!val)continue;const v=num(val);if(v==null)continue;
+    if(!cat){out.warn.push(`読まなかった欄：${label}`);continue}
+    out[cat][label]=v}
+  // 4) 備考
+  if(memoH){const ms=page0.filter(c=>c.y<memoH.y-1).sort((a,b)=>Math.abs(b.y-a.y)>2.5?b.y-a.y:a.x-b.x);
+    let lines=[],ly=null;for(const c of ms){if(ly===null||Math.abs(c.y-ly)>2.5){lines.push(c.s);ly=c.y}else lines[lines.length-1]+=c.s}
+    out.memo=lines.map(s=>s.trim()).filter(Boolean).join(" / ")}
+  // 5) 検算
+  const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+  const T=out.tot,pk=Object.keys(T).find(k=>/支給合計/.test(k)),dk=Object.keys(T).find(k=>/控除合計/.test(k)),nk=Object.keys(T).find(k=>/差引支給|差引額|手取/.test(k));
+  out.check=[];
+  if(pk)out.check.push({n:"支給の合計",ok:Math.abs(sum(out.pay)-T[pk])<1,a:sum(out.pay),b:T[pk]});else out.warn.push("支給合計額が見つからない");
+  if(dk)out.check.push({n:"控除の合計",ok:Math.abs(sum(out.ded)-T[dk])<1,a:sum(out.ded),b:T[dk]});
+  if(pk&&dk&&nk)out.check.push({n:"差引支給額",ok:Math.abs(T[pk]-T[dk]-T[nk])<1,a:T[pk]-T[dk],b:T[nk]});
+  out.ok=!!out.y&&out.warn.filter(w=>!/^読まなかった欄/.test(w)).length===0&&out.check.length>0&&out.check.every(c=>c.ok);
+  out.g=pk?T[pk]:sum(out.pay);out.n=nk?T[nk]:null;
+  const ohk=Object.keys(out.kin).find(k=>/残業|時間外/.test(k));out.oh=ohk!=null?out.kin[ohk]:"";
+  const oyk=Object.keys(out.pay).find(k=>/時間外|残業/.test(k));out.oy=oyk!=null?out.pay[oyk]:"";
+  return out;
+}
+// ===== 明細PDFの読み込み（iPhoneの中だけで読む。PDFも文字もどこにも送らない・保存しない） =====
+// pdf.js は vendor/pdfjs/ にあればそれを使い、なければ jsDelivr から道具だけ取ってくる（明細の中身は送らない）
+const PDFJS_SRC=[["vendor/pdfjs/","pdf.min.js","pdf.worker.min.js","cmaps/"],["https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/","pdf.min.js","pdf.worker.min.js","https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/"]];
+let pdfBase=null;
+function loadScript(src){return new Promise((ok,ng)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>{s.remove();ng(new Error(src))};document.head.appendChild(s)})}
+async function loadPdfjs(){if(window.pdfjsLib&&pdfBase)return;
+  for(const[b,lib,wk,cm]of PDFJS_SRC){try{await loadScript(b+lib);if(!window.pdfjsLib)continue;
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc=b+wk;pdfBase={cmap:cm.startsWith("http")?cm:new URL(b+cm,location.href).href,local:!b.startsWith("http")};return}catch(e){}}
+  throw new Error("PDFを読む道具が読みこめなかったよ（電波を確認してね）")}
+async function pdfItems(buf){const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(buf),isEvalSupported:false,cMapUrl:pdfBase.cmap,cMapPacked:true}).promise;
+  const pages=[];try{for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const tc=await pg.getTextContent();
+    pages.push(tc.items.filter(t=>t.str!=null).map(t=>({str:t.str,x:t.transform[4],y:t.transform[5],w:t.width})))}}finally{try{doc.destroy()}catch(e){}}
+  return pages}
+// .zip の中のPDFを取り出す（フォルダごとダウンロードした zip 用）
+async function unzipPdfs(buf){const dv=new DataView(buf),u8=new Uint8Array(buf),out=[];let e=-1;
+  for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-65557);i--)if(dv.getUint32(i,true)===0x06054b50){e=i;break}
+  if(e<0)throw new Error("zipファイルが読めなかったよ");
+  let p=dv.getUint32(e+16,true);const n=dv.getUint16(e+10,true),td=new TextDecoder();
+  for(let k=0;k<n;k++){if(dv.getUint32(p,true)!==0x02014b50)break;
+    const meth=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);
+    const name=td.decode(u8.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;
+    if(!/\.pdf$/i.test(name)||/(^|\/)(__MACOSX|\._)/.test(name))continue;
+    const ds=lo+30+dv.getUint16(lo+26,true)+dv.getUint16(lo+28,true),raw=u8.slice(ds,ds+cs);
+    let data;if(meth===0)data=raw.buffer;else if(meth===8)data=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer();else continue;
+    out.push({name,data})}
+  return out}
+let imp=null,impMsg="";
+async function readSlips(files){impMsg="📄 読みこみ中…";draw();
+  try{const pdfs=[];for(const f of files){const b=await f.arrayBuffer();if(/\.zip$/i.test(f.name)||new Uint8Array(b.slice(0,2))[0]===0x50&&new Uint8Array(b.slice(0,2))[1]===0x4b)pdfs.push(...await unzipPdfs(b));else pdfs.push({name:f.name,data:b})}
+    if(!pdfs.length)throw new Error("PDFが見つからなかったよ");
+    await loadPdfjs();const res=[];let i=0;
+    for(const p of pdfs){i++;impMsg=`📄 読みこみ中… ${i}/${pdfs.length}`;const el=$r("rImpMsg");if(el)el.textContent=impMsg;
+      let r;try{r=slipParse(await pdfItems(p.data))}catch(e){r={warn:["PDFが読めなかった（写真のPDFかも）"],check:[],ok:false,kin:{},pay:{},ded:{},tot:{}}}
+      p.data=null;res.push(r)}
+    res.sort((a,b)=>(a.y*100+a.m)-(b.y*100+b.m));
+    imp=res.map(r=>({r,key:r.y?`${r.y}-${P2(r.m)}`:"",on:!!r.ok&&!!r.y,memo:r.memo||""}));impMsg=""}
+  catch(e){impMsg="⚠️ "+(e.message||"読みこめなかったよ")}
+  draw()}
+function drawImp(){const ok=imp.filter(x=>x.r.ok).length,ng=imp.length-ok;
+  let h=`<div class="recBox"><div class="bt">📄 読み取った明細 ${imp.length}件</div><div class="recChk">✓ 合計が合ってる ${ok}件${ng?`　<span class="ktNg">⚠️ 確認してほしい ${ng}件</span>`:""}</div>
+    <div class="recNote">会社名・所属・社員番号・氏名は読み取らずに捨てたよ。PDFはこのiPhoneの中で読んだだけで、どこにも送ってないよ</div></div>`;
+  h+=imp.map((x,i)=>{const r=x.r,isB=r.kind==="bonus",ex=x.key&&live((isB?R.b:R.m)[x.key]);
+    const its=CATS.filter(([c])=>Object.keys(r[c]||{}).length).map(([c,l])=>`<div class="recSub">${l}</div><div class="recImpIt">${Object.entries(r[c]).map(([k,v])=>`<span>${k.replace(/</g,"&lt;")}</span><b>${FMT(c,v)}</b>`).join("")}</div>`).join("");
+    return`<div class="recBox recImp${r.ok?"":" ng"}"><label class="recImpHd"><input type="checkbox" data-imp="${i}"${x.on?" checked":""}${x.key?"":" disabled"}>
+      <span><b>${r.title||"（年月が読めなかった）"}</b>${r.ok?" ✓":" ⚠️"}${ex?` <small class="ktNg">記録ずみ→上書き</small>`:""}<br><small>${isB?"🎁 賞与":"💰 給料"}　総支給 ${r.g!=null?YEN(r.g):"—"}　手取り ${r.n!=null?YEN(r.n):"—"}${!isB&&r.oh!==""?`　残業 ${r.oh}h`:""}</small></span></label>
+      ${(r.check||[]).filter(c=>!c.ok).map(c=>`<div class="recNote ktNg">⚠️ ${c.n}が合わない（項目の合計 ${YEN(c.a)} / 明細 ${YEN(c.b)}）</div>`).join("")}
+      ${(r.warn||[]).map(w=>`<div class="recNote">⚠️ ${w.replace(/</g,"&lt;")}</div>`).join("")}
+      <details><summary class="recNote">中身を見る</summary>${its}</details>
+      ${x.memo?`<label class="recMemoL">📝 備考（名前などが入ってたら消してね）<textarea data-impm="${i}" rows="2">${x.memo.replace(/</g,"&lt;")}</textarea></label>`:""}</div>`}).join("");
+  const cnt=imp.filter(x=>x.on).length;
+  h+=`<button class="recSave" id="rImpGo"${cnt?"":" disabled"}>✔ チェックした${cnt}件を記録室に入れる</button><div style="text-align:center"><button class="recLink" id="rImpCancel">やめる（読み取ったものを捨てる）</button></div>`;
+  return h}
+function bindImp(){const b=$r("recBody");
+  b.querySelectorAll("input[data-imp]").forEach(c=>c.onchange=()=>{imp[+c.dataset.imp].on=c.checked;const n=imp.filter(x=>x.on).length,g=$r("rImpGo");if(g){g.textContent=`✔ チェックした${n}件を記録室に入れる`;g.disabled=!n}});
+  b.querySelectorAll("textarea[data-impm]").forEach(t=>t.oninput=()=>{imp[+t.dataset.impm].memo=t.value});
+  const g=$r("rImpGo");if(g)g.onclick=()=>{const now=Date.now();let n=0;
+    for(const x of imp){if(!x.on||!x.key)continue;const r=x.r,items={};for(const[c]of CATS)if(Object.keys(r[c]||{}).length)items[c]=r[c];
+      const e={g:r.g,n:r.n??"",items,u:now};if(x.memo.trim())e.memo=x.memo.trim();
+      if(r.kind==="bonus")R.b[x.key]=e;else{Object.assign(e,{oh:r.oh,oy:r.oy,otSet:true});R.m[x.key]=e;mirrorOt(x.key)}n++}
+    imp=null;draft=null;touch();if(typeof renderOt==="function")renderOt();badge();flash=`🧸 ${n}件の明細を記録室に入れたよ！ママ、おつかれさま📚 「📈 みる」で推移も見てみてね`;draw();$r("recBody").scrollTop=0};
+  const c=$r("rImpCancel");if(c)c.onclick=()=>{imp=null;draw()}}
 function draw(){const b=$r("recBody");if(!b)return;
+  if(tab==="in"&&imp){document.querySelectorAll("#recTabs button").forEach(x=>x.classList.toggle("on",x.dataset.t===tab));b.innerHTML=drawImp();bindImp();return}
   document.querySelectorAll("#recTabs button").forEach(x=>x.classList.toggle("on",x.dataset.t===tab));
   b.innerHTML=tab==="in"?drawIn():tab==="see"?drawSee():drawSum();
   const on=(id,f)=>{const el=$r(id);if(el)el.onclick=f};
   on("rPrev",()=>{selP=addM(selP,-1);flash="";draft=null;draw()});on("rNext",()=>{selP=addM(selP,1);flash="";draft=null;draw()});
   {const si=$r("rItem");if(si)si.onchange=()=>{selItem=si.value;draw()}}
   on("rFyPrev",()=>{selFY--;draw()});on("rFyNext",()=>{selFY++;draw()});
+  on("rPdfBtn",()=>$r("rPdf").click());
+  {const pf=$r("rPdf");if(pf)pf.onchange=()=>{const fs=[...pf.files];pf.value="";if(fs.length)readSlips(fs)}}
   on("rAddB",()=>{collectDraft();const c=$r("rAddC").value,n=$r("rAddN").value.trim(),v=$r("rAddV").value.trim();if(!n)return;
     if(!draft.items[c])draft.items[c]={};draft.items[c][n]=v;draw()});
   on("rSave",()=>{collectDraft();const now=Date.now(),g=inputVal("rG"),n=inputVal("rN"),oh=inputVal("rOH"),oy=inputVal("rOY");
@@ -2557,7 +2697,7 @@ function draw(){const b=$r("recBody");if(!b)return;
       touch();if(typeof renderOt==="function")renderOt();badge();alert(`読み込んだよ（${c}件）`);draw()}
     catch(e){alert("記録室のファイルじゃないみたい")}fi.value=""};
 }
-function openRec(){selP=latestPay();flash="";tab=R.m[selP]&&live(R.m[selP])?"see":"in";$r("recSheet").classList.add("show");draw()}
+function openRec(){selP=latestPay();flash="";draft=null;tab=R.m[selP]&&live(R.m[selP])?"see":"in";$r("recSheet").classList.add("show");draw()}
 function closeRec(){$r("recSheet").classList.remove("show")}
 // 給料日を過ぎて、その月の明細がまだなら、ボタンに小さくお知らせ
 function badge(){const btn=$r("recOpen");if(!btn)return;const rt=btn.querySelector(".rt");let bd=btn.querySelector(".rBadge");

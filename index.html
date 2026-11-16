@@ -437,6 +437,10 @@ body.dark .ktSet input{background:rgba(255,255,255,.06);border-color:rgba(255,25
 .cheer:after{display:block!important;content:"";position:absolute;left:-8px;top:12px;width:12px;height:12px;background:inherit;border:solid var(--pink2);border-width:0 0 2px 2px!important;transform:rotate(45deg)}
 body.dark .cheer:after{border-color:#5a3a5c}
 #navWx{padding-top:12px!important}#navWx .wxHead{margin-bottom:6px!important}
+/* アトリエコットンの看板を、ページのいちばん下に大きく(2026-11-16) */
+.bannerBig{display:block;width:100%;margin:18px 0 6px;border-radius:20px;border:2px solid rgba(255,255,255,.9);box-shadow:0 6px 20px rgba(183,156,255,.3)}
+body.dark .bannerBig{border-color:rgba(255,255,255,.12);box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.bannerBig:not([src]){display:none}
 /* 給料日カウントダウン(ヘッダーの空き) 2026-11-16 */
 #payCd{flex:0 0 auto;align-self:center;text-align:center;line-height:1.15;padding:5px 7px;border-radius:12px;background:rgba(255,255,255,.7);border:1.5px solid var(--pink2);cursor:pointer;min-width:58px}
 #payCd small{display:block;font-size:9.5px;font-weight:700;color:var(--sub);white-space:nowrap}
@@ -639,7 +643,7 @@ body.dark #payCd b{color:#ff9fc0}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.2</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに</span></li>
+        <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板をいちばん下に大きく</span></li>
         <li><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
         <li><span class="vNo">ver3.0</span><span class="vDate">11/15</span><span class="vTxt">勤怠ノート（β版）を追加：シフトから予定の時間を自動で入れて、就業時間・確定残業・追加残業・残業代の見込みを計算、CSV・PDF・Googleスプレッドシートに保存。下のボタン「カウンター」を「きろく」に。占いの「恋愛運」を「夫婦運」に（ふたりの時間の文章に書きかえ）、金運の文言を修正</span></li>
         <li><span class="vNo">ver2.9</span><span class="vDate">11/14</span><span class="vTxt">下部に固定ナビを追加（天気・占い・電車・あした・カウンター・設定へワンタップで移動できる）</span></li>
@@ -672,6 +676,7 @@ body.dark #payCd b{color:#ff9fc0}
     帰りはエアポート快特(京急蒲田は通過)を除外。乗車位置はジョルダン乗換案内の案内をもとにしています。<br>
     天気：Open-Meteo(CC BY 4.0)。服装アドバイスは目安だよ。最後は自分の感覚で🧸
   </div>
+  <img class="bannerBig" id="bannerBig" alt="アトリエコットン Atelier Cotton 想いを、やさしくカタチに。">
 </div>
 
 <nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navKintai"><span class="nIco">🧸</span><span class="nLbl">きろく</span></button><button data-t="paidInfo"><span class="nIco">📊</span><span class="nLbl">カウンター</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
@@ -1446,6 +1451,7 @@ document.querySelectorAll("#sDia button").forEach(b=>{b.classList.toggle("on",b.
 const mq=window.matchMedia?window.matchMedia("(prefers-color-scheme: dark)"):null;
 function applyTheme(){const dark=S.theme==="dark"||(S.theme==="auto"&&mq&&mq.matches);document.body.classList.toggle("dark",!!dark);
   const bn=document.getElementById("bannerImg");if(bn){if(dark){if(!bn.dataset.light)bn.dataset.light=bn.src;bn.src="banner-night.webp"}else if(bn.dataset.light){bn.src=bn.dataset.light}}
+  {const bb=document.getElementById("bannerBig");if(bb&&bn&&bb.src!==bn.src)bb.src=bn.src}
   const tc=document.querySelector('meta[name="theme-color"]');if(tc)tc.content=dark?"#2a1f3d":"#ffe3f1"}
 if(mq&&mq.addEventListener)mq.addEventListener("change",applyTheme);
 document.querySelectorAll("#sTheme button").forEach(b=>{b.classList.toggle("on",b.dataset.v===S.theme);b.onclick=()=>{S.theme=b.dataset.v;save();document.querySelectorAll("#sTheme button").forEach(x=>x.classList.toggle("on",x===b));applyTheme()}});

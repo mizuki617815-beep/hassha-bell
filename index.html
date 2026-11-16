@@ -2614,7 +2614,7 @@ function drawFc(fy,t){const cur=fyOfPay(latestPay());
     <div class="recNote">＋は予想が実際より多かった、−は少なかった、だよ</div></div>`}
 // 明細の勤怠欄の有休（「有休・有給・年休」を含む項目）。明細の勤怠は前の月に働いた分なので、5月〜翌4月支給の明細を足す
 function slipPaid(fy){let sum=0,hit=false;for(let i=0;i<12;i++){const k=addM(`${fy}-05`,i),e=R.m[k];if(!live(e)||!e.items||!e.items.kin)continue;
-  for(const n in e.items.kin)if(/有休|有給|年休/.test(n)&&!/残|時間/.test(n)){sum+=+e.items.kin[n]||0;hit=true}}
+  for(const n in e.items.kin){const q=String(n).normalize("NFKC").replace(/\s/g,"");if(/有休|有給|年休/.test(q)&&!/残|時間/.test(q)){sum+=+String(e.items.kin[n]).replace(/[^\d.\-]/g,"")||0;hit=true}}}
   return hit?Math.round(sum*10)/10:null}
 function fyTotals(fy){const ms=fyMonths(fy);let g=0,n=0,cnt=0,oh=0,oy=0,bg=0,bnn=0,sh=0,zei=0,tk=0;
   for(const k of ms){const e=R.m[k];if(live(e)&&(+e.g||+e.n)){g+=+e.g||0;n+=+e.n||0;cnt++;sh+=shaho(e);zei+=zeikin(e);tk+=tatekae(e)}const o=otOf(k);if(o){oh+=o.h;oy+=o.y}

@@ -752,7 +752,7 @@ details.recBox[open] summary:before{content:"▾ "}
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.4</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">📚「ファーちゃんの記録室」に名前を変えて、入口を勤怠ノートのいちばん上に引っこし。🗂まとめに🔮今年度の見込み（予想の年収・手取り）を追加して、年度が終わったら予想との答え合わせもできるように。記録室のなかでファーちゃんがひとこと話してくれるよ。明細を入れ忘れてたら、給料日から1週間後にトップでファーちゃんがやさしく教えてくれるよ。時計の横に「現在時刻」も入れたよ🧸</span></li>
+        <li data-short="📚 ファーちゃんの記録室がオープン！"><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">📚「ファーちゃんの記録室」に名前を変えて、入口を勤怠ノートのいちばん上に引っこし。🗂まとめに🔮今年度の見込み（予想の年収・手取り）を追加して、年度が終わったら予想との答え合わせもできるように。記録室のなかでファーちゃんがひとこと話してくれるよ。明細を入れ忘れてたら、給料日から1週間後にトップでファーちゃんがやさしく教えてくれるよ。時計の横に「現在時刻」も入れたよ🧸</span></li>
         <li><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚記録室を追加（勤怠ノートの「記録室をひらく」から）：毎月の給料明細とボーナスを記録して、手取りや残業のグラフ、去年との比較、年度のまとめが見られるように。明細と勤怠ノートがずれていたら、見直す日の候補を教えてくれるよ。明細の内訳（社会保険料・年金・税金・手当など）も項目ごとに推移が見られるよ。📄明細PDF（フォルダごとの.zipもOK）を読み込むと、iPhoneの中だけで読み取って一気に入れられるよ（12月の年末調整にも対応）。記録ずみの月は見るだけの表示で、書きかえは「✏️書きかえる」から。🗂まとめに🧾源泉徴収票の欄も追加。下のボタン「きろく」は「おしごと」に🧸</span></li>
         <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板を下のほうに大きく</span></li>
         <li><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
@@ -2916,7 +2916,7 @@ const VK="yumebell_seenVer";
 function verNag(){const li=document.querySelector("#verHist li");if(!li)return"";const v=(li.querySelector(".vNo")||{}).textContent||"";
   let seen="";try{seen=localStorage.getItem(VK)||""}catch(e){}if(!v||seen===v)return"";
   const t=((li.querySelector(".vTxt")||{}).textContent||"").split("。")[0].replace(/🧸$/,"");
-  return`<button type="button" class="recNag" onclick="window.verSeen()" title="${t.replace(/"/g,"")}">🎉 <b>${v}</b>になったよ！見てみてね<span>›</span></button>`}
+  return`<button type="button" class="recNag" onclick="window.verSeen()" title="${t.replace(/"/g,"")}">${li.dataset.short?`🎉 <b>${li.dataset.short}</b>`:`🎉 <b>${v}</b>になったよ！見てみてね`}<span>›</span></button>`}
 window.verSeen=()=>{const li=document.querySelector("#verHist li"),v=li&&(li.querySelector(".vNo")||{}).textContent;try{if(v)localStorage.setItem(VK,v)}catch(e){}
   const d=document.getElementById("verHist");if(d){d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"})}if(typeof renderCheer==="function")renderCheer(true)};
 window.verNag=verNag;window.impNag=()=>impNag0();

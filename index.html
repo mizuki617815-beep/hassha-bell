@@ -724,7 +724,7 @@ details.recBox[open] summary:before{content:"▾ "}
     <details>
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.3</span></summary>
       <ul class="verList">
-        <li><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚記録室を追加（カウンターの「記録室をひらく」から）：毎月の給料明細とボーナスを記録して、手取りや残業のグラフ、去年との比較、年度のまとめが見られるように。明細と勤怠ノートがずれていたら、見直す日の候補を教えてくれるよ。明細の内訳（社会保険料・年金・税金・手当など）も項目ごとに推移が見られるよ。📄明細PDF（フォルダごとの.zipもOK）を読み込むと、iPhoneの中だけで読み取って一気に入れられるよ。🗂まとめに🧾源泉徴収票の欄も追加🧸</span></li>
+        <li><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚記録室を追加（カウンターの「記録室をひらく」から）：毎月の給料明細とボーナスを記録して、手取りや残業のグラフ、去年との比較、年度のまとめが見られるように。明細と勤怠ノートがずれていたら、見直す日の候補を教えてくれるよ。明細の内訳（社会保険料・年金・税金・手当など）も項目ごとに推移が見られるよ。📄明細PDF（フォルダごとの.zipもOK）を読み込むと、iPhoneの中だけで読み取って一気に入れられるよ（12月の年末調整にも対応）。記録ずみの月は見るだけの表示で、書きかえは「✏️書きかえる」から。🗂まとめに🧾源泉徴収票の欄も追加。下のボタン「きろく」は「おしごと」に🧸</span></li>
         <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板を下のほうに大きく</span></li>
         <li><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
         <li><span class="vNo">ver3.0</span><span class="vDate">11/15</span><span class="vTxt">勤怠ノート（β版）を追加：シフトから予定の時間を自動で入れて、就業時間・確定残業・追加残業・残業代の見込みを計算、CSV・PDF・Googleスプレッドシートに保存。下のボタン「カウンター」を「きろく」に。占いの「恋愛運」を「夫婦運」に（ふたりの時間の文章に書きかえ）、金運の文言を修正</span></li>
@@ -760,7 +760,7 @@ details.recBox[open] summary:before{content:"▾ "}
   </div>
 </div>
 
-<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navKintai"><span class="nIco">🧸</span><span class="nLbl">きろく</span></button><button data-t="paidInfo"><span class="nIco">📊</span><span class="nLbl">カウンター</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
+<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navKintai"><span class="nIco">🧸</span><span class="nLbl">おしごと</span></button><button data-t="paidInfo"><span class="nIco">📊</span><span class="nLbl">カウンター</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
 <script>
 // 時刻表データ(京急空港線 2025年12月13日改正＋2026年11月ダイヤ変更ぶん)。発車:京急公式各駅時刻表/NAVITIME、到着:NAVITIME(2026/11/10取得)、ダイヤ変更ぶん:京急公式ニュースリリース(2026/11/11確認)
 function T(s){return s.split(" ").map(x=>{const [d,r,t,p]=x.split(",");return {m:+d,r:+r,t,p:+p}})}
@@ -2409,7 +2409,7 @@ window.recMerge=rr=>{const out={changed:false,remoteOld:false};if(!R.sync)return
 window.recRefresh=()=>{badge();if(draft&&R.m[draft.pk]&&(+R.m[draft.pk].u||0)>(draft.at||0))draft=null;if($r("recSheet")&&$r("recSheet").classList.contains("show"))draw()};
 
 // ===== 画面 =====
-let tab="in",selP=latestPay(),selFY=fyOfPay(latestPay()),flash="",selItem="";
+let tab="in",selP=latestPay(),selFY=fyOfPay(latestPay()),flash="",selItem="",editP=null,editW=null;
 const CHEERS=["今月もおつかれさま！ママ、えらいよ🧸","記録ありがと！ちゃんと見守ってるからね🧸","今月もがんばったね〜。ごほうびにはちみつちょうだい🍯","ばっちり記録できたよ！来月もいっしょにがんばろ🧸","おつかれさま！ママのがんばり、ぜんぶ覚えておくね📚"];
 // 明細の内訳: items={kin:勤怠,pay:支給,ded:控除,tot:合計} それぞれ {項目名:数値}。memo=備考
 const CATS=[["kin","⏱ 勤怠"],["pay","💴 支給"],["ded","🧾 控除"],["tot","🧮 合計"]];
@@ -2461,6 +2461,8 @@ function drawIn(){
   if(flash)h+=`<div class="recBear"><img src="kintai-face.webp" alt=""><div>${flash}</div></div>`;
   h+=`<div class="recBox recPdf"><button class="ktBtn main" id="rPdfBtn">📄 明細PDFを読み込む</button><input type="file" id="rPdf" accept=".pdf,.zip,application/pdf,application/zip" multiple style="display:none">
     <div class="recNote" id="rImpMsg">${impMsg||"PDF（何枚でも）か、フォルダごとダウンロードした .zip を選んでね。iPhoneの中だけで読むよ"}</div></div>`;
+  if((live(R.m[pk])||(bn&&live(R.b[pk])))&&editP!==pk)return h+viewIn(pk,e,ot,w,bn,be);
+  h+=`<div class="recNote" style="margin:-2px 0 8px">✏️ 書きかえ中だよ。終わったら下の「この内容で記録する」を押してね</div>`;
   h+=`<div class="recBox"><div class="bt">💰 給料明細</div><div class="recGrid">
     <label>総支給額（円）<input id="rG" type="number" inputmode="numeric" min="0" value="${F("rG",e.g)}" placeholder="0"></label>
     <label>手取り・差引支給額（円）<input id="rN" type="number" inputmode="numeric" min="0" value="${F("rN",e.n)}" placeholder="0"></label>
@@ -2478,8 +2480,24 @@ function drawIn(){
      <label class="recMemoL">📝 備考・メモ<textarea id="rMemo" rows="2" placeholder="例：標準報酬月額が変わった など">${(draft.memo||"").replace(/</g,"&lt;")}</textarea></label>
      <div class="recNote">金額を空にして記録すると、その項目は消えるよ。勤怠の時間は「34」や「34:00」でOK</div></details>`}
   h+=`<button class="recSave" id="rSave">✔ この内容で記録する</button>`;
+  if(editP===pk)h+=`<div style="text-align:center"><button class="recLink" id="rEditCancel">書きかえずにもどる</button></div>`;
   h+=`<div class="recBox"><div class="bt">🔍 勤怠ノートと照らし合わせ（${+w.slice(5)}月勤務）</div>${checkHtml(pk)}</div>`;
-  if(live(R.m[pk])||(bn&&live(R.b[pk])))h+=`<div style="text-align:center"><button class="recLink" id="rDel">この月の記録を消す</button></div>`;
+  if(editP===pk)h+=`<div style="text-align:center"><button class="recLink" id="rDel">この月の記録を消す</button></div>`;
+  return h}
+// 記録ずみの月：数字は見るだけ（タップしても書きかわらない）
+function itTbl(items){return CATS.filter(([c])=>items&&Object.keys(items[c]||{}).length).map(([c,l])=>`<div class="recSub">${l}</div><div class="recImpIt">${Object.entries(items[c]).map(([k,v])=>`<span>${k.replace(/</g,"&lt;")}</span><b>${FMT(c,v)}</b>`).join("")}</div>`).join("")}
+function viewIn(pk,e,ot,w,bn,be){const V=v=>v===""||v==null?"—":YEN(v);let h="";
+  if(live(R.m[pk]))h+=`<div class="recBox"><div class="bt">💰 給料明細</div><div class="recSum">
+      <div><small>総支給額</small><b>${V(e.g)}</b></div><div><small>手取り・差引支給額</small><b>${V(e.n)}</b></div>
+      <div><small>残業時間（${+w.slice(5)}月勤務）</small><b>${ot?ot.h+"時間":"—"}</b></div><div><small>残業代</small><b>${ot?YEN(ot.y):"—"}</b></div></div>
+      ${e.items?`<details><summary class="recNote">📄 明細の内訳を見る</summary>${itTbl(e.items)}</details>`:""}
+      ${e.memo?`<div class="recNote" style="margin-top:6px">📝 ${e.memo.replace(/</g,"&lt;")}</div>`:""}</div>`;
+  if(bn&&live(R.b[pk]))h+=`<div class="recBox"><div class="bt">🎁 ${bn.n}（${MDW(bonDate(pk))}支給）</div><div class="recSum">
+      <div><small>総支給額</small><b>${V(be.g)}</b></div><div><small>手取り・差引支給額</small><b>${V(be.n)}</b></div></div>
+      ${be.items?`<details><summary class="recNote">📄 明細の内訳を見る</summary>${itTbl(be.items)}</details>`:""}
+      ${be.memo?`<div class="recNote" style="margin-top:6px">📝 ${be.memo.replace(/</g,"&lt;")}</div>`:""}</div>`;
+  h+=`<div class="recBox"><div class="bt">🔍 勤怠ノートと照らし合わせ（${+w.slice(5)}月勤務）</div>${checkHtml(pk)}</div>`;
+  h+=`<div style="text-align:center;margin-top:4px"><button class="ktBtn" id="rEdit">✏️ この月を書きかえる</button></div>`;
   return h}
 
 function bars(vals,labels,fmt,cls){const mx=Math.max(1,...vals.map(v=>v||0));
@@ -2520,20 +2538,25 @@ let selW=null;
 function drawGensen(){const cy=+todayK().slice(0,4);if(selW==null){const ks=Object.keys(R.w).filter(k=>live(R.w[k])).sort();selW=ks.length?+ks[ks.length-1]:cy-1}
   const e=live(R.w[selW])?R.w[selW]:{},rw=selW-2018;
   // 明細から出した同じ年（1〜12月支給）の合計
-  let g=0,tax=0,sh=0,n=0;for(let m=1;m<=12;m++){const k=`${selW}-${P2(m)}`;for(const x of[R.m[k],R.b[k]]){if(!live(x))continue;g+=(+x.g||0)-tatekae(x);tax+=sumIt(x,"ded",/所得税/);sh+=shaho(x);if(x===R.m[k])n++}}
-  let h=`<div class="recBox"><div class="bt">🧾 源泉徴収票</div><div class="recNav"><button id="rWPrev">‹</button><div>${selW}年分<small>令和${rw}年分（1〜12月に支給された分）</small></div><button id="rWNext">›</button></div>
+  let g=0,tax=0,sh=0,n=0;for(let m=1;m<=12;m++){const k=`${selW}-${P2(m)}`;for(const x of[R.m[k],R.b[k]]){if(!live(x))continue;g+=(+x.g||0)-tatekae(x);tax+=sumIt(x,"ded",/所得税/)+sumIt(x,"tot",/過不足|年調|年末調整/);sh+=shaho(x);if(x===R.m[k])n++}}
+  let h=`<div class="recBox"><div class="bt">🧾 源泉徴収票</div><div class="recNav"><button id="rWPrev">‹</button><div>${selW}年分<small>令和${rw}年分（1〜12月に支給された分）</small></div><button id="rWNext">›</button></div>`;
+  if(live(R.w[selW])&&editW!==selW){h+=`<div class="recSum">${GW.filter(([k])=>e[k]!=null&&e[k]!=="").map(([k,l])=>`<div><small>${l}</small><b>${YEN(e[k])}</b></div>`).join("")}</div>
+      ${e.memo?`<div class="recNote" style="margin-top:6px">摘要：${e.memo.replace(/</g,"&lt;")}</div>`:""}
+      <div style="text-align:center;margin-top:8px"><button class="ktBtn" id="rWEdit">✏️ ${selW}年分を書きかえる</button></div>`}
+  else{h+=`
     <div class="recGrid">${GW.map(([k,l])=>`<label>${l}<input type="number" inputmode="numeric" min="0" data-gw="${k}" value="${e[k]??""}" placeholder="0"></label>`).join("")}</div>
     <label class="recMemoL">摘要<textarea id="rWMemo" rows="2" placeholder="例：定額減税 30,000円">${(e.memo||"").replace(/</g,"&lt;")}</textarea></label>
-    <button class="recSave" id="rWSave" style="font-size:15px;padding:10px">✔ ${selW}年分を記録する</button>`;
+    <button class="recSave" id="rWSave" style="font-size:15px;padding:10px">✔ ${selW}年分を記録する</button>${editW===selW?`<div style="text-align:center"><button class="recLink" id="rWCancel">書きかえずにもどる</button></div>`:""}`}
   if(n)h+=`<div class="recNote">📄 明細から出した${selW}年1〜12月支給の合計（${n}か月分${n<12?"・全部そろってないよ":""}）：総支給 ${YEN(g)}（立替精算をのぞく）、所得税 ${YEN(tax)}、社会保険料 ${YEN(sh)}。非課税の手当や年末調整があるので、源泉徴収票とぴったりは合わないこともあるよ</div>`;
   const ys=Object.keys(R.w).filter(k=>live(R.w[k])).sort();
   if(ys.length>1)h+=`<table class="recTbl" style="margin-top:8px"><tr><th>年分</th><th>支払金額</th><th>源泉徴収税額</th><th>社会保険料等</th></tr>${ys.map(y=>`<tr><td>${y}</td><td>${YEN(R.w[y].pay)}</td><td>${YEN(R.w[y].tax)}</td><td>${YEN(R.w[y].shaho)}</td></tr>`).join("")}</table>`;
   return h+`</div>`}
 function bindGensen(){const on=(id,f)=>{const el=$r(id);if(el)el.onclick=f};
-  on("rWPrev",()=>{selW--;draw()});on("rWNext",()=>{selW++;draw()});
+  on("rWPrev",()=>{selW--;editW=null;draw()});on("rWNext",()=>{selW++;editW=null;draw()});
+  on("rWEdit",()=>{editW=selW;draw()});on("rWCancel",()=>{editW=null;draw()});
   on("rWSave",()=>{const e={u:Date.now()};let any=false;document.querySelectorAll("input[data-gw]").forEach(i=>{const v=i.value.trim();if(v!==""){e[i.dataset.gw]=Math.max(0,+v||0);any=true}});
     const m=$r("rWMemo").value.trim();if(m){e.memo=m;any=true}
-    R.w[selW]=any?e:{del:true,u:e.u};touch();flash="";draw()})}
+    R.w[selW]=any?e:{del:true,u:e.u};editW=null;touch();flash="";draw()})}
 function drawSum(){
   const t=fyTotals(selFY),p=fyTotals(selFY-1),cur=fyOfPay(latestPay());
   let paid=null;try{const end=`${selFY+1}-03-31`,today=todayK();paid=paidCalc(today<end?today:end);if(paid.fy!==selFY)paid=null}catch(e){}
@@ -2623,8 +2646,14 @@ function slipParse(pages){
   out.check=[];
   if(pk)out.check.push({n:"支給の合計",ok:Math.abs(sum(out.pay)-T[pk])<1,a:sum(out.pay),b:T[pk]});else out.warn.push("支給合計額が見つからない");
   if(dk)out.check.push({n:"控除の合計",ok:Math.abs(sum(out.ded)-T[dk])<1,a:sum(out.ded),b:T[dk]});
-  if(pk&&dk&&nk)out.check.push({n:"差引支給額",ok:Math.abs(T[pk]-T[dk]-T[nk])<1,a:T[pk]-T[dk],b:T[nk]});
-  out.ok=!!out.y&&out.warn.filter(w=>!/^読まなかった欄|差し引く項目として/.test(w)).length===0&&out.check.length>0&&out.check.every(c=>c.ok);
+  if(pk&&dk&&nk){
+    // 12月などの年末調整：合計の欄の「過不足税額」(マイナス＝戻ってきた税金)も計算に入れる
+    const adj=Object.keys(T).filter(k=>/過不足|年調|年末調整/.test(k)).reduce((a,k)=>a+T[k],0);
+    let exp=T[pk]-T[dk]-adj;const d=T[nk]-exp;
+    if(Math.abs(d)>=1&&out.kind==="pay"&&[11,12,1,2].includes(out.m)&&Math.abs(d)<300000){
+      T["年末調整の過不足（差から計算）"]=-d;exp+=d;out.warn.push(`年末調整で${d>0?"戻ってきた":"追加で引かれた"}分 ${Math.abs(d).toLocaleString()}円として計算したよ`)}
+    out.check.push({n:"差引支給額",ok:Math.abs(exp-T[nk])<1,a:exp,b:T[nk]})}
+  out.ok=!!out.y&&out.warn.filter(w=>!/^読まなかった欄|差し引く項目として|年末調整で/.test(w)).length===0&&out.check.length>0&&out.check.every(c=>c.ok);
   out.g=pk?T[pk]:sum(out.pay);out.n=nk?T[nk]:null;
   const ohk=Object.keys(out.kin).find(k=>/残業|時間外/.test(k));out.oh=ohk!=null?out.kin[ohk]:"";
   const oyk=Object.keys(out.pay).find(k=>/時間外|残業/.test(k));out.oy=oyk!=null?out.pay[oyk]:"";
@@ -2696,22 +2725,24 @@ function draw(){const b=$r("recBody");if(!b)return;
   document.querySelectorAll("#recTabs button").forEach(x=>x.classList.toggle("on",x.dataset.t===tab));
   b.innerHTML=tab==="in"?drawIn():tab==="see"?drawSee():drawSum();
   const on=(id,f)=>{const el=$r(id);if(el)el.onclick=f};
-  on("rPrev",()=>{selP=addM(selP,-1);flash="";draft=null;draw()});on("rNext",()=>{selP=addM(selP,1);flash="";draft=null;draw()});
+  on("rPrev",()=>{selP=addM(selP,-1);flash="";draft=null;editP=null;draw()});on("rNext",()=>{selP=addM(selP,1);flash="";draft=null;editP=null;draw()});
   {const si=$r("rItem");if(si)si.onchange=()=>{selItem=si.value;draw()}}
   if(tab==="sum")bindGensen();
   on("rFyPrev",()=>{selFY--;draw()});on("rFyNext",()=>{selFY++;draw()});
   on("rPdfBtn",()=>$r("rPdf").click());
+  on("rEdit",()=>{editP=selP;draft=null;flash="";draw()});
+  on("rEditCancel",()=>{editP=null;draft=null;draw()});
   {const pf=$r("rPdf");if(pf)pf.onchange=()=>{const fs=[...pf.files];pf.value="";if(fs.length)readSlips(fs)}}
   on("rAddB",()=>{collectDraft();const c=$r("rAddC").value,n=$r("rAddN").value.trim(),v=$r("rAddV").value.trim();if(!n)return;
     if(!draft.items[c])draft.items[c]={};draft.items[c][n]=v;draw()});
   on("rSave",()=>{collectDraft();const now=Date.now(),g=inputVal("rG"),n=inputVal("rN"),oh=inputVal("rOH"),oy=inputVal("rOY");
     const items={};for(const[c]of CATS){const o=draft.items[c]||{},x={};for(const k in o){const v=String(o[k]).trim();if(v==="")continue;x[k]=toNum(v)}if(Object.keys(x).length)items[c]=x}
-    R.m[selP]={g,n,oh,oy,otSet:true,u:now};if(Object.keys(items).length)R.m[selP].items=items;if((draft.memo||"").trim())R.m[selP].memo=draft.memo.trim();draft=null;mirrorOt(selP);
+    R.m[selP]={g,n,oh,oy,otSet:true,u:now};if(Object.keys(items).length)R.m[selP].items=items;if((draft.memo||"").trim())R.m[selP].memo=draft.memo.trim();draft=null;editP=null;mirrorOt(selP);
     if(bonusOf(selP)){const bg=inputVal("rBG"),bn=inputVal("rBN");if(bg!==""||bn!=="")R.b[selP]={g:bg,n:bn,u:now};else if(R.b[selP])R.b[selP]={del:true,u:now}}
     touch();if(typeof renderOt==="function")renderOt();badge();
     flash="🧸 "+CHEERS[Math.floor(Math.random()*CHEERS.length)];draw();$r("recBody").scrollTop=0});
   on("rDel",()=>{if(!confirm("この月の記録を消す？（残業カウンターの明細も消えるよ）"))return;const now=Date.now();
-    R.m[selP]={del:true,u:now};if(R.b[selP])R.b[selP]={del:true,u:now};draft=null;mirrorOt(selP);touch();if(typeof renderOt==="function")renderOt();badge();flash="";draw()});
+    R.m[selP]={del:true,u:now};if(R.b[selP])R.b[selP]={del:true,u:now};draft=null;editP=null;mirrorOt(selP);touch();if(typeof renderOt==="function")renderOt();badge();flash="";draw()});
   const sy=$r("rSync");if(sy)sy.onchange=()=>{R.sync=sy.checked;storeR();if(window.ktTouch)window.ktTouch()};
   on("rExp",()=>{const blob=new Blob([JSON.stringify({app:"yumebell-rec",v:1,at:new Date().toISOString(),m:R.m,b:R.b,w:R.w})],{type:"application/json"});
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`kirokushitsu-${todayK()}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)});
@@ -2722,7 +2753,7 @@ function draw(){const b=$r("recBody");if(!b)return;
       touch();if(typeof renderOt==="function")renderOt();badge();alert(`読み込んだよ（${c}件）`);draw()}
     catch(e){alert("記録室のファイルじゃないみたい")}fi.value=""};
 }
-function openRec(){selP=latestPay();flash="";draft=null;tab=R.m[selP]&&live(R.m[selP])?"see":"in";$r("recSheet").classList.add("show");draw()}
+function openRec(){selP=latestPay();flash="";draft=null;editP=null;editW=null;tab=R.m[selP]&&live(R.m[selP])?"see":"in";$r("recSheet").classList.add("show");draw()}
 function closeRec(){$r("recSheet").classList.remove("show")}
 // 給料日を過ぎて、その月の明細がまだなら、ボタンに小さくお知らせ
 function badge(){const btn=$r("recOpen");if(!btn)return;const rt=btn.querySelector(".rt");let bd=btn.querySelector(".rBadge");

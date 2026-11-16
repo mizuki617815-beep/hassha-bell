@@ -933,8 +933,8 @@ function renderPaid(){
 // ===== 残業がんばりカウンター(時給+月ごとの残業時間・残業代) =====
 // 金額・時間の正は給与明細(S.otMonths、設定で編集可)。明細がまだの完了月は見込み(est)を置ける。進行中の今月は何も表示しない(本人の希望)。
 // 1つの勤務月を「予定(シフトの確定残業)→見込み(勤怠ノートの実績)→明細(給料日に入力)」の3段階で追う。支給は翌月25日。
-// 給料日(毎月25日)・賞与(夏6/30・冬12/10)：土日なら前の平日（2026-11-16）
-function payDay(y,m1,d){const t=new Date(y,m1-1,d);while(t.getDay()===0||t.getDay()===6)t.setDate(t.getDate()-1);return t}
+// 給料日(毎月25日)・賞与(夏6/30・冬12/10)：土日祝なら前の平日（祝日はHOLIの範囲）（2026-11-16）
+function payDay(y,m1,d){const t=new Date(y,m1-1,d);while(isHoliday(t))t.setDate(t.getDate()-1);return t}
 const MDW=t=>`${t.getMonth()+1}/${t.getDate()}(${"日月火水木金土"[t.getDay()]})`;
 function nextPays(today){const[y,m,d]=today.split("-").map(Number),now=new Date(y,m-1,d);
   let sal=payDay(y,m,25);if(sal<now)sal=payDay(y+(m===12?1:0),m%12+1,25);
@@ -977,7 +977,7 @@ function renderOt(){
     const cls=b.t==="pay"?"bUse otUse":b.t==="plan"?"bUse otEst otPlan":"bUse otEst";
     const yen=b.y?`¥${(b.y/10000).toFixed(1)}万`:"";
     return `<div class="pBar"><div class="bVal">${val}</div><div class="bWrap"><div class="${cls}" style="height:${Math.round(b.h/mx*100)}%"></div></div><div class="bMon${b.cur?" cur":""}">${b.label}</div><div class="bYen">${yen}</div></div>`}).join("")+`</div>`;
-  h+=`<div class="paidSub">濃い色＝明細、薄い色＝見込み（勤怠ノート。今月はシフト＋記録した残業）、点線＝予定（シフトの確定残業）。支給は翌月25日（土日なら前の平日）</div>`;
+  h+=`<div class="paidSub">濃い色＝明細、薄い色＝見込み（勤怠ノート。今月はシフト＋記録した残業）、点線＝予定（シフトの確定残業）。支給は翌月25日（土日祝なら前の平日）</div>`;
   {const np=nextPays(ymd(jstNow()));h+=`<div class="paidSub" style="margin-top:4px">💰 次の給料日 <b>${MDW(np.sal)}</b>${np.bon?`　🎁 次の${np.bon.n} <b>${MDW(np.bon.t)}</b>`:""}</div>`}
   {const show=c.bars.filter(b=>b.stage).slice(-3).reverse();
    if(show.length)h+=`<div class="otStages">`+show.map(b=>`<div class="otStage"><span class="otChip ${b.t}">${b.stage}</span><b>${b.label}勤務</b>・${b.payLabel}　${b.h}h・¥${b.y.toLocaleString()}${b.check?` <span class="${b.check==="✓"?"ktOk":"ktNg"}">${b.check==="✓"?"✓ 勤怠ノートと一致":"✗ 勤怠ノートとちがう"}</span>`:""}</div>`).join("")+`</div>`}
@@ -1113,14 +1113,21 @@ function cheerKey(now){
   return "night";
 }
 let cheerLastKey="";
+// 給料日・ボーナスの日に、いちばん上のひとことでファーちゃんがおねだり(2026-11-16)
+const PAY_ONEDARI=["ファーちゃん、ヨーグレット買ってほしいな🧸","はちみつのおやつ食べたいな🍯🧸","帰りにプリン買ってきてほしいな🍮🧸","ママとカフェでパンケーキ食べたいな🥞🧸","ちっちゃいリボン、おそろいでほしいな🎀🧸","ママのぶんのケーキも買って、いっしょに食べよ🍰🧸","いちごのお菓子食べたいな🍓🧸","今日はママも自分にごほうびしてね。ファーちゃんにもちょっとだけ…ね？🧸"];
+const PAY_ONEDARI_BONUS=["ファーちゃん、旅行に連れてってほしいな✈️🧸","温泉でいっしょにのんびりしたいな♨️🧸","新しいワンピース、ほしいな…👗🧸","ママ、ちょっといいケーキ屋さん行こうよ🍰🧸","おいしいはちみつ、まとめ買いしてほしいな🍯🧸"];
 function renderCheer(force){
   const box=document.getElementById("cheer");if(!box)return;
   const now=jstNow(),key=cheerKey(now);
-  if(!force&&key===cheerLastKey)return;cheerLastKey=key;
+  const ck=key+"|"+now.getDate();if(!force&&ck===cheerLastKey)return;cheerLastKey=ck;
   let pre="";
   if(key==="night_work_tmr"||key==="night_back_to_work"){const l=leaveText(dayAdd(now,1));if(l)pre=`明日は${l}に家を出るよ。`}
   if(key==="late_work"){const l=leaveText(dayAdd(now,0));if(l)pre=`今日は${l}に家を出るよ。`}
-  document.getElementById("cheerTxt").innerHTML=pre+cheerPick(key,CHEER[key]);
+  let payMsg="";{const td=new Date(now.getFullYear(),now.getMonth(),now.getDate()),same=t=>t.getTime()===td.getTime(),Y=now.getFullYear(),M=now.getMonth()+1;
+    const seed=now.getDate()+M*31,pick=a=>a[seed%a.length];
+    if(same(payDay(Y,6,30))||same(payDay(Y,12,10)))payMsg=`🎁 ママ、今日は${M<=6?"夏":"冬"}のボーナスの日！半年おつかれさま💕 `+pick(PAY_ONEDARI_BONUS)+"<br>";
+    else if(same(payDay(Y,M,25)))payMsg="💰 ママ、今日は給料日！今月もおつかれさま💕 "+pick(PAY_ONEDARI)+"<br>"}
+  document.getElementById("cheerTxt").innerHTML=payMsg+pre+cheerPick(key,CHEER[key]);
   // バッジ
   const chips=[];const has=Object.keys(SHIFTS).length>0;
   if(has){const mc=monthCount(now);if(mc.total)chips.push(`🗓 今月 ${mc.cnt}回出勤`);
@@ -1129,6 +1136,7 @@ function renderCheer(force){
     else if(o.i===0)chips.push("🌸 今日はお休み");
     else if(o.n===0)chips.push("🌸 明日はお休み");
     else chips.push(`🌸 あと${o.n}日でお休み`)}
+  if(payMsg)chips.unshift(payMsg.startsWith("🎁")?"🎁 今日はボーナス":"💰 今日は給料日");
   document.getElementById("cheerChips").innerHTML=chips.map(c=>`<span class="chip">${c}</span>`).join("");
   box.style.display="";
   renderPlanCheer(now);

@@ -2152,7 +2152,7 @@ const SHU_KEY="yumebell_shifts_at";
 const shiftsAt=()=>{let v=+localStorage.getItem(SHU_KEY)||0;if(!v&&Object.keys(SH()).length)v=1;return v};
 if(typeof saveShifts==="function"){const _ss=saveShifts;window._ktRawSaveShifts=_ss;
   saveShifts=function(){const r=_ss.apply(this,arguments);try{localStorage.setItem(SHU_KEY,String(Date.now()))}catch(e){}scheduleSync();return r}}
-let timer=null,syncing=false;
+let timer=null,syncing=false,joining=false;
 function scheduleSync(){if(!KT.url)return;clearTimeout(timer);timer=setTimeout(()=>sync(),1500)}
 function payload(){const ms={};for(const d in KT.days)if(!KT.days[d].del)ms[d.slice(0,7)]=1;ms[mk(cur.y,cur.m)]=1;
   const tabs={};for(const k in ms){const[y,m]=k.split("-").map(Number);tabs[k]=monthRows(y,m)}
@@ -2164,7 +2164,8 @@ function mergeRemote(j){let changed=false,remoteOld=false;
     if(bu>au){KT.days[d]=b;changed=true}else if(au>bu||(a&&!b))remoteOld=true}
   if((+j.setU||0)>(KT.setU||0)){KT.koukyu=j.koukyu||{};if(j.paid8!=null)KT.paid8=j.paid8;KT.setU=+j.setU;changed=true}else if((KT.setU||0)>(+j.setU||0))remoteOld=true;
   let shChanged=false;const la=shiftsAt(),ra=+j.shiftsAt||0;
-  if(ra>la&&j.shifts&&typeof SHIFTS!=="undefined"){SHIFTS=j.shifts;try{(window._ktRawSaveShifts||saveShifts)();localStorage.setItem(SHU_KEY,String(ra))}catch(e){}shChanged=true;changed=true}
+  const join=joining&&j.shifts&&Object.keys(j.shifts).length>0;joining=false; // 新しくつないだ端末は、シートにあるシフトをそのまま受け取る
+  if((ra>la||join)&&j.shifts&&typeof SHIFTS!=="undefined"){SHIFTS=j.shifts;try{(window._ktRawSaveShifts||saveShifts)();localStorage.setItem(SHU_KEY,String(ra))}catch(e){}shChanged=true;changed=true}
   else if(la>ra)remoteOld=true;
   return{changed,remoteOld,shChanged}}
 function refreshAll(shChanged){render();if(typeof renderOt==="function")renderOt();ktChip();
@@ -2183,7 +2184,7 @@ function syncNote(msg,ng){const el=$("ktGNote");if(!el)return;let t=msg||"";
 const okUrl=u=>/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(u);
 $("ktGSave").onclick=()=>{const u=$("ktUrl").value.trim();
   if(!okUrl(u)){syncNote("⚠️ URLの形がちがうみたい（https://script.google.com/macros/s/…/exec）",true);return}
-  KT.url=u;store();syncNote("シートとそろえてるよ…");sync(true)};
+  if(KT.url!==u)joining=true;KT.url=u;store();syncNote("シートとそろえてるよ…");sync(true)};
 $("ktGLoad").onclick=()=>{const u=$("ktUrl").value.trim()||KT.url;if(!okUrl(u)){syncNote("⚠️ 先にURLを入れてね",true);return}
   KT.url=u;store();syncNote("シートとそろえてるよ…");sync(true)};
 $("ktWho").onchange=ev=>{KT.who=ev.target.value.trim().slice(0,20);store();render()};

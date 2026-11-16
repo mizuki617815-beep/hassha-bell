@@ -505,6 +505,16 @@ body.dark .recPanel{background:#2a2340}
 .recTbl th:first-child,.recTbl td:first-child{text-align:left}
 .recTbl th{font-size:11px;color:var(--sub);font-weight:normal}
 .recUp{color:#2f9b80}.recDown{color:var(--rose)}
+.recFc{background:linear-gradient(135deg,#fff3c4,#ffe0f0);border:2px dashed #f2b8d6;border-radius:16px;padding:10px 12px;margin-bottom:10px}
+body.dark .recFc{background:linear-gradient(135deg,#4a3a3f,#4a2f4f);border-color:#8a4f78}
+.recFc .fcT{font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px}
+.recFc .fcT span{font-size:10.5px;background:#fff;color:#c2508a;border-radius:999px;padding:1px 8px}
+body.dark .recFc .fcT span{background:#2a2340;color:#ff9fcf}
+.recFc .fcRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.recFc small{display:block;font-size:11px;color:var(--sub)}.recFc b{font-size:20px}
+.fcTbl{width:100%;border-collapse:collapse;font-size:12px}.fcTbl th{font-size:11px;color:var(--sub);text-align:left;font-weight:normal}
+.fcTbl td{padding:3px 2px;border-top:1px solid rgba(194,80,138,.15);vertical-align:top}.fcTbl td small{display:block;font-size:10.5px;color:var(--sub)}
+.fcSofar{font-size:12.5px;font-weight:bold;margin:2px 0 6px;color:var(--sub)}
 .recSum{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
 .recSum div{background:var(--lav2);border-radius:14px;padding:8px 10px}
 .recSum small{display:block;font-size:11px;color:var(--sub)}
@@ -2385,9 +2395,9 @@ const $r=id=>document.getElementById(id);
 const YEN=v=>`¥${Math.round(+v||0).toLocaleString()}`;
 const MAN=v=>`${((+v||0)/10000).toFixed(1)}万`;
 let R;try{R=JSON.parse(localStorage.getItem(RK)||"null")}catch(e){}
-R=Object.assign({sync:true,m:{},b:{},w:{}},R||{});if(!R.m)R.m={};if(!R.b)R.b={};if(!R.w)R.w={};
+R=Object.assign({sync:true,m:{},b:{},w:{},f:{}},R||{});if(!R.m)R.m={};if(!R.b)R.b={};if(!R.w)R.w={};if(!R.f)R.f={};
 function storeR(){try{localStorage.setItem(RK,JSON.stringify(R))}catch(e){}}
-function touch(){storeR();if(R.sync&&window.ktTouch)window.ktTouch()}
+function touch(){try{snapF()}catch(e){}storeR();if(R.sync&&window.ktTouch)window.ktTouch()}
 const addM=(k,n)=>{let[y,m]=k.split("-").map(Number);m+=n;while(m>12){m-=12;y++}while(m<1){m+=12;y--}return`${y}-${P2(m)}`};
 const todayK=()=>ymd(jstNow());
 const fyOfPay=k=>{const[y,m]=k.split("-").map(Number);return m>=4?y:y-1};
@@ -2408,9 +2418,9 @@ function mirrorOt(pk){const e=R.m[pk],w=addM(pk,-1);if(!S.otMonths)S.otMonths={}
   save()}
 
 // ===== 同期(勤怠ノートの sync から呼ばれる) =====
-window.recForSync=()=>R.sync?{m:R.m,b:R.b,w:R.w}:null;
+window.recForSync=()=>R.sync?{m:R.m,b:R.b,w:R.w,f:R.f}:null;
 window.recMerge=rr=>{const out={changed:false,remoteOld:false};if(!R.sync)return out;rr=rr||{};
-  for(const kind of["m","b","w"]){const L=R[kind],X=rr[kind]||{};
+  for(const kind of["m","b","w","f"]){const L=R[kind],X=rr[kind]||{};
     for(const k of new Set([...Object.keys(L),...Object.keys(X)])){const a=L[k],b=X[k],au=a?(+a.u||0):-1,bu=b?(+b.u||0):-1;
       if(bu>au){L[k]=b;out.changed=true;if(kind==="m")mirrorOt(k)}else if(au>bu)out.remoteOld=true}}
   if(out.changed){storeR();if(typeof renderOt==="function")renderOt()}
@@ -2437,6 +2447,8 @@ function tabSay(){
     if(k&&live(p)&&(+R.m[k].n||0)>(+p.n||0))return`最近の手取り、去年の同じ月よりふえてるね！ママ、がんばってるね✨ ${dayPick(UP_PLAN)}`;
     return dayPick(["ママのがんばりの記録だよ📈 ゆっくり見ていってね","グラフ、見やすく並べておいたよ。はちみつなめながら見よっか🍯","ママが毎月がんばってきたあしあとだよ📈🧸"])}
   const t=fyTotals(selFY),pv=fyTotals(selFY-1),cur=fyOfPay(latestPay());
+  if(selFY>=cur){const f=forecast(selFY);if(f&&f.done){const pg=pv.g+pv.bg;
+    return pg&&f.g>pg?`このままいくと、今年度の年収は去年度より多くなりそう！ママ、がんばってるね✨ ${dayPick(UP_PLAN)}`:`今年度の見込みを出してみたよ🔮 ママのがんばり、ちゃんと積み上がってるよ🧸`}}
   if(selFY<cur&&pv.cnt&&t.n+t.bn>pv.n+pv.bn)return`${selFY}年度、去年度より手取りがふえてるよ！すごいね〜✨ ${dayPick(UP_PLAN)}`;
   return dayPick(["1年ぶんのまとめだよ。ママ、ほんとにおつかれさま💕 ごほうびにケーキ食べよ🍰","今年度もいっしょにがんばってるね！ファーちゃん、ずっと応援してるよ🧸","1年ぶん、よくがんばりました💮 ごほうびの歌をプレゼント♪🎵"])}
 const CHEERS=["今月もおつかれさま！ママ、えらいよ🧸","記録ありがと！ちゃんと見守ってるからね🧸","今月もがんばったね〜。ごほうびにはちみつちょうだい🍯","ばっちり記録できたよ！来月もいっしょにがんばろ🧸","おつかれさま！ママのがんばり、ぜんぶ覚えておくね📚"];
@@ -2557,6 +2569,43 @@ function drawSee(){
     return`<tr><td>${bonusOf(k).n}</td><td>${b&&+b.n?YEN(b.n):"—"}</td><td>${p&&+p.n?YEN(p.n):"—"}</td><td>${b&&p&&+b.n&&+p.n?((b.n-p.n>0?"+":"")+(b.n-p.n).toLocaleString()):""}</td></tr>`}).join("");
   h+=`<div class="recBox"><div class="bt">🎁 賞与（手取り）</div><table class="recTbl"><tr><th></th><th>今年度</th><th>前年度</th><th>差</th></tr>${bs}</table></div>`;
   return h}
+// ===== 今年度の見込み（予想） =====
+// まだの月は「去年の同じ月 × 今年ののび率」（のび率は記録ずみの月どうしで比べる。0.85〜1.2倍に収める）。去年の同じ月がなければ今年の平均。
+// 賞与は去年の同じ賞与 ×（今年のもう片方の賞与ののび率）。予想した値は R.f[最後に記録した支給月]={g,n,u} に控えて、年度が終わったら答え合わせ
+const gOf=e=>(+e.g||0)-tatekae(e),okM=e=>live(e)&&(+e.g||+e.n);
+const clampR=(a,b)=>b>0?Math.min(1.2,Math.max(.85,a/b)):1;
+function forecast(fy){const ms=fyMonths(fy),done=ms.filter(k=>okM(R.m[k])),miss=ms.filter(k=>!okM(R.m[k]));
+  const bks=[`${fy}-06`,`${fy}-12`],bmiss=bks.filter(k=>!live(R.b[k]));
+  if(!miss.length&&!bmiss.length)return null;
+  let sg=0,sn=0,pg=0,pn=0;for(const k of done){const q=R.m[addM(k,-12)];if(okM(q)){sg+=gOf(R.m[k]);sn+=+R.m[k].n||0;pg+=gOf(q);pn+=+q.n||0}}
+  const rg=clampR(sg,pg),rn=clampR(sn,pn),avg=f=>done.length?done.reduce((a,k)=>a+f(R.m[k]),0)/done.length:null;
+  const ag=avg(gOf),an=avg(e=>+e.n||0);
+  let g=0,n=0,fg=0,fn=0,unk=0;
+  for(const k of done){g+=gOf(R.m[k]);n+=+R.m[k].n||0}
+  for(const k of miss){const q=R.m[addM(k,-12)];if(okM(q)){fg+=gOf(q)*rg;fn+=(+q.n||0)*rn}else if(ag!=null){fg+=ag;fn+=an}else unk++}
+  for(const k of bks){const b=R.b[k];if(live(b)){g+=+b.g||0;n+=+b.n||0;continue}
+    const q=R.b[addM(k,-12)],o=bks.find(x=>x!==k),ob=R.b[o],oq=R.b[addM(o,-12)];
+    const rb=live(ob)&&live(oq)?clampR(+ob.g||0,+oq.g||0):1,rbn=live(ob)&&live(oq)?clampR(+ob.n||0,+oq.n||0):1;
+    if(live(q)){fg+=(+q.g||0)*rb;fn+=(+q.n||0)*rbn}else if(live(ob)&&o<k){fg+=+ob.g||0;fn+=+ob.n||0}}
+  const r1000=v=>Math.round(v/1000)*1000;
+  return{g:r1000(g+fg),n:r1000(n+fn),ag:g,an:n,miss,bmiss,unk,rg,done:done.length,last:done.length?done[done.length-1]:null}}
+// 保存したときに、いまの予想を控える（年度が終わったら答え合わせに使う）
+function snapF(){let ch=false;const fy=fyOfPay(latestPay());for(const y of[fy,fy-1]){const f=forecast(y);if(!f||!f.last||f.unk)continue;
+  const o=R.f[f.last];if(!o||o.g!==f.g||o.n!==f.n){R.f[f.last]={g:f.g,n:f.n,u:Date.now()};ch=true}}return ch}
+const MAN1=v=>`${(v/10000).toFixed(1)}万円`;
+function drawFc(fy,t){const cur=fyOfPay(latestPay());
+  if(fy>=cur){const f=forecast(fy);if(!f||!f.done)return"";
+    const lm=f.miss.length?`${+f.miss[0].slice(5)}月〜${+f.miss[f.miss.length-1].slice(5)}月の給料`:"",lb=f.bmiss.map(k=>+k.slice(5)===6?"夏の賞与":"冬の賞与").join("・");
+    const p=fyTotals(fy-1),pg=p.g+p.bg,pn=p.n+p.bn,pct=Math.round((f.rg-1)*1000)/10;
+    return`<div class="recFc"><div class="fcT">🔮 ${fy}年度の見込み<span>予想</span></div>
+      <div class="fcRow"><div><small>年収の見込み</small><b>約${MAN1(f.g)}</b>${pg?`<small>去年度 ${MAN1(pg)}</small>`:""}</div><div><small>手取りの見込み</small><b>約${MAN1(f.n)}</b>${pn?`<small>去年度 ${MAN1(pn)}</small>`:""}</div></div>
+      <div class="recNote" style="margin-top:6px">※これは予想だよ。記録ずみの${f.done}か月分の実際の数字に、まだの${[lm,lb].filter(Boolean).join("と")}を「去年の同じ月 × 今年ののび（${pct>=0?"+":""}${pct}%）」で足してるよ。明細を入れるたびに見直して、年度が終わったら答え合わせするね${f.unk?`（${f.unk}か月分は去年の記録がなくて計算に入ってないよ）`:""}</div></div>`}
+  const snaps=Object.keys(R.f).filter(k=>live(R.f[k])&&fyOfPay(k)===fy).sort();if(!snaps.length)return"";
+  const ag=t.g+t.bg,an=t.n+t.bn,d=(v,a)=>{const x=v-a,pc=a?Math.round(x/a*1000)/10:0;return`${x>=0?"+":"−"}${MAN1(Math.abs(x))}（${pc>=0?"+":"−"}${Math.abs(pc)}%）`};
+  return`<div class="recFc"><div class="fcT">🔮 ${fy}年度の予想の答え合わせ</div>
+    <div class="recNote" style="margin:2px 0 6px">実際：年収 ${MAN1(ag)}／手取り ${MAN1(an)}</div>
+    <table class="fcTbl"><tr><th>いつの予想</th><th>年収の予想</th><th>手取りの予想</th></tr>${snaps.map(k=>`<tr><td>${+k.slice(5)}月支給まで</td><td>${MAN1(R.f[k].g)}<small>${d(R.f[k].g,ag)}</small></td><td>${MAN1(R.f[k].n)}<small>${d(R.f[k].n,an)}</small></td></tr>`).join("")}</table>
+    <div class="recNote">＋は予想が実際より多かった、−は少なかった、だよ</div></div>`}
 function fyTotals(fy){const ms=fyMonths(fy);let g=0,n=0,cnt=0,oh=0,oy=0,bg=0,bnn=0,sh=0,zei=0,tk=0;
   for(const k of ms){const e=R.m[k];if(live(e)&&(+e.g||+e.n)){g+=+e.g||0;n+=+e.n||0;cnt++;sh+=shaho(e);zei+=zeikin(e);tk+=tatekae(e)}const o=otOf(k);if(o){oh+=o.h;oy+=o.y}
     const b=R.b[k];if(live(b)){bg+=+b.g||0;bnn+=+b.n||0;sh+=shaho(b);zei+=zeikin(b)}}
@@ -2590,9 +2639,11 @@ function drawSum(){
   const t=fyTotals(selFY),p=fyTotals(selFY-1),cur=fyOfPay(latestPay());
   let paid=null;try{const end=`${selFY+1}-03-31`,today=todayK();paid=paidCalc(today<end?today:end);if(paid.fy!==selFY)paid=null}catch(e){}
   const diff=(a,b)=>b&&selFY<cur?`<small class="${a-b>=0?"recUp":"recDown"}">前年度より ${(a-b>=0?"+":"")+(a-b).toLocaleString()}円</small>`:"";
-  let h=fyNav()+bearSay(tabSay());
-  h+=`<div class="recSum">
-    <div class="wide"><small>年収（給料＋賞与の総支給）</small><b>${YEN(t.g+t.bg)}</b>${diff(t.g+t.bg,p.g+p.bg)}</div>
+  let h=fyNav()+bearSay(tabSay());try{if(snapF())storeR()}catch(e){}
+  const mid=selFY>=cur&&!!forecast(selFY),sofar=mid?"ここまでの":"";
+  h+=drawFc(selFY,t);
+  h+=`${mid?`<div class="fcSofar">📒 ここまでの実際の合計（${t.cnt}か月分）</div>`:""}<div class="recSum">
+    <div class="wide"><small>${sofar}年収（給料＋賞与の総支給）</small><b>${YEN(t.g+t.bg)}</b>${diff(t.g+t.bg,p.g+p.bg)}</div>
     <div><small>給料の総支給（立替精算をのぞく）</small><b>${YEN(t.g)}</b></div>
     <div><small>給料の手取り</small><b>${YEN(t.n)}</b></div>
     <div><small>手取りの平均（${t.cnt}か月）</small><b>${t.cnt?YEN(t.n/t.cnt):"—"}</b></div>
@@ -2601,7 +2652,7 @@ function drawSum(){
     <div><small>残業代</small><b>${YEN(t.oy)}</b></div>
     <div><small>社会保険料（健保・年金・雇用など）</small><b>${t.sh?YEN(t.sh):"—"}</b></div>
     <div><small>税金（所得税・住民税）</small><b>${t.zei?YEN(t.zei):"—"}</b></div>
-    <div class="wide"><small>手取りの合計（給料＋賞与）</small><b>${YEN(t.n+t.bn)}</b>${diff(t.n+t.bn,p.n+p.bn)}</div>
+    <div class="wide"><small>${sofar}手取りの合計（給料＋賞与）</small><b>${YEN(t.n+t.bn)}</b>${diff(t.n+t.bn,p.n+p.bn)}</div>
     <div class="wide"><small>🏖️ 有休を使った日（${selFY}年度）</small><b>${paid?paid.used+"日":"—"}</b>${paid&&paid.sched?`<small>ほかに予定 ${paid.sched}日</small>`:""}</div>
   </div>`;
   h+=`<div class="recNote">${selFY===cur?"今年度はとちゅうまでの合計だよ。":""}${t.tk?`立替精算（出張の交通費など）${YEN(t.tk)}は給料じゃないから、総支給・年収から外してるよ。`:""}社会保険料・税金は、明細の内訳がある月だけの合計。給料は支給月（4月〜翌3月）で数えてるよ。有休は有休カウンターと同じ数え方（働いた日の年度）</div>`;
@@ -2773,12 +2824,12 @@ function draw(){const b=$r("recBody");if(!b)return;
   on("rDel",()=>{if(!confirm("この月の記録を消す？（残業カウンターの明細も消えるよ）"))return;const now=Date.now();
     R.m[selP]={del:true,u:now};if(R.b[selP])R.b[selP]={del:true,u:now};draft=null;editP=null;mirrorOt(selP);touch();if(typeof renderOt==="function")renderOt();badge();flash="";draw()});
   const sy=$r("rSync");if(sy)sy.onchange=()=>{R.sync=sy.checked;storeR();if(window.ktTouch)window.ktTouch()};
-  on("rExp",()=>{const blob=new Blob([JSON.stringify({app:"yumebell-rec",v:1,at:new Date().toISOString(),m:R.m,b:R.b,w:R.w})],{type:"application/json"});
+  on("rExp",()=>{const blob=new Blob([JSON.stringify({app:"yumebell-rec",v:1,at:new Date().toISOString(),m:R.m,b:R.b,w:R.w,f:R.f})],{type:"application/json"});
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`kirokushitsu-${todayK()}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)});
   on("rImp",()=>$r("rFile").click());
   const fi=$r("rFile");if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;
     try{const j=JSON.parse(await f.text());if(j.app!=="yumebell-rec")throw 0;let c=0;
-      for(const kind of["m","b","w"])for(const k in(j[kind]||{})){const a=R[kind][k],b=j[kind][k];if((+b.u||0)>(a?(+a.u||0):-1)){R[kind][k]=b;c++;if(kind==="m")mirrorOt(k)}}
+      for(const kind of["m","b","w","f"])for(const k in(j[kind]||{})){const a=R[kind][k],b=j[kind][k];if((+b.u||0)>(a?(+a.u||0):-1)){R[kind][k]=b;c++;if(kind==="m")mirrorOt(k)}}
       touch();if(typeof renderOt==="function")renderOt();badge();alert(`読み込んだよ（${c}件）`);draw()}
     catch(e){alert("記録室のファイルじゃないみたい")}fi.value=""};
 }
@@ -2800,7 +2851,7 @@ function badge(){const bd=document.querySelector("#recOpen .rBadge");if(bd)bd.re
 document.addEventListener("DOMContentLoaded",()=>{
   const sh=document.createElement("div");sh.id="recSheet";
   sh.innerHTML=`<div class="recPanel"><div class="recHead"><img class="rhI" src="rec-bear.webp" alt=""><h3>📚 ファーちゃんの記録室</h3><button class="recX" id="recX" aria-label="とじる">✕</button></div>
-    <div class="recTabs" id="recTabs"><button data-t="in">📝 入れる</button><button data-t="see">📈 みる</button><button data-t="sum">🗂 まとめ</button></div>
+    <div class="recTabs" id="recTabs"><button data-t="see">📈 みる</button><button data-t="sum">🗂 まとめ</button><button data-t="in">📝 入れる</button></div>
     <div class="recBody" id="recBody"></div></div>`;
   document.body.appendChild(sh);
   sh.onclick=ev=>{if(ev.target.id==="recSheet")closeRec()};$r("recX").onclick=closeRec;

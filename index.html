@@ -441,7 +441,7 @@ body.dark .cheer:after{border-color:#5a3a5c}
 #payCd{flex:0 0 auto;align-self:center;text-align:center;line-height:1.15;padding:5px 7px;border-radius:12px;background:rgba(255,255,255,.7);border:1.5px solid var(--pink2);cursor:pointer;min-width:58px}
 #payCd small{display:block;font-size:9.5px;font-weight:700;color:var(--sub);white-space:nowrap}
 #payCd b{display:block;font-size:15px;font-weight:900;color:var(--rose,#e8628f);white-space:nowrap}
-#payCd b i{font-style:normal;font-size:10px}
+#payCd b i{font-style:normal;font-size:10px;margin-right:1px}
 body.dark #payCd{background:rgba(255,255,255,.06);border-color:rgba(244,154,193,.35)}
 body.dark #payCd b{color:#ff9fc0}
 </style>
@@ -952,7 +952,7 @@ function renderPayCd(){const el=document.getElementById("payCd");if(!el)return;
   const today=ymd(jstNow()),[y,m,d]=today.split("-").map(Number),now=new Date(y,m-1,d),np=nextPays(today);
   const useB=np.bon&&np.bon.t<=np.sal,t=useB?np.bon.t:np.sal,n=Math.round((t-now)/864e5);
   const lbl=useB?"🎁 ボーナス":"💰 給料日";
-  const h=n===0?`<small>${lbl}</small><b>今日！</b>`:`<small>${lbl}まで</small><b>あと${n}<i>日</i></b>`;
+  const h=n===0?`<small>${lbl}</small><b>今日！</b>`:`<small>${lbl}まで</small><b><i>あと</i>${n}日</b>`;
   if(el.innerHTML!==h)el.innerHTML=h;el.title=`${useB?"ボーナス":"給料日"}は${MDW(t)}`}
 document.addEventListener("DOMContentLoaded",()=>{const el=document.getElementById("payCd");if(el)el.onclick=()=>{const c=document.getElementById("navCount")||document.getElementById("otInfo");if(c)c.scrollIntoView({behavior:"smooth"})};try{renderPayCd()}catch(e){}});
 setInterval(()=>{try{renderPayCd()}catch(e){}},60000);

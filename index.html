@@ -471,6 +471,7 @@ body.dark .impBtn{background:#2a2340;color:#d9c6ff}
 .impRow .st{margin-left:auto;font-size:11.5px;white-space:nowrap}.impRow .ok{color:#2f9e6a}.impRow .ng{color:#d0457f;font-weight:bold}.impRow .wait{color:var(--sub)}
 .ktLocked{background:#f4eefc!important;color:var(--sub)!important;font-size:12.5px!important}body.dark .ktLocked{background:#2a2340!important}
 .ktLinkBtn{font-family:inherit;font-size:11.5px;border:0;background:none;color:var(--sub);text-decoration:underline;cursor:pointer;padding:2px 0;margin:2px 0 4px}
+.manFix summary{cursor:pointer;font-size:13px;color:var(--sub);padding:4px 0}
 .impShift{margin-top:6px;font-size:12.5px}.impShift summary{cursor:pointer;color:var(--sub);font-size:12px;padding:2px 4px}.impShift .note{margin:4px 2px 0}
 .impOff{font-size:10.5px;color:var(--sub);background:none;border:0;text-decoration:underline;font-family:inherit;padding:0 4px;cursor:pointer}
 .recNag{display:block;width:100%;text-align:left;font-family:inherit;font-size:14px;line-height:1.45;color:var(--ink);background:linear-gradient(135deg,#fff0f8,#f3ecff);border:2px solid #f4b6d6;border-radius:12px;padding:6px 9px;margin:0 0 6px;cursor:pointer}
@@ -746,11 +747,15 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
         <span>余裕をもたせる(分)</span><input type="number" id="sBuf" min="0" max="30">
         <span>T3 改札→ホーム(帰り・分)</span><input type="number" id="sT3" min="0" max="30">
         <span>シフト開始の何分前にT3に着く(分)</span><input type="number" id="sArr" min="0" max="120">
-        <span>有休：月ごとの使用日数(今年度)</span><span></span>
-        <div id="sPaidMonths" style="grid-column:1/-1"></div>
-        <span>残業：時給(円)</span><input type="number" id="sOtRate" min="0" max="99999">
-        <span>残業：月ごとの時間・金額(今年度)</span><span></span>
-        <div id="sOtMonths" style="grid-column:1/-1"></div>
+        <details class="manFix" style="grid-column:1/-1"><summary>✏️ カウンターを手で直す（ふだんは使わなくてOK）</summary>
+          <div class="note" style="margin:4px 0 6px">有休はシフト・勤怠ノートから、残業の時間・残業代・時給は記録室の明細から自動で出してるよ。明細やシフトがない月だけ、ここで直してね</div>
+          <div class="grid" style="display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:center">
+          <span>有休：月ごとの使用日数(今年度)</span><span></span>
+          <div id="sPaidMonths" style="grid-column:1/-1"></div>
+          <span>残業：時給(円)<br><small style="color:var(--sub)">明細がない年度だけ使うよ</small></span><input type="number" id="sOtRate" min="0" max="99999">
+          <span>残業：月ごとの時間・金額(今年度)</span><span></span>
+          <div id="sOtMonths" style="grid-column:1/-1"></div></div>
+        </details>
         <span>お誕生日(月/日)</span><span style="display:flex;gap:4px;align-items:center"><select id="sBdayM" style="flex:none;width:64px"></select>月<select id="sBdayD" style="flex:none;width:64px"></select>日</span>
         <span>星座</span><select id="sSign" style="flex:none;width:130px"></select>
         <span>画面の色</span>
@@ -1103,11 +1108,15 @@ function otCalc(today){
     else if(e&&(+e.h>0||+e.y>0)){b.h=+e.h||0;b.y=+e.y||0;b.t="est";b.stage="見込み";estH+=b.h;estY+=b.y}
     bars.push(b);
   }
-  const hist=(S.otRateHist||[]).map(e=>({fy:+e.fy,rate:+e.rate})).filter(e=>e.fy>0&&e.rate>0);
-  if(!hist.some(e=>e.fy===tfy))hist.push({fy:tfy,rate:+S.otRate||0});
+  // 残業時給は明細（記録室から写した S.otMonths の t:"pay"）の「残業代÷残業時間」で年度ごとに自動。明細がない年度だけ設定の手入力（2026-11-17）
+  const agg={};for(const k in om){const e=om[k];if(!e||e.t!=="pay"||!(+e.h>0)||!(+e.y>0))continue;const[y,m]=k.split("-").map(Number),f=fyY(y,m);(agg[f]=agg[f]||{h:0,y:0});agg[f].h+=+e.h;agg[f].y+=+e.y}
+  const autoR=f=>agg[f]&&agg[f].h>0?Math.round(agg[f].y/agg[f].h):0;
+  const hist=(S.otRateHist||[]).map(e=>({fy:+e.fy,rate:+e.rate})).filter(e=>e.fy>0&&e.rate>0&&!agg[e.fy]);
+  for(const f in agg)hist.push({fy:+f,rate:autoR(+f)});
+  const curRate=autoR(tfy)||+S.otRate||0;if(!hist.some(e=>e.fy===tfy))hist.push({fy:tfy,rate:curRate});
   hist.sort((a,b)=>a.fy-b.fy);
-  const histD=hist.map(e=>({label:`令和${e.fy-2018}年度`,rate:e.fy===tfy?(+S.otRate||e.rate):e.rate,cur:e.fy===tfy}));
-  return{bars,totH,totY,estH,estY,rate:+S.otRate||0,hist:histD,mp};
+  const histD=hist.filter(e=>e.rate>0||e.fy===tfy).map(e=>({label:`令和${e.fy-2018}年度`,rate:e.fy===tfy?curRate:e.rate,cur:e.fy===tfy}));
+  return{bars,totH,totY,estH,estY,rate:curRate,hist:histD,mp};
 }
 let otCache="";
 function renderOt(){

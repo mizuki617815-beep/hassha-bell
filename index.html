@@ -3065,7 +3065,7 @@ setInterval(drawList,60000);
 </script>
 <script>
 (function(){const q=document.getElementById("otQ"),er=document.getElementById("otErr");if(!q)return;
-const run=w=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("https://www.google.com/search?q="+encodeURIComponent(v+" "+w),"_blank","noopener")};
+const run=w=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("go.html?q="+encodeURIComponent(v+" "+w),"_blank","noopener")};
 document.querySelectorAll("#navOtoku [data-q]").forEach(b=>b.onclick=()=>run(b.dataset.q));
 q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();run("障害者手帳 割引")}});q.addEventListener("input",()=>{er.style.display="none"});})();
 </script>

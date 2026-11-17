@@ -2646,7 +2646,15 @@ function drawGensen(){const cy=+todayK().slice(0,4);if(selW==null){const ks=Obje
     <div class="recGrid">${GW.map(([k,l])=>`<label>${l}<input type="number" inputmode="numeric" min="0" data-gw="${k}" value="${e[k]??""}" placeholder="0"></label>`).join("")}</div>
     <label class="recMemoL">摘要<textarea id="rWMemo" rows="2" placeholder="例：定額減税 30,000円">${(e.memo||"").replace(/</g,"&lt;")}</textarea></label>
     <button class="recSave" id="rWSave" style="font-size:15px;padding:10px">✔ ${selW}年分を記録する</button>${editW===selW?`<div style="text-align:center"><button class="recLink" id="rWCancel">書きかえずにもどる</button></div>`:""}`}
-  if(n)h+=`<div class="recNote">📄 明細から出した${selW}年1〜12月支給の合計（${n}か月分${n<12?"・全部そろってないよ":""}）：総支給 ${YEN(g)}（立替精算をのぞく）、所得税 ${YEN(tax)}、社会保険料 ${YEN(sh)}。非課税の手当や年末調整があるので、源泉徴収票とぴったりは合わないこともあるよ</div>`;
+  // 源泉徴収票の「支払金額」との照らし合わせ（支払金額は1〜12月支給の“課税される”支給の合計。通勤手当などの非課税分は入らない）
+  const NT=/通勤|交通費|非課税/,ntBy={};for(let m=1;m<=12;m++){const k=`${selW}-${P2(m)}`;for(const x of[R.m[k],R.b[k]]){if(!live(x)||!x.items||!x.items.pay)continue;for(const nm in x.items.pay)if(NT.test(nm)&&!/立替|精算/.test(nm))ntBy[nm]=(ntBy[nm]||0)+(+x.items.pay[nm]||0)}}
+  const nt=Object.values(ntBy).reduce((a,v)=>a+v,0),pay=+e.pay||0;
+  if(n){h+=`<div class="recBox" style="margin-top:8px"><div class="bt">🔍 明細と源泉徴収票のくらべっこ（${selW}年1〜12月支給・${n}か月分${n<12?"・そろってないよ":""}）</div>
+    <table class="recTbl"><tr><td>総支給の合計（給料＋賞与、立替精算をのぞく）</td><td style="text-align:right">${YEN(g)}</td></tr>
+    ${Object.keys(ntBy).map(nm=>`<tr><td>　− ${nm}（非課税）</td><td style="text-align:right">−${YEN(ntBy[nm])}</td></tr>`).join("")}
+    <tr><td><b>＝ 課税される支給</b></td><td style="text-align:right"><b>${YEN(g-nt)}</b></td></tr>
+    ${pay?`<tr><td>源泉徴収票の支払金額</td><td style="text-align:right">${YEN(pay)}</td></tr><tr><td>ちがい</td><td style="text-align:right">${pay-(g-nt)>=0?"+":"−"}${YEN(Math.abs(pay-(g-nt)))}</td></tr>`:""}</table>
+    <div class="recNote">まとめタブの「年収」は年度（4月〜翌3月支給）の合計で、通勤手当なども入った総支給だよ。源泉徴収票の支払金額は1〜12月支給の、課税される分だけの合計だから、ちがう数字になるよ。所得税 ${YEN(tax)}・社会保険料 ${YEN(sh)}</div></div>`}
   const ys=Object.keys(R.w).filter(k=>live(R.w[k])).sort();
   if(ys.length>1)h+=`<table class="recTbl" style="margin-top:8px"><tr><th>年分</th><th>支払金額</th><th>源泉徴収税額</th><th>社会保険料等</th></tr>${ys.map(y=>`<tr><td>${y}</td><td>${YEN(R.w[y].pay)}</td><td>${YEN(R.w[y].tax)}</td><td>${YEN(R.w[y].shaho)}</td></tr>`).join("")}</table>`;
   return h+`</div>`}
@@ -2664,7 +2672,7 @@ function drawSum(){
   const mid=selFY>=cur&&!!forecast(selFY),sofar=mid?"ここまでの":"";
   h+=drawFc(selFY,t);
   h+=`${mid?`<div class="fcSofar">📒 ここまでの実際の合計（${t.cnt}か月分）</div>`:""}<div class="recSum">
-    <div class="wide"><small>${sofar}年収（給料＋賞与の総支給）</small><b>${YEN(t.g+t.bg)}</b>${diff(t.g+t.bg,p.g+p.bg)}</div>
+    <div class="wide"><small>${sofar}年収（給料＋賞与の総支給・${selFY}年4月〜${selFY+1}年3月支給）</small><b>${YEN(t.g+t.bg)}</b>${diff(t.g+t.bg,p.g+p.bg)}</div>
     <div><small>給料の総支給（立替精算をのぞく）</small><b>${YEN(t.g)}</b></div>
     <div><small>給料の手取り</small><b>${YEN(t.n)}</b></div>
     <div><small>手取りの平均（${t.cnt}か月）</small><b>${t.cnt?YEN(t.n/t.cnt):"—"}</b></div>

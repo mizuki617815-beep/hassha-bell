@@ -469,6 +469,8 @@ body.dark .impBtn{background:#2a2340;color:#d9c6ff}
 .impBtn small{display:block;font-size:11px;font-weight:normal;color:var(--sub)}
 .impRow{display:flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 4px 0}
 .impRow .st{margin-left:auto;font-size:11.5px;white-space:nowrap}.impRow .ok{color:#2f9e6a}.impRow .ng{color:#d0457f;font-weight:bold}.impRow .wait{color:var(--sub)}
+.ktLocked{background:#f4eefc!important;color:var(--sub)!important;font-size:12.5px!important}body.dark .ktLocked{background:#2a2340!important}
+.ktLinkBtn{font-family:inherit;font-size:11.5px;border:0;background:none;color:var(--sub);text-decoration:underline;cursor:pointer;padding:2px 0;margin:2px 0 4px}
 .impShift{margin-top:6px;font-size:12.5px}.impShift summary{cursor:pointer;color:var(--sub);font-size:12px;padding:2px 4px}.impShift .note{margin:4px 2px 0}
 .impOff{font-size:10.5px;color:var(--sub);background:none;border:0;text-decoration:underline;font-family:inherit;padding:0 4px;cursor:pointer}
 .recNag{display:block;width:100%;text-align:left;font-family:inherit;font-size:14px;line-height:1.45;color:var(--ink);background:linear-gradient(135deg,#fff0f8,#f3ecff);border:2px solid #f4b6d6;border-radius:12px;padding:6px 9px;margin:0 0 6px;cursor:pointer}
@@ -696,6 +698,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
       <div class="ktNote">「PDFにする」を押したら、右上の「プリント」は押さずに（プリンタがないと押せないよ）、その左の共有ボタン（□に↑）→「ファイルに保存」でPDFになるよ。</div>
       <label>Googleスプレッドシートのつなぎ先（…/exec で終わるURL）</label>
       <input type="text" id="ktUrl" placeholder="https://script.google.com/macros/s/…/exec">
+      <button class="ktLinkBtn" id="ktUrlUnlock" type="button" style="display:none">🔓 つなぎ先を変える</button>
       <div class="ktRow">
         <button class="ktBtn main" id="ktGSave" type="button">🔄 今すぐそろえる</button>
       </div>
@@ -707,7 +710,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
       <input type="number" id="ktKoukyu" inputmode="numeric">
       <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="ktPaid8" style="width:auto"> 有休の日を実働8時間として数える</label>
       <div class="ktRow" style="margin-top:12px"><button class="ktBtn" id="ktReset" type="button">🗑 勤怠の記録をリセット</button></div>
-      <div class="ktNote">読み込み直したいときに。消す前の記録は端末内に1つ控えを残すよ（シフトは「あした」のカードの「シフトを消す」で別に消せるよ）。</div>
+      <div class="ktNote">読み込み直したいときに。消す前の記録は端末内に1つ控えを残すよ（シフトは📥ファイルを読み込むの「🗓 読み込んだシフトを見る・消す」で別に消せるよ）。</div>
       <div class="ktNote">ルール：所定＝（暦の日数−公休）×8h（有休の日も出勤日に数える）。拘束6時間超のシフトは休憩60分。残業は月の合計で、30分未満は切り捨て・30分以上は切り上げ。単価は残業カウンターの設定を使うよ。</div>
     </details>
   </div>
@@ -2053,7 +2056,7 @@ const toMin=v=>{if(!v)return null;const a=String(v).split(":").map(Number);if(a.
 const toTime=m=>m==null?"":`${P(Math.floor(m/60)%24)}:${P(m%60)}`;
 const ESC=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const $=id=>document.getElementById(id);
-const KEY="yumebell_kintai_v1";
+const KEY="yumebell_kintai_v1";let urlUnlocked=false;
 let KT;try{KT=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
 KT=Object.assign({days:{},koukyu:{},paid8:true,url:"",lastSync:null,dirty:false,who:"",setU:0},KT||{});
 function store(){try{localStorage.setItem(KEY,JSON.stringify(KT))}catch(e){}}
@@ -2150,7 +2153,9 @@ function render(){
   $("ktDays").innerHTML=h;
   $("ktDays").querySelectorAll(".ktDay").forEach(r=>r.onclick=()=>openDay(r.dataset.d));
   $("ktKoukyu").value=koukyu(y,m);$("ktPaid8").checked=!!KT.paid8;
-  if(document.activeElement!==$("ktUrl"))$("ktUrl").value=KT.url||"";
+  {const ui=$("ktUrl"),lk=!!KT.url&&!urlUnlocked; // つないだあとは、うっかり書きかえないようにカギをかける（2026-11-17）
+   ui.readOnly=lk;ui.classList.toggle("ktLocked",lk);$("ktUrlUnlock").style.display=lk?"":"none";
+   if(lk)ui.value="🔒 つながってるよ（…"+KT.url.replace(/\/exec.*$/,"").slice(-6)+"/exec）";else if(document.activeElement!==ui&&!urlUnlocked)ui.value=KT.url||""}
   if(document.activeElement!==$("ktWho"))$("ktWho").value=KT.who||"";
   syncNote();
 }
@@ -2387,11 +2392,12 @@ function syncNote(msg,ng){const el=$("ktGNote");if(!el)return;let t=msg||"";
     else if(KT.lastSync){const d=new Date(KT.lastSync);t=`☁️ 最後にそろえた：${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${P(d.getMinutes())}`}}
   el.innerHTML=`<span class="${ng?"ktNg":"ktOk"}">${t}</span>`}
 const okUrl=u=>/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(u);
-$("ktGSave").onclick=()=>{const u=$("ktUrl").value.trim();
+$("ktUrlUnlock").onclick=()=>{if(!confirm("スプレッドシートのつなぎ先を変える？\n（ちがうURLにすると、記録が別のシートに行っちゃうよ）"))return;urlUnlocked=true;const ui=$("ktUrl");ui.readOnly=false;ui.classList.remove("ktLocked");ui.value=KT.url||"";$("ktUrlUnlock").style.display="none";ui.focus();gBtnLbl()};
+$("ktGSave").onclick=()=>{const u=KT.url&&!urlUnlocked?KT.url:$("ktUrl").value.trim();
   if(!okUrl(u)){syncNote("⚠️ URLの形がちがうみたい（https://script.google.com/macros/s/…/exec）",true);return}
-  if(KT.url!==u)joining=true;KT.url=u;store();syncNote("シートとそろえてるよ…");sync(true)};
+  if(KT.url!==u)joining=true;KT.url=u;urlUnlocked=false;store();syncNote("シートとそろえてるよ…");sync(true);if(typeof render==="function")render()};
 // ボタンは1つ。URLが変わったときだけ「つなぐ」表示（2026-11-16）
-const gBtnLbl=()=>{const u=$("ktUrl").value.trim();$("ktGSave").textContent=(!KT.url||u!==KT.url)?"🔗 このURLにつなぐ":"🔄 今すぐそろえる"};
+const gBtnLbl=()=>{const u=KT.url&&!urlUnlocked?KT.url:$("ktUrl").value.trim();$("ktGSave").textContent=(!KT.url||u!==KT.url)?"🔗 このURLにつなぐ":"🔄 今すぐそろえる"};
 $("ktUrl").addEventListener("input",gBtnLbl);setTimeout(gBtnLbl,0);
 $("ktGSave").addEventListener("click",()=>setTimeout(gBtnLbl,0));
 $("ktWho").onchange=ev=>{KT.who=ev.target.value.trim().slice(0,20);store();render()};

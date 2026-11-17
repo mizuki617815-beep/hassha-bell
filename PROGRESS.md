@@ -289,3 +289,4 @@
 - お得チェッカーのタイトルの左に丸アイコン otoku-bear.webp（虫めがねで「得」クーポンを見せるファーちゃん。Museの絵の顔の継ぎ目をGeminiで消したもの）＋「払う前に、使える優待がないかチェック！」
 - 「ミライロIDが使えるところ」ボタンは削除（本人：要らない）
 - 「♿ 手帳割をさがす」はSafariで開く（本人の希望）：ホーム画面アプリ（navigator.standalone）のiPhoneでは x-safari-https://www.google.com/search?q=… に飛ばす（非公式のSafariのURLスキーム、iOS 17以降で動くと報告あり）。それ以外は window.open
+- 施設の入力欄でiPhoneが「連絡先を自動入力」を出す対策：type="search"・autocomplete="off"、プレースホルダーから「名前」を外して「例：〇〇美術館」に（Safariは「名前」という文字で人の名前の欄と判断するため）

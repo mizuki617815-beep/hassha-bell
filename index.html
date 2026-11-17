@@ -2475,14 +2475,18 @@ const otYH=e=>{const p=e&&e.items&&e.items.pay,kn=e&&e.items&&e.items.kin;if(!p|
   const yk=Object.keys(p).filter(k=>/時間外|残業/.test(k)&&!/深夜|休日|休出/.test(k)),hk=Object.keys(kn).find(k=>/残業|時間外/.test(k)&&!/深夜|休日|休出/.test(k));
   const y=yk.reduce((a,k)=>a+(+p[k]||0),0),h=hk?+kn[hk]||0:0;return y>0&&h>0?{y,h}:null};
 const baseOf=e=>{const c=otCands(e);return c?c[0].v:0};
+// 残業時給＝基礎賃金（基本給＋地域手当＋スキル手当）÷ 164時間 × 1.25（本人に教えてもらった会社の計算、2026-11-17）。
+// その年度でいちばん新しい明細の金額を使う＝昇給後の明細が1枚入れば新しい単価。明細の「時間外手当÷残業時間」の実績もならべて答え合わせ
+const KISO=/基本給|地域手当|スキル/;
+const kisoOf=e=>{const p=e&&e.items&&e.items.pay;if(!p)return null;const ks=Object.keys(p).filter(k=>KISO.test(k)&&!/調整|遡及|差額/.test(k));if(!ks.some(k=>/基本給/.test(k)))return null;
+  return{v:ks.reduce((a,k)=>a+(+p[k]||0),0),names:ks}};
 window.recOtRate=fy=>{const ks=Object.keys(R.m).filter(k=>live(R.m[k])&&R.m[k].items).sort(),inFy=ks.filter(k=>fyOfPay(k)===fy);if(!inFy.length)return null;
   let Y=0,H=0,n=0;for(const k of inFy){const o=otYH(R.m[k]);if(o){Y+=o.y;H+=o.h;n++}}
-  if(H>0)return{rate:Math.round(Y/H),how:`明細の時間外手当 ${Y.toLocaleString()}円 ÷ 残業 ${Math.round(H*10)/10}時間（${fy}年度・${n}か月分）`};
-  // まだ残業代がない：基本給×1.25÷164 に、去年度の実績との比をかける
-  const last=R.m[inFy[inFy.length-1]],b=baseOf(last);if(!b)return null;
-  let k=1,PY=0,PH=0,PF=0;for(const x of ks.filter(k2=>fyOfPay(k2)===fy-1)){const o=otYH(R.m[x]),bb=baseOf(R.m[x]);if(o&&bb){PY+=o.y;PH+=o.h;PF+=bb/164*1.25*o.h}}
-  if(PF>0)k=PY/PF;
-  return{rate:Math.round(b/164*1.25*k),how:`予想：基本給 ${b.toLocaleString()}円 ÷ 164時間 × 1.25${PF>0?` × ${k.toFixed(3)}（去年度の実績に合わせる）`:""}（${+inFy[inFy.length-1].slice(5)}月支給の明細から。残業代の明細が入ったら実績に切りかわるよ）`}};
+  const act=H>0?Math.round(Y/H):0;let lastK=null,kb=null;for(const k of inFy.slice().reverse()){kb=kisoOf(R.m[k]);if(kb){lastK=k;break}}
+  if(kb){const rate=Math.round(kb.v/164*1.25);
+    return{rate,how:`基礎賃金 ${kb.v.toLocaleString()}円（${kb.names.join("＋")}）÷ 164時間 × 1.25（${+lastK.slice(5)}月支給の明細）`+(act?`<br>明細の実績：時間外手当 ÷ 残業時間 ＝ ${act.toLocaleString()}円（${n}か月分・ちがい ${act-rate>=0?"+":"−"}${Math.abs(act-rate).toLocaleString()}円）`:"")}}
+  if(act)return{rate:act,how:`明細の時間外手当 ${Y.toLocaleString()}円 ÷ 残業 ${Math.round(H*10)/10}時間（${n}か月分）`};
+  return null};
 function mirrorOt(pk){const e=R.m[pk],w=addM(pk,-1);if(!S.otMonths)S.otMonths={};
   if(live(e)&&((+e.oh||0)>0||(+e.oy||0)>0))S.otMonths[w]={h:+e.oh||0,y:+e.oy||0,t:"pay"};
   else if(e&&(e.del||e.otSet)&&S.otMonths[w]&&S.otMonths[w].t==="pay")delete S.otMonths[w];

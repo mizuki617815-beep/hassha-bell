@@ -2472,7 +2472,7 @@ function otActual(e){const p=e&&e.items&&e.items.pay,kn=e&&e.items&&e.items.kin;
 // 残業時給：その年度の明細の「時間外手当 ÷ 残業時間」（実際に払われた単価）。
 // 年度の最初でまだ残業代の明細がないときだけ、昇給後の基本給から予想（去年度の「実際÷計算式」の比をかけて合わせる）（2026-11-17 本人の指摘で実績を優先）
 const otYH=e=>{const p=e&&e.items&&e.items.pay,kn=e&&e.items&&e.items.kin;if(!p||!kn)return null;
-  const yk=Object.keys(p).filter(k=>/時間外|残業/.test(k)&&!/深夜|休日|休出/.test(k)),hk=Object.keys(kn).find(k=>/残業|時間外/.test(k)&&!/深夜|休日|休出/.test(k));
+  const yk=Object.keys(p).filter(k=>/時間外|残業/.test(k)&&!/深夜|休日|休出|遡及|差額|調整/.test(k)),hk=Object.keys(kn).find(k=>/残業|時間外/.test(k)&&!/深夜|休日|休出/.test(k));
   const y=yk.reduce((a,k)=>a+(+p[k]||0),0),h=hk?+kn[hk]||0:0;return y>0&&h>0?{y,h}:null};
 const baseOf=e=>{const c=otCands(e);return c?c[0].v:0};
 // 残業時給＝基礎賃金（基本給＋地域手当＋スキル手当）÷ 164時間 × 1.25（本人に教えてもらった会社の計算、2026-11-17）。
@@ -2481,11 +2481,12 @@ const KISO=/基本給|地域手当|スキル/;
 const kisoOf=e=>{const p=e&&e.items&&e.items.pay;if(!p)return null;const ks=Object.keys(p).filter(k=>KISO.test(k)&&!/調整|遡及|差額/.test(k));if(!ks.some(k=>/基本給/.test(k)))return null;
   return{v:ks.reduce((a,k)=>a+(+p[k]||0),0),names:ks}};
 window.recOtRate=fy=>{const ks=Object.keys(R.m).filter(k=>live(R.m[k])&&R.m[k].items).sort(),inFy=ks.filter(k=>fyOfPay(k)===fy);if(!inFy.length)return null;
-  let Y=0,H=0,n=0;for(const k of inFy){const o=otYH(R.m[k]);if(o){Y+=o.y;H+=o.h;n++}}
+  // 答え合わせは、いちばん新しい月の「時間外手当÷残業時間」だけ（4月昇給→5月支給分までは前の単価で払われ、6月に遡及残業代でまとめて精算されるので、4・5月支給はくらべない）
+  let Y=0,H=0,n=0,actK=null;for(const k of inFy.slice().reverse()){if(/-0[45]$/.test(k))continue;const o=otYH(R.m[k]);if(o){Y=o.y;H=o.h;n=1;actK=k;break}}
   const act=H>0?Math.round(Y/H):0;let lastK=null,kb=null;for(const k of inFy.slice().reverse()){kb=kisoOf(R.m[k]);if(kb){lastK=k;break}}
   if(kb){const rate=Math.ceil(kb.v/164*1.25-1e-9); // 円未満は切り上げ
-    return{rate,how:`基礎賃金 ${kb.v.toLocaleString()}円（${kb.names.join("＋")}）÷ 164時間 × 1.25（${+lastK.slice(5)}月支給の明細）`+(act?`<br>明細の実績：時間外手当 ÷ 残業時間 ＝ ${act.toLocaleString()}円（${n}か月分・ちがい ${act-rate>=0?"+":"−"}${Math.abs(act-rate).toLocaleString()}円）`:"")}}
-  if(act)return{rate:act,how:`明細の時間外手当 ${Y.toLocaleString()}円 ÷ 残業 ${Math.round(H*10)/10}時間（${n}か月分）`};
+    return{rate,how:`基礎賃金 ${kb.v.toLocaleString()}円（${kb.names.join("＋")}）÷ 164時間 × 1.25（${+lastK.slice(5)}月支給の明細）`+(act?`<br>明細の実績：時間外手当 ÷ 残業時間 ＝ ${act.toLocaleString()}円（${+actK.slice(5)}月支給・ちがい ${act-rate>=0?"+":"−"}${Math.abs(act-rate).toLocaleString()}円）`:"")}}
+  if(act)return{rate:act,how:`明細の時間外手当 ${Y.toLocaleString()}円 ÷ 残業 ${Math.round(H*10)/10}時間（${+actK.slice(5)}月支給）`};
   return null};
 function mirrorOt(pk){const e=R.m[pk],w=addM(pk,-1);if(!S.otMonths)S.otMonths={};
   if(live(e)&&((+e.oh||0)>0||(+e.oy||0)>0))S.otMonths[w]={h:+e.oh||0,y:+e.oy||0,t:"pay"};

@@ -550,6 +550,8 @@ details.recBox[open] summary:before{content:"▾ "}
 .recImp.ng{border-color:var(--rose)}
 .recImpHd{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;cursor:pointer}
 .recImpHd input{width:20px;height:20px;margin-top:2px;flex:none}
+.recEst{border-style:dashed!important;opacity:.95}.estTag{font-size:10.5px;background:#fff3c4;color:#a0700a;border-radius:999px;padding:1px 8px;margin-left:6px;font-weight:normal}
+body.dark .estTag{background:#4a3a1f;color:#ffd27a}
 .slipChips{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 8px}
 .slipChips button{font-family:inherit;font-size:12.5px;border:1.5px solid var(--lav,#c9a8ff);background:transparent;color:var(--ink);border-radius:999px;padding:3px 10px;cursor:pointer}
 .slipChips button.on{background:linear-gradient(135deg,#ff9fcf,#c9a8ff);color:#fff;border-color:transparent;font-weight:bold}
@@ -2480,7 +2482,7 @@ const CATS=[["kin","⏱ 勤怠"],["pay","💴 支給"],["ded","🧾 控除"],["t
 const CATN={kin:"勤怠",pay:"支給",ded:"控除",tot:"合計"};
 const sumIt=(e,cat,re)=>{let t=0;const o=e&&e.items&&e.items[cat];if(o)for(const k in o)if(re.test(k))t+=+o[k]||0;return t};
 const tatekae=e=>sumIt(e,"pay",/立替|精算/);
-const shaho=e=>sumIt(e,"ded",/保険/);
+const shaho=e=>{let t=0;const o=e&&e.items&&e.items.ded;if(o)for(const k in o)if(/保険|厚生年金/.test(k)&&!/生命|団体|損害|個人/.test(k))t+=+o[k]||0;return t};
 const zeikin=e=>sumIt(e,"ded",/税/);
 const toNum=v=>{v=String(v).replace(/[,，円¥\s]/g,"");const t=v.match(/^(\d+):(\d{1,2})$/);return t?+t[1]+(+t[2])/60:Math.max(0,+v||0)};
 const FMT=(cat,v)=>cat==="kin"?String(+v):(+v).toLocaleString();
@@ -2653,6 +2655,10 @@ function fyTotals(fy){const ms=fyMonths(fy);let g=0,n=0,cnt=0,oh=0,oy=0,bg=0,bnn
 // 源泉徴収票（暦年ごと）。R.w[西暦]={pay支払金額,after給与所得控除後,ded所得控除の合計,tax源泉徴収税額,shaho社会保険料等,seiho生命保険料控除,kiso基礎控除,memo摘要,u}
 const GW=[["pay","支払金額"],["after","給与所得控除後の金額"],["ded","所得控除の額の合計額"],["tax","源泉徴収税額"],["shaho","社会保険料等の金額"],["seiho","生命保険料の控除額"],["kiso","基礎控除の額"]];
 let selW=null;
+// 給与所得控除後の金額（所得税法の速算。162.5万〜660万は4000円未満切り捨ての額で計算。2025年分から最低65万円・190万円まで）
+function kyuyoShotoku(x,y){if(x<=0)return 0;const A=Math.floor(x/4000)*4000,lo=y>=2025?1900000:1625000,mn=y>=2025?650000:y>=2020?550000:650000;
+  if(x<=lo)return Math.max(0,x-mn);if(x<1800000)return Math.floor(A*.6+100000);if(x<3600000)return Math.floor(A*.7-80000);if(x<6600000)return Math.floor(A*.8-440000);
+  if(x<8500000)return Math.floor(x*.9-1100000);return x-1950000}
 function drawGensen(){const cy=+todayK().slice(0,4);if(selW==null){const ks=Object.keys(R.w).filter(k=>live(R.w[k])).sort();selW=ks.length?+ks[ks.length-1]:cy-1}
   const e=live(R.w[selW])?R.w[selW]:{},rw=selW-2018;
   // 明細から出した同じ年（1〜12月支給）の合計
@@ -2668,11 +2674,17 @@ function drawGensen(){const cy=+todayK().slice(0,4);if(selW==null){const ks=Obje
   // 源泉徴収票の「支払金額」との照らし合わせ（支払金額は1〜12月支給の“課税される”支給の合計。通勤手当などの非課税分は入らない）
   const NT=/通勤|交通費|非課税|慶弔|見舞|祝金/,ntBy={};for(let m=1;m<=12;m++){const k=`${selW}-${P2(m)}`;for(const x of[R.m[k],R.b[k]]){if(!live(x)||!x.items||!x.items.pay)continue;for(const nm in x.items.pay)if(NT.test(nm)&&!/立替|精算/.test(nm))ntBy[nm]=(ntBy[nm]||0)+(+x.items.pay[nm]||0)}}
   const nt=Object.values(ntBy).reduce((a,v)=>a+v,0),pay=+e.pay||0;
-  if(n){h+=`<div class="recBox" style="margin-top:8px"><div class="bt">🔍 明細と源泉徴収票のくらべっこ（${selW}年1〜12月支給・${n}か月分${n<12?"・そろってないよ":""}）</div>
+  if(n&&!live(R.w[selW])){const ep=g-nt,after=kyuyoShotoku(ep,selW),kiso=selW<=2019?380000:selW<=2024?480000:null,row=(l,v)=>`<div><small>${l}</small><b>${YEN(v)}</b></div>`;
+    h+=`<div class="recBox recEst" style="margin-top:8px"><div class="bt">📄 明細から出した推定（${selW}年分）<span class="estTag">推定</span></div>
+      <div class="recSum">${row("支払金額",ep)}${row("給与所得控除後の金額",after)}${row("源泉徴収税額",tax)}${row("社会保険料等の金額",sh)}${kiso?row("基礎控除の額",kiso):""}</div>
+      <div class="recNote">※源泉徴収票がない年の、明細${n}か月分${n<12?"（12か月そろってないから、少なめに出てるよ）":""}から出した推定だよ。支払金額＝総支給−通勤手当・慶弔見舞金など、給与所得控除後＝その年の計算式、源泉徴収税額＝毎月の所得税＋年末調整。生命保険料控除・所得控除の合計は明細にのってないから出せないよ。本物が必要なときは会社にもう一度出してもらうか、区役所の課税証明書を使ってね</div></div>`}
+  if(n&&live(R.w[selW])){h+=`<div class="recBox" style="margin-top:8px"><div class="bt">🔍 明細と源泉徴収票のくらべっこ（${selW}年1〜12月支給・${n}か月分${n<12?"・そろってないよ":""}）</div>
     <table class="recTbl"><tr><td>総支給の合計（給料＋賞与、立替精算をのぞく）</td><td style="text-align:right">${YEN(g)}</td></tr>
     ${Object.keys(ntBy).map(nm=>`<tr><td>　− ${nm}（非課税）</td><td style="text-align:right">−${YEN(ntBy[nm])}</td></tr>`).join("")}
     <tr><td><b>＝ 課税される支給</b></td><td style="text-align:right"><b>${YEN(g-nt)}</b></td></tr>
-    ${pay?`<tr><td>源泉徴収票の支払金額</td><td style="text-align:right">${YEN(pay)}</td></tr><tr><td>ちがい</td><td style="text-align:right">${pay-(g-nt)>=0?"+":"−"}${YEN(Math.abs(pay-(g-nt)))}</td></tr>`:""}</table>
+    ${pay?`<tr><td>源泉徴収票の支払金額</td><td style="text-align:right">${YEN(pay)}</td></tr><tr><td>ちがい</td><td style="text-align:right">${pay-(g-nt)>=0?"+":"−"}${YEN(Math.abs(pay-(g-nt)))}</td></tr>`:""}
+    ${e.tax!=null&&e.tax!==""?`<tr><td>所得税（明細の合計／源泉徴収票）</td><td style="text-align:right">${YEN(tax)}／${YEN(e.tax)}</td></tr>`:""}
+    ${e.shaho!=null&&e.shaho!==""?`<tr><td>社会保険料（明細の合計／源泉徴収票）</td><td style="text-align:right">${YEN(sh)}／${YEN(e.shaho)}</td></tr>`:""}</table>
     <div class="recNote">まとめタブの「年収」は年度（4月〜翌3月支給）の合計で、通勤手当なども入った総支給だよ。源泉徴収票の支払金額は1〜12月支給の、課税される分だけの合計だから、ちがう数字になるよ。所得税 ${YEN(tax)}・社会保険料 ${YEN(sh)}</div></div>`}
   const ys=Object.keys(R.w).filter(k=>live(R.w[k])).sort();
   if(ys.length>1)h+=`<table class="recTbl" style="margin-top:8px"><tr><th>年分</th><th>支払金額</th><th>源泉徴収税額</th><th>社会保険料等</th></tr>${ys.map(y=>`<tr><td>${y}</td><td>${YEN(R.w[y].pay)}</td><td>${YEN(R.w[y].tax)}</td><td>${YEN(R.w[y].shaho)}</td></tr>`).join("")}</table>`;

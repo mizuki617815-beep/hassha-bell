@@ -290,3 +290,5 @@
 - 「ミライロIDが使えるところ」ボタンは削除（本人：要らない）
 - 「♿ 手帳割をさがす」はSafariで開く（本人の希望）：ホーム画面アプリ（navigator.standalone）のiPhoneでは x-safari-https://www.google.com/search?q=… に飛ばす（非公式のSafariのURLスキーム、iOS 17以降で動くと報告あり）。それ以外は window.open
 - 施設の入力欄でiPhoneが「連絡先を自動入力」を出す対策：type="search"・autocomplete="off"、プレースホルダーから「名前」を外して「例：〇〇美術館」に（Safariは「名前」という文字で人の名前の欄と判断するため）
+- 検索をまとめた：入力欄1つ＋「♿ 手帳割」「💼 ベネ」「🚗 JAF」の3ボタン（Googleで「名前＋障害者手帳 割引／ベネフィット・ステーション 優待／JAF 優待」）。Enterは手帳割
+- Safariで開く（x-safari-https）はやめて window.open に戻した（本人：ホーム画面アプリの上にかぶさるブラウザで開いて「完了」ですぐ戻れるほうが便利）

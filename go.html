@@ -1,8 +1,28 @@
 <!DOCTYPE html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>検索中…</title>
-<style>body{font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;color:#9b7cf0;background:#fff0f8}</style></head>
-<body><p>🔍 さがしてるよ…</p>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><title>Google検索</title>
+<style>
+html,body{margin:0;height:100%;background:#fff0f8;font-family:-apple-system,sans-serif}
+#bar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fff0f8;color:#9b7cf0;font-size:12px;border-bottom:1px solid #f0d6ea}
+#bar span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#bar a{flex:none;padding:5px 10px;border-radius:14px;background:#9b7cf0;color:#fff;text-decoration:none;font-weight:bold}
+iframe{display:block;width:100%;height:calc(100% - 38px);border:0;background:#fff}
+#msg{padding:40px 20px;text-align:center;color:#9b7cf0}
+</style></head>
+<body>
+<div id="bar"><span id="t">🔍</span><a id="alt" href="#">うまく出ないとき</a></div>
+<div id="box"><p id="msg">🔍 さがしてるよ…</p></div>
 <script>
+// Googleアプリを立ち上げずにアプリ内ブラウザでGoogle検索を見るため、
+// Google検索をiframeの中に表示する(iframeの中の読み込みではユニバーサルリンクが働かない)。
+// igu=1 はGoogleが埋め込み表示を許可するパラメータ。
 var q=new URLSearchParams(location.search).get("q")||"";
-if(q)location.replace("https://www.google.com/search?q="+encodeURIComponent(q));
+document.getElementById("t").textContent="🔍 "+q;
+// うまく出ないとき用:google.co.jp で開く(Googleアプリが反応しないドメインを想定)
+document.getElementById("alt").href="https://www.google.co.jp/search?hl=ja&q="+encodeURIComponent(q);
+if(q){
+  var f=document.createElement("iframe");
+  f.src="https://www.google.com/search?igu=1&hl=ja&q="+encodeURIComponent(q);
+  f.setAttribute("referrerpolicy","no-referrer");
+  var box=document.getElementById("box");box.innerHTML="";box.style.height="100%";box.appendChild(f);
+}
 </script></body></html>

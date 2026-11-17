@@ -477,11 +477,11 @@ body.dark .recNag{background:#3a2d52;border-color:#8a4f78}
 .recOpen .rBadge{display:inline-block;margin-top:3px;background:#fff;color:#c2508a;font-size:11px;font-weight:bold;border-radius:999px;padding:1px 8px;align-self:flex-start}
 #recSheet{position:fixed;inset:0;background:rgba(80,60,110,.38);display:none;align-items:flex-end;justify-content:center;z-index:95}
 #recSheet.show{display:flex}
-.recPanel{position:relative;background:#fff;color:var(--ink);width:100%;max-width:480px;height:94vh;border-radius:24px 24px 0 0;display:flex;flex-direction:column;overflow:hidden}
+.recPanel{position:relative;background:#fff;color:var(--ink);width:100%;max-width:480px;height:100vh;height:100dvh;border-radius:0;display:flex;flex-direction:column;overflow:hidden}
 body.dark .recPanel{background:#2a2340}
-.recHead{padding:14px 16px 8px;display:flex;align-items:center;gap:8px}
-.recHead h3{margin:0;font-size:18px;flex:1}
-.recX{border:0;background:var(--lav2);color:var(--ink);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer}
+.recHead{padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 8px;display:flex;align-items:center;gap:8px}
+.recHead h3{margin:0;font-size:17px;flex:1;min-width:0}
+.recX{flex:none;border:0;background:linear-gradient(135deg,#ff7eb3,#e8628f);color:#fff;font-family:inherit;font-weight:bold;font-size:13.5px;padding:8px 13px;border-radius:999px;cursor:pointer;box-shadow:0 2px 8px rgba(232,98,143,.4);white-space:nowrap}
 .recTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 16px 8px}
 .recTabs button{font-family:inherit;border:2px solid #ecd6f5;background:transparent;color:var(--ink);border-radius:999px;padding:7px 4px;font-size:13px;cursor:pointer}
 .recTabs button.on{background:linear-gradient(135deg,var(--pink),var(--lav));color:#fff;border-color:transparent;font-weight:bold}
@@ -555,6 +555,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
 .slipChips{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 8px}
 .slipChips button{font-family:inherit;font-size:12.5px;border:1.5px solid var(--lav,#c9a8ff);background:transparent;color:var(--ink);border-radius:999px;padding:3px 10px;cursor:pointer}
 .slipChips button.on{background:linear-gradient(135deg,#ff9fcf,#c9a8ff);color:#fff;border-color:transparent;font-weight:bold}
+.slipX{float:right;font-family:inherit;font-size:11.5px;border:0;background:var(--lav2);color:var(--ink);border-radius:999px;padding:3px 10px;cursor:pointer}
 .slipCard{border:1.5px dashed rgba(194,80,138,.35);border-radius:14px;padding:8px 10px}
 .slipT{font-weight:bold;font-size:14.5px;margin-bottom:6px}.slipT small{display:block;font-weight:normal;font-size:11px;color:var(--sub)}
 .slipCard .recImpIt{font-size:13px}
@@ -2570,13 +2571,15 @@ function bars(vals,labels,fmt,cls){const mx=Math.max(1,...vals.map(v=>v||0));
   return`<div class="recBars ${cls||""}">`+vals.map((v,i)=>`<div class="c"><div class="v">${v?fmt(v):""}</div><div class="b${v?"":" none"}" style="height:${v?Math.max(4,Math.round(v/mx*88)):2}px"></div><div class="l">${labels[i]}</div></div>`).join("")+`</div>`}
 // 🧾 明細を1枚まるごと見る（みるタブ）。選んだ月（給料・賞与）の勤怠・支給・控除・合計をぜんぶ並べる
 function slipView(ms){const have=[];for(const k of ms){if(live(R.m[k]))have.push({k,t:"m",l:`${+k.slice(5)}月`});if(live(R.b[k]))have.push({k,t:"b",l:+k.slice(5)===6?"夏🎁":"冬🎁"})}
-  if(!have.length)return"";if(!selSlip||!have.some(x=>x.k===selSlip.k&&x.t===selSlip.t))selSlip=have.filter(x=>x.t==="m").pop()||have[have.length-1];
+  if(!have.length)return"";if(selSlip&&!have.some(x=>x.k===selSlip.k&&x.t===selSlip.t))selSlip=null;
+  const chips=`<div class="slipChips">${have.map(x=>`<button type="button" data-sk="${x.k}" data-st="${x.t}" class="${selSlip&&x.k===selSlip.k&&x.t===selSlip.t?"on":""}">${x.l}</button>`).join("")}</div>`;
+  if(!selSlip)return`<div class="recBox"><div class="bt">🧾 明細を見る</div><div class="recNote" style="margin:0 0 4px">見たい月を押してね</div>${chips}</div>`;
   const e=selSlip.t==="m"?R.m[selSlip.k]:R.b[selSlip.k],V=v=>v===""||v==null?"—":YEN(v);
   const dt=selSlip.t==="m"?salDate(selSlip.k):bonDate(selSlip.k),ttl=selSlip.t==="m"?`${+selSlip.k.slice(0,4)}年${+selSlip.k.slice(5)}月の給料明細`:`${+selSlip.k.slice(0,4)}年 ${bonusOf(selSlip.k).n}の明細`;
   const ded=e.items&&e.items.ded?Object.values(e.items.ded).reduce((a,v)=>a+(+v||0),0):null;
   return`<div class="recBox"><div class="bt">🧾 明細を見る</div>
-    <div class="slipChips">${have.map(x=>`<button type="button" data-sk="${x.k}" data-st="${x.t}" class="${x.k===selSlip.k&&x.t===selSlip.t?"on":""}">${x.l}</button>`).join("")}</div>
-    <div class="slipCard"><div class="slipT">${ttl}<small>${MDW(dt)}支給</small></div>
+    ${chips}
+    <div class="slipCard"><button type="button" class="slipX" id="slipX">とじる ▲</button><div class="slipT">${ttl}<small>${MDW(dt)}支給</small></div>
       <div class="recSum"><div><small>総支給額</small><b>${V(e.g)}</b></div><div><small>手取り（差引支給額）</small><b>${V(e.n)}</b></div>${ded!=null?`<div class="wide"><small>控除の合計</small><b>${YEN(ded)}</b></div>`:""}</div>
       ${e.items?itTbl(e.items):`<div class="recNote">この月は内訳がないよ（手入力の月）</div>`}
       ${e.memo?`<div class="recSub">📝 備考</div><div class="recNote">${e.memo.replace(/</g,"&lt;")}</div>`:""}</div></div>`}
@@ -2869,7 +2872,8 @@ function draw(){const b=$r("recBody");if(!b)return;
   const on=(id,f)=>{const el=$r(id);if(el)el.onclick=f};
   on("rPrev",()=>{selP=addM(selP,-1);flash="";draft=null;editP=null;draw()});on("rNext",()=>{selP=addM(selP,1);flash="";draft=null;editP=null;draw()});
   {const si=$r("rItem");if(si)si.onchange=()=>{selItem=si.value;draw()}}
-  document.querySelectorAll("#recBody .slipChips button").forEach(bt=>bt.onclick=()=>{selSlip={k:bt.dataset.sk,t:bt.dataset.st};draw()});
+  document.querySelectorAll("#recBody .slipChips button").forEach(bt=>bt.onclick=()=>{const same=selSlip&&selSlip.k===bt.dataset.sk&&selSlip.t===bt.dataset.st;selSlip=same?null:{k:bt.dataset.sk,t:bt.dataset.st};draw()});
+  on("slipX",()=>{selSlip=null;draw()});
   {const ms=fyMonths(selFY);document.querySelectorAll("#rNetBox .recBars .c").forEach((c,i)=>{if(live(R.m[ms[i]])){c.style.cursor="pointer";c.onclick=()=>{selSlip={k:ms[i],t:"m"};draw();const sv=document.querySelector("#recBody .slipCard");if(sv)sv.scrollIntoView({behavior:"smooth",block:"center"})}}})}
   if(tab==="sum")bindGensen();
   on("rFyPrev",()=>{selFY--;draw()});on("rFyNext",()=>{selFY++;draw()});
@@ -2916,7 +2920,7 @@ window.recOpenAt=k=>{openRec();selP=k;tab="in";draw()};
 function badge(){const bd=document.querySelector("#recOpen .rBadge");if(bd)bd.remove();if(typeof renderCheer==="function")renderCheer(true)}
 document.addEventListener("DOMContentLoaded",()=>{
   const sh=document.createElement("div");sh.id="recSheet";
-  sh.innerHTML=`<div class="recPanel"><div class="recHead"><img class="rhI" src="rec-bear.webp" alt=""><h3>📚 ファーちゃんの記録室</h3><button class="recX" id="recX" aria-label="とじる">✕</button></div>
+  sh.innerHTML=`<div class="recPanel"><div class="recHead"><img class="rhI" src="rec-bear.webp" alt=""><h3>📚 ファーちゃんの記録室</h3><button class="recX" id="recX" aria-label="記録室をとじる">✕ とじる</button></div>
     <div class="recTabs" id="recTabs"><button data-t="see">📈 みる</button><button data-t="sum">🗂 まとめ</button><button data-t="in">📝 入れる</button></div>
     <div class="recBody" id="recBody"></div></div>`;
   document.body.appendChild(sh);

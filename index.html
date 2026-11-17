@@ -2647,7 +2647,7 @@ function drawGensen(){const cy=+todayK().slice(0,4);if(selW==null){const ks=Obje
     <label class="recMemoL">摘要<textarea id="rWMemo" rows="2" placeholder="例：定額減税 30,000円">${(e.memo||"").replace(/</g,"&lt;")}</textarea></label>
     <button class="recSave" id="rWSave" style="font-size:15px;padding:10px">✔ ${selW}年分を記録する</button>${editW===selW?`<div style="text-align:center"><button class="recLink" id="rWCancel">書きかえずにもどる</button></div>`:""}`}
   // 源泉徴収票の「支払金額」との照らし合わせ（支払金額は1〜12月支給の“課税される”支給の合計。通勤手当などの非課税分は入らない）
-  const NT=/通勤|交通費|非課税/,ntBy={};for(let m=1;m<=12;m++){const k=`${selW}-${P2(m)}`;for(const x of[R.m[k],R.b[k]]){if(!live(x)||!x.items||!x.items.pay)continue;for(const nm in x.items.pay)if(NT.test(nm)&&!/立替|精算/.test(nm))ntBy[nm]=(ntBy[nm]||0)+(+x.items.pay[nm]||0)}}
+  const NT=/通勤|交通費|非課税|慶弔|見舞|祝金/,ntBy={};for(let m=1;m<=12;m++){const k=`${selW}-${P2(m)}`;for(const x of[R.m[k],R.b[k]]){if(!live(x)||!x.items||!x.items.pay)continue;for(const nm in x.items.pay)if(NT.test(nm)&&!/立替|精算/.test(nm))ntBy[nm]=(ntBy[nm]||0)+(+x.items.pay[nm]||0)}}
   const nt=Object.values(ntBy).reduce((a,v)=>a+v,0),pay=+e.pay||0;
   if(n){h+=`<div class="recBox" style="margin-top:8px"><div class="bt">🔍 明細と源泉徴収票のくらべっこ（${selW}年1〜12月支給・${n}か月分${n<12?"・そろってないよ":""}）</div>
     <table class="recTbl"><tr><td>総支給の合計（給料＋賞与、立替精算をのぞく）</td><td style="text-align:right">${YEN(g)}</td></tr>

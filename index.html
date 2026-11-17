@@ -569,7 +569,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
 .recRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
 .recRow .ktBtn{font-size:12.5px}
 .otLinks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.otLinks .btn2{margin-top:0;padding:9px 6px;font-size:12.5px}
-</style>
+#otQ::-webkit-search-cancel-button{-webkit-appearance:none;display:none}</style>
 </head>
 <body>
 <div id="ptr">⬇️ 引っぱって更新</div>
@@ -728,7 +728,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
     <div class="note" style="margin:0 2px 6px">🍜 外食：お店に入ったら、注文する前に近くの優待をチェック！</div>
     <div class="otLinks" style="margin:0"><a class="btn2" href="https://bs.benefit-one.inc/map" target="_blank" rel="noopener" style="padding:12px 6px;font-size:13.5px">💼 ベネの地図で<br>近くをさがす</a><a class="btn2" href="https://yutai.jafnavi.jp/map?nowAround=1" target="_blank" rel="noopener" style="padding:12px 6px;font-size:13.5px">🚗 JAFの地図で<br>近くをさがす</a></div>
     <div class="note" style="margin:14px 2px 6px">🔍 お店・施設をさがす（美術館・映画館などは手帳割が多いよ）</div>
-    <input type="search" id="otQ" name="otoku_keyword" inputmode="search" placeholder="例：〇〇美術館" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" style="width:100%;box-sizing:border-box">
+    <div style="position:relative"><input type="search" id="otQ" name="otoku_keyword" inputmode="search" placeholder="例：〇〇美術館" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" style="width:100%;box-sizing:border-box;padding-right:40px"><button type="button" id="otClr" aria-label="入力を消す" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:0;border-radius:50%;background:#e9dcf7;color:#9b7cf0;font-size:14px;font-weight:bold;line-height:28px;padding:0;cursor:pointer">✕</button></div>
     <div class="otLinks" style="grid-template-columns:1fr 1fr 1fr"><button class="btn" type="button" data-q="障害者手帳 割引" style="padding:10px 4px;font-size:13.5px">♿ 手帳割</button><button class="btn" type="button" data-q="ベネフィット・ステーション 優待" style="padding:10px 4px;font-size:13.5px">💼 ベネ</button><button class="btn" type="button" data-q="JAF 優待" style="padding:10px 4px;font-size:13.5px">🚗 JAF</button></div>
     <div id="otErr" class="note" style="display:none;color:#e0507f;margin:4px 2px 0">お店か施設の名前を入れてね</div>
     <div class="note" style="margin-top:6px">わからないときは、受付で「障害者割引ありますか？」って聞いてみてね</div>
@@ -3067,7 +3067,7 @@ setInterval(drawList,60000);
 (function(){const q=document.getElementById("otQ"),er=document.getElementById("otErr");if(!q)return;
 const run=w=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("https://www.google.co.jp/search?hl=ja&q="+encodeURIComponent(v+" "+w),"_blank","noopener")};
 document.querySelectorAll("#navOtoku [data-q]").forEach(b=>b.onclick=()=>run(b.dataset.q));
-q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();run("障害者手帳 割引")}});q.addEventListener("input",()=>{er.style.display="none"});})();
+q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();run("障害者手帳 割引")}});const clr=document.getElementById("otClr"),sync=()=>{clr.style.display=q.value?"block":"none"};q.addEventListener("input",()=>{er.style.display="none";sync()});clr.onclick=()=>{q.value="";sync();er.style.display="none";q.focus()};sync();})();
 </script>
 </body>
 </html>

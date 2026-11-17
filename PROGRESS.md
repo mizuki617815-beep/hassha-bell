@@ -295,3 +295,4 @@
 - 検索ボタンで、Googleアプリを入れているiPhoneだとGoogleアプリが開いてしまう（google.comのユニバーサルリンク）→ いったん自分のページ go.html?q=… をアプリ内ブラウザで開き、そこから location.replace でGoogle検索へ（ユーザーのタップでない移動ではユニバーサルリンクが働かないため）。go.html は q だけ受け取りGoogle検索にしか飛ばない
 - 検索ボタン（2026-11-17）：google.com はGoogleアプリに取られる／go.html＋iframe（igu=1）はGeminiの候補が出ず、すぐ「ロボットではありません」認証で検索不可になった → index.html から直接 window.open で https://www.google.co.jp/search?hl=ja&q=… を開く方式に（本人の実機で co.jp ならアプリ内ブラウザのままGeminiの候補も出ると確認）。go.html は古いリンク用に co.jp へ飛ばすだけに
 - 連絡先の自動入力がまた出た → 入力欄の上の説明文「お店・施設の名前で検索」から「名前」を外して「お店・施設をさがす」に。入力欄に name="otoku_keyword"・inputmode="search" を追加（Safariは近くの文字に「名前」があると人名の欄と判断する）
+- 検索の入力欄の右はしに ✕（#otClr）を追加：文字が入っているときだけ出て、押すと消えて入力欄にカーソルが戻る。iPhone標準の消すボタンは非表示（2026-11-17、本人の希望）

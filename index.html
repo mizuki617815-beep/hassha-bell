@@ -23,7 +23,7 @@ body{color:var(--ink);font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN",
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
   background-image:radial-gradient(circle at 12% 18%,#fff 0 2px,transparent 3px),radial-gradient(circle at 80% 8%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 65% 40%,#fff 0 2px,transparent 3px),radial-gradient(circle at 25% 70%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 90% 85%,#fff 0 2px,transparent 3px)}
 .wrap{position:relative;max-width:480px;margin:0 auto;padding:14px 14px 96px}
-#navWx,#navFortune,#navTrain,#navOtoku,#navPlan,#navSet,#paidInfo{scroll-margin-top:10px}
+#navWx,#navFortune,#navTrain,#navOdekake,#navPlan,#navSet,#paidInfo{scroll-margin-top:10px}
 #jumpNav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;display:flex;gap:2px;width:min(94vw,430px);background:rgba(255,255,255,.96);border:2px solid #f3d9e8;border-radius:999px;padding:6px;box-shadow:0 8px 24px rgba(90,60,140,.28)}
 #jumpNav button{flex:1;border:0;background:transparent;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 0 6px;border-radius:999px;color:var(--sub)}
 #jumpNav .nIco{font-size:21px;line-height:1.15}
@@ -568,17 +568,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
 .recSave:disabled{opacity:.45}
 .recRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
 .recRow .ktBtn{font-size:12.5px}
-.otBest{margin-top:10px;padding:10px 12px;border-radius:14px;border:2px solid var(--pink);background:var(--pink2)}
-.otBest .t{font-size:12px;font-weight:900;color:#e0507f}.otBest .v{font-size:18px;font-weight:900;margin-top:2px}
-.otRow{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:7px 2px;border-bottom:1px dashed var(--line)}.otRow:last-child{border-bottom:0}.otRow .s{font-size:11px;color:var(--sub)}
-.otNum{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:14px}.otNum button,.otMini{font-family:inherit;border:1.5px solid var(--line);background:#fff;color:#8a63e6;border-radius:12px;padding:6px 12px;font-weight:900;font-size:14px}
 .otLinks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.otLinks .btn2{margin-top:0;padding:9px 6px;font-size:12.5px}
-.otEdit{margin-top:10px;padding:10px;border-radius:14px;background:var(--lav2)}.otEdit label{display:block;font-size:12px;font-weight:900;color:#9b7cf0;margin:8px 2px 3px}
-.otEdit input[type=text],.otEdit input[type=number],.otEdit select{width:100%;box-sizing:border-box;font-size:15px;padding:7px 9px}
-.otD{margin-top:8px;padding:8px;border-radius:12px;background:rgba(255,255,255,.7)}.otD .h{display:flex;align-items:center;gap:6px;font-weight:900;font-size:14px}.otD .g{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:6px;margin-top:6px}
-.otChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.otChips button{font-family:inherit;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:6px 12px;font-size:13px}
-details.otAll{margin-top:10px}details.otAll summary{font-size:13px}
-body.dark .otNum button,body.dark .otMini,body.dark .otChips button{background:#2a2440;color:var(--ink)}body.dark .otD{background:rgba(255,255,255,.05)}body.dark .otBest .t{color:#ff9fcf}
 </style>
 </head>
 <body>
@@ -652,21 +642,6 @@ body.dark .otNum button,body.dark .otMini,body.dark .otChips button{background:#
   <div class="card">
     <div class="sec">🚃 そのあとの電車</div>
     <ul class="list" id="nextList"></ul>
-  </div>
-
-  <div class="card" id="navOtoku">
-    <div class="sec">🎟 おトクメモ</div>
-    <div class="note" style="margin:0 2px 6px">お店に入ったら、まず近くの優待をチェック！</div>
-    <div class="otLinks" style="margin:0 0 10px"><a class="btn2" href="https://bs.benefit-one.inc/map" target="_blank" rel="noopener" style="padding:12px 6px;font-size:13.5px">💼 ベネの地図で<br>近くをさがす</a><a class="btn2" href="https://yutai.jafnavi.jp/map?nowAround=1" target="_blank" rel="noopener" style="padding:12px 6px;font-size:13.5px">🚗 JAFの地図で<br>近くをさがす</a></div>
-    <div class="note" style="margin:0 2px 8px">行くお店が決まってたら、割引をメモしておくと、いちばん安いのを出すよ</div>
-    <div class="row">
-      <input type="text" id="otQ" list="otList" placeholder="お店の名前" style="flex:1;min-width:0">
-      <datalist id="otList"></datalist>
-      <button class="btn" id="otGo" type="button">さがす</button>
-    </div>
-    <div id="otRes"></div>
-    <div id="otEd"></div>
-    <details class="otAll" id="otAllBox"><summary id="otAllSum">📒 メモ一覧</summary><div id="otAll"></div></details>
   </div>
 
   <div class="card" id="navPlan">
@@ -748,7 +723,7 @@ body.dark .otNum button,body.dark .otMini,body.dark .otChips button{background:#
     <div class="otPanel" id="otInfo"></div>
   </div>
 
-  <div class="card">
+  <div class="card" id="navOdekake">
     <div class="sec">🧳 おでかけ乗り換えガイド</div>
     <div class="row od">
       <select id="odFrom"></select>
@@ -763,6 +738,17 @@ body.dark .otNum button,body.dark .otMini,body.dark .otChips button{background:#
       <a class="btn3" id="odWebAt" target="_blank" rel="noopener">🕐 指定した日時で乗換案内(ジョルダン)をしらべる</a>
     </div>
     <div class="note">平日10時ごろの検索結果をもとにした目安だよ。番線・行き先・所要時間は時間帯で変わることがあるから、乗る前に上のボタンで確認してね。出典：ジョルダン乗換案内(2026/11/10しらべ)</div>
+  </div>
+
+  <div class="card" id="navOtoku">
+    <div class="sec">🎟 おトクチェック</div>
+    <div class="note" style="margin:0 2px 6px">🍜 外食：お店に入ったら、注文する前に近くの優待をチェック！</div>
+    <div class="otLinks" style="margin:0"><a class="btn2" href="https://bs.benefit-one.inc/map" target="_blank" rel="noopener" style="padding:12px 6px;font-size:13.5px">💼 ベネの地図で<br>近くをさがす</a><a class="btn2" href="https://yutai.jafnavi.jp/map?nowAround=1" target="_blank" rel="noopener" style="padding:12px 6px;font-size:13.5px">🚗 JAFの地図で<br>近くをさがす</a></div>
+    <div class="note" style="margin:14px 2px 6px">🎨 施設：美術館・映画館・温泉などは、行く前に手帳割をチェック！</div>
+    <div class="row"><input type="text" id="otQ" placeholder="施設の名前" enterkeyhint="search" style="flex:1;min-width:0"><button class="btn" id="otGo" type="button">♿ 手帳割をさがす</button></div>
+    <div id="otErr" class="note" style="display:none;color:#e0507f;margin:4px 2px 0">施設の名前を入れてね</div>
+    <a class="btn2 sub" href="https://mirairo-id.jp/" target="_blank" rel="noopener">♿ ミライロIDが使えるところを見る</a>
+    <div class="note" style="margin-top:6px">わからないときは、受付で「障害者割引ありますか？」って聞いてみてね</div>
   </div>
 
   <div class="card" id="navSet">
@@ -797,7 +783,7 @@ body.dark .otNum button,body.dark .otMini,body.dark .otChips button{background:#
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.4</span></summary>
       <ul class="verList">
-        <li data-short="🎟 おトクメモができたよ！"><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">🎟おトクメモを追加（電車の下）：お店に入ったらベネ・JAFの地図で近くの優待をワンタップでさがせるよ。行くお店が決まってたら、ベネフィット・ワン・JAF・手帳割などの割引をメモしておくと、払う前にいちばん安いのがわかるよ。人数も変えられて、調べるボタンやClaudeに聞く文のコピーも</span></li>
+        <li data-short="🎟 おトクチェックができたよ！"><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">下のタブに🧳おでかけを追加（乗り換えガイドへ）。🎟おトクチェックも乗り換えガイドの下に追加：外食はお店に入ったらベネ・JAFの地図で近くの優待をワンタップでさがせるよ。美術館・映画館などの施設は、名前を入れて手帳割をさがせて、ミライロIDが使えるところも見られるよ</span></li>
         <li data-short="📚 ファーちゃんの記録室がオープン！"><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚ファーちゃんの記録室がオープン（勤怠ノートのいちばん上から）：給料・ボーナスの明細を📄PDFからまとめて読み込んで、手取りや残業の推移、年度のまとめ、🧾源泉徴収票、🔮今年度の見込みと答え合わせが見られるよ。明細を入れ忘れてたらファーちゃんが教えてくれるよ🧸</span></li>
         <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板を下のほうに大きく</span></li>
         <li><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
@@ -835,7 +821,7 @@ body.dark .otNum button,body.dark .otMini,body.dark .otChips button{background:#
   </div>
 </div>
 
-<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navKintai"><span class="nIco">🧸</span><span class="nLbl">おしごと</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
+<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navKintai"><span class="nIco">🧸</span><span class="nLbl">おしごと</span></button><button data-t="navOdekake"><span class="nIco">🧳</span><span class="nLbl">おでかけ</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
 <script>
 // 時刻表データ(京急空港線 2025年12月13日改正＋2026年11月ダイヤ変更ぶん)。発車:京急公式各駅時刻表/NAVITIME、到着:NAVITIME(2026/11/10取得)、ダイヤ変更ぶん:京急公式ニュースリリース(2026/11/11確認)
 function T(s){return s.split(" ").map(x=>{const [d,r,t,p]=x.split(",");return {m:+d,r:+r,t,p:+p}})}
@@ -2059,7 +2045,7 @@ setInterval(()=>{renderCheer(false);renderBday()},60000);
 const navBtns=[...document.querySelectorAll("#jumpNav button")];
 function navOn(id){navBtns.forEach(b=>b.classList.toggle("on",b.dataset.t===id))}
 navBtns.forEach(b=>b.addEventListener("click",()=>{const el=document.getElementById(b.dataset.t);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});navOn(b.dataset.t)}}));
-if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","navKintai","navCount","navSet"],alias={navCount:"navKintai"};const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(alias[cur]||cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
+if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","navKintai","navCount","navOdekake","navOtoku","navSet"],alias={navCount:"navKintai",navOtoku:"navOdekake"};const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(alias[cur]||cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
 // ===== 更新ボタン・下に引っぱって更新 =====
 function hardReload(){const p=document.getElementById("ptr");p.textContent="🔄 更新中…";p.style.transform="translate(-50%,12px)";setTimeout(()=>location.reload(),150)}
 document.getElementById("reloadBtn").onclick=hardReload;
@@ -3078,84 +3064,9 @@ setInterval(drawList,60000);
 })();
 </script>
 <script>
-(function(){
-const KEY="yumebell_otoku_v1",$=id=>document.getElementById(id);
-if(!$("navOtoku"))return;
-const TYPES=[["bene","💼 ベネフィット・ワン"],["jaf","🚗 JAF"],["techo","♿ 手帳割"],["other","🏷 その他"]];
-const BRING={jaf:"JAF会員証",techo:"手帳",bene:"ベネのクーポン"};
-const HOW=[["yen","1人◯円引き"],["pct","◯%引き"],["fix","1人◯円になる"],["total","会計から◯円引き"]];
-let shops=[];try{shops=JSON.parse(localStorage.getItem(KEY)||"[]")||[]}catch(e){shops=[]}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(shops))}catch(e){}};
-const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const yen=v=>Math.round(v).toLocaleString()+"円";
-const norm=s=>String(s||"").replace(/\s/g,"").toLowerCase();
-const find=q=>{const k=norm(q);return k?shops.find(s=>norm(s.name)===k)||shops.find(s=>norm(s.name).includes(k)):null};
-function calc(s,d){const n=Math.max(1,+s.n||1),p=+s.price||0,v=+d.val||0,k=d.lim>0?Math.min(+d.lim,n):n;
- if(d.how==="total")return Math.max(0,n*p-v);
- let one=d.how==="yen"?Math.max(0,p-v):d.how==="pct"?Math.round(p*(1-v/100)):d.how==="fix"?v:p;
- return k*one+(n-k)*p}
-function howTxt(d){const v=(+d.val||0).toLocaleString(),l=d.lim>0?`（${d.lim}人まで）`:"";
- return (d.how==="yen"?`1人${v}円引き`:d.how==="pct"?`${v}%引き`:d.how==="fix"?`1人${v}円`:`会計から${v}円引き`)+l}
-function links(q){const g=t=>"https://www.google.com/search?q="+encodeURIComponent(t);
- return `<div class="otLinks"><a class="btn2 sub" href="https://bs.benefit-one.inc/" target="_blank" rel="noopener">💼 ベネをひらく</a>
- <a class="btn2 sub" href="${g(q+" JAF 優待")}" target="_blank" rel="noopener">🚗 JAF優待をさがす</a>
- <a class="btn2 sub" href="${g(q+" 障害者手帳 割引")}" target="_blank" rel="noopener">♿ 手帳割をさがす</a>
- <button class="btn2 sub" type="button" id="otAsk" style="font-family:inherit;border-style:solid">🧸 Claudeに聞く文をコピー</button></div>`}
-function show(q){q=(q||"").trim();const s=find(q),r=$("otRes");$("otEd").innerHTML="";
- if(!q){r.innerHTML="";return}
- if(!s){r.innerHTML=`<div class="note">「${esc(q)}」はまだメモがないよ。しらべてからメモしてね</div>${links(q)}<button class="btn2" type="button" id="otNew">＋ 「${esc(q)}」のメモをつくる</button>`;
-  $("otNew").onclick=()=>edit({name:q});bindAsk(q);return}
- const n=Math.max(1,+s.n||1),base=n*(+s.price||0);
- const list=(s.disc||[]).filter(d=>d&&d.on).map(d=>({d,v:calc(s,d)})).sort((a,b)=>a.v-b.v);
- const lbl=d=>d.type==="other"&&d.label?"🏷 "+esc(d.label):(TYPES.find(t=>t[0]===d.type)||["","🏷 割引"])[1];
- let h="";
- if(list.length&&s.price){const b=list[0],off=base-b.v;
-  h+=`<div class="otBest"><div class="t">👑 いちばん安い${off>0?"（"+yen(off)+"おトク）":""}</div><div class="v">${lbl(b.d)}　${n}人で${yen(b.v)}</div><div class="note" style="margin:2px 0 0">${esc(howTxt(b.d))}</div></div>`;
-  h+=`<div style="margin-top:6px">`+list.slice(1).map(x=>`<div class="otRow"><span>${lbl(x.d)}<br><span class="s">${esc(howTxt(x.d))}</span></span><b>${yen(x.v)}</b></div>`).join("")+`<div class="otRow" style="color:var(--sub)"><span>割引なし</span><span>${yen(base)}</span></div></div>`;
- }else h+=`<div class="note">定価と割引を入れると、いちばん安いのを出すよ（✏️なおすから）</div>`;
- h+=`<div class="otNum">👥 人数 <button type="button" id="otM" aria-label="へらす">−</button><b>${n}人</b><button type="button" id="otP" aria-label="ふやす">＋</button><span class="note" style="margin:0">定価 1人${yen(+s.price||0)}</span></div>`;
- const bring=[...new Set(list.map(x=>BRING[x.d.type]).filter(Boolean))];
- h+=`<div class="note">${bring.length?"🎒 持ちもの："+bring.join("・")+"　／　":""}しらべた日 ${esc(s.date||"—")}${s.memo?"<br>📝 "+esc(s.memo):""}</div>`;
- h+=`<div class="row" style="margin-top:8px;gap:6px"><button class="otMini" type="button" id="otE">✏️ なおす</button><button class="otMini" type="button" id="otX">🗑 けす</button></div>`;
- h+=`<details style="margin-top:8px"><summary style="font-size:13px">🔍 もういちど調べる</summary>${links(s.name)}</details>`;
- r.innerHTML=h;
- $("otM").onclick=()=>{s.n=Math.max(1,n-1);save();show(s.name)};$("otP").onclick=()=>{s.n=Math.min(20,n+1);save();show(s.name)};
- $("otE").onclick=()=>edit(s);$("otX").onclick=()=>{if(confirm(`「${s.name}」のメモをけす？`)){shops=shops.filter(x=>x!==s);save();refresh();$("otQ").value="";show("")}};
- bindAsk(s.name)}
-function bindAsk(q){const b=$("otAsk");if(!b)return;b.onclick=()=>{const t=`「${q}」で使える割引を調べて、ソース付きで教えて。①JAF会員優待 ②障害者手帳の割引（介助者も対象か）③定価。おトクメモに入れやすい形（1人◯円引き・◯%引き・何人まで）でまとめてね`;
- const ok=()=>{b.textContent="✅ コピーしたよ！";setTimeout(()=>b.textContent="🧸 Claudeに聞く文をコピー",1800)};
- if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,()=>prompt("コピーしてね",t));else prompt("コピーしてね",t)}}
-function edit(s){const isNew=!shops.includes(s);const ds=TYPES.map(([t])=>Object.assign({type:t,on:false,how:t==="techo"?"pct":"yen",val:t==="techo"?50:"",lim:t==="techo"?2:0,label:""},(s.disc||[]).find(d=>d.type===t)||{}));
- const dHtml=ds.map((d,i)=>`<div class="otD"><label class="h" style="margin:0;color:var(--ink)"><input type="checkbox" data-i="${i}" data-k="on" ${d.on?"checked":""}> ${TYPES[i][1]}</label>
-  ${d.type==="other"?`<input type="text" data-i="${i}" data-k="label" placeholder="割引の名前（クーポンなど）" value="${esc(d.label)}" style="margin-top:6px">`:""}
-  <div class="g"><select data-i="${i}" data-k="how">${HOW.map(([k,l])=>`<option value="${k}" ${d.how===k?"selected":""}>${l}</option>`).join("")}</select>
-  <input type="number" inputmode="numeric" data-i="${i}" data-k="val" placeholder="◯" value="${esc(d.val)}">
-  <select data-i="${i}" data-k="lim"><option value="0">全員</option>${[1,2,3,4].map(k=>`<option value="${k}" ${+d.lim===k?"selected":""}>${k}人まで</option>`).join("")}</select></div></div>`).join("");
- $("otRes").innerHTML="";
- $("otEd").innerHTML=`<div class="otEdit"><div style="font-weight:900;color:#9b7cf0">${isNew?"＋ メモをつくる":"✏️ メモをなおす"}</div>
- <label>お店の名前</label><input type="text" id="otN" value="${esc(s.name||"")}">
- <div class="row" style="flex-wrap:nowrap"><div style="flex:1"><label>定価（1人）</label><input type="number" inputmode="numeric" id="otPr" value="${esc(s.price||"")}" placeholder="1500"></div><div style="flex:1"><label>人数</label><input type="number" inputmode="numeric" id="otCnt" value="${esc(s.n||2)}"></div></div>
- <label>使える割引（チェックしたものだけ比べるよ）</label>${dHtml}
- <label>メモ</label><input type="text" id="otMemo" value="${esc(s.memo||"")}" placeholder="併用できない、土日は対象外 など">
- <div class="row" style="margin-top:10px;gap:6px"><button class="btn" type="button" id="otSave">ほぞん</button><button class="otMini" type="button" id="otCancel">やめる</button></div></div>`;
- $("otEd").querySelectorAll("[data-i]").forEach(el=>{const f=()=>{const d=ds[+el.dataset.i],k=el.dataset.k;d[k]=el.type==="checkbox"?el.checked:(k==="lim"?+el.value:el.value);
-  if(k!=="on"&&k!=="label"&&!d.on){d.on=true;const c=$("otEd").querySelector(`[data-i="${el.dataset.i}"][data-k="on"]`);if(c)c.checked=true}};el.addEventListener("input",f);el.addEventListener("change",f)});
- $("otCancel").onclick=()=>{$("otEd").innerHTML="";show(isNew?"":s.name)};
- $("otSave").onclick=()=>{const name=$("otN").value.trim();if(!name){$("otN").focus();return}
-  const t=new Date(),o={name,price:+$("otPr").value||0,n:Math.max(1,+$("otCnt").value||1),memo:$("otMemo").value.trim(),date:`${t.getFullYear()}/${t.getMonth()+1}/${t.getDate()}`,
-   disc:ds.map(d=>({type:d.type,on:!!d.on,how:d.how,val:+d.val||0,lim:+d.lim||0,label:d.label||""}))};
-  if(isNew){const dup=find(name);if(dup&&norm(dup.name)===norm(name))Object.assign(dup,o);else shops.push(o)}else Object.assign(s,o);
-  save();refresh();$("otQ").value=name;show(name)};
- $("otEd").scrollIntoView({block:"nearest",behavior:"smooth"})}
-function refresh(){$("otList").innerHTML=shops.map(s=>`<option value="${esc(s.name)}">`).join("");
- $("otAllSum").textContent=`📒 メモ一覧（${shops.length}件）`;
- $("otAll").innerHTML=shops.length?`<div class="otChips">${shops.map((s,i)=>`<button type="button" data-o="${i}">${esc(s.name)}</button>`).join("")}</div>`:`<div class="note">まだないよ。お店の名前を入れて「さがす」からつくってね</div>`;
- $("otAll").querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{const s=shops[+b.dataset.o];$("otQ").value=s.name;$("otAllBox").open=false;show(s.name)})}
-$("otGo").onclick=()=>show($("otQ").value);
-$("otQ").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();show($("otQ").value)}});
-$("otQ").addEventListener("change",()=>{if(find($("otQ").value)&&norm(find($("otQ").value).name)===norm($("otQ").value))show($("otQ").value)});
-refresh();
-})();
+(function(){const q=document.getElementById("otQ"),go=document.getElementById("otGo"),er=document.getElementById("otErr");if(!q)return;
+const run=()=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("https://www.google.com/search?q="+encodeURIComponent(v+" 障害者手帳 割引"),"_blank","noopener")};
+go.onclick=run;q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();run()}});q.addEventListener("input",()=>{er.style.display="none"});})();
 </script>
 </body>
 </html>

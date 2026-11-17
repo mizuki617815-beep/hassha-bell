@@ -550,6 +550,12 @@ details.recBox[open] summary:before{content:"▾ "}
 .recImp.ng{border-color:var(--rose)}
 .recImpHd{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;cursor:pointer}
 .recImpHd input{width:20px;height:20px;margin-top:2px;flex:none}
+.slipChips{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 8px}
+.slipChips button{font-family:inherit;font-size:12.5px;border:1.5px solid var(--lav,#c9a8ff);background:transparent;color:var(--ink);border-radius:999px;padding:3px 10px;cursor:pointer}
+.slipChips button.on{background:linear-gradient(135deg,#ff9fcf,#c9a8ff);color:#fff;border-color:transparent;font-weight:bold}
+.slipCard{border:1.5px dashed rgba(194,80,138,.35);border-radius:14px;padding:8px 10px}
+.slipT{font-weight:bold;font-size:14.5px;margin-bottom:6px}.slipT small{display:block;font-weight:normal;font-size:11px;color:var(--sub)}
+.slipCard .recImpIt{font-size:13px}
 .recImpIt{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12px}
 .recImpIt b{text-align:right}
 .recSave:disabled{opacity:.45}
@@ -2445,7 +2451,7 @@ window.recMerge=rr=>{const out={changed:false,remoteOld:false};if(!R.sync)return
 window.recRefresh=()=>{badge();if(draft&&R.m[draft.pk]&&(+R.m[draft.pk].u||0)>(draft.at||0))draft=null;if($r("recSheet")&&$r("recSheet").classList.contains("show"))draw()};
 
 // ===== 画面 =====
-let tab="in",selP=latestPay(),selFY=fyOfPay(latestPay()),flash="",selItem="",editP=null,editW=null;
+let selSlip=null,tab="in",selP=latestPay(),selFY=fyOfPay(latestPay()),flash="",selItem="",editP=null,editW=null;
 // ファーちゃんのセリフ（歌と甘いものが好きな女の子。歌はたまに入る程度）。前向きなものだけ
 const UP_PRAISE=["手取り、去年の同じ月よりふえてるよ！ママ、ほんとにがんばってるね✨","すごいすごい！去年よりふえてる〜！ママはえらいなぁ💕","ふえてる〜！ママのがんばり、ちゃんと数字に出てるよ✨"];
 const UP_PLAN=["お祝いに、いっしょにパンケーキ食べに行きたいな🥞🧸","カラオケ行こうよ！ファーちゃん、ママのために1曲歌うね🎤🧸","ごほうびに、ふたりでカフェ行きたいな☕🧸","ケーキ屋さんで好きなケーキ選ぼうよ🍰🧸","おいしいチョコでお祝いしたいな🍫🧸","はちみつたっぷりのおやつ食べたいな🍯🧸","ヨーグレット買ってほしいな…えへへ🧸"];
@@ -2560,12 +2566,25 @@ function viewIn(pk,e,ot,w,bn,be){const V=v=>v===""||v==null?"—":YEN(v);let h="
 
 function bars(vals,labels,fmt,cls){const mx=Math.max(1,...vals.map(v=>v||0));
   return`<div class="recBars ${cls||""}">`+vals.map((v,i)=>`<div class="c"><div class="v">${v?fmt(v):""}</div><div class="b${v?"":" none"}" style="height:${v?Math.max(4,Math.round(v/mx*88)):2}px"></div><div class="l">${labels[i]}</div></div>`).join("")+`</div>`}
+// 🧾 明細を1枚まるごと見る（みるタブ）。選んだ月（給料・賞与）の勤怠・支給・控除・合計をぜんぶ並べる
+function slipView(ms){const have=[];for(const k of ms){if(live(R.m[k]))have.push({k,t:"m",l:`${+k.slice(5)}月`});if(live(R.b[k]))have.push({k,t:"b",l:+k.slice(5)===6?"夏🎁":"冬🎁"})}
+  if(!have.length)return"";if(!selSlip||!have.some(x=>x.k===selSlip.k&&x.t===selSlip.t))selSlip=have.filter(x=>x.t==="m").pop()||have[have.length-1];
+  const e=selSlip.t==="m"?R.m[selSlip.k]:R.b[selSlip.k],V=v=>v===""||v==null?"—":YEN(v);
+  const dt=selSlip.t==="m"?salDate(selSlip.k):bonDate(selSlip.k),ttl=selSlip.t==="m"?`${+selSlip.k.slice(0,4)}年${+selSlip.k.slice(5)}月の給料明細`:`${+selSlip.k.slice(0,4)}年 ${bonusOf(selSlip.k).n}の明細`;
+  const ded=e.items&&e.items.ded?Object.values(e.items.ded).reduce((a,v)=>a+(+v||0),0):null;
+  return`<div class="recBox"><div class="bt">🧾 明細を見る</div>
+    <div class="slipChips">${have.map(x=>`<button type="button" data-sk="${x.k}" data-st="${x.t}" class="${x.k===selSlip.k&&x.t===selSlip.t?"on":""}">${x.l}</button>`).join("")}</div>
+    <div class="slipCard"><div class="slipT">${ttl}<small>${MDW(dt)}支給</small></div>
+      <div class="recSum"><div><small>総支給額</small><b>${V(e.g)}</b></div><div><small>手取り（差引支給額）</small><b>${V(e.n)}</b></div>${ded!=null?`<div class="wide"><small>控除の合計</small><b>${YEN(ded)}</b></div>`:""}</div>
+      ${e.items?itTbl(e.items):`<div class="recNote">この月は内訳がないよ（手入力の月）</div>`}
+      ${e.memo?`<div class="recSub">📝 備考</div><div class="recNote">${e.memo.replace(/</g,"&lt;")}</div>`:""}</div></div>`}
 function fyNav(){return`<div class="recNav"><button id="rFyPrev">‹</button><div>${selFY}年度<small>${selFY}年4月〜${selFY+1}年3月の支給</small></div><button id="rFyNext">›</button></div>`}
 function drawSee(){
   const ms=fyMonths(selFY),lb=ms.map(k=>+k.slice(5)+"月");
   const net=ms.map(k=>live(R.m[k])?+R.m[k].n||0:0),oh=ms.map(k=>{const o=otOf(k);return o?o.h:0});
   let h=fyNav()+bearSay(tabSay());
-  h+=`<div class="recBox"><div class="bt">💰 毎月の手取り</div>${bars(net,lb,MAN)}</div>`;
+  h+=`<div class="recBox" id="rNetBox"><div class="bt">💰 毎月の手取り<small style="font-weight:normal;font-size:11px;color:var(--sub)">　棒をタップすると明細が見られるよ</small></div>${bars(net,lb,MAN)}</div>`;
+  h+=slipView(ms);
   {const names=[];for(const k in R.m){const e=R.m[k];if(!live(e)||!e.items)continue;for(const[c]of CATS)for(const n in(e.items[c]||{})){const id=c+"|"+n;if(!names.includes(id))names.push(id)}}
    const order=Object.fromEntries(CATS.map(([c],i)=>[c,i]));names.sort((a,b)=>order[a.split("|")[0]]-order[b.split("|")[0]]);
    if(names.length){if(!names.includes(selItem))selItem=names.find(x=>/^kin\|.*(残業|時間外)/.test(x))||names.find(x=>/残業|時間外/.test(x))||names[0];
@@ -2838,6 +2857,8 @@ function draw(){const b=$r("recBody");if(!b)return;
   const on=(id,f)=>{const el=$r(id);if(el)el.onclick=f};
   on("rPrev",()=>{selP=addM(selP,-1);flash="";draft=null;editP=null;draw()});on("rNext",()=>{selP=addM(selP,1);flash="";draft=null;editP=null;draw()});
   {const si=$r("rItem");if(si)si.onchange=()=>{selItem=si.value;draw()}}
+  document.querySelectorAll("#recBody .slipChips button").forEach(bt=>bt.onclick=()=>{selSlip={k:bt.dataset.sk,t:bt.dataset.st};draw()});
+  {const ms=fyMonths(selFY);document.querySelectorAll("#rNetBox .recBars .c").forEach((c,i)=>{if(live(R.m[ms[i]])){c.style.cursor="pointer";c.onclick=()=>{selSlip={k:ms[i],t:"m"};draw();const sv=document.querySelector("#recBody .slipCard");if(sv)sv.scrollIntoView({behavior:"smooth",block:"center"})}}})}
   if(tab==="sum")bindGensen();
   on("rFyPrev",()=>{selFY--;draw()});on("rFyNext",()=>{selFY++;draw()});
   on("rPdfBtn",()=>window.impPick?window.impPick():$r("rPdf").click());

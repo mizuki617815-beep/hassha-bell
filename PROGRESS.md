@@ -293,4 +293,5 @@
 - 検索をまとめた：入力欄1つ＋「♿ 手帳割」「💼 ベネ」「🚗 JAF」の3ボタン（Googleで「名前＋障害者手帳 割引／ベネフィット・ステーション 優待／JAF 優待」）。Enterは手帳割
 - Safariで開く（x-safari-https）はやめて window.open に戻した（本人：ホーム画面アプリの上にかぶさるブラウザで開いて「完了」ですぐ戻れるほうが便利）
 - 検索ボタンで、Googleアプリを入れているiPhoneだとGoogleアプリが開いてしまう（google.comのユニバーサルリンク）→ いったん自分のページ go.html?q=… をアプリ内ブラウザで開き、そこから location.replace でGoogle検索へ（ユーザーのタップでない移動ではユニバーサルリンクが働かないため）。go.html は q だけ受け取りGoogle検索にしか飛ばない
-- go.html経由（location.replace）でもGoogleアプリが開いてしまい、アプリ内ブラウザに「さがしてるよ…」が残った（2026-11-17、本人のスクショで確認）。本人の希望：Googleアプリを立ち上げず、発車ベルのアプリ内ブラウザでGoogle検索を見たい（Bingは不可。Geminiの候補が出るGoogleがいい）→ go.html の中に iframe で https://www.google.com/search?igu=1&hl=ja&q=… を表示（iframe内の読み込みはユニバーサルリンクが働かない想定。igu=1 は埋め込み許可）。上のバーに「うまく出ないとき」＝ google.co.jp で開くボタン。実機で要確認
+- 検索ボタン（2026-11-17）：google.com はGoogleアプリに取られる／go.html＋iframe（igu=1）はGeminiの候補が出ず、すぐ「ロボットではありません」認証で検索不可になった → index.html から直接 window.open で https://www.google.co.jp/search?hl=ja&q=… を開く方式に（本人の実機で co.jp ならアプリ内ブラウザのままGeminiの候補も出ると確認）。go.html は古いリンク用に co.jp へ飛ばすだけに
+- 連絡先の自動入力がまた出た → 入力欄の上の説明文「お店・施設の名前で検索」から「名前」を外して「お店・施設をさがす」に。入力欄に name="otoku_keyword"・inputmode="search" を追加（Safariは近くの文字に「名前」があると人名の欄と判断する）

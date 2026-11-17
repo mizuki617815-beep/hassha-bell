@@ -2483,7 +2483,7 @@ const kisoOf=e=>{const p=e&&e.items&&e.items.pay;if(!p)return null;const ks=Obje
 window.recOtRate=fy=>{const ks=Object.keys(R.m).filter(k=>live(R.m[k])&&R.m[k].items).sort(),inFy=ks.filter(k=>fyOfPay(k)===fy);if(!inFy.length)return null;
   let Y=0,H=0,n=0;for(const k of inFy){const o=otYH(R.m[k]);if(o){Y+=o.y;H+=o.h;n++}}
   const act=H>0?Math.round(Y/H):0;let lastK=null,kb=null;for(const k of inFy.slice().reverse()){kb=kisoOf(R.m[k]);if(kb){lastK=k;break}}
-  if(kb){const rate=Math.round(kb.v/164*1.25);
+  if(kb){const rate=Math.ceil(kb.v/164*1.25-1e-9); // 円未満は切り上げ
     return{rate,how:`基礎賃金 ${kb.v.toLocaleString()}円（${kb.names.join("＋")}）÷ 164時間 × 1.25（${+lastK.slice(5)}月支給の明細）`+(act?`<br>明細の実績：時間外手当 ÷ 残業時間 ＝ ${act.toLocaleString()}円（${n}か月分・ちがい ${act-rate>=0?"+":"−"}${Math.abs(act-rate).toLocaleString()}円）`:"")}}
   if(act)return{rate:act,how:`明細の時間外手当 ${Y.toLocaleString()}円 ÷ 残業 ${Math.round(H*10)/10}時間（${n}か月分）`};
   return null};

@@ -1127,7 +1127,7 @@ function renderOt(){
   const c=otCalc(ymd(jstNow()));
   let h=`<div class="pTtl">🌙残業がんばりカウンター🧸</div>`;
   h+=`<div>残業時給 <span class="otBig">¥${c.rate.toLocaleString()}</span>（今年度）</div>`;
-  if(c.rateHow)h+=`<div class="note" style="margin:0 0 4px;font-size:11.5px">🧮 ${c.rateHow.how} ${c.rateHow.base.toLocaleString()}円 ÷ 164時間 × 1.25（${+c.rateHow.from.slice(5)}月支給の明細から自動）</div>`;
+  if(c.rateHow)h+=`<div class="note" style="margin:0 0 4px;font-size:11.5px">🧮 ${c.rateHow.how}</div>`;
   if(c.hist.length)h+=`<div class="otHist">時給の推移：${c.hist.map(e=>`${e.label} <b>¥${e.rate.toLocaleString()}</b>`).join(" → ")}</div>`;
   h+=`<div>今年度の支給済み累計 <b>${c.totH}h</b> ・ <b>¥${c.totY.toLocaleString()}</b>${c.estH?`（＋見込み ${c.estH}h・¥${c.estY.toLocaleString()}）`:""}</div>`;
   const mx=Math.max(1,...c.bars.map(b=>b.h));
@@ -2469,14 +2469,20 @@ function otCands(e){const p=e&&e.items&&e.items.pay;if(!p)return null;const base
 function otActual(e){const p=e&&e.items&&e.items.pay,kn=e&&e.items&&e.items.kin;if(!p||!kn)return 0;
   const yk=Object.keys(p).find(k=>/時間外|残業/.test(k)&&!/深夜|休日/.test(k)),hk=Object.keys(kn).find(k=>/残業|時間外/.test(k)&&!/深夜|休日/.test(k));
   const y=yk?+p[yk]||0:0,h=hk?+kn[hk]||0:0;return y>0&&h>0?y/h:0}
-window.recOtRate=fy=>{const ks=Object.keys(R.m).filter(k=>live(R.m[k])&&R.m[k].items).sort();
-  // その年度（4月〜翌3月支給）でいちばん新しい明細の基本給を使う。昇給後の明細が1枚入れば新しい単価になる
-  const inFy=ks.filter(k=>fyOfPay(k)===fy);if(!inFy.length)return null;const last=R.m[inFy[inFy.length-1]],cs=otCands(last);if(!cs)return null;
-  // どの組み合わせが会社の計算に合うか：過去の明細で、実際の単価との差がいちばん小さいもの
-  const err=cs.map(()=>0);let nObs=0;for(const k of ks.slice(-24)){const a=otActual(R.m[k]),c2=otCands(R.m[k]);if(!a||!c2)continue;nObs++;
-    cs.forEach((c,i)=>{const m=c2.find(x=>x.n===c.n);err[i]+=m?Math.abs(m.v/164*1.25-a)/a:1})}
-  let bi=0;err.forEach((v,i)=>{if(v<err[bi])bi=i});const c=cs[bi];
-  return{rate:Math.round(c.v/164*1.25),how:c.n,base:c.v,from:inFy[inFy.length-1],checked:nObs}};
+// 残業時給：その年度の明細の「時間外手当 ÷ 残業時間」（実際に払われた単価）。
+// 年度の最初でまだ残業代の明細がないときだけ、昇給後の基本給から予想（去年度の「実際÷計算式」の比をかけて合わせる）（2026-11-17 本人の指摘で実績を優先）
+const otYH=e=>{const p=e&&e.items&&e.items.pay,kn=e&&e.items&&e.items.kin;if(!p||!kn)return null;
+  const yk=Object.keys(p).filter(k=>/時間外|残業/.test(k)&&!/深夜|休日|休出/.test(k)),hk=Object.keys(kn).find(k=>/残業|時間外/.test(k)&&!/深夜|休日|休出/.test(k));
+  const y=yk.reduce((a,k)=>a+(+p[k]||0),0),h=hk?+kn[hk]||0:0;return y>0&&h>0?{y,h}:null};
+const baseOf=e=>{const c=otCands(e);return c?c[0].v:0};
+window.recOtRate=fy=>{const ks=Object.keys(R.m).filter(k=>live(R.m[k])&&R.m[k].items).sort(),inFy=ks.filter(k=>fyOfPay(k)===fy);if(!inFy.length)return null;
+  let Y=0,H=0,n=0;for(const k of inFy){const o=otYH(R.m[k]);if(o){Y+=o.y;H+=o.h;n++}}
+  if(H>0)return{rate:Math.round(Y/H),how:`明細の時間外手当 ${Y.toLocaleString()}円 ÷ 残業 ${Math.round(H*10)/10}時間（${fy}年度・${n}か月分）`};
+  // まだ残業代がない：基本給×1.25÷164 に、去年度の実績との比をかける
+  const last=R.m[inFy[inFy.length-1]],b=baseOf(last);if(!b)return null;
+  let k=1,PY=0,PH=0,PF=0;for(const x of ks.filter(k2=>fyOfPay(k2)===fy-1)){const o=otYH(R.m[x]),bb=baseOf(R.m[x]);if(o&&bb){PY+=o.y;PH+=o.h;PF+=bb/164*1.25*o.h}}
+  if(PF>0)k=PY/PF;
+  return{rate:Math.round(b/164*1.25*k),how:`予想：基本給 ${b.toLocaleString()}円 ÷ 164時間 × 1.25${PF>0?` × ${k.toFixed(3)}（去年度の実績に合わせる）`:""}（${+inFy[inFy.length-1].slice(5)}月支給の明細から。残業代の明細が入ったら実績に切りかわるよ）`}};
 function mirrorOt(pk){const e=R.m[pk],w=addM(pk,-1);if(!S.otMonths)S.otMonths={};
   if(live(e)&&((+e.oh||0)>0||(+e.oy||0)>0))S.otMonths[w]={h:+e.oh||0,y:+e.oy||0,t:"pay"};
   else if(e&&(e.del||e.otSet)&&S.otMonths[w]&&S.otMonths[w].t==="pay")delete S.otMonths[w];

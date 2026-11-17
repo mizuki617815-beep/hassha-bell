@@ -730,7 +730,6 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
     <div class="note" style="margin:14px 2px 6px">🎨 施設：美術館・映画館・温泉などは、行く前に手帳割をチェック！</div>
     <div class="row"><input type="text" id="otQ" placeholder="施設の名前" enterkeyhint="search" style="flex:1;min-width:0"><button class="btn" id="otGo" type="button">♿ 手帳割をさがす</button></div>
     <div id="otErr" class="note" style="display:none;color:#e0507f;margin:4px 2px 0">施設の名前を入れてね</div>
-    <a class="btn2 sub" href="https://mirairo-id.jp/" target="_blank" rel="noopener">♿ ミライロIDが使えるところを見る</a>
     <div class="note" style="margin-top:6px">わからないときは、受付で「障害者割引ありますか？」って聞いてみてね</div>
   </div>
 
@@ -783,7 +782,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.4</span></summary>
       <ul class="verList">
-        <li data-short="🉐 ファーちゃんのお得チェッカーができたよ！"><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">下のタブに🧳おでかけを追加。🉐ファーちゃんのお得チェッカー（乗り換えガイドの上）：外食はお店に入ったらベネ・JAFの地図で近くの優待をワンタップでさがせるよ。美術館・映画館などの施設は、名前を入れて手帳割をさがせて、ミライロIDが使えるところも見られるよ</span></li>
+        <li data-short="🉐 ファーちゃんのお得チェッカーができたよ！"><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">下のタブに🧳おでかけを追加。🉐ファーちゃんのお得チェッカー（乗り換えガイドの上）：外食はお店に入ったらベネ・JAFの地図で近くの優待をワンタップでさがせるよ。美術館・映画館などの施設は、名前を入れるとSafariで手帳割をさがせるよ</span></li>
         <li data-short="📚 ファーちゃんの記録室がオープン！"><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚ファーちゃんの記録室がオープン（勤怠ノートのいちばん上から）：給料・ボーナスの明細を📄PDFからまとめて読み込んで、手取りや残業の推移、年度のまとめ、🧾源泉徴収票、🔮今年度の見込みと答え合わせが見られるよ。明細を入れ忘れてたらファーちゃんが教えてくれるよ🧸</span></li>
         <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板を下のほうに大きく</span></li>
         <li><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
@@ -3065,7 +3064,7 @@ setInterval(drawList,60000);
 </script>
 <script>
 (function(){const q=document.getElementById("otQ"),go=document.getElementById("otGo"),er=document.getElementById("otErr");if(!q)return;
-const run=()=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("https://www.google.com/search?q="+encodeURIComponent(v+" 障害者手帳 割引"),"_blank","noopener")};
+const run=()=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";const u="https://www.google.com/search?q="+encodeURIComponent(v+" 障害者手帳 割引");if(navigator.standalone&&/iP(hone|ad|od)/.test(navigator.userAgent))location.href="x-safari-"+u;else window.open(u,"_blank","noopener")};
 go.onclick=run;q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();run()}});q.addEventListener("input",()=>{er.style.display="none"});})();
 </script>
 </body>

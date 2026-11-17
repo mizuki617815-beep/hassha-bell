@@ -1113,10 +1113,13 @@ function otCalc(today){
   const autoR=f=>agg[f]&&agg[f].h>0?Math.round(agg[f].y/agg[f].h):0;
   const hist=(S.otRateHist||[]).map(e=>({fy:+e.fy,rate:+e.rate})).filter(e=>e.fy>0&&e.rate>0&&!agg[e.fy]);
   for(const f in agg)hist.push({fy:+f,rate:autoR(+f)});
-  const curRate=autoR(tfy)||+S.otRate||0;if(!hist.some(e=>e.fy===tfy))hist.push({fy:tfy,rate:curRate});
+  const rr=f=>{try{const r=window.recOtRate&&window.recOtRate(f);return r&&r.rate>0?r:null}catch(e){return null}},rNow=rr(tfy);
+  for(let f=tfy-5;f<tfy;f++){const r=rr(f);if(r&&!hist.some(h=>h.fy===f))hist.push({fy:f,rate:r.rate})}
+  for(const h of hist){const r=rr(h.fy);if(r)h.rate=r.rate}
+  const curRate=(rNow&&rNow.rate)||autoR(tfy)||+S.otRate||0;if(!hist.some(e=>e.fy===tfy))hist.push({fy:tfy,rate:curRate});
   hist.sort((a,b)=>a.fy-b.fy);
   const histD=hist.filter(e=>e.rate>0||e.fy===tfy).map(e=>({label:`令和${e.fy-2018}年度`,rate:e.fy===tfy?curRate:e.rate,cur:e.fy===tfy}));
-  return{bars,totH,totY,estH,estY,rate:curRate,hist:histD,mp};
+  return{bars,totH,totY,estH,estY,rate:curRate,rateHow:rNow,hist:histD,mp};
 }
 let otCache="";
 function renderOt(){
@@ -1124,6 +1127,7 @@ function renderOt(){
   const c=otCalc(ymd(jstNow()));
   let h=`<div class="pTtl">🌙残業がんばりカウンター🧸</div>`;
   h+=`<div>残業時給 <span class="otBig">¥${c.rate.toLocaleString()}</span>（今年度）</div>`;
+  if(c.rateHow)h+=`<div class="note" style="margin:0 0 4px;font-size:11.5px">🧮 ${c.rateHow.how} ${c.rateHow.base.toLocaleString()}円 ÷ 164時間 × 1.25（${+c.rateHow.from.slice(5)}月支給の明細から自動）</div>`;
   if(c.hist.length)h+=`<div class="otHist">時給の推移：${c.hist.map(e=>`${e.label} <b>¥${e.rate.toLocaleString()}</b>`).join(" → ")}</div>`;
   h+=`<div>今年度の支給済み累計 <b>${c.totH}h</b> ・ <b>¥${c.totY.toLocaleString()}</b>${c.estH?`（＋見込み ${c.estH}h・¥${c.estY.toLocaleString()}）`:""}</div>`;
   const mx=Math.max(1,...c.bars.map(b=>b.h));
@@ -2455,6 +2459,24 @@ const ktLinked=()=>{try{return!!(JSON.parse(localStorage.getItem("yumebell_kinta
 // 明細の残業(働いた月 = 支給月の前の月)。記録室に無ければ、これまでの残業カウンターの明細を使う
 function otOf(pk){const e=R.m[pk];if(live(e)&&(e.oh!==""&&e.oh!=null||e.oy!==""&&e.oy!=null))return{h:+e.oh||0,y:+e.oy||0};
   const o=S.otMonths&&S.otMonths[addM(pk,-1)];return o&&o.t==="pay"?{h:+o.h||0,y:+o.y||0}:null}
+// 残業単価＝（基本給＋算入する手当）÷ 月平均所定労働時間164h × 1.25。
+// どの手当が入るかは会社しだいなので、過去の明細の「時間外手当÷残業時間」にいちばん合う組み合わせを自動でえらぶ（2026-11-17）
+const OT_X=/通勤|交通|住居|住宅|家族|扶養|時間外|残業|深夜|休日|休出|立替|精算|慶弔|見舞|祝|賞与|調整|遡及|差額/;
+function otCands(e){const p=e&&e.items&&e.items.pay;if(!p)return null;const base=Object.keys(p).find(k=>/基本給/.test(k));if(!base)return null;
+  const b=+p[base]||0,extra=Object.keys(p).filter(k=>k!==base&&!OT_X.test(k)&&+p[k]>0);
+  const c=[{n:"基本給",v:b}];if(extra.length)c.push({n:"基本給＋"+extra.join("・"),v:b+extra.reduce((a,k)=>a+(+p[k]||0),0)});
+  for(const k of extra)c.push({n:"基本給＋"+k,v:b+(+p[k]||0)});return c}
+function otActual(e){const p=e&&e.items&&e.items.pay,kn=e&&e.items&&e.items.kin;if(!p||!kn)return 0;
+  const yk=Object.keys(p).find(k=>/時間外|残業/.test(k)&&!/深夜|休日/.test(k)),hk=Object.keys(kn).find(k=>/残業|時間外/.test(k)&&!/深夜|休日/.test(k));
+  const y=yk?+p[yk]||0:0,h=hk?+kn[hk]||0:0;return y>0&&h>0?y/h:0}
+window.recOtRate=fy=>{const ks=Object.keys(R.m).filter(k=>live(R.m[k])&&R.m[k].items).sort();
+  // その年度（4月〜翌3月支給）でいちばん新しい明細の基本給を使う。昇給後の明細が1枚入れば新しい単価になる
+  const inFy=ks.filter(k=>fyOfPay(k)===fy);if(!inFy.length)return null;const last=R.m[inFy[inFy.length-1]],cs=otCands(last);if(!cs)return null;
+  // どの組み合わせが会社の計算に合うか：過去の明細で、実際の単価との差がいちばん小さいもの
+  const err=cs.map(()=>0);let nObs=0;for(const k of ks.slice(-24)){const a=otActual(R.m[k]),c2=otCands(R.m[k]);if(!a||!c2)continue;nObs++;
+    cs.forEach((c,i)=>{const m=c2.find(x=>x.n===c.n);err[i]+=m?Math.abs(m.v/164*1.25-a)/a:1})}
+  let bi=0;err.forEach((v,i)=>{if(v<err[bi])bi=i});const c=cs[bi];
+  return{rate:Math.round(c.v/164*1.25),how:c.n,base:c.v,from:inFy[inFy.length-1],checked:nObs}};
 function mirrorOt(pk){const e=R.m[pk],w=addM(pk,-1);if(!S.otMonths)S.otMonths={};
   if(live(e)&&((+e.oh||0)>0||(+e.oy||0)>0))S.otMonths[w]={h:+e.oh||0,y:+e.oy||0,t:"pay"};
   else if(e&&(e.del||e.otSet)&&S.otMonths[w]&&S.otMonths[w].t==="pay")delete S.otMonths[w];

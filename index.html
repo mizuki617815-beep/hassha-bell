@@ -23,7 +23,7 @@ body{color:var(--ink);font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN",
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
   background-image:radial-gradient(circle at 12% 18%,#fff 0 2px,transparent 3px),radial-gradient(circle at 80% 8%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 65% 40%,#fff 0 2px,transparent 3px),radial-gradient(circle at 25% 70%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 90% 85%,#fff 0 2px,transparent 3px)}
 .wrap{position:relative;max-width:480px;margin:0 auto;padding:14px 14px 96px}
-#navWx,#navFortune,#navTrain,#navOdekake,#navPlan,#navSet,#paidInfo{scroll-margin-top:10px}
+#navWx,#navFortune,#navTrain,#navOtoku,#navOdekake,#navPlan,#navSet,#paidInfo{scroll-margin-top:10px}
 #jumpNav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;display:flex;gap:2px;width:min(94vw,430px);background:rgba(255,255,255,.96);border:2px solid #f3d9e8;border-radius:999px;padding:6px;box-shadow:0 8px 24px rgba(90,60,140,.28)}
 #jumpNav button{flex:1;border:0;background:transparent;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 0 6px;border-radius:999px;color:var(--sub)}
 #jumpNav .nIco{font-size:21px;line-height:1.15}
@@ -723,6 +723,17 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
     <div class="otPanel" id="otInfo"></div>
   </div>
 
+  <div class="card" id="navOtoku">
+    <div class="sec">🎟 ファーちゃんのお得チェッカー</div>
+    <div class="note" style="margin:0 2px 6px">🍜 外食：お店に入ったら、注文する前に近くの優待をチェック！</div>
+    <div class="otLinks" style="margin:0"><a class="btn2" href="https://bs.benefit-one.inc/map" target="_blank" rel="noopener" style="padding:12px 6px;font-size:13.5px">💼 ベネの地図で<br>近くをさがす</a><a class="btn2" href="https://yutai.jafnavi.jp/map?nowAround=1" target="_blank" rel="noopener" style="padding:12px 6px;font-size:13.5px">🚗 JAFの地図で<br>近くをさがす</a></div>
+    <div class="note" style="margin:14px 2px 6px">🎨 施設：美術館・映画館・温泉などは、行く前に手帳割をチェック！</div>
+    <div class="row"><input type="text" id="otQ" placeholder="施設の名前" enterkeyhint="search" style="flex:1;min-width:0"><button class="btn" id="otGo" type="button">♿ 手帳割をさがす</button></div>
+    <div id="otErr" class="note" style="display:none;color:#e0507f;margin:4px 2px 0">施設の名前を入れてね</div>
+    <a class="btn2 sub" href="https://mirairo-id.jp/" target="_blank" rel="noopener">♿ ミライロIDが使えるところを見る</a>
+    <div class="note" style="margin-top:6px">わからないときは、受付で「障害者割引ありますか？」って聞いてみてね</div>
+  </div>
+
   <div class="card" id="navOdekake">
     <div class="sec">🧳 おでかけ乗り換えガイド</div>
     <div class="row od">
@@ -738,17 +749,6 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
       <a class="btn3" id="odWebAt" target="_blank" rel="noopener">🕐 指定した日時で乗換案内(ジョルダン)をしらべる</a>
     </div>
     <div class="note">平日10時ごろの検索結果をもとにした目安だよ。番線・行き先・所要時間は時間帯で変わることがあるから、乗る前に上のボタンで確認してね。出典：ジョルダン乗換案内(2026/11/10しらべ)</div>
-  </div>
-
-  <div class="card" id="navOtoku">
-    <div class="sec">🎟 おトクチェック</div>
-    <div class="note" style="margin:0 2px 6px">🍜 外食：お店に入ったら、注文する前に近くの優待をチェック！</div>
-    <div class="otLinks" style="margin:0"><a class="btn2" href="https://bs.benefit-one.inc/map" target="_blank" rel="noopener" style="padding:12px 6px;font-size:13.5px">💼 ベネの地図で<br>近くをさがす</a><a class="btn2" href="https://yutai.jafnavi.jp/map?nowAround=1" target="_blank" rel="noopener" style="padding:12px 6px;font-size:13.5px">🚗 JAFの地図で<br>近くをさがす</a></div>
-    <div class="note" style="margin:14px 2px 6px">🎨 施設：美術館・映画館・温泉などは、行く前に手帳割をチェック！</div>
-    <div class="row"><input type="text" id="otQ" placeholder="施設の名前" enterkeyhint="search" style="flex:1;min-width:0"><button class="btn" id="otGo" type="button">♿ 手帳割をさがす</button></div>
-    <div id="otErr" class="note" style="display:none;color:#e0507f;margin:4px 2px 0">施設の名前を入れてね</div>
-    <a class="btn2 sub" href="https://mirairo-id.jp/" target="_blank" rel="noopener">♿ ミライロIDが使えるところを見る</a>
-    <div class="note" style="margin-top:6px">わからないときは、受付で「障害者割引ありますか？」って聞いてみてね</div>
   </div>
 
   <div class="card" id="navSet">
@@ -783,7 +783,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.4</span></summary>
       <ul class="verList">
-        <li data-short="🎟 おトクチェックができたよ！"><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">下のタブに🧳おでかけを追加（乗り換えガイドへ）。🎟おトクチェックも乗り換えガイドの下に追加：外食はお店に入ったらベネ・JAFの地図で近くの優待をワンタップでさがせるよ。美術館・映画館などの施設は、名前を入れて手帳割をさがせて、ミライロIDが使えるところも見られるよ</span></li>
+        <li data-short="🎟 ファーちゃんのお得チェッカーができたよ！"><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">下のタブに🧳おでかけを追加。🎟ファーちゃんのお得チェッカー（乗り換えガイドの上）：外食はお店に入ったらベネ・JAFの地図で近くの優待をワンタップでさがせるよ。美術館・映画館などの施設は、名前を入れて手帳割をさがせて、ミライロIDが使えるところも見られるよ</span></li>
         <li data-short="📚 ファーちゃんの記録室がオープン！"><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚ファーちゃんの記録室がオープン（勤怠ノートのいちばん上から）：給料・ボーナスの明細を📄PDFからまとめて読み込んで、手取りや残業の推移、年度のまとめ、🧾源泉徴収票、🔮今年度の見込みと答え合わせが見られるよ。明細を入れ忘れてたらファーちゃんが教えてくれるよ🧸</span></li>
         <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板を下のほうに大きく</span></li>
         <li><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
@@ -821,7 +821,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
   </div>
 </div>
 
-<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navKintai"><span class="nIco">🧸</span><span class="nLbl">おしごと</span></button><button data-t="navOdekake"><span class="nIco">🧳</span><span class="nLbl">おでかけ</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
+<nav id="jumpNav"><button data-t="navWx"><span class="nIco">🌤️</span><span class="nLbl">天気</span></button><button data-t="navFortune"><span class="nIco">🔮</span><span class="nLbl">占い</span></button><button data-t="navTrain"><span class="nIco">🚃</span><span class="nLbl">電車</span></button><button data-t="navPlan"><span class="nIco">📅</span><span class="nLbl">あした</span></button><button data-t="navKintai"><span class="nIco">🧸</span><span class="nLbl">おしごと</span></button><button data-t="navOtoku"><span class="nIco">🧳</span><span class="nLbl">おでかけ</span></button><button data-t="navSet"><span class="nIco">⚙️</span><span class="nLbl">設定</span></button></nav>
 <script>
 // 時刻表データ(京急空港線 2025年12月13日改正＋2026年11月ダイヤ変更ぶん)。発車:京急公式各駅時刻表/NAVITIME、到着:NAVITIME(2026/11/10取得)、ダイヤ変更ぶん:京急公式ニュースリリース(2026/11/11確認)
 function T(s){return s.split(" ").map(x=>{const [d,r,t,p]=x.split(",");return {m:+d,r:+r,t,p:+p}})}
@@ -2045,7 +2045,7 @@ setInterval(()=>{renderCheer(false);renderBday()},60000);
 const navBtns=[...document.querySelectorAll("#jumpNav button")];
 function navOn(id){navBtns.forEach(b=>b.classList.toggle("on",b.dataset.t===id))}
 navBtns.forEach(b=>b.addEventListener("click",()=>{const el=document.getElementById(b.dataset.t);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});navOn(b.dataset.t)}}));
-if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","navKintai","navCount","navOdekake","navOtoku","navSet"],alias={navCount:"navKintai",navOtoku:"navOdekake"};const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(alias[cur]||cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
+if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","navKintai","navCount","navOtoku","navOdekake","navSet"],alias={navCount:"navKintai",navOdekake:"navOtoku"};const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(alias[cur]||cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
 // ===== 更新ボタン・下に引っぱって更新 =====
 function hardReload(){const p=document.getElementById("ptr");p.textContent="🔄 更新中…";p.style.transform="translate(-50%,12px)";setTimeout(()=>location.reload(),150)}
 document.getElementById("reloadBtn").onclick=hardReload;

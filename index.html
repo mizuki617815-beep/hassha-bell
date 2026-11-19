@@ -70,7 +70,7 @@ body.dark #jumpNav button.on{background:#4a3f6b;color:#ffb7d5}
 .wxTop .mbox .ic{font-size:19px;line-height:1}
 .wxTop .mbox .tmp{font-size:17px}
 .wxTop .mbox .p{margin-left:auto;text-align:right;line-height:1.35}
-.wxBearBox{flex:0 0 auto;text-align:center}
+.wxBearBox{flex:0 0 auto;text-align:center}.wxRow{display:flex;gap:8px;align-items:center}.wxRow .wx{flex:1;min-width:0}.wxBearBox2{flex:0 0 88px;text-align:center}.wxRow .wxBear{width:88px;height:88px}.wxRow .wxBearCap{max-width:88px;font-size:10px}
 .wxBear{width:112px;height:112px;border-radius:18px;object-fit:cover;display:block;border:3px solid #fff;box-shadow:0 2px 8px rgba(183,156,255,.3)}
 body.dark .wxBear{border-color:#4a3f6b}
 .wxBearCap{margin-top:5px;font-size:10.5px;color:var(--sub);text-align:center;max-width:112px;line-height:1.4}
@@ -610,7 +610,8 @@ body.dark .ocChips button,body.dark .ocCand button{background:#2a2440;color:var(
       
       <div class="bubble" id="bubble">…</div>
     </div>
-    <div class="wx" id="wx"></div>
+    <div class="wxRow"><div class="wxBearBox2" id="wxBearBox2" style="display:none"><img class="wxBear" id="wxBear2" alt=""><div class="wxBearCap" id="wxBearCap2"></div></div>
+    <div class="wx" id="wx"></div></div>
     <div class="note" id="wxNote"></div>
     <div class="ocWrap" id="ocWrap"><div class="ocTtl">🗺 ほかの街の天気（旅行の予定用）</div>
       <div class="ocChips"><button type="button" data-c="大阪">大阪</button><button type="button" data-c="名古屋">名古屋</button><button type="button" data-c="宇都宮">宇都宮</button></div>
@@ -1463,10 +1464,12 @@ function updateWxBear(sl,dayW,dd){
   if(sl){wind=Math.max(sl.m?sl.m.wind||0:0,sl.n?sl.n.wind||0:0,sl.e?sl.e.wind||0:0);rain=sl.sev?sl.sev.rain||0:0}
   if(sl&&sl.dw!=null){dayW=sl.dw;rain=sl.rmax||0;const rainy=["小雨","雨","にわか雨"].includes(dayW);wind=rainy?(sl.storm?99:0):(sl.wmax||wind)}
   const pick=bearPick(dayW,wind,rain);
-  if(!pick){wrap.style.display="none";return}
+  const w2=document.getElementById("wxBearBox2"),i2=document.getElementById("wxBear2"),c2=document.getElementById("wxBearCap2");
+  if(!pick){wrap.style.display="none";if(w2)w2.style.display="none";return}
   img.src=`weather/${pick.img}.webp?v=20261119`;
   cap.textContent=dd?`🧸 ${dd.getMonth()+1}/${dd.getDate()}の天気：${pick.cap}`:`🧸 天気：${pick.cap}`;
   wrap.style.display="";
+  if(w2){i2.src=img.src;i2.alt=img.alt;c2.textContent=cap.textContent;w2.style.display=""}
 }
 function slotBox(lbl,time,x){
   if(!x)return `<div class="mbox"><span class="h">${lbl}</span><span class="p">データなし</span></div>`;

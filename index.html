@@ -569,7 +569,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
 .recRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
 .recRow .ktBtn{font-size:12.5px}
 .otLinks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.otLinks .btn2{margin-top:0;padding:9px 6px;font-size:12.5px}
-#otQ::-webkit-search-cancel-button{-webkit-appearance:none;display:none}details.ocWrap{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}details.ocWrap summary{font-size:13.5px;font-weight:900;color:#9b7cf0;cursor:pointer}
+#otQ::-webkit-search-cancel-button{-webkit-appearance:none;display:none}.ocWrap{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}.ocTtl{font-size:13.5px;font-weight:900;color:#9b7cf0}
 .ocChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ocChips button,.ocCand button{font-family:inherit;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:700}.ocChips button.on{border-color:var(--pink);background:var(--pink2)}
 .ocCand{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ocCand button{font-size:12.5px;font-weight:400}
 .ocDay{display:grid;grid-template-columns:4.2em 6.2em 1fr auto;align-items:center;gap:6px;font-size:14px;padding:6px 2px;border-bottom:1px dashed var(--line)}.ocDay:last-child{border-bottom:0}.ocDay .r{font-size:12px;color:#5a9be0}.ocDay .w{font-size:11.5px;color:var(--sub);margin-left:3px}.ocDay .t{text-align:right;white-space:nowrap}.ocDay .t .mx{color:#e0507f;font-weight:900}.ocDay .t .mn{color:#5a9be0}
@@ -612,12 +612,12 @@ body.dark .ocChips button,body.dark .ocCand button{background:#2a2440;color:var(
     </div>
     <div class="wx" id="wx"></div>
     <div class="note" id="wxNote"></div>
-    <details class="ocWrap" id="ocWrap"><summary>🗺 ほかの街の天気（旅行の予定用）</summary>
+    <div class="ocWrap" id="ocWrap"><div class="ocTtl">🗺 ほかの街の天気（旅行の予定用）</div>
       <div class="ocChips"><button type="button" data-c="大阪">大阪</button><button type="button" data-c="名古屋">名古屋</button><button type="button" data-c="宇都宮">宇都宮</button></div>
       <div class="row" style="margin-top:8px"><input type="search" id="ocQ" placeholder="例：仙台、金沢" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false" style="flex:1;min-width:0"><button class="btn" type="button" id="ocGo">さがす</button></div>
       <div id="ocCand"></div>
       <div id="ocRes"></div>
-    </details>
+    </div>
   </div>
 
   <div class="card" id="navFortune">
@@ -1464,7 +1464,7 @@ function updateWxBear(sl,dayW,dd){
   if(sl&&sl.dw!=null){dayW=sl.dw;rain=sl.rmax||0;const rainy=["小雨","雨","にわか雨"].includes(dayW);wind=rainy?(sl.storm?99:0):(sl.wmax||wind)}
   const pick=bearPick(dayW,wind,rain);
   if(!pick){wrap.style.display="none";return}
-  img.src=`weather/${pick.img}.webp`;
+  img.src=`weather/${pick.img}.webp?v=20261119`;
   cap.textContent=dd?`🧸 ${dd.getMonth()+1}/${dd.getDate()}の天気：${pick.cap}`:`🧸 天気：${pick.cap}`;
   wrap.style.display="";
 }

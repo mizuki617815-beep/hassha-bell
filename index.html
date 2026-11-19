@@ -1670,6 +1670,8 @@ const HOUSE=[
  {t:"仲間の日",m:"友だちや仲間とのつながりが運を運ぶ日。気軽に声をかけてみると楽しい展開に",i:"スマホケース"},
  {t:"ひと休みの日",m:"エネルギーをためる日。無理に動くより、一人の時間を大事にすると明日につながるよ",i:"ブランケット"}];
 // 運勢の文章:[月のハウス12]×[月がいる星座の前半・中盤・後半(デーカン)3]×[月の満ち欠け 満ちていく/満月前後/欠けていく 3]=108通り
+// FMSG の通し番号(ハウス×9＋デーカン×3＋満ち欠け)で、勢いのある文／休む・注意の文
+const FMSG_UP=new Set([0,3,4,9,12,16,22,37,39,40,54,60,63,66,76,79,81,82,84,87]),FMSG_DOWN=new Set([5,14,29,31,34,50,58,68,85,86,95,100,104]);
 const FMSG=[
 // 1 自分が主役
 [["新しいことを始めるのにぴったり。思いついたことは小さくでも動き出してみて","自分の気持ちがはっきりわかる日。迷っていたことに答えが出そう","いつもの自分を少しだけアップデート。髪型や服で気分を変えると◎"],
@@ -1808,7 +1810,10 @@ function renderFortune(){
   // 月の満ち欠け(太陽と月の角度)と、月が星座のどのあたりにいるか(デーカン)
   const el=((L.moon-L.sun)%360+360)%360;const ph=FPHASE[Math.floor(((el+22.5)%360)/45)];
   const pg=el<135?0:el<225?1:2;const dec=Math.min(2,Math.floor((L.moon%30)/10));
-  const msg=FMSG[me.hM-1][dec][pg];const item=FITEM[me.hM-1][dec];
+  const msg=(()=>{const h=me.hM-1,t=tierOf(starsByRank(all.map(x=>x.total),s)),base=dec*3+pg,flat=FMSG[h].flat();
+    // ★の数と本文の雰囲気をそろえる：★1〜2の日は「勢いのある文」、★5の日は「休む・注意の文」を出さず、同じハウスの別の文にする
+    const bad=t===3?FMSG_UP:t===0?FMSG_DOWN:null;if(!bad||!bad.has(h*9+base))return flat[base];
+    for(let k=1;k<9;k++){const j=(base+k)%9;if(!bad.has(h*9+j))return flat[j]}return flat[base]})();const item=FITEM[me.hM-1][dec];
   // ★の数(家族・仕事・総合)に合わせて文章の雰囲気を選ぶ
   const stM=starsByRank(all.map(x=>x.money),s),stT=starsByRank(all.map(x=>x.total),s),stL=starsByRank(all.map(x=>x.love),s),stW=starsByRank(all.map(x=>x.work),s);
   const tone=stT>=5?"星のめぐり合わせがとてもいい日。":stT<=2?"星の角度が少しきびしい日。あせらず落ち着いていこう。":"";

@@ -569,7 +569,12 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
 .recRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
 .recRow .ktBtn{font-size:12.5px}
 .otLinks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.otLinks .btn2{margin-top:0;padding:9px 6px;font-size:12.5px}
-#otQ::-webkit-search-cancel-button{-webkit-appearance:none;display:none}</style>
+#otQ::-webkit-search-cancel-button{-webkit-appearance:none;display:none}details.ocWrap{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}details.ocWrap summary{font-size:13.5px;font-weight:900;color:#9b7cf0;cursor:pointer}
+.ocChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ocChips button,.ocCand button{font-family:inherit;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:700}.ocChips button.on{border-color:var(--pink);background:var(--pink2)}
+.ocCand{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ocCand button{font-size:12.5px;font-weight:400}
+.ocDay{display:grid;grid-template-columns:4.2em 1.6em 1fr auto;align-items:center;gap:6px;font-size:14px;padding:6px 2px;border-bottom:1px dashed var(--line)}.ocDay:last-child{border-bottom:0}.ocDay .r{font-size:12px;color:#5a9be0}.ocDay .t{text-align:right;white-space:nowrap}.ocDay .t .mx{color:#e0507f;font-weight:900}.ocDay .t .mn{color:#5a9be0}
+body.dark .ocChips button,body.dark .ocCand button{background:#2a2440;color:var(--ink)}
+</style>
 </head>
 <body>
 <div id="ptr">⬇️ 引っぱって更新</div>
@@ -607,6 +612,12 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
     </div>
     <div class="wx" id="wx"></div>
     <div class="note" id="wxNote"></div>
+    <details class="ocWrap" id="ocWrap"><summary>🗺 ほかの街の天気（旅行の予定用）</summary>
+      <div class="ocChips"><button type="button" data-c="大阪">大阪</button><button type="button" data-c="名古屋">名古屋</button><button type="button" data-c="宇都宮">宇都宮</button></div>
+      <div class="row" style="margin-top:8px"><input type="search" id="ocQ" placeholder="例：仙台、金沢" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false" style="flex:1;min-width:0"><button class="btn" type="button" id="ocGo">さがす</button></div>
+      <div id="ocCand"></div>
+      <div id="ocRes"></div>
+    </details>
   </div>
 
   <div class="card" id="navFortune">
@@ -3068,6 +3079,34 @@ setInterval(drawList,60000);
 const run=w=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("https://www.google.co.jp/search?hl=ja&q="+encodeURIComponent(v+" "+w),"_blank","noopener")};
 document.querySelectorAll("#navOtoku [data-q]").forEach(b=>b.onclick=()=>run(b.dataset.q));
 q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();run("障害者手帳 割引")}});const clr=document.getElementById("otClr"),sync=()=>{clr.style.display=q.value?"block":"none"};q.addEventListener("input",()=>{er.style.display="none";sync()});clr.onclick=()=>{q.value="";sync();er.style.display="none";q.focus()};sync();})();
+</script>
+<script>
+(function(){const $=id=>document.getElementById(id);if(!$("ocWrap"))return;
+const PRE={"大阪":[34.6937,135.5023],"名古屋":[35.1815,136.9066],"宇都宮":[36.5551,139.8828]};
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const em=c=>c==null?"":c<=1?"☀️":c===2?"🌤":c===3?"☁️":(c===45||c===48)?"🌫":(c>=71&&c<=77)||c===85||c===86?"⛄️":c>=95?"⛈":(c>=51&&c<=67)||(c>=80&&c<=82)?"☔️":"☁️";
+const W="日月火水木金土";
+async function show(name,lat,lon){const r=$("ocRes");$("ocCand").innerHTML="";r.innerHTML='<div class="note">よみこみ中…</div>';
+ document.querySelectorAll("#ocWrap .ocChips button").forEach(b=>b.classList.toggle("on",b.dataset.c===name));
+ try{const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=Asia%2FTokyo&forecast_days=7&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`;
+  const j=await (await fetch(u,{cache:"no-store"})).json();const D=j.daily,C=j.current||{};
+  let h=`<div style="margin:10px 2px 4px;font-weight:900">📍 ${esc(name)}　<span style="font-weight:400;font-size:13px">いま ${em(C.weather_code)} ${C.temperature_2m!=null?Math.round(C.temperature_2m*10)/10+"℃":""}</span></div>`;
+  h+=D.time.map((d,i)=>{const t=new Date(d+"T00:00:00");const p=D.precipitation_probability_max&&D.precipitation_probability_max[i];
+   return `<div class="ocDay"><span>${t.getMonth()+1}/${t.getDate()}(${W[t.getDay()]})</span><span>${em(D.weather_code[i])}</span><span class="r">${p!=null?"☂"+p+"%":""}</span><span class="t"><span class="mx">${Math.round(D.temperature_2m_max[i])}°</span> / <span class="mn">${Math.round(D.temperature_2m_min[i])}°</span></span></div>`}).join("");
+  r.innerHTML=h+'<div class="note" style="margin-top:4px">天気：Open-Meteo（上の大田区の天気・服装アドバイスはそのままだよ）</div>';
+ }catch(e){r.innerHTML='<div class="note">天気を取れなかったよ。電波のいいところでもう一回ためしてね</div>'}}
+async function search(){const q=$("ocQ").value.trim();const c=$("ocCand");if(!q){$("ocQ").focus();return}
+ if(PRE[q]){show(q,...PRE[q]);return}
+ c.innerHTML='<div class="note">さがし中…</div>';$("ocRes").innerHTML="";
+ try{const j=await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=ja&format=json`)).json();
+  const L=(j.results||[]);if(!L.length){c.innerHTML='<div class="note">見つからなかったよ。市の名前（例：金沢）でためしてね</div>';return}
+  if(L.length===1){const x=L[0];show(x.name,x.latitude,x.longitude);return}
+  c.innerHTML='<div class="note" style="width:100%;margin:0">どこのこと？</div>'+L.map((x,i)=>`<button type="button" data-i="${i}">${esc(x.name)}${x.admin1?"（"+esc(x.admin1)+(x.country_code&&x.country_code!=="JP"?"・"+esc(x.country||""):"")+"）":x.country?"（"+esc(x.country)+"）":""}</button>`).join("");
+  c.className="ocCand";c.querySelectorAll("button").forEach(b=>b.onclick=()=>{const x=L[+b.dataset.i];show(x.name,x.latitude,x.longitude)});
+ }catch(e){c.innerHTML='<div class="note">さがせなかったよ。電波のいいところでもう一回ためしてね</div>'}}
+document.querySelectorAll("#ocWrap .ocChips button").forEach(b=>b.onclick=()=>show(b.dataset.c,...PRE[b.dataset.c]));
+$("ocGo").onclick=search;$("ocQ").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();search()}});
+})();
 </script>
 </body>
 </html>

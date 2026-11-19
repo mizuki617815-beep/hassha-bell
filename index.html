@@ -3098,8 +3098,12 @@ async function show(name,lat,lon){const r=$("ocRes");$("ocCand").innerHTML="";r.
 async function search(){const q=$("ocQ").value.trim();const c=$("ocCand");if(!q){$("ocQ").focus();return}
  if(PRE[q]){show(q,...PRE[q]);return}
  c.innerHTML='<div class="note">いま場所をさがしてるよ…ちょっと待ってね🧸</div>';$("ocRes").innerHTML="";
- try{const j=await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=ja&format=json`)).json();
-  const L=(j.results||[]);if(!L.length){c.innerHTML='<div class="note">見つからなかったよ。市の名前（例：金沢）でためしてね</div>';return}
+ try{const om=async n=>{try{const j=await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(n)}&count=6&language=ja&format=json`)).json();return j.results||[]}catch(e){return []}};
+  let L=await om(q);
+  if(!L.length&&!/[市町村区都府県]$/.test(q))L=await om(q+"市");
+  if(!L.length){try{const g=await (await fetch("https://msearch.gsi.go.jp/address-search/AddressSearch?q="+encodeURIComponent(q))).json();
+   L=(g||[]).filter(f=>f&&f.geometry&&f.properties).slice(0,6).map(f=>({name:f.properties.title,latitude:f.geometry.coordinates[1],longitude:f.geometry.coordinates[0]}))}catch(e){}}
+  if(!L.length){c.innerHTML='<div class="note">見つからなかったよ。市の名前（例：金沢）でためしてね</div>';return}
   if(L.length===1){const x=L[0];show(x.name,x.latitude,x.longitude);return}
   c.innerHTML='<div class="note" style="width:100%;margin:0">どこのこと？</div>'+L.map((x,i)=>`<button type="button" data-i="${i}">${esc(x.name)}${x.admin1?"（"+esc(x.admin1)+(x.country_code&&x.country_code!=="JP"?"・"+esc(x.country||""):"")+"）":x.country?"（"+esc(x.country)+"）":""}</button>`).join("");
   c.className="ocCand";c.querySelectorAll("button").forEach(b=>b.onclick=()=>{const x=L[+b.dataset.i];show(x.name,x.latitude,x.longitude)});

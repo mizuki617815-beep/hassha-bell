@@ -379,6 +379,7 @@ body.dark .ktToday{background:rgba(255,255,255,.05);border-color:rgba(255,255,25
 .ktChip.off{background:var(--sky2);color:#4f8dd0}
 .ktChip.paid{background:var(--lemon2);color:#b9871a}
 .ktRow{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.sheetBox{margin-top:14px;padding:12px;border-radius:16px;border:2px dashed var(--lav);background:var(--lav2)}.sheetTtl{font-size:14px;font-weight:900;color:#9b7cf0}body.dark .sheetTtl{color:#cbb8ff}.sheetWhat{display:grid;gap:6px;margin-top:8px;font-size:12px;line-height:1.6;color:var(--ink)}.sheetWhat>div{background:rgba(255,255,255,.55);border-radius:10px;padding:6px 9px}body.dark .sheetWhat>div{background:rgba(255,255,255,.05)}
 .ktSet label{display:block;font-size:11.5px;color:var(--sub);margin-top:8px}
 .ktSet input[type=text],.ktSet input[type=number]{font-family:inherit;font-size:15px;color:var(--ink);border:2px solid #ecd6f5;border-radius:12px;padding:6px 10px;width:100%;background:rgba(255,255,255,.8)}
 .ktOk{color:#2f9b80}.ktNg{color:var(--rose)}
@@ -745,7 +746,7 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
         <button class="btn2 sub" id="csvRestore" type="button" style="display:none;font-family:inherit;cursor:pointer;font-size:12px;margin-top:6px"></button>
       </details></div>
     <details style="margin-top:10px" class="ktSet">
-      <summary style="font-size:13px;font-weight:bold;cursor:pointer">📥 入力・📤 出力・☁️ スプレッドシート・⚙️ 計算の設定</summary>
+      <summary style="font-size:13px;font-weight:bold;cursor:pointer">📥 入力・📤 出力・⚙️ 計算の設定</summary>
       <div class="ktRow">
         <button class="ktBtn" id="ktCsvOut" type="button">CSVで保存</button>
         
@@ -753,16 +754,7 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
         <button class="ktBtn" id="ktPdfOut" type="button">PDFにする</button>
       </div>
       <div class="ktNote">「PDFにする」を押したら、右上の「プリント」は押さずに（プリンタがないと押せないよ）、その左の共有ボタン（□に↑）→「ファイルに保存」でPDFになるよ。</div>
-      <label>Googleスプレッドシートのつなぎ先（…/exec で終わるURL）</label>
-      <input type="text" id="ktUrl" placeholder="https://script.google.com/macros/s/…/exec">
-      <button class="ktLinkBtn" id="ktUrlUnlock" type="button" style="display:none">🔓 つなぎ先を変える</button>
-      <div class="ktRow">
-        <button class="ktBtn main" id="ktGSave" type="button">🔄 今すぐそろえる</button>
-      </div>
-      <div class="ktNote" id="ktGNote"></div>
-      <label>このiPhoneで記録する人の名前（例：ファーちゃん、パパ）</label>
-      <input type="text" id="ktWho" placeholder="だれが記録したか、シートと一覧に出るよ">
-      <div class="ktNote">同じURLをつないだiPhoneどうしは、勤怠の記録とシフトが自動でそろうよ（開いたとき・記録したとき）。同じ日を2人が直したら、あとから直したほうが残るよ。URLは2人だけの秘密にしてね。</div>
+      <div class="ktNote">☁️ スプレッドシートのつなぎ先は「⚙️ 設定」タブに引っこしたよ</div>
       <label>この月の公休日数（ふだん10日・2月は9日）</label>
       <input type="number" id="ktKoukyu" inputmode="numeric">
       <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="ktPaid8" style="width:auto"> 有休の日を実働8時間として数える</label>
@@ -839,6 +831,20 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
         <div class="seg" id="sDia"><button data-v="auto">自動</button><button data-v="wd">平日</button><button data-v="hd">土休日</button></div>
       </div>
       <div class="note">「自動」は土日・祝日を土休日ダイヤにします。年末年始などの特別ダイヤの日は手動で切り替えてね。</div>
+      <div class="ktSet sheetBox">
+      <div class="sheetTtl">☁️ スプレッドシート（バックアップ・2台で共有）</div>
+      <div class="sheetWhat"><div><b>☁️ シートに保存・共有されるもの</b><br>勤務の記録・公休・シフト・記録室の明細・歩く時間などの電車の設定（上の4つ）・有休/残業の手入力</div><div><b>📱 このスマホだけ</b><br>お誕生日・星座・画面の色・ダイヤの手動切り替え</div></div>
+      <label>Googleスプレッドシートのつなぎ先（…/exec で終わるURL）</label>
+      <input type="text" id="ktUrl" placeholder="https://script.google.com/macros/s/…/exec">
+      <button class="ktLinkBtn" id="ktUrlUnlock" type="button" style="display:none">🔓 つなぎ先を変える</button>
+      <div class="ktRow">
+        <button class="ktBtn main" id="ktGSave" type="button">🔄 今すぐそろえる</button>
+      </div>
+      <div class="ktNote" id="ktGNote"></div>
+      <label>このiPhoneで記録する人の名前（例：ファーちゃん、パパ）</label>
+      <input type="text" id="ktWho" placeholder="だれが記録したか、シートと一覧に出るよ">
+      <div class="ktNote">同じURLをつないだiPhoneどうしは、上の「☁️ シートに保存・共有されるもの」が自動でそろうよ（開いたとき・記録したとき）。同じ日を2人が直したら、あとから直したほうが残るよ。URLは2人だけの秘密にしてね。</div>
+      </div>
     </details>
   </div>
 

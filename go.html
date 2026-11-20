@@ -2,6 +2,8 @@
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>検索中…</title></head>
 <body style="background:#fff0f8"><script>
 // 古いリンク用:google.co.jp の検索へ(google.com だとGoogleアプリが開くため)
-var q=new URLSearchParams(location.search).get("q")||"";
-if(q)location.replace("https://www.google.co.jp/search?hl=ja&q="+encodeURIComponent(q));
+// c=…:「Claudeに聞く」用。ここから自動で移動するとClaudeアプリに飛ばず、アプリ内ブラウザのまま開ける
+var P=new URLSearchParams(location.search),q=P.get("q")||"",c=P.get("c")||"";
+if(c)location.replace("https://claude.ai/new?q="+encodeURIComponent(c));
+else if(q)location.replace("https://www.google.co.jp/search?hl=ja&q="+encodeURIComponent(q));
 </script></body></html>

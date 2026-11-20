@@ -3054,7 +3054,7 @@ $("ocGo").onclick=search;$("ocQ").addEventListener("keydown",e=>{if(e.key==="Ent
 </script>
 <script>
 (function(){const q=document.getElementById("askQ"),er=document.getElementById("askErr");if(!q)return;
-const go=()=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("https://claude.ai/new?q="+encodeURIComponent(v),"_blank","noopener")};
+const go=()=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("go.html?c="+encodeURIComponent(v),"_blank","noopener")};
 document.getElementById("askGo").onclick=go;q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go()}});q.addEventListener("input",()=>{er.style.display="none"});})();
 </script>
 </body>

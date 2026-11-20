@@ -687,7 +687,20 @@ body.dark .clrBtn{background:#5a4f78}
   <div class="card" id="navKintai">
     <div class="sec">🗒️ 勤怠ノート<span class="ktBeta">β版</span></div>
     <div class="ktNote" style="margin-top:0">β版だよ。計算のたしかめ中なので、記録は今まで通りタイムシートとタイムツリーにも残してね。</div>
-    <button type="button" class="recOpen" id="recOpen"><span class="ri"><img src="rec-bear.webp" alt="本棚の前で資料を整理するファーちゃん" width="58" height="58"></span><span class="rt"><b>📚 ファーちゃんの記録室</b><small>給料・ボーナスの明細／源泉徴収票／年度のまとめ</small></span><span class="ra">›</span></button>
+    <div id="ktTodayWrap"></div>
+    <div class="ktMon" style="margin-top:12px">
+      <button class="ktBtn" id="ktPrev" type="button">◀</button>
+      <b id="ktMonLabel"></b>
+      <button class="ktBtn" id="ktNext" type="button">▶</button>
+    </div>
+    <div class="ktBear"><div class="ic"><img src="kintai-bear.webp" alt="クマのファーちゃん" width="64"></div><div class="ktBubble" id="ktBubble"></div></div>
+    <div class="ktSum" id="ktSum"></div>
+    <div class="ktNote" id="ktSumNote"></div>
+    <details style="margin-top:10px" id="ktDaysWrap">
+      <summary class="ktSumBtn"><span class="ktSumTxt">📅 今月の勤務記録を見る<small>ほかの日の記録もここから見られるよ</small></span></summary>
+      <div class="ktDays" id="ktDays"></div>
+    </details>
+    <button type="button" class="recOpen" style="margin-top:12px" id="recOpen"><span class="ri"><img src="rec-bear.webp" alt="本棚の前で資料を整理するファーちゃん" width="58" height="58"></span><span class="rt"><b>📚 ファーちゃんの記録室</b><small>給料・ボーナスの明細／源泉徴収票／年度のまとめ</small></span><span class="ra">›</span></button>
     <div class="impBox"><button type="button" class="impBtn" id="impBtn">📥 ファイルを読み込む<small>シフト・タイムシート・明細PDF、なんでもOK</small></button><input type="file" id="impAll" multiple style="display:none"><div id="impList"></div>
       <details class="impShift"><summary>🗓 読み込んだシフトを見る・消す</summary>
         <div class="note" id="csvStatus"></div>
@@ -697,19 +710,6 @@ body.dark .clrBtn{background:#5a4f78}
         </div>
         <button class="btn2 sub" id="csvRestore" type="button" style="display:none;font-family:inherit;cursor:pointer;font-size:12px;margin-top:6px"></button>
       </details></div>
-    <div class="ktMon" style="margin-top:8px">
-      <button class="ktBtn" id="ktPrev" type="button">◀</button>
-      <b id="ktMonLabel"></b>
-      <button class="ktBtn" id="ktNext" type="button">▶</button>
-    </div>
-    <div class="ktBear"><div class="ic"><img src="kintai-bear.webp" alt="クマのファーちゃん" width="64"></div><div class="ktBubble" id="ktBubble"></div></div>
-    <div id="ktTodayWrap"></div>
-    <div class="ktSum" id="ktSum"></div>
-    <div class="ktNote" id="ktSumNote"></div>
-    <details style="margin-top:10px" id="ktDaysWrap">
-      <summary class="ktSumBtn"><span class="ktSumTxt">📅 今月の勤務記録を見る<small>ほかの日の記録もここから見られるよ</small></span></summary>
-      <div class="ktDays" id="ktDays"></div>
-    </details>
     <details style="margin-top:10px" class="ktSet">
       <summary style="font-size:13px;font-weight:bold;cursor:pointer">📥 入力・📤 出力・☁️ スプレッドシート・⚙️ 計算の設定</summary>
       <div class="ktRow">

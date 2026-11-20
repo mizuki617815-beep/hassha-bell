@@ -294,6 +294,12 @@ body.dark .lucky span{background:rgba(255,255,255,.05)}
 #shiftInfo .sb,.pOff .sb{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15;color:var(--ink)}
 .pOff{margin-top:10px;padding:16px 12px;border-radius:16px;border:2px solid var(--pink2);background:var(--lav2);font-size:16px;font-weight:700;line-height:1.75;text-align:center;color:var(--ink)}
 .pHome{font-size:15px}
+
+.pOpt{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:box-shadow .15s,border-color .15s}
+.pOpt.open{border-color:var(--lav)!important;box-shadow:0 0 0 3px rgba(183,156,255,.35)}
+.poMsg{display:none;gap:8px;align-items:flex-start;margin-top:10px;padding:8px 10px;border-radius:14px;background:var(--lav2);font-size:13.5px;font-weight:700;line-height:1.6;color:var(--ink);text-align:left}
+.pOpt.open .poMsg{display:flex}.poMsg img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--pink);flex:none;background:#fff}
+.poTap{text-align:right;font-size:11px;color:var(--sub);margin-top:4px}.pOpt.open .poTap{display:none}
 .pOpts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .pOpt{border:1.5px solid var(--line);border-radius:16px;padding:9px 12px;background:rgba(255,255,255,.5)}
 body.dark .pOpt{background:rgba(255,255,255,.04)}
@@ -910,7 +916,20 @@ try{const c=JSON.parse(localStorage.getItem("yumebell_wx4")||"null");if(c&&c.day
 // ===== 設定 =====
 const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",paidMonths:{},otRate:0,otRateHist:[],otMonths:{}}; // 個人の数字は端末内(yumebell)にだけ保存する。公開リポジトリなのでここに本人の値を書かない
 try{Object.assign(S,JSON.parse(localStorage.getItem("yumebell")||"{}"))}catch(e){}
-function save(){try{localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
+// スプレッドシートで2台（ファーちゃん・ご主人）と共有する設定。星座・テーマ・ダイヤ手動などは端末ごと
+const CFG_KEYS=["walk","buf","t3","arrive","otRate","paidMonths","otMonths","otRateHist"];
+const cfgSig=()=>JSON.stringify(CFG_KEYS.map(k=>S[k]));let cfgLast=null,cfgTimer=null;
+function save(){try{const g=cfgSig();if(cfgLast!==null&&g!==cfgLast){S.cfgAt=Date.now();clearTimeout(cfgTimer);cfgTimer=setTimeout(()=>{try{if(typeof sync==="function")sync(false)}catch(e){}},2000)}cfgLast=g;
+  localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
+function cfgPayload(){const o={at:+S.cfgAt||1};CFG_KEYS.forEach(k=>o[k]=S[k]);return o}
+function cfgMerge(rc){let changed=false,remoteOld=false;const la=+S.cfgAt||1;
+  if(!rc)return{changed,remoteOld:true};const ra=+rc.at||1;
+  if(ra>la){CFG_KEYS.forEach(k=>{if(rc[k]!==undefined)S[k]=rc[k]});S.cfgAt=ra;changed=true}
+  else if(la>ra)remoteOld=true;
+  else{for(const k of ["paidMonths","otMonths"]){const L=S[k]||(S[k]={}),R=rc[k]||{};for(const m in R)if(!(m in L)){L[m]=R[m];changed=true}for(const m in L)if(!(m in R))remoteOld=true}}
+  if(changed){cfgLast=cfgSig();try{localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
+  return{changed,remoteOld}}
+cfgLast=cfgSig();
 
 // ===== 日付 =====
 function jstNow(){const n=new Date();return new Date(n.getTime()+(n.getTimezoneOffset()+540)*60000)}
@@ -1060,14 +1079,26 @@ function plan(){
     const list=table("go",day).filter(tr=>tr.m+rideGo(tr)<=target);
     if(!list.length){out.innerHTML=lbl+"<br>間に合う電車がないみたい…";return}
     const b=list[list.length-1],p=list[list.length-2];const n=table("go",day).find(tr=>tr.m>b.m);
+    const shp=SHIFTS[dv],st0=(shp&&!shp.off&&shp.start!=null)?shp.start:null,WALK=+S.arrive||10,DASH=4;
+    const startLine=a=>{if(st0==null)return"";const g=st0-a;
+      if(g>=WALK)return`開始の${hm(st0)}まで${g}分あるから、いつもの早歩きで間に合うよ。`;
+      if(g>=DASH)return`開始の${hm(st0)}まで${g}分しかないよ。改札からダッシュしてね💨`;
+      if(g>=0)return`開始の${hm(st0)}まで${g}分だけ…ダッシュでも間に合わないかも。`;
+      return`開始の${hm(st0)}より${-g}分おそく着くから、遅刻になっちゃう…`};
+    const say=(tr,kind)=>{const a=tr.m+rideGo(tr),d=target-a,home=tr.m-S.walk-S.buf,nm=`${hm(tr.m)}の${TNAME[tr.t]}`;
+      if(kind==="prev")return`${nm}なら、目標の${d}分前に着くよ。${startLine(a)}コンビニに寄りたい日や、ゆっくり行きたい日はこれ🧸`;
+      if(kind==="best")return`目標の${hm(target)}に間に合う中で、いちばんゆっくり家を出られる電車だよ。${hm(home)}に出ればOK！${startLine(a)}🧸`;
+      return`${nm}は目標より${-d}分おそく着くよ。${startLine(a)}乗り遅れたときの次の手にしてね🧸`};
     const opt=(tr,kind)=>{const a=tr.m+rideGo(tr),d=target-a,home=tr.m-S.walk-S.buf;
       const tag={prev:"ひとつ前",best:"⭐ おすすめ",next:"ひとつ後"}[kind];
       const st=d>=0?`<span class="poSt ok">目標の${d}分前に着く</span>`:`<span class="poSt ng">目標より${-d}分おそい</span>`;
-      return`<div class="pOpt po-${kind}"><div class="poTop"><span class="poTag">${tag}</span>${st}</div>
+      return`<div class="pOpt po-${kind}" role="button" tabindex="0"><div class="poTop"><span class="poTag">${tag}</span>${st}</div>
         <div class="poGrid"><div><div class="poL">🏠 おうちを出る</div><div class="poT poHome">${hm(home)}</div></div>
         <div><div class="poL">🚃 京急蒲田発</div><div class="poT">${hm(tr.m)}</div><div class="poSub">${pill(tr.t)}${plat(tr)}</div></div>
-        <div><div class="poL">✈️ T3着</div><div class="poT">${hm(a)}</div></div></div></div>`};
+        <div><div class="poL">✈️ T3着</div><div class="poT">${hm(a)}</div></div></div>
+        <div class="poMsg"><img src="plan-bear.webp" alt=""><div>${say(tr,kind)}</div></div><div class="poTap">💬 タップでファーちゃんが説明</div></div>`};
     out.innerHTML=`${lbl}<div class="pOpts">${p?opt(p,"prev"):""}${opt(b,"best")}${n?opt(n,"next"):""}</div>`;
+    out.querySelectorAll(".pOpt").forEach(el=>{const t=()=>{const o=el.classList.contains("open");out.querySelectorAll(".pOpt.open").forEach(x=>x.classList.remove("open"));if(!o)el.classList.add("open")};el.onclick=t;el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();t()}}});
   }else{
     const list=table("back",day).filter(tr=>tr.m>=target+S.t3).slice(0,3);
     if(!list.length){out.innerHTML=lbl+"<br>この時間からの電車がないみたい…";return}
@@ -1676,6 +1707,11 @@ if(som){if(!S.otMonths)S.otMonths={};
     save();renderOt()};
   som.querySelectorAll("input[data-oth],input[data-oty]").forEach(inp=>{inp.oninput=()=>updOt(inp.dataset.oth||inp.dataset.oty)});
 }
+window.syncSettingsUI=()=>{sw.value=S.walk;sb.value=S.buf;st3.value=S.t3;sar.value=S.arrive;
+  document.querySelectorAll("input[data-pm]").forEach(i=>{const v=(S.paidMonths||{})[i.dataset.pm];i.value=v??""});
+  document.querySelectorAll("input[data-oth]").forEach(i=>{const e=(S.otMonths||{})[i.dataset.oth];i.value=e&&e.h!=null?e.h:""});
+  document.querySelectorAll("input[data-oty]").forEach(i=>{const e=(S.otMonths||{})[i.dataset.oty];i.value=e&&e.y!=null?e.y:""});
+  try{renderNow()}catch(e){}};
 sw.oninput=()=>{S.walk=Math.max(0,+sw.value||0);save();renderNow()};
 sb.oninput=()=>{S.buf=Math.max(0,+sb.value||0);save();renderNow()};
 st3.oninput=()=>{S.t3=Math.max(0,+st3.value||0);save();renderNow()};
@@ -2399,7 +2435,8 @@ function scheduleSync(){if(!KT.url)return;clearTimeout(timer);timer=setTimeout((
 function payload(){const ms={};for(const d in KT.days)if(!KT.days[d].del)ms[d.slice(0,7)]=1;ms[mk(cur.y,cur.m)]=1;
   const tabs={};for(const k in ms){const[y,m]=k.split("-").map(Number);tabs[k]=monthRows(y,m)}
   return{app:"yumebell-kintai",v:2,at:new Date().toISOString(),
-    data:{days:KT.days,koukyu:KT.koukyu,paid8:KT.paid8,setU:KT.setU||0,shifts:SH(),shiftsAt:shiftsAt(),...(window.recForSync&&window.recForSync()?{rec:window.recForSync()}:{})},tabs}}
+    data:{days:KT.days,koukyu:KT.koukyu,paid8:KT.paid8,setU:KT.setU||0,cfg:cfgPayload(),shifts:SH(),shiftsAt:shiftsAt(),...(window.recForSync&&window.recForSync()?{rec:window.recForSync()}:{})},tabs}}
+let cfgChanged=false;
 function mergeRemote(j){let changed=false,remoteOld=false;
   const rd=(j&&j.days)||{};
   for(const d of new Set([...Object.keys(rd),...Object.keys(KT.days)])){const a=KT.days[d],b=rd[d];const au=a?(+a.u||0):-1,bu=b?(+b.u||0):-1;
@@ -2409,9 +2446,10 @@ function mergeRemote(j){let changed=false,remoteOld=false;
   const join=joining&&j.shifts&&Object.keys(j.shifts).length>0;joining=false; // 新しくつないだ端末は、シートにあるシフトをそのまま受け取る
   if((ra>la||join)&&j.shifts&&typeof SHIFTS!=="undefined"){SHIFTS=j.shifts;try{(window._ktRawSaveShifts||saveShifts)();localStorage.setItem(SHU_KEY,String(ra))}catch(e){}shChanged=true;changed=true}
   else if(la>ra)remoteOld=true;
+  {const c=cfgMerge(j&&j.cfg);if(c.changed){changed=true;cfgChanged=true}if(c.remoteOld)remoteOld=true}
   if(window.recMerge){try{const r=window.recMerge(j&&j.rec);if(r.changed)changed=true;if(r.remoteOld)remoteOld=true}catch(e){}}
   return{changed,remoteOld,shChanged}}
-function refreshAll(shChanged){render();if(window.recRefresh)window.recRefresh();if(typeof renderOt==="function")renderOt();ktChip();
+function refreshAll(shChanged){if(cfgChanged){cfgChanged=false;try{if(window.syncSettingsUI)window.syncSettingsUI();diaNotice(jstNow());renderPaid();renderOt()}catch(e){}}render();if(window.recRefresh)window.recRefresh();if(typeof renderOt==="function")renderOt();ktChip();
   if(shChanged){try{if(typeof renderShiftStatus==="function")renderShiftStatus();if(typeof applyShiftForDate==="function")applyShiftForDate(true);if(typeof renderCheer==="function")renderCheer(true);if(typeof renderPaid==="function")renderPaid()}catch(e){}}}
 async function sync(manual){if(!KT.url||syncing)return;syncing=true;
   try{let j={};try{const r=await fetch(KT.url,{cache:"no-store"});j=await r.json()||{}}catch(e){if(manual)throw e}

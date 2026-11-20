@@ -90,6 +90,7 @@ body.dark .wxBear{border-color:#4a3f6b}
 body.dark .cheer{background:#2e2747;border-color:#5a3a5c}body.dark body.dark body.dark .cheer b{color:#ff9fcf}
 #pCheer{margin-top:8px;padding:8px 12px;border-radius:14px;background:var(--pink2);font-size:13.5px;font-weight:700;line-height:1.6;color:var(--ink)}
 #pCheer:empty{display:none}
+#pCheer{position:relative;padding-left:64px!important;min-height:48px;display:flex;flex-direction:column;justify-content:center}#pCheer:before{content:"";position:absolute;left:10px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:#fff url(offday-bear.webp?v=20261121) center/cover no-repeat;border:2px solid var(--pink)}#pCheer:empty:before{display:none}
 .cheerRen{display:inline-block;font-size:12px;color:#e0609a}
 body.dark .cheerRen{color:#ff9fcf}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -293,6 +294,21 @@ body.dark .lucky span{background:rgba(255,255,255,.05)}
 #shiftInfo .sb,.pOff .sb{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15;color:var(--ink)}
 .pOff{margin-top:10px;padding:16px 12px;border-radius:16px;border:2px solid var(--pink2);background:var(--lav2);font-size:16px;font-weight:700;line-height:1.75;text-align:center;color:var(--ink)}
 .pHome{font-size:15px}
+.pOpts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.pOpt{border:1.5px solid var(--line);border-radius:16px;padding:9px 12px;background:rgba(255,255,255,.5)}
+body.dark .pOpt{background:rgba(255,255,255,.04)}
+.pOpt.po-best{border:2.5px solid #ff6f9f;background:var(--pink2);padding:12px 12px 13px;box-shadow:0 4px 14px rgba(255,111,159,.18)}
+.poTop{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px}
+.poTag{font-size:13px;font-weight:900;color:var(--sub)}.po-best .poTag{color:#e0507f;font-size:15px}
+.poSt{font-size:12.5px;font-weight:800;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.poSt.ok{background:var(--mint2);color:#1f8f74}.poSt.ng{background:#ffe0e8;color:#d6336c}
+body.dark .poSt.ok{color:#7fdcc5}body.dark .poSt.ng{background:#5a2436;color:#ffb3cf}
+.poGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;text-align:center}
+.poL{font-size:11.5px;color:var(--sub);font-weight:700;white-space:nowrap}
+.poT{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.25}
+.po-best .poT{font-size:28px}.po-best .poHome{color:#ff6f9f}
+.poSub{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;margin-top:2px}.poSub .pill,.poSub .plat{font-size:11px;padding:1px 6px}
+
 
 .banner{flex:0 0 auto;width:30%;max-width:130px;border-radius:12px;box-shadow:0 3px 10px rgba(183,156,255,.25);border:1.5px solid rgba(255,255,255,.9)}
 .top{gap:10px}.brand h1{font-size:19px;white-space:nowrap}.brand .tag{font-size:9px;white-space:nowrap}.avatar{width:50px;height:50px}
@@ -1044,9 +1060,14 @@ function plan(){
     const list=table("go",day).filter(tr=>tr.m+rideGo(tr)<=target);
     if(!list.length){out.innerHTML=lbl+"<br>間に合う電車がないみたい…";return}
     const b=list[list.length-1],p=list[list.length-2];const n=table("go",day).find(tr=>tr.m>b.m);
-    out.innerHTML=`${lbl}<div class="pTrain">${pill(b.t)}<span class="pt">${hm(b.m)}</span> 京急蒲田発 ${plat(b)} <span class="pa">→ T3 <b>${hm(b.m+rideGo(b))}</b>着</span></div><div class="pHome">🏠 <span class="hl">${hm(b.m-S.walk-S.buf)}</span> におうちを出てね</div>`+
-      (p?`<div class="note">ひとつ前なら ${hm(p.m)}発(おうちを ${hm(p.m-S.walk-S.buf)} に出る)</div>`:"")+
-      (n?(()=>{const na=n.m+rideGo(n),late=na-target;return`<div class="note">ひとつ後なら ${hm(n.m)}発(おうちを ${hm(n.m-S.walk-S.buf)} に出る) → T3 ${hm(na)}着${late>0?`<span style="color:#e0507f;font-weight:bold">（目標より${late}分おそい）</span>`:""}</div>`})():"");
+    const opt=(tr,kind)=>{const a=tr.m+rideGo(tr),d=target-a,home=tr.m-S.walk-S.buf;
+      const tag={prev:"ひとつ前",best:"⭐ おすすめ",next:"ひとつ後"}[kind];
+      const st=d>=0?`<span class="poSt ok">目標の${d}分前に着く</span>`:`<span class="poSt ng">目標より${-d}分おそい</span>`;
+      return`<div class="pOpt po-${kind}"><div class="poTop"><span class="poTag">${tag}</span>${st}</div>
+        <div class="poGrid"><div><div class="poL">🏠 おうちを出る</div><div class="poT poHome">${hm(home)}</div></div>
+        <div><div class="poL">🚃 京急蒲田発</div><div class="poT">${hm(tr.m)}</div><div class="poSub">${pill(tr.t)}${plat(tr)}</div></div>
+        <div><div class="poL">✈️ T3着</div><div class="poT">${hm(a)}</div></div></div></div>`};
+    out.innerHTML=`${lbl}<div class="pOpts">${p?opt(p,"prev"):""}${opt(b,"best")}${n?opt(n,"next"):""}</div>`;
   }else{
     const list=table("back",day).filter(tr=>tr.m>=target+S.t3).slice(0,3);
     if(!list.length){out.innerHTML=lbl+"<br>この時間からの電車がないみたい…";return}

@@ -583,6 +583,11 @@ body.dark .clrBtn{background:#5a4f78}
 #ktDaysWrap>summary.ktSumBtn small{color:rgba(255,255,255,.9);font-size:11.5px}
 #ktDaysWrap>summary.ktSumBtn::after{content:"ひらく ▼";font-size:12px;font-weight:bold;color:#9b7cf0;background:#fff;border-radius:999px;padding:5px 10px;white-space:nowrap}
 #ktDaysWrap[open]>summary.ktSumBtn::after{content:"とじる ▲"}
+.ktStat{display:inline-block;font-size:13px;font-weight:bold;border-radius:999px;padding:4px 12px;margin-bottom:6px}.ktStat small{font-weight:normal;font-size:11.5px}
+.ktStat.ok{background:#dff5e6;color:#2f8a52}.ktStat.ng{background:#ffe0ee;color:#d6407a}.ktStat.wait{background:#eee8ff;color:#7a62c9}
+.ktToday.ok{border-color:#9fdcb5!important}.ktToday.ng{border-color:#ff9fcf!important;box-shadow:0 0 0 3px rgba(255,159,207,.25)}
+.ktChip.ng{background:#ffe0ee;color:#d6407a}
+body.dark .ktStat.ok{background:rgba(80,190,120,.18);color:#8fe0ad}body.dark .ktStat.ng{background:rgba(255,120,170,.18);color:#ff9fc4}body.dark .ktStat.wait{background:rgba(155,124,240,.2);color:#c8b6ff}body.dark .ktChip.ng{background:rgba(255,120,170,.18);color:#ff9fc4}
 </style>
 </head>
 <body>
@@ -2119,10 +2124,10 @@ function render(){
     if(yuu){main="🏖️ 有休";sub=(dc.act||KT.paid8)?"勤務なし・8時間として計算":"勤務なし";chip=`<span class="ktChip paid">有休</span>`}
     else if(dc.act){main=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分`;
       sub=`実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"");
-      chip=dc.fixed?`<span class="ktChip fix">記録済み✓</span>`:`<span class="ktChip plan">入力中</span>`;
+      chip=dc.fixed?`<span class="ktChip fix">✅ 記入済み</span>`:`<span class="ktChip plan">入力中</span>`;
       if(dc.e.by&&dc.e.by!==(KT.who||""))sub+=`　✍️${ESC(dc.e.by)}`}
     else if(dc.plan&&!dc.plan.paid){main=`${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分`;
-      sub=dc.auto?`定時（シフトどおり・自動）　${ESC(dc.sh.title)}`:`予定 ${DUR(dc.plan.work)}　${ESC(dc.sh.title)}`;chip=dc.auto?`<span class="ktChip fix">定時✓</span>`:`<span class="ktChip plan">予定</span>`}
+      sub=dc.auto?`未記入なので定時あつかい　${ESC(dc.sh.title)}`:`予定 ${DUR(dc.plan.work)}　${ESC(dc.sh.title)}`;chip=dc.auto?`<span class="ktChip ng">✏️ 未記入</span>`:`<span class="ktChip plan">予定</span>`}
     else if(dc.sh&&dc.sh.off){main="お休み";chip=`<span class="ktChip off">休</span>`}
     else main=`<span style="color:var(--sub)">シフトなし</span>`;
     if(dc.e&&dc.e.memo&&!(yuu&&/^\s*有[休給]\s*$/.test(dc.e.memo)))sub+=`　📝${ESC(dc.e.memo)}`;
@@ -2149,14 +2154,19 @@ function renderToday(){
   const t=YMD(NOW());
   const card=(d,label)=>{const dc=dayCalc(d),[Y,M,D]=d.split("-").map(Number),wd=WD[new Date(Y,M-1,D).getDay()];
     const usePlan=dc.plan&&!dc.plan.paid;let body,btns="";
-    if(dc.act){body=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分　実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"")+(dc.fixed?"　✓":"");
+    if(dc.act){body=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分　実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"")+"";
       btns=`<button class="ktBtn ktDayBtn ktEditBtn" type="button" data-edit="${d}">✏️ この日の勤怠記録を見る・変える</button>`}
-    else if(usePlan){body=`予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分　実働 ${DUR(dc.plan.work)}`+(dc.auto?"　✓ 定時":"");
+    else if(usePlan){body=`予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分　実働 ${DUR(dc.plan.work)}`;
       btns=`<button class="ktBtn ${dc.auto?"":"main "}ktDayBtn" type="button" data-zan="${d}">⏰ 残業を記録</button>`}
     else if(isPaid(dc.sh))body="有休の日だよ。ゆっくりしてね🧸";
     else if(dc.sh&&dc.sh.off)body="お休みの日だよ🧸";
     else{body="シフトなし";btns=`<button class="ktBtn" type="button" data-edit="${d}">入力する</button>`}
-    return`<div class="ktToday"><div class="tl">${label}　${M}/${D}（${wd}）${dc.sh?"　"+ESC(dc.sh.title):""}</div><div class="tm">${body}</div>${btns?`<div class="ktRow">${btns}</div>`:""}</div>`};
+    let badge="",cls="";{const nm=NOW().getHours()*60+NOW().getMinutes(),isT=d===YMD(NOW());
+      if(dc.act&&dc.e){const u=dc.e.u?new Date(dc.e.u):null;const ut=u?(YMD(u)===YMD(NOW())?"":`${u.getMonth()+1}/${u.getDate()} `)+`${u.getHours()}:${P(u.getMinutes())}に記入`:"";
+        badge=`<div class="ktStat ok">✅ 記入済み${ut?"　<small>"+ut+"</small>":""}</div>`;cls=" ok"}
+      else if(usePlan&&isT&&nm<dc.plan.end){badge=`<div class="ktStat wait">⏳ 勤務がおわったら記入してね（${HM(dc.plan.end)}まで）</div>`}
+      else if(usePlan){badge=`<div class="ktStat ng">✏️ まだ記入してないよ${dc.auto?"（このままだと定時あつかい）":""}</div>`;cls=" ng"}}
+    return`<div class="ktToday${cls}">${badge}<div class="tl">${label}　${M}/${D}（${wd}）${dc.sh?"　"+ESC(dc.sh.title):""}</div><div class="tm">${body}</div>${btns?`<div class="ktRow">${btns}</div>`:""}</div>`};
   let h="";
   {const y=new Date(NOW());y.setDate(y.getDate()-1);const yd=YMD(y),yc=dayCalc(yd);
    if(yc.auto&&!yc.e)h+=card(yd,"きのう（残業してなければ、このままでOK）")}

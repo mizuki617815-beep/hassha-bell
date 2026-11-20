@@ -1043,9 +1043,10 @@ function plan(){
   if(S.tab==="go"){
     const list=table("go",day).filter(tr=>tr.m+rideGo(tr)<=target);
     if(!list.length){out.innerHTML=lbl+"<br>間に合う電車がないみたい…";return}
-    const b=list[list.length-1],p=list[list.length-2];
+    const b=list[list.length-1],p=list[list.length-2];const n=table("go",day).find(tr=>tr.m>b.m);
     out.innerHTML=`${lbl}<div class="pTrain">${pill(b.t)}<span class="pt">${hm(b.m)}</span> 京急蒲田発 ${plat(b)} <span class="pa">→ T3 <b>${hm(b.m+rideGo(b))}</b>着</span></div><div class="pHome">🏠 <span class="hl">${hm(b.m-S.walk-S.buf)}</span> におうちを出てね</div>`+
-      (p?`<div class="note">ひとつ前なら ${hm(p.m)}発(おうちを ${hm(p.m-S.walk-S.buf)} に出る)</div>`:"");
+      (p?`<div class="note">ひとつ前なら ${hm(p.m)}発(おうちを ${hm(p.m-S.walk-S.buf)} に出る)</div>`:"")+
+      (n?(()=>{const na=n.m+rideGo(n),late=na-target;return`<div class="note">ひとつ後なら ${hm(n.m)}発(おうちを ${hm(n.m-S.walk-S.buf)} に出る) → T3 ${hm(na)}着${late>0?`<span style="color:#e0507f;font-weight:bold">（目標より${late}分おそい）</span>`:""}</div>`})():"");
   }else{
     const list=table("back",day).filter(tr=>tr.m>=target+S.t3).slice(0,3);
     if(!list.length){out.innerHTML=lbl+"<br>この時間からの電車がないみたい…";return}

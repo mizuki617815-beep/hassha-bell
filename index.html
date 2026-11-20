@@ -300,6 +300,8 @@ body.dark .lucky span{background:rgba(255,255,255,.05)}
 .poMsg{display:none;gap:8px;align-items:flex-start;margin-top:10px;padding:8px 10px;border-radius:14px;background:var(--lav2);font-size:13.5px;font-weight:700;line-height:1.6;color:var(--ink);text-align:left}
 .pOpt.open .poMsg{display:flex}.poMsg img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--pink);flex:none;background:#fff}
 .poTap{text-align:right;font-size:11px;color:var(--sub);margin-top:4px}.pOpt.open .poTap{display:none}
+.poSt.warn{background:#fff1d6;color:#b86e00}body.dark .poSt.warn{background:#4a3a1a;color:#ffd27a}
+.poSt.best{background:#ffe3ef;color:#e0507f;border:1.5px solid #ff6f9f}body.dark .poSt.best{background:#4a2c48;color:#ff9fcf}.goTagRow{margin-top:6px}.goBest{margin-top:6px;font-size:14px;font-weight:700;padding:6px 10px;border-radius:12px;background:var(--pink2);color:var(--ink)}.liBest{outline:2.5px solid #ff6f9f;outline-offset:-2px;border-radius:12px}#nextList .poSt{display:inline-block;margin-top:3px;font-size:11.5px;padding:1px 8px}
 .pOpts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .pOpt{border:1.5px solid var(--line);border-radius:16px;padding:9px 12px;background:rgba(255,255,255,.5)}
 body.dark .pOpt{background:rgba(255,255,255,.04)}
@@ -1036,12 +1038,31 @@ function renderSafe(now,m){
   }
   el.innerHTML=html;
 }
+// 電車タブの行き：シフトの目標（開始の S.arrive 分前にT3着）があるとき、あしたタブと同じ印を付ける
+function goGoal(now,m){const {d}=svc(now);
+  for(let k=0;k<2;k++){const day=new Date(d);day.setDate(day.getDate()+k);
+    const sh=SHIFTS[ymd(day)];if(!sh||sh.off||sh.start==null)continue;
+    const target=sh.start-(+S.arrive||0)+k*1440;if(target<m||target-m>360)continue;
+    let best=null;for(const tr of table("go",day)){const abs=tr.m+k*1440;if(abs+rideGo(tr)<=target)best={...tr,abs,deadline:abs-S.walk-S.buf}}
+    return{target,best,start:sh.start+k*1440}}
+  return null}
+// あしたタブ・電車タブ共通の印。arr=T3着、target=到着目標、start=シフト開始（不明ならnull）
+function arrTag(arr,target,start,isBest,inCard){const d=target-arr;
+  if(isBest&&inCard)return`<span class="poSt ok">✅ 間に合う・目標の${d}分前</span>`;
+  if(isBest)return`<span class="poSt best">⭐ おすすめ・目標の${d}分前</span>`;
+  if(d>=0)return`<span class="poSt ok">🌸 ゆっくりできる・目標の${d}分前</span>`;
+  if(start==null)return`<span class="poSt ng">⚠️ 目標より${-d}分おそい</span>`;
+  const g=start-arr;
+  if(g>=4)return`<span class="poSt warn">💨 ダッシュなら間に合う・開始${g}分前</span>`;
+  if(g>=0)return`<span class="poSt ng">⚠️ 遅刻の危険・開始${g}分前</span>`;
+  return`<span class="poSt ng">🚨 遅刻・開始に${-g}分おくれ</span>`}
+function goTag(g,r){if(!g)return"";return arrTag(r.abs+rideGo(r),g.target,g.start,!!(g.best&&r.abs===g.best.abs))}
 // ===== 今すぐ =====
 function renderNow(){
   const now=jstNow();renderHead(now);diaNotice(now);autoTick(now);
   const go=S.tab==="go";
   document.getElementById("routeLbl").textContent=go?`🏠 → 京急蒲田(徒歩${S.walk}分) → 羽田空港第3ターミナル`:"羽田空港第3ターミナル → 京急蒲田 → 🏠";
-  const {res,m}=upcoming(S.tab,now);renderSafe(now,m);renderPaid();renderOt();const hero=document.getElementById("hero");const msg=document.getElementById("heroMsg");
+  const {res,m}=upcoming(S.tab,now);renderSafe(now,m);const gg=S.tab==="go"?goGoal(now,m):null;renderPaid();renderOt();const hero=document.getElementById("hero");const msg=document.getElementById("heroMsg");
   if(!res.length){hero.innerHTML='<div class="lbl">電車が見つからないよ</div>';msg.innerHTML="";return}
   const f=res[0];const first=f.k>0?' <span class="badge b-hd">始発</span>':"";
   if(go){
@@ -1049,7 +1070,8 @@ function renderNow(){
     hero.innerHTML=`<div class="lbl">おうちを出るまで${first}</div><div class="big">${fmtCount(left)}</div>
       <div class="info">${pill(f.t)}<b>${hm(f.abs)}</b> 京急蒲田発 ${plat(f)}</div>
       <div class="lim limBig">出発リミット ${hm(f.deadline)} ・ T3着 ${hm(f.abs+rideGo(f))}</div>
-      <div class="lim">🚃 T3は1番線着。乗るなら<b>やや前寄り</b>の車両がおすすめ</div>`;
+      <div class="lim">🚃 T3は1番線着。乗るなら<b>やや前寄り</b>の車両がおすすめ</div>`+
+      (gg?`<div class="goTagRow">${goTag(gg,f)}</div>`+(gg.best&&gg.best.abs!==f.abs&&gg.best.abs>f.abs?`<div class="goBest">⭐ おすすめは <b>${hm(gg.best.abs)}</b>発（おうちを <b>${hm(gg.best.deadline)}</b> に出る）</div>`:""):"");
     msg.innerHTML=`<div class="msg m-${st}">${st==="ok"?"🧸 まだ余裕あるよ、ゆっくり準備してね":st==="warn"?"🧸 そろそろ靴はいて〜！":"🧸 いますぐ出発！いってらっしゃい！"}</div>`;
     const wb=document.getElementById("walkBar");const w=nextDeparture("go",now);
     if(wb)wb.innerHTML=(w&&w.abs!==f.abs)?`<div class="walkBar"><div class="wbLbl">もう家を出てる人へ・京急蒲田の次の電車まで</div><div class="wbBig"><span class="wbAto">あと</span>${fmtCount(w.abs-m)}</div><div class="wbInfo">${pill(w.t)} <b>${hm(w.abs)}</b>発 ${plat(w)}</div><div class="wbMsg">⚠️ 家を出るリミットを過ぎたよ！<br>🧸 ちゃんともう家を出たかな？</div></div>`:"";
@@ -1064,7 +1086,7 @@ function renderNow(){
   }
   if(!go){const wb2=document.getElementById("walkBar");if(wb2)wb2.innerHTML=""}
   document.getElementById("nextList").innerHTML=res.slice(1,5).map(r=>{
-    if(go)return `<li><span>${pill(r.t)}<span class="t">${hm(r.abs)}</span></span><span class="r">${plat(r)} おうちを出る <b>${hm(r.deadline)}</b><br>あと${Math.round(r.deadline-m)}分</span></li>`;
+    if(go)return `<li${gg&&gg.best&&r.abs===gg.best.abs?' class="liBest"':""}><span>${pill(r.t)}<span class="t">${hm(r.abs)}</span>${gg?`<br>${goTag(gg,r)}`:""}</span><span class="r">${plat(r)} おうちを出る <b>${hm(r.deadline)}</b><br>あと${Math.round(r.deadline-m)}分</span></li>`;
     const a=r.abs+rideBk(r);return `<li><span>${pill(r.t)}<span class="t">${hm(r.abs)}</span></span><span class="r">蒲田 ${hm(a)} / おうち <b>${hm(a+S.walk)}</b><br>あと${Math.round(r.abs-m)}分</span></li>`;
   }).join("");
 }
@@ -1097,7 +1119,7 @@ function plan(){
       return`${nm}は目標より${-d}分おそく着くよ。${startLine(a)}乗り遅れたときの次の手にしてね🧸`};
     const opt=(tr,kind)=>{const a=tr.m+rideGo(tr),d=target-a,home=tr.m-S.walk-S.buf;
       const tag={prev:"ひとつ前",best:"⭐ おすすめ",next:"ひとつ後"}[kind];
-      const st=d>=0?`<span class="poSt ok">目標の${d}分前に着く</span>`:`<span class="poSt ng">目標より${-d}分おそい</span>`;
+      const st=arrTag(a,target,st0,kind==="best",true);
       return`<div class="pOpt po-${kind}" role="button" tabindex="0"><div class="poTop"><span class="poTag">${tag}</span>${st}</div>
         <div class="poGrid"><div><div class="poL">🏠 おうちを出る</div><div class="poT poHome">${hm(home)}</div></div>
         <div><div class="poL">🚃 京急蒲田発</div><div class="poT">${hm(tr.m)}</div><div class="poSub">${pill(tr.t)}${plat(tr)}</div></div>

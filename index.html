@@ -747,8 +747,8 @@ body.dark .askWrap{background:rgba(255,159,207,.08)}
     <div id="otErr" class="note" style="display:none;color:#e0507f;margin:4px 2px 0">お店か施設の名前を入れてね</div>
     <div class="note" style="margin-top:6px">わからないときは、受付で「障害者割引ありますか？」って聞いてみてね</div>
     <div class="askWrap" id="askWrap">
-      <div class="askTtl">🧸 Claudeに聞く</div>
-      <div class="note" style="margin:2px 2px 6px">おでかけのこと、天気のこと、なんでも。押すとClaudeが開いて、質問が入った状態になるよ（送信は自分で押してね）</div>
+      <div class="askTtl">🔍 AIに聞く</div>
+      <div class="note" style="margin:2px 2px 6px">おでかけのこと、天気のこと、なんでも。GoogleのAIモードが、その場で答えてくれるよ</div>
       <div class="row"><input type="search" id="askQ" placeholder="例：週末の京都、何着ていく？" enterkeyhint="send" autocomplete="off" style="flex:1;min-width:0"><button class="btn askBtn" type="button" id="askGo">聞く</button></div>
       <div id="askErr" class="note" style="display:none;color:#e0507f;margin:4px 2px 0">聞きたいことを入れてね</div>
     </div>
@@ -3054,7 +3054,7 @@ $("ocGo").onclick=search;$("ocQ").addEventListener("keydown",e=>{if(e.key==="Ent
 </script>
 <script>
 (function(){const q=document.getElementById("askQ"),er=document.getElementById("askErr");if(!q)return;
-const go=()=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("go.html?c="+encodeURIComponent(v),"_blank","noopener")};
+const go=()=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("https://www.google.co.jp/search?udm=50&hl=ja&q="+encodeURIComponent(v),"_blank","noopener")};
 document.getElementById("askGo").onclick=go;q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go()}});q.addEventListener("input",()=>{er.style.display="none"});})();
 </script>
 </body>

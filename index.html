@@ -131,7 +131,7 @@ html,body{overscroll-behavior-y:contain}
 .st-ok .big{color:#3fc5a2}.st-warn .big{color:#f2a93b}.st-hurry .big{color:#ff5f95}
 .hero .info{font-size:13px;margin-top:3px}
 .hero .info b{font-size:19px}
-.hero .lim{font-size:12px;color:var(--sub);margin-top:2px}
+.hero .lim{font-size:12px;color:var(--sub);margin-top:2px}.hero .lim.limBig{font-size:16px;font-weight:bold;color:var(--ink);margin-top:6px}
 .pill{display:inline-block;font-size:11px;font-weight:900;padding:2px 7px;border-radius:8px;margin-right:4px;vertical-align:2px}
 .t-急{background:#ffe7d4;color:#d8742b}.t-特{background:#ffe0ea;color:#e0507f}.t-快{background:#ebe3ff;color:#7d5ce0}.t-普{background:#eef0f5;color:#7c8396}
 .msg{margin-top:12px;padding:9px 12px;border-radius:16px;font-size:13px;text-align:center;font-weight:700}
@@ -979,7 +979,7 @@ function renderNow(){
     const left=f.deadline-m;const st=left>10?"ok":left>3?"warn":"hurry";hero.className="hero st-"+st;
     hero.innerHTML=`<div class="lbl">おうちを出るまで${first}</div><div class="big">${fmtCount(left)}</div>
       <div class="info">${pill(f.t)}<b>${hm(f.abs)}</b> 京急蒲田発 ${plat(f)}</div>
-      <div class="lim">出発リミット ${hm(f.deadline)} ・ T3着 ${hm(f.abs+rideGo(f))}</div>
+      <div class="lim limBig">出発リミット ${hm(f.deadline)} ・ T3着 ${hm(f.abs+rideGo(f))}</div>
       <div class="lim">🚃 T3は1番線着。乗るなら<b>やや前寄り</b>の車両がおすすめ</div>`;
     msg.innerHTML=`<div class="msg m-${st}">${st==="ok"?"🧸 まだ余裕あるよ、ゆっくり準備してね":st==="warn"?"🧸 そろそろ靴はいて〜！":"🧸 いますぐ出発！いってらっしゃい！"}</div>`;
     const wb=document.getElementById("walkBar");const w=nextDeparture("go",now);
@@ -989,7 +989,7 @@ function renderNow(){
     const arr=f.abs+rideBk(f);
     hero.innerHTML=`<div class="lbl">T3を出発するまで${first}</div><div class="big">${fmtCount(toDep)}</div>
       <div class="info">${pill(f.t)}<b>${hm(f.abs)}</b> T3発</div>
-      <div class="lim">京急蒲田 ${hm(arr)}着 ・ おうち ${hm(arr+S.walk)}ごろ</div>
+      <div class="lim limBig">京急蒲田 ${hm(arr)}着 ・ おうち ${hm(arr+S.walk)}ごろ</div>
       <div class="lim">🚃 ふだんはT3の2番線から乗って、京急蒲田は4番線に着くよ</div>`;
     msg.innerHTML=`<div class="msg m-${st}">${st==="ok"?"🧸 おつかれさま！ゆっくりで大丈夫":st==="warn"?"🧸 改札に向かおっか":"🧸 急いで〜！"}</div>`;
   }

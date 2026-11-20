@@ -1,1 +1,10 @@
-{"checkedAt":null,"lastTry":null,"ok":false,"dates":[],"errors":["まだ一度も動いていない"]}
+{
+ "checkedAt": "2026-11-20T23:59+09:00",
+ "lastTry": "2026-11-20T23:59+09:00",
+ "ok": true,
+ "dates": [
+  "2026-11-21",
+  "2026-11-24"
+ ],
+ "errors": []
+}

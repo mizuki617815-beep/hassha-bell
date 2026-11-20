@@ -260,7 +260,7 @@ select{flex:1;min-width:0;font-family:inherit;font-size:16px;padding:10px 8px;bo
 .steps .leg b{color:var(--ink);font-size:14px}
 .btn2{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:14px;font-weight:900;font-size:14px;text-decoration:none;color:#fff;background:linear-gradient(120deg,#ff9fcf,#b79cff);box-shadow:0 3px 10px rgba(255,159,207,.35)}
 .btn2.sub{background:#fff;color:#8a63e6;border:1.5px solid var(--line);box-shadow:none}
-.odAt{margin-top:12px;padding:10px;border:1.5px dashed #c9a8ff;border-radius:14px;background:rgba(183,156,255,.08)}.odAtTtl{font-size:13px;font-weight:900;color:#8a63e6;margin-bottom:8px}body.dark .odAtTtl{color:#cdbcf7}.btn3{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:14px;font-weight:900;font-size:14px;text-decoration:none;color:#fff;background:linear-gradient(120deg,#6fc3f7,#8ab8ff);box-shadow:0 3px 10px rgba(111,195,247,.35)}
+.odAt{margin-top:12px;padding:10px;border:1.5px dashed #c9a8ff;border-radius:14px;background:rgba(183,156,255,.08)}.odAtTtl{font-size:13px;font-weight:900;color:#8a63e6;margin-bottom:8px}body.dark .odAtTtl{color:#cdbcf7}.btn3{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:14px;font-weight:900;font-size:14px;text-decoration:none;color:#fff;background:linear-gradient(120deg,#ff9fcf,#b79cff);box-shadow:0 3px 10px rgba(255,159,207,.35)}
 body.dark select,body.dark .btn2.sub{background:#2a2440;color:var(--ink);border-color:var(--line)}
 body.dark .odSum div{background:linear-gradient(160deg,#3a2c4e,#2e2a52)}
 body.dark .steps .stn:before{background:#2a2440}
@@ -686,7 +686,7 @@ body.dark .clrBtn{background:#5a4f78}
 
   <div class="card" id="navKintai">
     <div style="display:flex;align-items:center;gap:10px;margin:0 2px 8px"><img src="kintai-top.webp" alt="ノートに勤務時間を書きこむファーちゃん" width="60" height="60" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--pink);background:#fff;flex:none"><div class="sec" style="margin:0">🗒️ 勤怠ノート<span class="ktBeta">β版</span></div></div>
-    <div class="ktNote" style="margin-top:0">β版だよ。計算のたしかめ中なので、記録は今まで通りタイムシートとタイムツリーにも残してね。</div>
+    <div class="ktNote" style="margin-top:0">計算のたしかめ中なので、記録はタイムシートとタイムツリーにも残してね。</div>
     <div id="ktTodayWrap"></div>
     <div class="ktMon" style="margin-top:12px">
       <button class="ktBtn" id="ktPrev" type="button">◀</button>
@@ -1104,7 +1104,7 @@ let paidCache="";
 function renderPaid(){
   const el=document.getElementById("paidInfo");if(!el)return;
   const c=paidCalc(ymd(jstNow()));
-  let h=`<div class="pTtl">🏖️ファーちゃんの有休カウンター🧸💕</div><div class="paidRow"><div class="boardWrap"><img src="paid-bear.webp" alt="ホワイトボードを持つファーちゃん"><div class="boardNum"><span class="bLab">あと</span><span class="bNum">${c.remain}</span><span class="bDay">日</span></div></div><div class="paidTxt"><div>令和${c.fy-2019}年度からの繰り越し分：残り <b>${c.remain}日</b>（今年度 ${c.used}日使用済）</div><div>今年度分 20日と合わせて 残り<b>${c.total}日</b>だよ🧸</div>`;
+  let h=`<div class="pTtl">🏖️ ファーちゃんの有休カウンター 🧸</div><div class="paidRow"><div class="boardWrap"><img src="paid-bear.webp" alt="ホワイトボードを持つファーちゃん"><div class="boardNum"><span class="bLab">あと</span><span class="bNum">${c.remain}</span><span class="bDay">日</span></div></div><div class="paidTxt"><div>令和${c.fy-2019}年度からの繰り越し分：残り <b>${c.remain}日</b>（今年度 ${c.used}日使用済）</div><div>今年度分 20日と合わせて 残り<b>${c.total}日</b>だよ🧸</div>`;
   if(c.sched>0)h+=`<div>うち${c.sched}日はシフトに入ってるよ（実質あと${c.effRemain}日）</div>`;
   h+=`<div class="paidCap">🧸 ファーちゃん：「${paidComment(c)}」</div>`;
   if(c.effRemain>0)h+=`<div class="paidSub">目安：月${c.pace.toFixed(1)}日ペース</div>`;
@@ -1166,7 +1166,7 @@ let otCache="";
 function renderOt(){
   const el=document.getElementById("otInfo");if(!el)return;
   const c=otCalc(ymd(jstNow()));
-  let h=`<div class="pTtl">🌙残業がんばりカウンター🧸</div>`;
+  let h=`<div class="pTtl">🌙 ファーちゃんの残業がんばりカウンター 🧸</div>`;
   h+=`<div>残業時給 <span class="otBig">¥${c.rate.toLocaleString()}</span>（今年度）</div>`;
   if(c.rateHow)h+=`<div class="note" style="margin:0 0 4px;font-size:11.5px">🧮 ${c.rateHow.how}</div>`;
   if(c.hist.length)h+=`<div class="otHist">時給の推移：${c.hist.map(e=>`${e.label} <b>¥${e.rate.toLocaleString()}</b>`).join(" → ")}</div>`;
@@ -1804,7 +1804,7 @@ document.querySelectorAll("#fDay button").forEach(b=>b.onclick=()=>{FOFF=+b.data
 function fBearSet(rank,day){const el=document.getElementById("fRankBear");if(el)el.src=rank<=6?"fortune-happy.webp":"fortune-cheer.webp";const cap=document.getElementById("fBearCap");if(cap)cap.innerHTML="🧸 <b>ファーちゃん</b>：「"+bearComment(rank,day)+"」"} // 順位ファーちゃん(バンザイ/マグ)がコメントを喋る。占い師ファーちゃんは別枠で不変
 function renderFortune(){
   const now=jstNow();now.setDate(now.getDate()-FOFF);const day=ymd(now);const s=Math.max(0,SIGNS.indexOf(S.sign));
-  document.getElementById("fTitle").textContent=`${["きょう","きのう","おととい"][FOFF]}のファーちゃん占い🧸🔮(${now.getMonth()+1}/${now.getDate()})`;
+  document.getElementById("fTitle").textContent=`🔮 ${["きょう","きのう","おととい"][FOFF]}のファーちゃん占い 🧸（${now.getMonth()+1}/${now.getDate()}）`;
   document.getElementById("fWho").textContent=S.sign;
   const jg=FORT&&FORT.jugem&&FORT.jugem[day]&&FORT.jugem[day][S.sign];
   const zt=FORT&&FORT.zt&&FORT.zt[day]&&FORT.zt[day][S.sign];

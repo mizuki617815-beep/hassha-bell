@@ -574,6 +574,7 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
 .ocCand{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ocCand button{font-size:12.5px;font-weight:400}
 .ocDay{display:grid;grid-template-columns:4.2em 6.2em 1fr auto;align-items:center;gap:6px;font-size:14px;padding:6px 2px;border-bottom:1px dashed var(--line)}.ocDay:last-child{border-bottom:0}.ocDay .r{font-size:12px;color:#5a9be0;white-space:nowrap}.ocDay .ocW{color:var(--sub)}.ocDay .ocW.st{color:#e0507f;font-weight:900}.ocDay .w{font-size:11.5px;color:var(--sub);margin-left:3px}.ocDay .t{text-align:right;white-space:nowrap}.ocDay .t .mx{color:#e0507f;font-weight:900}.ocDay .t .mn{color:#5a9be0}
 body.dark .ocChips button,body.dark .ocCand button{background:#2a2440;color:var(--ink)}
+.diaAlert{background:#ffe3ef!important;border:2px solid #e0507f!important;color:#b0204f}body.dark .diaAlert{background:rgba(224,80,127,.18)!important;color:#ffb3cf}
 .askWrap{margin-top:14px;padding:10px 12px;border-radius:14px;border:1.5px dashed var(--pink);background:var(--pink2)}.askTtl{font-size:13.5px;font-weight:900;color:#e0507f}
 body.dark .askWrap{background:rgba(255,159,207,.08)}
 .clrWrap{position:relative;display:block}.clrWrap input{width:100%;box-sizing:border-box;padding-right:34px}.clrWrap .clrBtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px!important;height:28px!important;min-width:0!important;margin:0!important;box-shadow:none!important;border:0!important;border-radius:50%!important;background:#e9dcf7!important;color:#9b7cf0!important;font-size:14px;font-weight:900;line-height:28px;padding:0;display:none;font-family:inherit}.clrWrap.has .clrBtn{display:block}input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
@@ -958,8 +959,22 @@ function diaNotice(now){
   let t="";
   if(md>=1227||md<=104)t="🎍 年末年始は<b>特別ダイヤ</b>になることがあるよ。乗る前に京急公式の時刻表を見てね";
   if(S.dia!=="auto")t=(t?t+"<br>":"")+"✋ ダイヤを手動で切り替え中だよ(設定で「自動」に戻せる)";
-  el.innerHTML=t?`<div class="dnote">${t}</div>`:"";
+  const dc=diaCheckMsg(now);
+  el.innerHTML=(dc?`<div class="dnote diaAlert">${dc}</div>`:"")+(t?`<div class="dnote">${t}</div>`:"");
 }
+// ===== ダイヤ改正の自動チェック（GitHub Actionsが週2回、京急公式から改正日をひろって dia-check.json に書く）=====
+// アプリの時刻表が対応している改正日・変更日。時刻表を更新したらここに日付を足す
+const DIA_KNOWN=["2025-12-13","2025-12-15","2026-11-21","2026-11-24"];
+var DIA_CHK=null;
+async function loadDiaCheck(){try{const r=await fetch("dia-check.json",{cache:"no-store"});if(r.ok){DIA_CHK=await r.json();diaNotice(new Date())}}catch(e){}}
+function diaCheckMsg(now){const c=DIA_CHK;if(!c)return"";
+  const nw=(c.dates||[]).filter(d=>!DIA_KNOWN.includes(d)&&d>"2026-11-24");
+  if(nw.length){const f=nw.map(d=>{const[,m,dd]=d.split("-").map(Number);return`${m}/${dd}`}).join("・");
+    return`🚃 <b>京急のダイヤ改正（${f}〜）が見つかったよ！</b><br>このアプリの時刻表はまだ古いままだよ。乗る前に京急公式の時刻表を見てね。<br>Claudeに「ダイヤ更新して」って頼んでね🧸`}
+  if(c.checkedAt){const days=(now-new Date(c.checkedAt))/864e5;
+    if(days>16)return`⚠️ ダイヤ改正チェックが止まってるかも（最後に確認：${new Date(c.checkedAt).getMonth()+1}/${new Date(c.checkedAt).getDate()}）`}
+  return""}
+loadDiaCheck();document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadDiaCheck()});
 // ===== あと◯本セーフ(CXのある日だけ・目標到着に間に合う電車の残り本数) =====
 function renderSafe(now,m){
   const el=document.getElementById("safeLine");if(!el)return;

@@ -576,6 +576,8 @@ body.dark .estTag{background:#4a3a1f;color:#ffd27a}
 body.dark .ocChips button,body.dark .ocCand button{background:#2a2440;color:var(--ink)}
 .askWrap{margin-top:14px;padding:10px 12px;border-radius:14px;border:1.5px dashed var(--pink);background:var(--pink2)}.askTtl{font-size:13.5px;font-weight:900;color:#e0507f}
 body.dark .askWrap{background:rgba(255,159,207,.08)}
+.clrWrap{position:relative;display:block}.clrWrap input{width:100%;box-sizing:border-box;padding-right:34px}.clrWrap .clrBtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px!important;height:28px!important;min-width:0!important;margin:0!important;box-shadow:none!important;border:0!important;border-radius:50%!important;background:#e9dcf7!important;color:#9b7cf0!important;font-size:14px;font-weight:900;line-height:28px;padding:0;display:none;font-family:inherit}.clrWrap.has .clrBtn{display:block}input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+body.dark .clrBtn{background:#5a4f78}
 </style>
 </head>
 <body>
@@ -3056,6 +3058,14 @@ $("ocGo").onclick=search;$("ocQ").addEventListener("keydown",e=>{if(e.key==="Ent
 (function(){const q=document.getElementById("askQ"),er=document.getElementById("askErr");if(!q)return;
 const go=()=>{const v=q.value.trim();if(!v){er.style.display="block";q.focus();return}er.style.display="none";window.open("https://www.google.co.jp/search?udm=50&hl=ja&q="+encodeURIComponent(v),"_blank","noopener")};
 document.getElementById("askGo").onclick=go;q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go()}});q.addEventListener("input",()=>{er.style.display="none"});})();
+</script>
+<script>
+(function(){["askQ","ocQ"].forEach(id=>{const q=document.getElementById(id);if(!q)return;
+  const w=document.createElement("span");w.className="clrWrap";w.style.flex=q.style.flex||"";w.style.minWidth="0";
+  q.parentNode.insertBefore(w,q);w.appendChild(q);q.style.flex="";
+  const b=document.createElement("button");b.type="button";b.className="clrBtn";b.setAttribute("aria-label","入力を消す");b.textContent="×";w.appendChild(b);
+  const up=()=>w.classList.toggle("has",!!q.value);q.addEventListener("input",up);up();
+  b.onclick=()=>{q.value="";up();q.focus();q.dispatchEvent(new Event("input"))};});})();
 </script>
 </body>
 </html>

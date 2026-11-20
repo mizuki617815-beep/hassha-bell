@@ -337,3 +337,4 @@
 - 「🧸 Claudeに聞く」を追加：お得チェッカー（#navOtoku）のいちばん下、ピンクの点線の枠（#askWrap）。入れた文で https://claude.ai/new?q=… を開き、Claudeの入力欄に質問が入った状態に（送信は本人）。APIキーは使わない（公開リポジトリなので）。天気の検索とは入力欄・ボタンを分けた
 - 「Claudeに聞く」がClaudeアプリで開いてしまう（claude.aiのユニバーサルリンク）→ 検索と同じく go.html?c=… をアプリ内ブラウザで開き、location.replace で claude.ai/new?q=… へ（本人：アプリ内ブラウザで完結したい）。go.html は q（google.co.jp検索、古いリンク用）と c（Claude）だけ受け付ける
 - 「Claudeに聞く」はgo.html経由でもClaudeアプリが開いてしまった → 「🔍 AIに聞く」に変更し、GoogleのAIモード（google.co.jp/search?udm=50&hl=ja&q=…）を開く形に。手帳割の検索と同じgoogle.co.jpなのでアプリ内ブラウザで開き、ログイン不要・送信ボタンも不要（本人：Gemini・ChatGPT・Claudeどれでもいいので、入れた文字でサクッと聞きたい）
+- 入力欄の×ボタン：「AIに聞く」（askQ）と「ほかの街の天気」（ocQ）に追加（.clrWrap/.clrBtn、文字があるときだけ出る）。お店・施設の検索（otQ）にはすでに #otClr があるので、それと同じ見た目（薄紫の丸に紫の×）にそろえた

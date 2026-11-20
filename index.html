@@ -578,6 +578,11 @@ body.dark .ocChips button,body.dark .ocCand button{background:#2a2440;color:var(
 body.dark .askWrap{background:rgba(255,159,207,.08)}
 .clrWrap{position:relative;display:block}.clrWrap input{width:100%;box-sizing:border-box;padding-right:34px}.clrWrap .clrBtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px!important;height:28px!important;min-width:0!important;margin:0!important;box-shadow:none!important;border:0!important;border-radius:50%!important;background:#e9dcf7!important;color:#9b7cf0!important;font-size:14px;font-weight:900;line-height:28px;padding:0;display:none;font-family:inherit}.clrWrap.has .clrBtn{display:block}input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
 body.dark .clrBtn{background:#5a4f78}
+#ktDaysWrap>summary.ktSumBtn{background:linear-gradient(135deg,#ff9fcf,#b79bff)!important;border:0!important;color:#fff;font-size:16px;padding:14px 16px;border-radius:16px;box-shadow:0 4px 12px rgba(155,124,240,.35)}
+#ktDaysWrap>summary.ktSumBtn .ktSumTxt{display:flex;flex-direction:column;gap:2px}
+#ktDaysWrap>summary.ktSumBtn small{color:rgba(255,255,255,.9);font-size:11.5px}
+#ktDaysWrap>summary.ktSumBtn::after{content:"ひらく ▼";font-size:12px;font-weight:bold;color:#9b7cf0;background:#fff;border-radius:999px;padding:5px 10px;white-space:nowrap}
+#ktDaysWrap[open]>summary.ktSumBtn::after{content:"とじる ▲"}
 </style>
 </head>
 <body>
@@ -702,7 +707,7 @@ body.dark .clrBtn{background:#5a4f78}
     <div class="ktSum" id="ktSum"></div>
     <div class="ktNote" id="ktSumNote"></div>
     <details style="margin-top:10px" id="ktDaysWrap">
-      <summary class="ktSumBtn">📅 今月の勤務記録<small>ほかの日もここから</small></summary>
+      <summary class="ktSumBtn"><span class="ktSumTxt">📅 今月の勤務記録を見る<small>ほかの日の記録もここから見られるよ</small></span></summary>
       <div class="ktDays" id="ktDays"></div>
     </details>
     <details style="margin-top:10px" class="ktSet">

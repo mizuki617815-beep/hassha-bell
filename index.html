@@ -217,6 +217,7 @@ summary .verBadge{font-size:10.5px;padding:1px 8px;margin-left:4px}
 .verList{list-style:none;margin:10px 0 0;padding:0}
 .verList li{display:grid;grid-template-columns:auto auto 1fr;gap:4px 8px;align-items:baseline;padding:7px 0;border-top:1px dashed var(--line);font-size:13px;line-height:1.55}
 .verList li:first-child{border-top:none}
+.verList li{grid-template-columns:auto auto auto 1fr}.verList li>.vTxt{grid-column:auto/-1}.verList .vNew{font-size:12px}.verList li:not(.vIsNew) .vDate{grid-column:span 2}.vGo{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}.vGo button{font-family:inherit;font-size:12px;font-weight:700;color:#e0609a;background:#fff0f7;border:1.5px solid #ffc6df;border-radius:999px;padding:3px 10px;cursor:pointer}body.dark .vGo button{color:#ff9fcf;background:rgba(255,159,207,.1);border-color:rgba(255,159,207,.35)}.fmNew{font-size:11px}
 .verList .vNo{font-weight:900;color:#e0609a}.verList .vDate{font-size:11.5px;color:var(--sub)}
 body.dark .verList .vNo{color:#ff9fcf}
 
@@ -382,6 +383,7 @@ body.dark .ktToday{background:rgba(255,255,255,.05);border-color:rgba(255,255,25
 .ktChip.off{background:var(--sky2);color:#4f8dd0}
 .ktChip.paid{background:var(--lemon2);color:#b9871a}
 .ktRow{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;align-items:center}
+details.setGrp{margin-top:10px;border:2px solid var(--line);border-radius:16px;padding:9px 12px;background:rgba(255,255,255,.35)}body.dark details.setGrp{background:rgba(255,255,255,.04)}details.setGrp>summary{font-size:14px;color:#9b7cf0;padding:2px 0}body.dark details.setGrp>summary{color:#cbb8ff}details.setGrp>summary:before{content:"▸ "}details.setGrp[open]>summary:before{content:"▾ "}details.setGrp>.set{margin-top:10px}details.setGrp .sheetBox{margin-top:8px}
 .sheetBox{margin-top:14px;padding:12px;border-radius:16px;border:2px dashed var(--lav);background:var(--lav2)}.sheetTtl{font-size:14px;font-weight:900;color:#9b7cf0}body.dark .sheetTtl{color:#cbb8ff}.sheetWhat{display:grid;gap:6px;margin-top:8px;font-size:12px;line-height:1.6;color:var(--ink)}.sheetWhat>div{background:rgba(255,255,255,.55);border-radius:10px;padding:6px 9px}body.dark .sheetWhat>div{background:rgba(255,255,255,.05)}
 .ktSet label{display:block;font-size:11.5px;color:var(--sub);margin-top:8px}
 .ktSet input[type=text],.ktSet input[type=number]{font-family:inherit;font-size:15px;color:var(--ink);border:2px solid #ecd6f5;border-radius:12px;padding:6px 10px;width:100%;background:rgba(255,255,255,.8)}
@@ -843,14 +845,21 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
 
   <div class="card" id="navSet">
     <button type="button" class="fmSetBtn" id="fmOpen2">🧸<span>ファーちゃんの案内所🗺️<small>さがしてタップすると、その場所へ飛んで光るよ</small></span></button>
-    <details>
+    <details id="setMain">
       <summary>⚙️ 設定</summary>
-      <div class="set" style="margin-top:12px">
+      <div class="note" style="margin:8px 0 2px">見たいところをタップしてひらいてね🧸</div>
+      <details class="setGrp" id="setTrain"><summary>🚃 電車（歩く時間・ダイヤ）</summary>
+      <div class="set">
         <span>家 ⇔ 京急蒲田ホーム(分)</span><input type="number" id="sWalk" min="0" max="60">
         <span>余裕をもたせる(分)</span><input type="number" id="sBuf" min="0" max="30">
         <span>T3 改札→ホーム(帰り・分)</span><input type="number" id="sT3" min="0" max="30">
         <span>シフト開始の何分前にT3に着く(分)</span><input type="number" id="sArr" min="0" max="120">
-        <details class="manFix" style="grid-column:1/-1"><summary>✏️ カウンターを手で直す（ふだんは使わなくてOK）</summary>
+        <span>ダイヤ</span>
+        <div class="seg" id="sDia"><button data-v="auto">自動</button><button data-v="wd">平日</button><button data-v="hd">土休日</button></div>
+      </div>
+      <div class="note">「自動」は土日・祝日を土休日ダイヤにします。年末年始などの特別ダイヤの日は手動で切り替えてね。</div>
+      </details>
+      <details class="setGrp manFix" id="setMoney"><summary>💴 お金（有休・残業を手で直す・残業単価）</summary>
           <div class="note" style="margin:4px 0 6px">有休はシフト・勤怠ノートから、残業の時間・残業代・時給は記録室の明細から自動で出してるよ。明細やシフトがない月だけ、ここで直してね</div>
           <div class="grid" style="display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:center">
           <span>有休：月ごとの使用日数(今年度)</span><span></span>
@@ -858,18 +867,18 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
           <span>残業：時給(円)<br><small style="color:var(--sub)">明細がない年度だけ使うよ</small></span><input type="number" id="sOtRate" min="0" max="99999">
           <span>残業：月ごとの時間・金額(今年度)</span><span></span>
           <div id="sOtMonths" style="grid-column:1/-1"></div></div>
-        </details>
+      </details>
+      <details class="setGrp" id="setLook"><summary>🎨 見た目・わたしのこと</summary>
+      <div class="set">
         <span>お誕生日(月/日)</span><span style="display:flex;gap:4px;align-items:center"><select id="sBdayM" style="flex:none;width:64px"></select>月<select id="sBdayD" style="flex:none;width:64px"></select>日</span>
         <span>星座</span><select id="sSign" style="flex:none;width:130px"></select>
         <span>画面の色</span>
         <div class="seg" id="sTheme"><button data-v="auto">自動</button><button data-v="light">ライト</button><button data-v="dark">ダーク</button></div>
-        <span>ダイヤ</span>
-        <div class="seg" id="sDia"><button data-v="auto">自動</button><button data-v="wd">平日</button><button data-v="hd">土休日</button></div>
       </div>
-      <div class="note">「自動」は土日・祝日を土休日ダイヤにします。年末年始などの特別ダイヤの日は手動で切り替えてね。</div>
+      </details>
+      <details class="setGrp" id="setSheet"><summary>☁️ スプレッドシート（バックアップ・2台で共有）</summary>
       <div class="ktSet sheetBox">
-      <div class="sheetTtl">☁️ スプレッドシート（バックアップ・2台で共有）</div>
-      <div class="sheetWhat"><div><b>☁️ シートに保存・共有されるもの</b><br>勤務の記録・公休・シフト・記録室の明細・歩く時間などの電車の設定（上の4つ）・有休/残業の手入力</div><div><b>📱 このスマホだけ</b><br>お誕生日・星座・画面の色・ダイヤの手動切り替え</div></div>
+      <div class="sheetWhat"><div><b>☁️ シートに保存・共有されるもの</b><br>勤務の記録・公休・シフト・記録室の明細・🚃電車の歩く時間など4つ・有休/残業の手入力</div><div><b>📱 このスマホだけ</b><br>お誕生日・星座・画面の色・ダイヤの手動切り替え</div></div>
       <label>Googleスプレッドシートのつなぎ先（…/exec で終わるURL）</label>
       <input type="text" id="ktUrl" placeholder="https://script.google.com/macros/s/…/exec">
       <button class="ktLinkBtn" id="ktUrlCopy" type="button" style="display:none">📋 URLをコピー（メモに保存しておく用）</button>
@@ -882,6 +891,7 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
       <input type="text" id="ktWho" placeholder="だれが記録したか、シートと一覧に出るよ">
       <div class="ktNote">同じURLをつないだiPhoneどうしは、上の「☁️ シートに保存・共有されるもの」が自動でそろうよ（開いたとき・記録したとき）。同じ日を2人が直したら、あとから直したほうが残るよ。URLは2人だけの秘密にしてね。</div>
       </div>
+      </details>
     </details>
   </div>
 
@@ -889,33 +899,33 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.0</span></summary>
       <ul class="verList">
-        <li data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）</span></li>
-        <li data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
-        <li data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。<br>・京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
-        <li data-short="🚃 電車とあしたの表示がパワーアップ！"><span class="vNo">ver3.5</span><span class="vDate">11/21</span><span class="vTxt">📅あしたタブの行きを「ひとつ前／⭐おすすめ／ひとつ後」の3枚のカードに。タップするとファーちゃんが説明してくれるよ（改札から開始までの早歩き・ダッシュの時間も考えるよ）。🚃電車タブにも同じ印（🌸ゆっくりできる・⭐おすすめ・💨ダッシュなら間に合う・⚠️遅刻の危険）。京急のダイヤ変更（11/21土休日・11/24平日）に対応して、これからのダイヤ改正も週2回自動でチェック。☁️スプレッドシートは⚙️設定に引っこし、歩く時間・到着目標・有休/残業の手入力も2台で共有。ほかの街の天気（風速つき）、占いの文章が2倍、勤怠ノートの記入済み✅/未記入✏️、🔍AIに聞く、アプリが軽くなったよ</span></li>
-        <li data-short="🉐 ファーちゃんのお得チェッカーができたよ！"><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">下のタブに🧳おでかけを追加。🉐ファーちゃんのお得チェッカー（乗り換えガイドの上）：外食はお店に入ったらベネ・JAFの地図で近くの優待をワンタップでさがせるよ。美術館・映画館などの施設は、お店や施設の名前で、手帳割・ベネ・JAFの優待を検索できるよ</span></li>
-        <li data-short="📚 ファーちゃんの記録室がオープン！"><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚ファーちゃんの記録室がオープン（勤怠ノートのいちばん上から）：給料・ボーナスの明細を📄PDFからまとめて読み込んで、手取りや残業の推移、年度のまとめ、🧾源泉徴収票、🔮今年度の見込みと答え合わせが見られるよ。明細を入れ忘れてたらファーちゃんが教えてくれるよ🧸</span></li>
-        <li><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板を下のほうに大きく</span></li>
-        <li><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
-        <li><span class="vNo">ver3.0</span><span class="vDate">11/15</span><span class="vTxt">勤怠ノート（β版）を追加：シフトから予定の時間を自動で入れて、就業時間・確定残業・追加残業・残業代の見込みを計算、CSV・PDF・Googleスプレッドシートに保存。下のボタン「カウンター」を「きろく」に。占いの「恋愛運」を「夫婦運」に（ふたりの時間の文章に書きかえ）、金運の文言を修正</span></li>
+        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。3日以内の更新には🆕マーク（案内所の一覧にも出るよ）</span></li>
+        <li data-go="シートのURLをコピー|カウンターを手で直す・残業単価|ファーちゃんの記録室" data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
+        <li data-go="間に合うかの印" data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。<br>・京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
+        <li data-go="ひとつ前／おすすめ／ひとつ後|ほかの街の天気|AIに聞く|スプレッドシート" data-short="🚃 電車とあしたの表示がパワーアップ！"><span class="vNo">ver3.5</span><span class="vDate">11/21</span><span class="vTxt">📅あしたタブの行きを「ひとつ前／⭐おすすめ／ひとつ後」の3枚のカードに。タップするとファーちゃんが説明してくれるよ（改札から開始までの早歩き・ダッシュの時間も考えるよ）。🚃電車タブにも同じ印（🌸ゆっくりできる・⭐おすすめ・💨ダッシュなら間に合う・⚠️遅刻の危険）。京急のダイヤ変更（11/21土休日・11/24平日）に対応して、これからのダイヤ改正も週2回自動でチェック。☁️スプレッドシートは⚙️設定に引っこし、歩く時間・到着目標・有休/残業の手入力も2台で共有。ほかの街の天気（風速つき）、占いの文章が2倍、勤怠ノートの記入済み✅/未記入✏️、🔍AIに聞く、アプリが軽くなったよ</span></li>
+        <li data-go="お得チェッカー|お店・施設で優待をさがす" data-short="🉐 ファーちゃんのお得チェッカーができたよ！"><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">下のタブに🧳おでかけを追加。🉐ファーちゃんのお得チェッカー（乗り換えガイドの上）：外食はお店に入ったらベネ・JAFの地図で近くの優待をワンタップでさがせるよ。美術館・映画館などの施設は、お店や施設の名前で、手帳割・ベネ・JAFの優待を検索できるよ</span></li>
+        <li data-go="ファーちゃんの記録室" data-short="📚 ファーちゃんの記録室がオープン！"><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚ファーちゃんの記録室がオープン（勤怠ノートのいちばん上から）：給料・ボーナスの明細を📄PDFからまとめて読み込んで、手取りや残業の推移、年度のまとめ、🧾源泉徴収票、🔮今年度の見込みと答え合わせが見られるよ。明細を入れ忘れてたらファーちゃんが教えてくれるよ🧸</span></li>
+        <li data-go="今日の勤務の記入"><span class="vNo">ver3.2</span><span class="vDate">11/16</span><span class="vTxt">💰給料日・ボーナスまでのカウントダウンを上に追加（土日祝は前の平日で計算）。給料日とボーナスの日はファーちゃんがおねだり🧸。有休の日は🏖️有休と表示、残業カウンターの今月は勤怠ノートの見込みに。スプレッドシートのボタンを1つに。アトリエコットンの看板を下のほうに大きく</span></li>
+        <li data-go="今日の勤務の記入|ファイルを読み込む"><span class="vNo">ver3.1</span><span class="vDate">11/16</span><span class="vTxt">勤怠ノートを使いやすく：残業した日だけ「何時に終わった？」を入れればOK（ほかの日は定時で自動）、シフトが終わると「今日は残業した？」とお知らせ、Googleスプレッドシートと自動でそろえて2台で記録できるように、タイムシートの読み込み。残業カウンターは「予定→見込み→明細」で表示。ひとことはファーちゃんのアイコンがおしゃべり。下のボタンに「きろく」を追加、上の部分をコンパクトにして週間天気まで見えるように</span></li>
+        <li data-go="今月のまとめ|CSV・PDFで保存"><span class="vNo">ver3.0</span><span class="vDate">11/15</span><span class="vTxt">勤怠ノート（β版）を追加：シフトから予定の時間を自動で入れて、就業時間・確定残業・追加残業・残業代の見込みを計算、CSV・PDF・Googleスプレッドシートに保存。下のボタン「カウンター」を「きろく」に。占いの「恋愛運」を「夫婦運」に（ふたりの時間の文章に書きかえ）、金運の文言を修正</span></li>
         <li><span class="vNo">ver2.9</span><span class="vDate">11/14</span><span class="vTxt">下部に固定ナビを追加（天気・占い・電車・あした・カウンター・設定へワンタップで移動できる）</span></li>
-        <li><span class="vNo">ver2.8</span><span class="vDate">11/14</span><span class="vTxt">残業がんばりカウンターを追加（残業時給とその推移、月ごとの残業時間・残業代のグラフ。金額は給与明細の値、明細がまだの月は見込みを表示）</span></li>
-        <li><span class="vNo">ver2.7</span><span class="vDate">11/14</span><span class="vTxt">シフトの控え機能を追加（消す前に自動で控えを保存して、復元ボタンで消えた日だけ足し戻せるようにした）</span></li>
-        <li><span class="vNo">ver2.6</span><span class="vDate">11/14</span><span class="vTxt">有休カウンターを追加（消える分の残り日数とペースをファーちゃんのホワイトボードで表示、月ごとの使用数つき）</span></li>
-        <li><span class="vNo">ver2.5</span><span class="vDate">11/14</span><span class="vTxt">シフトのある日は、目標の到着時刻までにあと何本電車を逃しても大丈夫かを表示するように</span></li>
-        <li><span class="vNo">ver2.4</span><span class="vDate">11/13</span><span class="vTxt">カウントダウンの下に「京急の運行情報（公式）」ボタンを追加、洗濯が乾きにくい日にもファーちゃんの絵を表示、洗濯の風の加点ルールを修正（強風でも加点）</span></li>
+        <li data-go="残業がんばりカウンター"><span class="vNo">ver2.8</span><span class="vDate">11/14</span><span class="vTxt">残業がんばりカウンターを追加（残業時給とその推移、月ごとの残業時間・残業代のグラフ。金額は給与明細の値、明細がまだの月は見込みを表示）</span></li>
+        <li data-go="読み込んだシフトを見る・消す"><span class="vNo">ver2.7</span><span class="vDate">11/14</span><span class="vTxt">シフトの控え機能を追加（消す前に自動で控えを保存して、復元ボタンで消えた日だけ足し戻せるようにした）</span></li>
+        <li data-go="有休カウンター"><span class="vNo">ver2.6</span><span class="vDate">11/14</span><span class="vTxt">有休カウンターを追加（消える分の残り日数とペースをファーちゃんのホワイトボードで表示、月ごとの使用数つき）</span></li>
+        <li data-go="間に合うかの印"><span class="vNo">ver2.5</span><span class="vDate">11/14</span><span class="vTxt">シフトのある日は、目標の到着時刻までにあと何本電車を逃しても大丈夫かを表示するように</span></li>
+        <li data-go="京急の運行情報（公式）"><span class="vNo">ver2.4</span><span class="vDate">11/13</span><span class="vTxt">カウントダウンの下に「京急の運行情報（公式）」ボタンを追加、洗濯が乾きにくい日にもファーちゃんの絵を表示、洗濯の風の加点ルールを修正（強風でも加点）</span></li>
         <li><span class="vNo">ver2.3</span><span class="vDate">11/13</span><span class="vTxt">天気と洗濯コメントのずれを修正：日付カードと吹き出しに雨の時間帯を表示、クマの天気の絵は出かける時間帯（5〜21時）の天気で決めるように（台風の絵は雨と強風が同じ時間のときだけ）、別の日を選んでいるときは「今日のひとこと」とわかるように</span></li>
-        <li><span class="vNo">ver2.2</span><span class="vDate">11/13</span><span class="vTxt">占いの順位でファーちゃんの絵とコメントが変わるように（1〜6位はバンザイ、7〜12位はマグカップ。占い師のファーちゃんは今まで通り）、洗濯日和の日は洗濯ファーちゃん、雨で部屋干しの日は雨の日のファーちゃんを表示。おでかけガイドに、日時を指定して乗換案内をしらべる専用の項目を追加</span></li>
+        <li data-go="日時を指定してしらべる"><span class="vNo">ver2.2</span><span class="vDate">11/13</span><span class="vTxt">占いの順位でファーちゃんの絵とコメントが変わるように（1〜6位はバンザイ、7〜12位はマグカップ。占い師のファーちゃんは今まで通り）、洗濯日和の日は洗濯ファーちゃん、雨で部屋干しの日は雨の日のファーちゃんを表示。おでかけガイドに、日時を指定して乗換案内をしらべる専用の項目を追加</span></li>
         <li><span class="vNo">ver2.1</span><span class="vDate">11/12</span><span class="vTxt">クマのファーちゃんのひとことを、時間帯ごとに固定（朝・昼・夜で切り替わるよ）</span></li>
         <li><span class="vNo">ver2.0</span><span class="vDate">11/12</span><span class="vTxt">クマのファーちゃんのひとこと、今月の出勤回数、お休みまでの日数</span></li>
-        <li><span class="vNo">ver1.8</span><span class="vDate">11/12</span><span class="vTxt">「きょうのファーちゃん占い」にリニューアル（はちみつ度、おととい・きのう・きょうの切り替え、文章を大増量）、細かい不具合の修正</span></li>
+        <li data-go="きょうのファーちゃん占い"><span class="vNo">ver1.8</span><span class="vDate">11/12</span><span class="vTxt">「きょうのファーちゃん占い」にリニューアル（はちみつ度、おととい・きのう・きょうの切り替え、文章を大増量）、細かい不具合の修正</span></li>
         <li><span class="vNo">ver1.7</span><span class="vDate">11/11</span><span class="vTxt">2026年11月の京急ダイヤ変更に対応（日付で自動切り替え）</span></li>
-        <li><span class="vNo">ver1.6</span><span class="vDate">11/11</span><span class="vTxt">行きの表示を二段構えに（家を出たあと歩きながら見られるバー）</span></li>
-        <li><span class="vNo">ver1.5</span><span class="vDate">11/11</span><span class="vTxt">天気に合わせたクマちゃんの挿絵8種類、夜バージョンのバナー、天気カードをコンパクトに</span></li>
+        <li data-go="歩きながらバー"><span class="vNo">ver1.6</span><span class="vDate">11/11</span><span class="vTxt">行きの表示を二段構えに（家を出たあと歩きながら見られるバー）</span></li>
+        <li data-go="あしたの朝の天気・服装"><span class="vNo">ver1.5</span><span class="vDate">11/11</span><span class="vTxt">天気に合わせたクマちゃんの挿絵8種類、夜バージョンのバナー、天気カードをコンパクトに</span></li>
         <li><span class="vNo">ver1.4</span><span class="vDate">11/11</span><span class="vTxt">シフトCSVの読み込み、日付の自動選択、お休みの日のクマちゃん</span></li>
-        <li><span class="vNo">ver1.3</span><span class="vDate">11/11</span><span class="vTxt">星占い、過去1週間の天気、更新ボタン・引っぱって更新</span></li>
-        <li><span class="vNo">ver1.2</span><span class="vDate">11/10</span><span class="vTxt">時刻表を全区間時刻表どおりに、番線・乗車位置、体感温度、警報・台風情報、電波がなくても開ける</span></li>
-        <li><span class="vNo">ver1.1</span><span class="vDate">11/10</span><span class="vTxt">おでかけ乗り換えガイド（10駅）、洗濯アドバイス、占い、アトリエコットンのバナー</span></li>
+        <li data-go="週間天気・過去の天気"><span class="vNo">ver1.3</span><span class="vDate">11/11</span><span class="vTxt">星占い、過去1週間の天気、更新ボタン・引っぱって更新</span></li>
+        <li data-go="警報・台風"><span class="vNo">ver1.2</span><span class="vDate">11/10</span><span class="vTxt">時刻表を全区間時刻表どおりに、番線・乗車位置、体感温度、警報・台風情報、電波がなくても開ける</span></li>
+        <li data-go="おでかけ乗り換えガイド"><span class="vNo">ver1.1</span><span class="vDate">11/10</span><span class="vTxt">おでかけ乗り換えガイド（10駅）、洗濯アドバイス、占い、アトリエコットンのバナー</span></li>
         <li><span class="vNo">ver1.0</span><span class="vDate">11/10</span><span class="vTxt">誕生！京急蒲田⇔羽田T3のカウントダウン、天気と服装アドバイス、ダークモード</span></li>
       </ul>
     </details>
@@ -3311,6 +3321,9 @@ const FM=[
   ["🧳","おでかけ乗り換えガイド","よく行く駅への乗り換え","乗換 乗り換え ジョルダン 駅","#navOdekake"],
   ["🕐","日時を指定してしらべる","乗換案内を日時指定で","日時 指定",".odAt"]]],
  ["⚙️ 設定",[
+  ["🚃","設定：電車のまとまり","歩く時間・余裕・到着目標・ダイヤ","電車 設定","#setTrain"],
+  ["💴","設定：お金のまとまり","有休・残業の手入力、残業単価","お金 設定","#setMoney"],
+  ["🎨","設定：見た目・わたしのこと","お誕生日・星座・画面の色","見た目 設定","#setLook"],
   ["🚶","家 ⇔ 京急蒲田の分数","歩く時間","徒歩 あるく 家","#sWalk"],
   ["⏳","余裕をもたせる分数","電車の余裕","バッファ","#sBuf"],
   ["🚉","T3 改札→ホーム（帰り）","帰りの歩く時間","改札 ホーム","#sT3"],
@@ -3332,7 +3345,7 @@ const $=id=>document.getElementById(id),sh=$("fmSheet"),q=$("fmQ"),list=$("fmLis
 const norm=t=>String(t||"").toLowerCase().replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-96)).replace(/\s+/g,"");
 const YOMI={ざんぎょう:"残業",ゆうきゅう:"有休",ゆうきゅうきゅうか:"有休",きゅうりょう:"給料",めいさい:"明細",てんき:"天気",でんしゃ:"電車",せってい:"設定",かえり:"帰り",いき:"行き",たんか:"単価",じきゅう:"時給",せいざ:"星座",たんじょうび:"誕生日",ゆうたい:"優待",のりかえ:"乗換",こうきゅう:"公休",ちこく:"遅刻",きろく:"記録",ほぞん:"保存",うらない:"占い",せんたく:"洗濯",りれき:"履歴",やすみ:"休み",きんたい:"勤怠",じこく:"時刻",よゆう:"余裕",とうちゃく:"到着",かいさつ:"改札",なまえ:"名前",しょうよ:"賞与",げんせん:"源泉",てどり:"手取り",けいほう:"警報",たいふう:"台風",しゅうかん:"週間",ふく:"服",がめん:"画面",いろ:"色",さくじょ:"削除",ちえん:"遅延",うんこう:"運行",あした:"あした",しゅっきん:"出勤"};
 const qn=t=>{let x=norm(t);Object.keys(YOMI).sort((a,b)=>b.length-a.length).forEach(k=>{x=x.split(k).join(norm(YOMI[k]))});return x};
-let grp=-1;
+let grp=-1;const NEWN=new Set(),nw=n=>NEWN.has(n)?' <span class="fmNew">🆕</span>':"";
 chips.innerHTML=`<button data-g="-1" class="on">ぜんぶ</button>`+FM.map((g,i)=>`<button data-g="${i}">${g[0]}</button>`).join("");
 chips.onclick=e=>{const b=e.target.closest("button");if(!b)return;grp=+b.dataset.g;[...chips.children].forEach(c=>c.classList.toggle("on",c===b));draw()};
 // ===== ファーちゃんに聞く（AIなし）：文章で聞かれたら、知ってることばを拾って点数順にならべる（2026-11-21）=====
@@ -3352,7 +3365,7 @@ function rank(t){let x=qn(String(t).replace(STOP," "));const hits=[];
   return out.sort((a,b)=>b.sc-a.sc)}
 const ask=$("fmAsk"),askT=$("fmAskT");
 function say(t){if(!t){ask.classList.remove("show");return}askT.innerHTML=t;ask.classList.add("show")}
-function itemBtn(gi,ii,best){const it=FM[gi][1][ii];return`<button class="fmItem${best?" best":""}" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}</b><small>${FM[gi][0]}・${it[2]}</small></span><span class="fa">›</span></button>`}
+function itemBtn(gi,ii,best){const it=FM[gi][1][ii];return`<button class="fmItem${best?" best":""}" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}${nw(it[1])}</b><small>${FM[gi][0]}・${it[2]}</small></span><span class="fa">›</span></button>`}
 function drawAsk(){const r=rank(q.value);
   if(!r.length){say("ごめんね、わからなかったよ…🧸 ちがう言い方で聞いてみてね（例：「残業単価」「シートのURL」）");list.innerHTML="";return false}
   const top=r.filter(x=>x.sc===r[0].sc),one=top.length===1&&(r.length===1||r[1].sc<r[0].sc);
@@ -3366,7 +3379,7 @@ function draw(){if(q.value.trim()&&isAsk(q.value)){drawAsk();return}say("");cons
   FM.forEach((g,gi)=>{if(grp>=0&&gi!==grp&&!w.length)return;
     const its=g[1].map((it,ii)=>[it,ii]).filter(([it])=>!w.length||w.every(k=>norm(g[0]+it[1]+it[2]+it[3]).includes(k)));
     if(!its.length)return;n+=its.length;
-    h+=`<div class="fmGrp">${g[0]}</div>`+its.map(([it,ii])=>`<button class="fmItem" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}</b><small>${it[2]}</small></span><span class="fa">›</span></button>`).join("")});
+    h+=`<div class="fmGrp">${g[0]}</div>`+its.map(([it,ii])=>`<button class="fmItem" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}${nw(it[1])}</b><small>${it[2]}</small></span><span class="fa">›</span></button>`).join("")});
   if(!n&&q.value.trim()){drawAsk();return}
   list.innerHTML=n?h:`<div class="fmNone">見つからなかったよ🧸<br>ちがうことばでさがしてみてね</div>`}
 function openFM(){sh.classList.add("show");q.value="";say("");draw();list.scrollTop=0;document.body.style.overflow="hidden"}
@@ -3383,7 +3396,19 @@ function go(gi,ii){const it=FM[gi]&&FM[gi][1][ii];if(!it)return;closeFM();
 list.onclick=e=>{const b=e.target.closest(".fmItem");if(b){const[g,i]=b.dataset.k.split("-");go(+g,+i)}};
 q.oninput=draw;$("fmX").onclick=closeFM;sh.onclick=e=>{if(e.target===sh)closeFM()};
 $("fmOpen").onclick=openFM;$("fmOpen2").onclick=openFM;
-window.fmGo=(name)=>{FM.forEach((g,gi)=>g[1].forEach((it,ii)=>{if(it[1]===name)go(gi,ii)}))}; // 更新履歴などから呼ぶ用
+window.fmGo=(name)=>{let hit=0;FM.forEach((g,gi)=>g[1].forEach((it,ii)=>{if(!hit&&it[1]===name){hit=1;go(gi,ii)}}))}; // 更新履歴などから呼ぶ用
+window.fmOpen=openFM;
+// ===== 更新履歴 → その機能へ飛ぶボタン＋🆕マーク（3日以内の更新）（2026-11-21）=====
+(function(){const now=new Date(),FMN=new Set();FM.forEach(g=>g[1].forEach(it=>FMN.add(it[1])));
+  document.querySelectorAll("#verHist li").forEach(li=>{
+    const dt=((li.querySelector(".vDate")||{}).textContent||"").match(/(\d+)\/(\d+)/);let fresh=false;
+    if(dt){let d=new Date(now.getFullYear(),+dt[1]-1,+dt[2]);if(d-now>864e5)d.setFullYear(d.getFullYear()-1);fresh=now-d<3*864e5}
+    const names=(li.dataset.go||"").split("|").filter(Boolean);
+    if(fresh){li.classList.add("vIsNew");const v=li.querySelector(".vNo");if(v)v.insertAdjacentHTML("afterend",'<span class="vNew">🆕</span>');names.forEach(n=>NEWN.add(n))}
+    if(!names.length)return;const box=document.createElement("div");box.className="vGo";
+    box.innerHTML=names.filter(n=>n==="@案内所"||FMN.has(n)).map(n=>`<button type="button" data-n="${n}">👉 ${n==="@案内所"?"案内所をひらく":n}</button>`).join("");
+    box.onclick=e=>{const b=e.target.closest("button");if(!b)return;e.preventDefault();b.dataset.n==="@案内所"?openFM():window.fmGo(b.dataset.n)};
+    li.appendChild(box)})})();
 })();
 </script>
 </body>

@@ -1,4 +1,4 @@
-// ゆめいろ発車ベル:電波がなくても開けるようにするための仕組み
+// ゆめいろ手帳（旧ゆめいろ発車ベル）:電波がなくても開けるようにするための仕組み
 // オンラインのときは毎回最新のページを取りに行き、取れなかったときだけ保存しておいたページを使う
 const CACHE="yumebell-v2";
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./","./index.html"])).then(()=>self.skipWaiting()))});

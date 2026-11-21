@@ -451,7 +451,7 @@
   - 本人の判断で「自分を甘やかしていい日」「仕事のあとは好きなことでリフレッシュ」は元に戻し、「（課金はのぞくよ）」は書かない
 
 ## 27. 2026-11-22 ver4.0（追記）おしごとタブのレイアウト整理
-- #ktSum：「残業 見込み」(.big)をいちばん上に（文字22px）。全労働時間の横長タイルは削除して #ktSumNote の1行目に移動
+- #ktSum：残業見込み(.big)の位置は今までどおり下（本人：入れ替え不要）。全労働時間の横長タイルは削除して #ktSumNote の2行目に .ktTot（太字・13px）で表示
 - 勤怠ノートの β の注意書きの下に #ktChips（🏖️有休 あと◯日＝paidCalc の remain／🌙残業 今年度◯h＝otCalc の totH+estH）。renderPaid・renderOt の最後で renderKtChips()。タップで #paidInfo / #otInfo へスクロール
 - 並び順：#navKintai（きょう・今月の数字・勤務記録）→ #navCount（有休・残業カウンター）→ 新しい #navKtTools（記録室・ファイルを読み込む・入力/出力/計算の設定）。IntersectionObserver の order と alias（navKtTools→navKintai）に追加
 - 「今月の勤務記録を見る」ボタンを白っぽい控えめなデザインに（記録室との見分け）

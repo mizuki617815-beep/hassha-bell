@@ -855,7 +855,7 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver3.9</span></summary>
       <ul class="verList">
-        <li data-short="💴 残業単価が年度ごとに自動に！"><span class="vNo">ver3.9</span><span class="vDate">11/21</span><span class="vTxt">勤怠ノートの残業代も、働いた月の年度の単価で計算するように。単価は給料明細（記録室・明細の写し）から自動で出すよ。明細がない年度は設定の単価、それもなければ前の年度の単価を使うよ。アプリを入れ直しても、シートとつなげば単価が戻ってくるよ</span></li>
+        <li data-short="💴 残業単価が年度ごとに自動に！"><span class="vNo">ver3.9</span><span class="vDate">11/21</span><span class="vTxt">勤怠ノートの残業代も、年度ごとの単価で計算するように（4月昇給だけど明細に合わせて、新しい単価は6月勤務分から。4・5月分は前の単価＋あとで遡及）。単価は給料明細（記録室・明細の写し）から自動で出すよ。明細がない年度は設定の単価、それもなければ前の年度の単価を使うよ。アプリを入れ直しても、シートとつなげば単価が戻ってくるよ</span></li>
         <li data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.8</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に。電車だけじゃなくて、シフト・おしごと・おでかけまで全部入りになったからだよ。ホーム画面の名前は、アイコンを入れ直すと変わるよ</span></li>
         <li data-short="📋 シートのURLをコピーできるように！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">⚙️設定のスプレッドシートのところに「📋 URLをコピー」ボタン。カギはかけたまま、つなぎ先のURLをコピーできるよ。メモやパスワードアプリに保存しておけば、アプリを入れ直したときも貼るだけでOK</span></li>
         <li data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
@@ -2177,11 +2177,11 @@ function backup(){ // 端末内に日ごとの控えを最大3つ
     localStorage.setItem(KEY+"_bk",JSON.stringify(bk.slice(0,3)))}catch(e){}
 }
 const SH=()=>(typeof SHIFTS!=="undefined"&&SHIFTS)||{};
-// 残業単価は勤務した月の年度ごと（4月始まり）。①記録室の明細 ②シートで共有してる明細の写し（残業代÷残業時間）③年度ごとの手入力 ④設定の単価 ⑤前の年度で分かってる単価、の順（2026-11-21）
+// 残業単価は年度ごと（切りかえは6月勤務から。下のRATEの説明）。①記録室の明細 ②シートで共有してる明細の写し（残業代÷残業時間）③年度ごとの手入力 ④設定の単価 ⑤前の年度で分かってる単価、の順（2026-11-21）
 function otRateFY(fy,noBack){
   try{const r=window.recOtRate&&window.recOtRate(fy);if(r&&r.rate>0)return r.rate}catch(e){}
   const om=(typeof S!=="undefined"&&S.otMonths)||{};let h=0,yy=0;
-  for(const k in om){const e=om[k];if(!e||e.t!=="pay"||!(+e.h>0)||!(+e.y>0))continue;const[a,b]=k.split("-").map(Number);if((b>=4?a:a-1)===fy){h+=+e.h;yy+=+e.y}}
+  for(const k in om){const e=om[k];if(!e||e.t!=="pay"||!(+e.h>0)||!(+e.y>0))continue;const[a,b]=k.split("-").map(Number);if((b>=6?a:a-1)===fy){h+=+e.h;yy+=+e.y}}
   if(h>0)return Math.round(yy/h);
   const hs=((typeof S!=="undefined"&&S.otRateHist)||[]).find(e=>+e.fy===fy&&+e.rate>0);if(hs)return +hs.rate;
   if(noBack)return 0;
@@ -2189,7 +2189,9 @@ function otRateFY(fy,noBack){
   for(let f=fy-1;f>=fy-5;f--){const v=otRateFY(f,true);if(v)return v}
   return 0}
 window.otRateFY=otRateFY;
-const RATE=(y,m)=>{if(!y){const n=NOW();y=n.getFullYear();m=n.getMonth()+1}return otRateFY(m>=4?y:y-1)};
+// 4月昇給だけど、4・5月に働いた分は前の単価で払われて、6月勤務（7月支給）から新しい単価＋4・5月分は遡及残業代として別に出る。
+// なので明細と合わせるため、単価の切りかえは「6月勤務から」（4・5月勤務は前の年度の単価）
+const RATE=(y,m)=>{if(!y){const n=NOW();y=n.getFullYear();m=n.getMonth()+1}return otRateFY(m>=6?y:y-1)};
 let cur=(()=>{const n=NOW();return{y:n.getFullYear(),m:n.getMonth()+1}})();
 const mk=(y,m)=>`${y}-${P(m)}`;
 const daysIn=(y,m)=>new Date(y,m,0).getDate();
@@ -2602,7 +2604,7 @@ window.recOtRate=fy=>{const ks=Object.keys(R.m).filter(k=>live(R.m[k])&&R.m[k].i
   // 答え合わせは、いちばん新しい月の「時間外手当÷残業時間」だけ（4月昇給→5月支給分までは前の単価で払われ、6月に遡及残業代でまとめて精算されるので、4・5月支給はくらべない）
   let Y=0,H=0,n=0,actK=null;for(const k of inFy.slice().reverse()){if(/-0[45]$/.test(k))continue;const o=otYH(R.m[k]);if(o){Y=o.y;H=o.h;n=1;actK=k;break}}
   const act=H>0?Math.round(Y/H):0;let lastK=null,kb=null;for(const k of inFy.slice().reverse()){kb=kisoOf(R.m[k]);if(kb){lastK=k;break}}
-  if(kb){const rate=Math.ceil(kb.v/164*1.25-1e-9); // 円未満は切り上げ
+  if(kb){const rate=Math.ceil(kb.v/164*1.25-1e-9); // 円未満は切り上げ（本人の明細で一致を確認ずみ）
     return{rate,how:`基礎賃金 ${kb.v.toLocaleString()}円（${kb.names.join("＋")}）÷ 164時間 × 1.25（${+lastK.slice(5)}月支給の明細）`+(act?`<br>明細の実績：時間外手当 ÷ 残業時間 ＝ ${act.toLocaleString()}円（${+actK.slice(5)}月支給・ちがい ${act-rate>=0?"+":"−"}${Math.abs(act-rate).toLocaleString()}円）`:"")}}
   if(act)return{rate:act,how:`明細の時間外手当 ${Y.toLocaleString()}円 ÷ 残業 ${Math.round(H*10)/10}時間（${+actK.slice(5)}月支給）`};
   return null};

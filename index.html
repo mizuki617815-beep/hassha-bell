@@ -1048,13 +1048,14 @@ function goGoal(now,m){const {d}=svc(now);
     return{target,best,start:sh.start+k*1440}}
   return null}
 // あしたタブ・電車タブ共通の印。arr=T3着、target=到着目標、start=シフト開始（不明ならnull）
+const DASH_MIN=7; // 改札→開始をダッシュで（本人の実感：ふだん7分、ダッシュでもほぼ同じ）
 function arrTag(arr,target,start,isBest,inCard){const d=target-arr;
   if(isBest&&inCard)return`<span class="poSt ok">✅ 間に合う・目標の${d}分前</span>`;
   if(isBest)return`<span class="poSt best">⭐ おすすめ・目標の${d}分前</span>`;
   if(d>=0)return`<span class="poSt ok">🌸 ゆっくりできる・目標の${d}分前</span>`;
   if(start==null)return`<span class="poSt ng">⚠️ 目標より${-d}分おそい</span>`;
   const g=start-arr;
-  if(g>=4)return`<span class="poSt warn">💨 ダッシュなら間に合う・開始${g}分前</span>`;
+  if(g>=DASH_MIN)return`<span class="poSt warn">💨 ダッシュなら間に合う・開始${g}分前</span>`;
   if(g>=0)return`<span class="poSt ng">⚠️ 遅刻の危険・開始${g}分前</span>`;
   return`<span class="poSt ng">🚨 遅刻・開始に${-g}分おくれ</span>`}
 function goTag(g,r){if(!g)return"";return arrTag(r.abs+rideGo(r),g.target,g.start,!!(g.best&&r.abs===g.best.abs))}
@@ -1108,7 +1109,7 @@ function plan(){
     const list=table("go",day).filter(tr=>tr.m+rideGo(tr)<=target);
     if(!list.length){out.innerHTML=lbl+"<br>間に合う電車がないみたい…";return}
     const b=list[list.length-1],p=list[list.length-2];const n=table("go",day).find(tr=>tr.m>b.m);
-    const shp=SHIFTS[dv],st0=(shp&&!shp.off&&shp.start!=null)?shp.start:null,WALK=+S.arrive||10,DASH=4;
+    const shp=SHIFTS[dv],st0=(shp&&!shp.off&&shp.start!=null)?shp.start:null,WALK=+S.arrive||10,DASH=DASH_MIN;
     const startLine=a=>{if(st0==null)return"";const g=st0-a;
       if(g>=WALK)return`開始の${hm(st0)}まで${g}分あるから、いつもの早歩きで間に合うよ。`;
       if(g>=DASH)return`開始の${hm(st0)}まで${g}分しかないよ。改札からダッシュしてね💨`;

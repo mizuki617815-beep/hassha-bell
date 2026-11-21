@@ -423,3 +423,4 @@
 - 下のタブ #jumpNav：iPhoneで裏の <select>（おでかけの駅えらび）がタブの上に描かれ、タップが貫通していた。left:50%+transform:translateX(-50%) の中央寄せが原因のWebKitの不具合なので、left:0;right:0;margin:0 auto;isolation:isolate に変更（transformを使わない）
 - 勤怠ノート #ktSum に「全労働時間（見込み）」＝planSum＋extraSum（横いっぱい、CSV・PDFにも）。「シフトの全労働時間」→「シフトの予定時間」（本人の選択）
 - 勤怠ノート「PDFにする」(#ktPdfOut)が効かなかった：単価の表示で RATE(y,m) の y・m が未定義でエラー → RATE(cur.y,cur.m) に。ヘッドレスで押して印刷まで進むのを確認
+- 有休の日はいつも実働8時間（本人の会社のルール：所定＝出勤日数(有休含む)×8h、超えたら残業）。チェック #ktPaid8 をなくし、KT.paid8 は読み込み時・同期受信時もいつも true（シートの古い false で外れないように）

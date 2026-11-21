@@ -794,7 +794,6 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
       <div class="ktNote">☁️ スプレッドシートのつなぎ先は「⚙️ 設定」タブに引っこしたよ</div>
       <label>この月の公休日数（ふだん10日・2月は9日）</label>
       <input type="number" id="ktKoukyu" inputmode="numeric">
-      <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="ktPaid8" style="width:auto"> 有休の日を実働8時間として数える</label>
       <div class="ktRow" style="margin-top:12px"><button class="ktBtn" id="ktReset" type="button">🗑 勤怠の記録をリセット</button></div>
       <div class="ktNote">読み込み直したいときに。消す前の記録は端末内に1つ控えを残すよ（シフトは📥ファイルを読み込むの「🗓 読み込んだシフトを見る・消す」で別に消せるよ）。</div>
       <div class="ktNote">ルール：所定＝（暦の日数−公休）×8h（有休の日も出勤日に数える）。拘束6時間超のシフトは休憩60分。残業は月の合計で、30分未満は切り捨て・30分以上は切り上げ。単価は残業カウンターの設定を使うよ。</div>
@@ -900,7 +899,7 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.0</span></summary>
       <ul class="verList">
-        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）</span></li>
+        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）</span></li>
         <li data-go="シートのURLをコピー|カウンターを手で直す・残業単価|ファーちゃんの記録室" data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
         <li data-go="間に合うかの印" data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。<br>・京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
         <li data-go="ひとつ前／おすすめ／ひとつ後|ほかの街の天気|AIに聞く|スプレッドシート" data-short="🚃 電車とあしたの表示がパワーアップ！"><span class="vNo">ver3.5</span><span class="vDate">11/21</span><span class="vTxt">📅あしたタブの行きを「ひとつ前／⭐おすすめ／ひとつ後」の3枚のカードに。タップするとファーちゃんが説明してくれるよ（改札から開始までの早歩き・ダッシュの時間も考えるよ）。🚃電車タブにも同じ印（🌸ゆっくりできる・⭐おすすめ・💨ダッシュなら間に合う・⚠️遅刻の危険）。京急のダイヤ変更（11/21土休日・11/24平日）に対応して、これからのダイヤ改正も週2回自動でチェック。☁️スプレッドシートは⚙️設定に引っこし、歩く時間・到着目標・有休/残業の手入力も2台で共有。ほかの街の天気（風速つき）、占いの文章が2倍、勤怠ノートの記入済み✅/未記入✏️、🔍AIに聞く、アプリが軽くなったよ</span></li>
@@ -2211,7 +2210,7 @@ const ESC=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&g
 const $=id=>document.getElementById(id);
 const KEY="yumebell_kintai_v1";let urlUnlocked=false;
 let KT;try{KT=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
-KT=Object.assign({days:{},koukyu:{},paid8:true,url:"",lastSync:null,dirty:false,who:"",setU:0},KT||{});
+KT=Object.assign({days:{},koukyu:{},paid8:true,url:"",lastSync:null,dirty:false,who:"",setU:0},KT||{});KT.paid8=true; // 有休はいつも実働8時間（会社のルール。切りかえはなくした 2026-11-22）
 function store(){try{localStorage.setItem(KEY,JSON.stringify(KT))}catch(e){}}
 function setDay(d,o){o.u=Date.now();o.by=KT.who||"";KT.days[d]=o} // いつ・だれが記録したか(同期で新しいほうを優先するため)
 function ktSave(){KT.dirty=true;store();backup();scheduleSync()}
@@ -2246,7 +2245,7 @@ function dayCalc(d){
   const sh=SH()[d],e=KT.days[d];let plan=null,act=null;
   if(sh&&!sh.off&&sh.start!=null&&sh.end!=null){let span=sh.end-sh.start;if(span<0)span+=1440;
     plan={start:sh.start,end:sh.end,span,brk:stdBreak(span),work:span-stdBreak(span)}}
-  if(isPaid(sh)&&KT.paid8)plan={paid:true,work:480};
+  if(isPaid(sh))plan={paid:true,work:480};
   if(e&&e.in!=null&&e.out!=null){let span=e.out-e.in;if(span<0)span+=1440;
     const brk=e.brk!=null?e.brk:stdBreak(span);act={start:e.in,end:e.out,span,brk,work:span-brk}}
   const planW=plan?plan.work:0,actW=act?act.work:null;
@@ -2306,7 +2305,7 @@ function render(){
   for(let i=1;i<=c.n;i++){
     const d=`${key}-${P(i)}`,dc=dayCalc(d),w=new Date(y,m-1,i).getDay();let main,sub="",chip="";
     const yuu=isPaid(dc.sh)||!!(dc.e&&/有[休給]/.test(dc.e.memo||"")); // タイムシートに有休ボタンがなく便宜上の時刻で入れているので、時刻は出さない
-    if(yuu){main="🏖️ 有休";sub=(dc.act||KT.paid8)?"勤務なし・8時間として計算":"勤務なし";chip=`<span class="ktChip paid">有休</span>`}
+    if(yuu){main="🏖️ 有休";sub="勤務なし・8時間として計算";chip=`<span class="ktChip paid">有休</span>`}
     else if(dc.act){main=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分`;
       sub=`実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"");
       chip=dc.fixed?`<span class="ktChip fix">✅ 記入済み</span>`:`<span class="ktChip plan">入力中</span>`;
@@ -2320,7 +2319,7 @@ function render(){
   }
   $("ktDays").innerHTML=h;
   $("ktDays").querySelectorAll(".ktDay").forEach(r=>r.onclick=()=>openDay(r.dataset.d));
-  $("ktKoukyu").value=koukyu(y,m);$("ktPaid8").checked=!!KT.paid8;
+  $("ktKoukyu").value=koukyu(y,m);
   {const ui=$("ktUrl"),lk=!!KT.url&&!urlUnlocked; // つないだあとは、うっかり書きかえないようにカギをかける（2026-11-17）
    ui.readOnly=lk;ui.classList.toggle("ktLocked",lk);$("ktUrlUnlock").style.display=lk?"":"none";$("ktUrlCopy").style.display=KT.url?"":"none";
    if(lk)ui.value="🔒 つながってるよ（…"+KT.url.replace(/\/exec.*$/,"").slice(-6)+"/exec）";else if(document.activeElement!==ui&&!urlUnlocked)ui.value=KT.url||""}
@@ -2447,7 +2446,6 @@ $("ktReset").onclick=()=>{const n=Object.keys(KT.days).length;if(!n){alert("勤�
   try{localStorage.setItem(KEY+"_reset",JSON.stringify({at:new Date().toISOString(),days:KT.days}))}catch(e){}
   {const nowU=Date.now();for(const d in KT.days)KT.days[d]={del:true,u:nowU,by:KT.who||""}}ktSave();render();if(typeof renderOt==="function")renderOt();alert("🧸 勤怠の記録を消したよ。タイムシートを読み込み直してね")};
 $("ktKoukyu").onchange=ev=>{KT.koukyu[mk(cur.y,cur.m)]=Math.max(0,Math.min(15,+ev.target.value||0));KT.setU=Date.now();ktSave();render()};
-$("ktPaid8").onchange=ev=>{KT.paid8=ev.target.checked;KT.setU=Date.now();ktSave();render()};
 
 // ===== CSV・シート用の表 =====
 const HEAD=["日付","シフト","出勤","退勤","休憩(分)","実働","予定の実働","追加残業","備考","記録済み","記録した人"];
@@ -2545,7 +2543,7 @@ function mergeRemote(j){let changed=false,remoteOld=false;
   const rd=(j&&j.days)||{};
   for(const d of new Set([...Object.keys(rd),...Object.keys(KT.days)])){const a=KT.days[d],b=rd[d];const au=a?(+a.u||0):-1,bu=b?(+b.u||0):-1;
     if(bu>au){KT.days[d]=b;changed=true}else if(au>bu||(a&&!b))remoteOld=true}
-  if((+j.setU||0)>(KT.setU||0)){KT.koukyu=j.koukyu||{};if(j.paid8!=null)KT.paid8=j.paid8;KT.setU=+j.setU;changed=true}else if((KT.setU||0)>(+j.setU||0))remoteOld=true;
+  if((+j.setU||0)>(KT.setU||0)){KT.koukyu=j.koukyu||{};KT.paid8=true;KT.setU=+j.setU;changed=true}else if((KT.setU||0)>(+j.setU||0))remoteOld=true;
   let shChanged=false;const la=shiftsAt(),ra=+j.shiftsAt||0;
   const join=joining&&j.shifts&&Object.keys(j.shifts).length>0;joining=false; // 新しくつないだ端末は、シートにあるシフトをそのまま受け取る
   if((ra>la||join)&&j.shifts&&typeof SHIFTS!=="undefined"){SHIFTS=j.shifts;try{(window._ktRawSaveShifts||saveShifts)();localStorage.setItem(SHU_KEY,String(ra))}catch(e){}shChanged=true;changed=true}

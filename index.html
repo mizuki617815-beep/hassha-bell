@@ -622,6 +622,35 @@ body.dark .ktStat.ok{background:rgba(80,190,120,.18);color:#8fe0ad}body.dark .kt
 .odAtTtl small{display:block;font-size:11px;font-weight:normal;color:var(--sub)}
 details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:var(--sub);cursor:pointer}details.infoFold.foot{margin:10px 16px}
 .srchBox{margin-top:14px;padding:10px 12px;border-radius:14px;border:1.5px dashed #b79cff;background:rgba(183,156,255,.08)}.srchTtl{font-size:13.5px;font-weight:900;color:#9b7cf0}.srchArrow{text-align:center;font-size:11.5px;color:#9b7cf0;font-weight:bold;margin-top:6px}
+/* ===== 🗺️ 機能マップ（なにがどこ？） ===== */
+.fmBtn{margin-left:4px;font:inherit;font-size:11px;font-weight:900;color:#8a63e6;background:var(--lav2);border:1.5px solid #d9c7ff;border-radius:999px;padding:2px 9px;cursor:pointer;white-space:nowrap}
+.fmSetBtn{display:flex;align-items:center;gap:8px;width:100%;margin:0 0 10px;padding:10px 14px;border:2px dashed #d9c7ff;border-radius:16px;background:var(--lav2);color:#8a63e6;font:inherit;font-size:14px;font-weight:900;cursor:pointer;text-align:left}
+.fmSetBtn small{display:block;font-size:11px;font-weight:700;color:var(--sub)}
+#fmSheet{position:fixed;inset:0;background:rgba(80,60,110,.38);display:none;align-items:flex-end;justify-content:center;z-index:95}
+#fmSheet.show{display:flex}
+.fmPanel{background:#fff;color:var(--ink);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:14px 14px calc(16px + env(safe-area-inset-bottom));height:78vh;max-height:86vh;display:flex;flex-direction:column}
+body.dark .fmPanel{background:#2a2340}
+.fmHead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.fmHead h3{flex:1;margin:0;font-size:17px}
+.fmX{border:0;background:var(--lav2);color:#8a63e6;font:inherit;font-weight:900;font-size:13px;border-radius:999px;padding:6px 12px;cursor:pointer}
+#fmQ{width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px;border-radius:14px}
+.fmChips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px;flex:none}
+.fmChips button{flex:none;border:1.5px solid #ecdcf7;background:transparent;color:var(--sub);font:inherit;font-size:12.5px;font-weight:800;border-radius:999px;padding:5px 10px;cursor:pointer}
+.fmChips button.on{background:#fdeef5;border-color:#f6b8d3;color:#e0447c}
+body.dark .fmChips button{border-color:#5a4d80}
+body.dark .fmChips button.on{background:#4a3f6b;color:#ffb7d5}
+.fmList{overflow:auto;flex:1;margin-top:4px;-webkit-overflow-scrolling:touch}
+.fmGrp{font-size:12px;font-weight:900;color:#b08ae8;margin:10px 4px 4px}
+.fmItem{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;padding:9px 8px;border-radius:14px;cursor:pointer;border-bottom:1px dashed var(--line)}
+.fmItem:active{background:var(--lav2)}
+.fmItem .fi{font-size:20px;flex:none;width:26px;text-align:center}
+.fmItem .ft{flex:1;min-width:0}
+.fmItem b{display:block;font-size:14px}
+.fmItem small{display:block;font-size:11.5px;color:var(--sub);line-height:1.4}
+.fmItem .fa{flex:none;color:#c9b3f5;font-weight:900}
+.fmNone{text-align:center;color:var(--sub);font-size:13px;padding:24px 8px}
+@keyframes fmGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,111,170,0)}50%{box-shadow:0 0 0 5px rgba(255,111,170,.75)}}
+.fmGlow{animation:fmGlow .7s ease-in-out 4;border-radius:12px;position:relative;z-index:1}
 </style>
 </head>
 <body>
@@ -632,7 +661,7 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
     <img class="avatar" src="avatar.jpg?v=20261121" alt="クマちゃん">
     <div class="brand">
       <h1>ゆめいろ手帳</h1>
-      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver3.9</span></div>
+      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver4.0</span><button class="fmBtn" id="fmOpen" type="button">🗺️ なにがどこ？</button></div>
     </div>
     <div id="payCd" role="button" title="給料日・ボーナスまでのカウントダウン"></div>
     <img class="banner" id="bannerImg" src="banner.jpg?v=20261121" alt="アトリエコットン Atelier Cotton">
@@ -809,6 +838,7 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
   </div>
 
   <div class="card" id="navSet">
+    <button type="button" class="fmSetBtn" id="fmOpen2">🗺️<span>機能マップ（なにがどこ？）<small>さがしてタップすると、その場所へ飛んで光るよ</small></span></button>
     <details>
       <summary>⚙️ 設定</summary>
       <div class="set" style="margin-top:12px">
@@ -853,8 +883,9 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
 
   <div class="card">
     <details id="verHist">
-      <summary>📝 アップデート履歴 <span class="verBadge">ver3.9</span></summary>
+      <summary>📝 アップデート履歴 <span class="verBadge">ver4.0</span></summary>
       <ul class="verList">
+        <li data-short="🗺️ 機能マップができたよ！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🗺️機能マップ（なにがどこ？）：いちばん上の「🗺️ なにがどこ？」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ</span></li>
         <li data-short="💴 残業単価が年度ごとに自動に！"><span class="vNo">ver3.9</span><span class="vDate">11/21</span><span class="vTxt">勤怠ノートの残業代も、年度ごとの単価で計算するように（4月昇給だけど明細に合わせて、新しい単価は6月勤務分から。4・5月分は前の単価＋あとで遡及）。単価は給料明細（記録室・明細の写し）から自動で出すよ。明細がない年度は設定の単価、それもなければ前の年度の単価を使うよ。アプリを入れ直しても、シートとつなげば単価が戻ってくるよ</span></li>
         <li data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.8</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に。電車だけじゃなくて、シフト・おしごと・おでかけまで全部入りになったからだよ。ホーム画面の名前は、アイコンを入れ直すと変わるよ</span></li>
         <li data-short="📋 シートのURLをコピーできるように！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">⚙️設定のスプレッドシートのところに「📋 URLをコピー」ボタン。カギはかけたまま、つなぎ先のURLをコピーできるよ。メモやパスワードアプリに保存しておけば、アプリを入れ直したときも貼るだけでOK</span></li>
@@ -3225,6 +3256,104 @@ document.getElementById("askGo").onclick=go;q.addEventListener("keydown",e=>{if(
   const b=document.createElement("button");b.type="button";b.className="clrBtn";b.setAttribute("aria-label","入力を消す");b.textContent="×";w.appendChild(b);
   const up=()=>w.classList.toggle("has",!!q.value);q.addEventListener("input",up);up();
   b.onclick=()=>{q.value="";up();q.focus();q.dispatchEvent(new Event("input"))};});})();
+</script>
+<div id="fmSheet"><div class="fmPanel" role="dialog" aria-label="機能マップ">
+  <div class="fmHead"><h3>🗺️ なにがどこ？</h3><button class="fmX" id="fmX" type="button">✕ とじる</button></div>
+  <input type="search" id="fmQ" placeholder="さがす（例：残業、シート、帰り、星座）" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false">
+  <div class="fmChips" id="fmChips"></div>
+  <div class="fmList" id="fmList"></div>
+</div></div>
+<script>
+// ===== 🗺️ 機能マップ：なにがどこ？一覧＋検索、タップでその場所へ飛んで光る =====
+// sel＝飛ぶ先（閉じている<details>は自動で開く）、pre＝飛ぶ前に押すボタン、only＝押すだけ（飛ばない）
+(function(){
+const FM=[
+ ["🌤️ 天気",[
+  ["🌙","あしたの朝の天気・服装","出かける時間帯の天気とコーデのアドバイス","てんき 服 コーデ 気温 体感","#morning"],
+  ["⚠️","警報・台風","大雨・強風などの警報が出たらここに","けいほう 台風 注意報","#alertBox","#navWx"],
+  ["🧺","クマちゃんのひとこと・洗濯","洗濯できる？部屋干し？","せんたく 洗濯 ひとこと 吹き出し","#bubble"],
+  ["📆","週間天気・過去の天気","1週間先までと、過去1週間","週間 一週間 予報","#wx"],
+  ["🗺","ほかの街の天気","旅行先の天気（風速つき）","旅行 大阪 名古屋 宇都宮 京都","#ocWrap"]]],
+ ["🔮 占い",[
+  ["🔮","きょうのファーちゃん占い","順位・はちみつ度・ラッキー","うらない 星座 運勢 ランキング","#navFortune"],
+  ["⏪","おととい・きのうの占い","切りかえボタン","過去 きのう","#fDay"],
+  ["ℹ️","今日の星の動き・しくみ","占いがどう決まるか","星 しくみ","#fSky"]]],
+ ["🚃 電車",[
+  ["🏠","行きのカウントダウン","京急蒲田→T3、次の電車まであと何分","いき 出勤 カウントダウン 蒲田","#navTrain","#tabGo"],
+  ["✈️","帰りのカウントダウン","T3→京急蒲田","かえり 退勤 帰宅","#navTrain","#tabBack"],
+  ["🚶","歩きながらバー","家を出たあと見る用","徒歩 あるく","#walkBar"],
+  ["🌸","間に合うかの印","🌸余裕あり／✅ちょうどいい／💨ギリギリ／🚨遅刻","遅刻 ギリギリ 余裕 おすすめ 印","#hero"],
+  ["🚨","京急の運行情報（公式）","遅れ・運転見合わせのチェック","遅延 遅れ 運休 運行","#navTrain a.btn2"],
+  ["📋","そのあとの電車","この先の発車一覧","時刻表 一覧 次","#nextList"]]],
+ ["📅 あした",[
+  ["📅","あした何時に出る？","日付と時刻を入れてしらべる","予定 明日 計画","#navPlan"],
+  ["⭐","ひとつ前／おすすめ／ひとつ後","3枚のカード、タップで説明","おすすめ カード","#pRes"],
+  ["🏖️","お休みまであと何日","次のお休み・連休のお知らせ","休み 連休 公休","#pCheer","#navPlan"]]],
+ ["🧸 おしごと",[
+  ["✏️","今日の勤務の記入","残業した日だけ終わった時刻を入れる","勤怠 きろく 入力 今日 残業","#ktTodayWrap","#navKintai"],
+  ["📊","今月のまとめ","就業時間・確定残業・追加残業・残業代の見込み","残業代 見込み 合計 今月","#ktSum"],
+  ["📅","今月の勤務記録","ほかの日の記録を見る・直す","一覧 カレンダー 記録","#ktDaysWrap"],
+  ["📚","ファーちゃんの記録室","給料・ボーナスの明細／源泉徴収票／年度のまとめ","給料 明細 ボーナス 賞与 源泉 手取り 年度",null,"#recOpen",1],
+  ["📥","ファイルを読み込む","シフト・タイムシート・明細PDF","インポート シフト タイムシート PDF CSV","#impBtn"],
+  ["🗓","読み込んだシフトを見る・消す","シフトの削除・復元","シフト 削除 復元 控え",".impShift"],
+  ["📤","CSV・PDFで保存","勤怠表を書き出す","出力 エクスポート 印刷","#ktCsvOut"],
+  ["🔢","この月の公休日数","ふだん10日・2月は9日","公休 休日数","#ktKoukyu"],
+  ["🗑","勤怠の記録をリセット","読み込み直したいとき","リセット 削除","#ktReset"],
+  ["🏖️","有休カウンター","消える分の残り日数とペース","有休 有給 年休","#paidInfo"],
+  ["💪","残業がんばりカウンター","残業時間・残業代・単価の推移","残業 グラフ 単価 時給","#otInfo"]]],
+ ["🧳 おでかけ",[
+  ["🉐","お得チェッカー","ベネ・JAFの地図で近くの優待","優待 割引 ベネ ベネフィット JAF お得 外食","#navOtoku"],
+  ["🔍","お店・施設で優待をさがす","手帳割・ベネ・JAF","手帳 美術館 映画館 検索",".srchBox"],
+  ["🤖","AIに聞く","GoogleのAIモードで質問","AI 質問 検索","#askWrap"],
+  ["🧳","おでかけ乗り換えガイド","よく行く駅への乗り換え","乗換 乗り換え ジョルダン 駅","#navOdekake"],
+  ["🕐","日時を指定してしらべる","乗換案内を日時指定で","日時 指定",".odAt"]]],
+ ["⚙️ 設定",[
+  ["🚶","家 ⇔ 京急蒲田の分数","歩く時間","徒歩 あるく 家","#sWalk"],
+  ["⏳","余裕をもたせる分数","電車の余裕","バッファ","#sBuf"],
+  ["🚉","T3 改札→ホーム（帰り）","帰りの歩く時間","改札 ホーム","#sT3"],
+  ["🎯","シフト開始の何分前に着く","到着目標（ちょうどいいの基準）","到着 目標","#sArr"],
+  ["✏️","カウンターを手で直す・残業単価","有休・残業の手入力、時給","単価 時給 手入力 修正",".manFix"],
+  ["🎂","お誕生日","お誕生日の表示","誕生日 バースデー","#sBdayM"],
+  ["♈","星座","占いの星座","せいざ 占い","#sSign"],
+  ["🎨","画面の色","自動・ライト・ダーク","テーマ ダーク ライト 色","#sTheme"],
+  ["🚃","ダイヤの手動切りかえ","特別ダイヤの日に","平日 土休日 ダイヤ","#sDia"],
+  ["☁️","スプレッドシート","バックアップ・2台で共有、今すぐそろえる","シート 同期 共有 バックアップ グーグル google",".sheetBox"],
+  ["📋","シートのURLをコピー","メモに控える用","URL コピー 入れ直し","#ktUrl"],
+  ["👤","記録する人の名前","シートに出る名前","名前 だれ","#ktWho"]]],
+ ["📝 そのほか",[
+  ["📝","アップデート履歴","いままでの変更","バージョン 更新 履歴 ver","#verHist"],
+  ["ℹ️","時刻表・天気のデータについて","出典と確認日","出典 データ ダイヤ改正",".infoFold.foot"],
+  ["🔄","更新ボタン","アプリを読み込み直す（下に引っぱってもOK）","リロード 更新","#reloadBtn"]]]
+];
+const $=id=>document.getElementById(id),sh=$("fmSheet"),q=$("fmQ"),list=$("fmList"),chips=$("fmChips");
+const norm=t=>String(t||"").toLowerCase().replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-96)).replace(/\s+/g,"");
+const YOMI={ざんぎょう:"残業",ゆうきゅう:"有休",ゆうきゅうきゅうか:"有休",きゅうりょう:"給料",めいさい:"明細",てんき:"天気",でんしゃ:"電車",せってい:"設定",かえり:"帰り",いき:"行き",たんか:"単価",じきゅう:"時給",せいざ:"星座",たんじょうび:"誕生日",ゆうたい:"優待",のりかえ:"乗換",こうきゅう:"公休",ちこく:"遅刻",きろく:"記録",ほぞん:"保存",うらない:"占い",せんたく:"洗濯",りれき:"履歴",やすみ:"休み",きんたい:"勤怠",じこく:"時刻",よゆう:"余裕",とうちゃく:"到着",かいさつ:"改札",なまえ:"名前",しょうよ:"賞与",げんせん:"源泉",てどり:"手取り",けいほう:"警報",たいふう:"台風",しゅうかん:"週間",ふく:"服",がめん:"画面",いろ:"色",さくじょ:"削除",ちえん:"遅延",うんこう:"運行",あした:"あした",しゅっきん:"出勤"};
+const qn=t=>{let x=norm(t);Object.keys(YOMI).sort((a,b)=>b.length-a.length).forEach(k=>{x=x.split(k).join(norm(YOMI[k]))});return x};
+let grp=-1;
+chips.innerHTML=`<button data-g="-1" class="on">ぜんぶ</button>`+FM.map((g,i)=>`<button data-g="${i}">${g[0]}</button>`).join("");
+chips.onclick=e=>{const b=e.target.closest("button");if(!b)return;grp=+b.dataset.g;[...chips.children].forEach(c=>c.classList.toggle("on",c===b));draw()};
+function draw(){const w=qn(q.value).split(/[,、]/).filter(Boolean);let h="",n=0;
+  FM.forEach((g,gi)=>{if(grp>=0&&gi!==grp&&!w.length)return;
+    const its=g[1].map((it,ii)=>[it,ii]).filter(([it])=>!w.length||w.every(k=>norm(g[0]+it[1]+it[2]+it[3]).includes(k)));
+    if(!its.length)return;n+=its.length;
+    h+=`<div class="fmGrp">${g[0]}</div>`+its.map(([it,ii])=>`<button class="fmItem" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}</b><small>${it[2]}</small></span><span class="fa">›</span></button>`).join("")});
+  list.innerHTML=n?h:`<div class="fmNone">見つからなかったよ🧸<br>ちがうことばでさがしてみてね</div>`}
+function openFM(){sh.classList.add("show");q.value="";draw();list.scrollTop=0;document.body.style.overflow="hidden"}
+function closeFM(){sh.classList.remove("show");document.body.style.overflow=""}
+function glow(el){el.classList.remove("fmGlow");void el.offsetWidth;el.classList.add("fmGlow");setTimeout(()=>el.classList.remove("fmGlow"),3000)}
+function go(gi,ii){const it=FM[gi]&&FM[gi][1][ii];if(!it)return;closeFM();
+  const pre=it[5]&&document.querySelector(it[5]);if(pre)pre.click();if(it[6])return;
+  let el=it[4]&&document.querySelector(it[4]);if(!el)return;
+  // 中身が空・非表示なら、まわりの見えている枠を光らせる
+  while(el&&el.parentElement&&!el.offsetHeight&&!el.closest("details:not([open])"))el=el.parentElement;
+  for(let d=el.closest("details");d;d=d.parentElement&&d.parentElement.closest("details"))d.open=true;
+  const target=(el.matches("input,select")&&el.previousElementSibling&&el.previousElementSibling.tagName==="SPAN")?el.parentElement:null;
+  setTimeout(()=>{el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{glow(el);if(target&&el.previousElementSibling)glow(el.previousElementSibling)},450)},60)}
+list.onclick=e=>{const b=e.target.closest(".fmItem");if(b){const[g,i]=b.dataset.k.split("-");go(+g,+i)}};
+q.oninput=draw;$("fmX").onclick=closeFM;sh.onclick=e=>{if(e.target===sh)closeFM()};
+$("fmOpen").onclick=openFM;$("fmOpen2").onclick=openFM;
+window.fmGo=(name)=>{FM.forEach((g,gi)=>g[1].forEach((it,ii)=>{if(it[1]===name)go(gi,ii)}))}; // 更新履歴などから呼ぶ用
+})();
 </script>
 </body>
 </html>

@@ -622,7 +622,7 @@ body.dark .ktStat.ok{background:rgba(80,190,120,.18);color:#8fe0ad}body.dark .kt
 .odAtTtl small{display:block;font-size:11px;font-weight:normal;color:var(--sub)}
 details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:var(--sub);cursor:pointer}details.infoFold.foot{margin:10px 16px}
 .srchBox{margin-top:14px;padding:10px 12px;border-radius:14px;border:1.5px dashed #b79cff;background:rgba(183,156,255,.08)}.srchTtl{font-size:13.5px;font-weight:900;color:#9b7cf0}.srchArrow{text-align:center;font-size:11.5px;color:#9b7cf0;font-weight:bold;margin-top:6px}
-/* ===== 🗺️ 機能マップ（なにがどこ？） ===== */
+/* ===== 🧸 ファーちゃんの案内所🗺️（機能マップ） ===== */
 .fmBtn{margin-left:4px;font:inherit;font-size:11px;font-weight:900;color:#8a63e6;background:var(--lav2);border:1.5px solid #d9c7ff;border-radius:999px;padding:2px 9px;cursor:pointer;white-space:nowrap}
 .fmSetBtn{display:flex;align-items:center;gap:8px;width:100%;margin:0 0 10px;padding:10px 14px;border:2px dashed #d9c7ff;border-radius:16px;background:var(--lav2);color:#8a63e6;font:inherit;font-size:14px;font-weight:900;cursor:pointer;text-align:left}
 .fmSetBtn small{display:block;font-size:11px;font-weight:700;color:var(--sub)}
@@ -661,7 +661,7 @@ body.dark .fmChips button.on{background:#4a3f6b;color:#ffb7d5}
     <img class="avatar" src="avatar.jpg?v=20261121" alt="クマちゃん">
     <div class="brand">
       <h1>ゆめいろ手帳</h1>
-      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver4.0</span><button class="fmBtn" id="fmOpen" type="button">🗺️ なにがどこ？</button></div>
+      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver4.0</span><button class="fmBtn" id="fmOpen" type="button" aria-label="ファーちゃんの案内所">🧸 案内所🗺️</button></div>
     </div>
     <div id="payCd" role="button" title="給料日・ボーナスまでのカウントダウン"></div>
     <img class="banner" id="bannerImg" src="banner.jpg?v=20261121" alt="アトリエコットン Atelier Cotton">
@@ -838,7 +838,7 @@ body.dark .fmChips button.on{background:#4a3f6b;color:#ffb7d5}
   </div>
 
   <div class="card" id="navSet">
-    <button type="button" class="fmSetBtn" id="fmOpen2">🗺️<span>機能マップ（なにがどこ？）<small>さがしてタップすると、その場所へ飛んで光るよ</small></span></button>
+    <button type="button" class="fmSetBtn" id="fmOpen2">🧸<span>ファーちゃんの案内所🗺️<small>さがしてタップすると、その場所へ飛んで光るよ</small></span></button>
     <details>
       <summary>⚙️ 設定</summary>
       <div class="set" style="margin-top:12px">
@@ -885,7 +885,7 @@ body.dark .fmChips button.on{background:#4a3f6b;color:#ffb7d5}
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.0</span></summary>
       <ul class="verList">
-        <li data-short="🗺️ 機能マップができたよ！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🗺️機能マップ（なにがどこ？）：いちばん上の「🗺️ なにがどこ？」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ</span></li>
+        <li data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ</span></li>
         <li data-short="💴 残業単価が年度ごとに自動に！"><span class="vNo">ver3.9</span><span class="vDate">11/21</span><span class="vTxt">勤怠ノートの残業代も、年度ごとの単価で計算するように（4月昇給だけど明細に合わせて、新しい単価は6月勤務分から。4・5月分は前の単価＋あとで遡及）。単価は給料明細（記録室・明細の写し）から自動で出すよ。明細がない年度は設定の単価、それもなければ前の年度の単価を使うよ。アプリを入れ直しても、シートとつなげば単価が戻ってくるよ</span></li>
         <li data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.8</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に。電車だけじゃなくて、シフト・おしごと・おでかけまで全部入りになったからだよ。ホーム画面の名前は、アイコンを入れ直すと変わるよ</span></li>
         <li data-short="📋 シートのURLをコピーできるように！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">⚙️設定のスプレッドシートのところに「📋 URLをコピー」ボタン。カギはかけたまま、つなぎ先のURLをコピーできるよ。メモやパスワードアプリに保存しておけば、アプリを入れ直したときも貼るだけでOK</span></li>
@@ -3257,14 +3257,14 @@ document.getElementById("askGo").onclick=go;q.addEventListener("keydown",e=>{if(
   const up=()=>w.classList.toggle("has",!!q.value);q.addEventListener("input",up);up();
   b.onclick=()=>{q.value="";up();q.focus();q.dispatchEvent(new Event("input"))};});})();
 </script>
-<div id="fmSheet"><div class="fmPanel" role="dialog" aria-label="機能マップ">
-  <div class="fmHead"><h3>🗺️ なにがどこ？</h3><button class="fmX" id="fmX" type="button">✕ とじる</button></div>
+<div id="fmSheet"><div class="fmPanel" role="dialog" aria-label="ファーちゃんの案内所">
+  <div class="fmHead"><h3>🧸 ファーちゃんの案内所 🗺️</h3><button class="fmX" id="fmX" type="button">✕ とじる</button></div>
   <input type="search" id="fmQ" placeholder="さがす（例：残業、シート、帰り、星座）" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false">
   <div class="fmChips" id="fmChips"></div>
   <div class="fmList" id="fmList"></div>
 </div></div>
 <script>
-// ===== 🗺️ 機能マップ：なにがどこ？一覧＋検索、タップでその場所へ飛んで光る =====
+// ===== 🧸 ファーちゃんの案内所🗺️（機能マップ）：一覧＋検索、タップでその場所へ飛んで光る =====
 // sel＝飛ぶ先（閉じている<details>は自動で開く）、pre＝飛ぶ前に押すボタン、only＝押すだけ（飛ばない）
 (function(){
 const FM=[

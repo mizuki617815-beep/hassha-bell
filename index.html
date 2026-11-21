@@ -657,7 +657,42 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
 .fmItem.best{outline:2px solid #f59ac0;outline-offset:-2px}
 @keyframes fmGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,111,170,0)}50%{box-shadow:0 0 0 5px rgba(255,111,170,.75)}}
 .fmGlow{animation:fmGlow .7s ease-in-out 4;border-radius:12px;position:relative;z-index:1}
+/* 🧸 お知らせ・確認（iPhoneの灰色の画面のかわり 2026-11-22） */
+#yuToast{position:fixed;left:16px;right:16px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:9999;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border-radius:20px;border:2px solid var(--mint2);box-shadow:0 8px 24px rgba(183,156,255,.45);transform:translateY(30px);opacity:0;pointer-events:none;transition:.3s;max-width:520px;margin:0 auto}
+#yuToast.show{transform:none;opacity:1;pointer-events:auto}
+#yuToast.err{border-color:var(--rose2)}
+#yuToast img{width:42px;height:42px;border-radius:50%;border:2px solid var(--mint);flex:none;object-fit:cover}
+#yuToast.err img{border-color:var(--rose)}
+#yuToast .m{font-size:13px;font-weight:700;line-height:1.5;white-space:pre-line;color:var(--ink)}
+#yuToast .x{font-size:11px;color:var(--sub);margin-top:2px}
+#yuAsk{position:fixed;inset:0;z-index:10000;background:rgba(60,40,80,.32);display:none;align-items:center;justify-content:center;padding:20px}
+#yuAsk.show{display:flex}
+#yuAsk .cf{width:100%;max-width:300px;background:#fff;border-radius:24px;border:2px solid var(--pink2);box-shadow:0 10px 30px rgba(183,156,255,.4);text-align:center;padding:18px 16px 16px;animation:yuPop .2s ease-out}
+@keyframes yuPop{from{transform:scale(.9);opacity:0}}
+#yuAsk img{width:58px;height:58px;border-radius:50%;border:3px solid var(--pink);object-fit:cover}
+#yuAsk .m{font-size:14px;font-weight:700;margin:8px 0 14px;line-height:1.55;white-space:pre-line;color:var(--ink)}
+#yuAsk .b{display:flex;gap:10px}
+#yuAsk button{flex:1;padding:11px 6px;border:0;border-radius:99px;font:inherit;font-weight:800;font-size:14px;cursor:pointer}
+#yuAsk .no{background:var(--lav2);color:var(--ink)}
+#yuAsk .yes{background:linear-gradient(90deg,var(--lav),var(--pink));color:#fff}
+#yuAsk .yes.danger{background:linear-gradient(90deg,#ff7aa8,#ff5c8a)}
 </style>
+<script>
+// 🧸 お知らせ（下から出て消える。うまくいかなかったときはタップするまで残す）と確認（はい/いいえを Promise で返す）
+const YU_FACE="kintai-face.webp";
+function yuAlert(msg){msg=String(msg??"");let t=document.getElementById("yuToast");
+  if(!t){t=document.createElement("div");t.id="yuToast";t.innerHTML=`<img src="${YU_FACE}" alt=""><div><div class="m"></div><div class="x"></div></div>`;t.onclick=()=>t.classList.remove("show");document.body.appendChild(t)}
+  const err=/なかった|できなかった|じゃない|読めない|入れてね|まだない|失敗|エラー|⚠️/.test(msg);
+  t.querySelector(".m").textContent=msg.replace(/^🧸\s*/,"")+(/🧸/.test(msg)?"":" 🧸");t.querySelector(".x").textContent=err?"タップで閉じるよ":"";
+  t.classList.toggle("err",err);clearTimeout(t._tm);requestAnimationFrame(()=>t.classList.add("show"));
+  if(!err)t._tm=setTimeout(()=>t.classList.remove("show"),3000+Math.min(msg.length*40,3000))}
+function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document.getElementById("yuAsk");
+  if(!a){a=document.createElement("div");a.id="yuAsk";a.innerHTML=`<div class="cf"><img src="${YU_FACE}" alt=""><div class="m"></div><div class="b"><button type="button" class="no">やめる</button><button type="button" class="yes"></button></div></div>`;document.body.appendChild(a)}
+  a.querySelector(".m").textContent=msg;const y=a.querySelector(".yes"),n=a.querySelector(".no");y.textContent=ok;y.classList.toggle("danger",!!danger);
+  const end=v=>{a.classList.remove("show");y.onclick=n.onclick=a.onclick=null;res(v)};
+  y.onclick=e=>{e.stopPropagation();end(true)};n.onclick=e=>{e.stopPropagation();end(false)};a.onclick=e=>{if(e.target===a)end(false)};
+  a.classList.add("show")})}
+</script>
 </head>
 <body>
 <div id="ptr">⬇️ 引っぱって更新</div>
@@ -899,7 +934,7 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.0</span></summary>
       <ul class="verList">
-        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）</span></li>
+        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・お知らせと確認を、iPhoneの灰色の画面からクマちゃんのふきだし・カードに（お知らせは3秒で消えるよ。消すボタンは赤っぽく）<br>・電波が弱くてもすぐ開けるように、絵は一回保存したらそれを使うように<br>・天気が取れなかったとき「取ってきてるよ」が出たままにならないように<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）</span></li>
         <li data-go="シートのURLをコピー|カウンターを手で直す・残業単価|ファーちゃんの記録室" data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
         <li data-go="間に合うかの印" data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。<br>・京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
         <li data-go="ひとつ前／おすすめ／ひとつ後|ほかの街の天気|AIに聞く|スプレッドシート" data-short="🚃 電車とあしたの表示がパワーアップ！"><span class="vNo">ver3.5</span><span class="vDate">11/21</span><span class="vTxt">📅あしたタブの行きを「ひとつ前／⭐おすすめ／ひとつ後」の3枚のカードに。タップするとファーちゃんが説明してくれるよ（改札から開始までの早歩き・ダッシュの時間も考えるよ）。🚃電車タブにも同じ印（🌸ゆっくりできる・⭐おすすめ・💨ダッシュなら間に合う・⚠️遅刻の危険）。京急のダイヤ変更（11/21土休日・11/24平日）に対応して、これからのダイヤ改正も週2回自動でチェック。☁️スプレッドシートは⚙️設定に引っこし、歩く時間・到着目標・有休/残業の手入力も2台で共有。ほかの街の天気（風速つき）、占いの文章が2倍、勤怠ノートの記入済み✅/未記入✏️、🔍AIに聞く、アプリが軽くなったよ</span></li>
@@ -1748,6 +1783,7 @@ async function loadWx(){
   }catch(e){
     const el=document.getElementById("wxNote");
     if(el)el.innerHTML=`⚠️ 天気を取ってこられなかったよ(電波を確認してね)${WX.days.length?" ・ 前回のデータを表示中":""}`;
+    {const bEl=document.getElementById("bubble");if(bEl&&/取ってきてるよ/.test(bEl.textContent))bEl.innerHTML="天気を取ってこられなかったよ。電波のいいところで「更新」を押してね🧸"} // 「取ってきてるよ」と同時に出ないように（2026-11-22）
   }
 }
 
@@ -2158,10 +2194,10 @@ document.getElementById("csvFile").addEventListener("change",ev=>{
   }).catch(()=>renderShiftStatus("⚠️ CSVを読み取れなかったよ"));
   ev.target.value="";
 });
-document.getElementById("csvClear").onclick=()=>{if(!confirm("読み込んだシフトを消す？（消す前に控えを残すので、復元できるよ）"))return;backupShifts();SHIFTS={};saveShifts();renderShiftStatus("シフトを消したよ");renderBackupBtn();document.getElementById("shiftInfo").innerHTML="";renderCheer(true)};
-document.getElementById("csvRestore").onclick=()=>{const b=loadShiftBackup();if(!b)return;
+document.getElementById("csvClear").onclick=async()=>{if(!await yuAsk("読み込んだシフトを消す？（消す前に控えを残すので、復元できるよ）","消す",true))return;backupShifts();SHIFTS={};saveShifts();renderShiftStatus("シフトを消したよ");renderBackupBtn();document.getElementById("shiftInfo").innerHTML="";renderCheer(true)};
+document.getElementById("csvRestore").onclick=async()=>{const b=loadShiftBackup();if(!b)return;
   const miss=Object.keys(b.data).filter(d=>!(d in SHIFTS)).length;
-  if(miss&&!confirm(`${b.at} に消したシフトのうち、無くなっている ${miss} 日分を足し戻す？（今あるシフトはそのまま残るよ）`))return;
+  if(miss&&!await yuAsk(`${b.at} に消したシフトのうち、無くなっている ${miss} 日分を足し戻す？（今あるシフトはそのまま残るよ）`,"足し戻す"))return;
   const r=restoreShifts();renderBackupBtn();
   if(r>0){renderShiftStatus(`↩️ ${r}日分を復元したよ`);if(pAuto)setAutoDate();applyShiftForDate(true);renderCheer(true)}
   else renderShiftStatus("消えた日はもう全部戻ってたよ")};
@@ -2432,19 +2468,19 @@ function openDay(d,startMode){
     p.appendChild(q);q.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{const k=b.dataset.q;q.remove();if(k==="save")$("kxFix").click();else if(k==="drop")close()})};
   $("kxClose").onclick=tryClose;$("ktSheet").onclick=ev=>{if(ev.target.id==="ktSheet")tryClose()};
   $("kxFix").onclick=()=>{const a=toMin(xIn.value),b=toMin(xOut.value),memo=$("kxMemo").value.trim();
-    if(a==null||b==null){if(memo){setDay(d,{memo,fixed:false});done();return}alert("出勤と退勤を入れてね");return}
+    if(a==null||b==null){if(memo){setDay(d,{memo,fixed:false});done();return}yuAlert("出勤と退勤を入れてね");return}
     setDay(d,{in:a,out:b,brk:curBrk(),memo,fixed:true});done()};
   if($("kxAsPlan"))$("kxAsPlan").onclick=()=>{setDay(d,{in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:$("kxMemo").value.trim(),fixed:true});done()};
-  $("kxDel").onclick=()=>{if(!confirm("この日の入力を消す？"))return;setDay(d,{del:true});done()};
+  $("kxDel").onclick=async()=>{if(!await yuAsk("この日の入力を消す？","消す",true))return;setDay(d,{del:true});done()};
   $("ktSheet").classList.add("show");
 }
 const sheetBg=ev=>{if(ev.target.id==="ktSheet")ev.target.classList.remove("show")};$("ktSheet").onclick=sheetBg;
 $("ktPrev").onclick=()=>{cur.m--;if(cur.m<1){cur.m=12;cur.y--}render()};
 $("ktNext").onclick=()=>{cur.m++;if(cur.m>12){cur.m=1;cur.y++}render()};
-$("ktReset").onclick=()=>{const n=Object.keys(KT.days).length;if(!n){alert("勤怠の記録はまだないよ");return}
-  if(!confirm(`勤怠の記録（${n}日分）を全部消す？\n消す前の記録は端末内に控えを1つ残すよ。`))return;
+$("ktReset").onclick=async()=>{const n=Object.keys(KT.days).length;if(!n){yuAlert("勤怠の記録はまだないよ");return}
+  if(!await yuAsk(`勤怠の記録（${n}日分）を全部消す？\n消す前の記録は端末内に控えを1つ残すよ。`,"全部消す",true))return;
   try{localStorage.setItem(KEY+"_reset",JSON.stringify({at:new Date().toISOString(),days:KT.days}))}catch(e){}
-  {const nowU=Date.now();for(const d in KT.days)KT.days[d]={del:true,u:nowU,by:KT.who||""}}ktSave();render();if(typeof renderOt==="function")renderOt();alert("🧸 勤怠の記録を消したよ。タイムシートを読み込み直してね")};
+  {const nowU=Date.now();for(const d in KT.days)KT.days[d]={del:true,u:nowU,by:KT.who||""}}ktSave();render();if(typeof renderOt==="function")renderOt();yuAlert("🧸 勤怠の記録を消したよ。タイムシートを読み込み直してね")};
 $("ktKoukyu").onchange=ev=>{KT.koukyu[mk(cur.y,cur.m)]=Math.max(0,Math.min(15,+ev.target.value||0));KT.setU=Date.now();ktSave();render()};
 
 // ===== CSV・シート用の表 =====
@@ -2487,12 +2523,12 @@ function parseTimesheet(t){
   return{rows,total:tot?(+tot[1])*60+(+tot[2]):null};
 }
 $("ktCsvIn").onchange=ev=>{const f=ev.target.files[0];if(!f)return;
-  f.text().then(t=>{
+  f.text().then(async t=>{
     if(/^\s*﻿?\s*タイムシート/.test(t)||/日付\s*,\s*出勤\s*,\s*退勤\s*,\s*休憩/.test(t)){
       const pr=parseTimesheet(t);const today=YMD(NOW());const rows=pr.rows.filter(r=>r.d<=today),skip=pr.rows.length-rows.length,total=skip?null:pr.total; // 今日より先の日はまだ働いていないので読み込まない
-      if(!rows.length){alert(skip?"今日より先の日だけだったから、読み込まなかったよ":"タイムシートの記録が見つからなかったよ");return}
+      if(!rows.length){yuAlert(skip?"今日より先の日だけだったから、読み込まなかったよ":"タイムシートの記録が見つからなかったよ");return}
       const over=rows.filter(r=>KT.days[r.d]&&KT.days[r.d].fixed).length;
-      if(over&&!confirm(`入力済みの${over}日も、タイムシートの内容で上書きするよ。いい？`))return;
+      if(over&&!await yuAsk(`入力済みの${over}日も、タイムシートの内容で上書きするよ。いい？`,"上書きする",true))return;
       const ms={};
       for(const r of rows){setDay(r.d,{in:r.in,out:r.out,brk:r.brk,memo:r.memo,fixed:true});
         let sp=r.out-r.in;if(sp<0)sp+=1440;const b=r.brk!=null?r.brk:stdBreak(sp);const k=r.d.slice(0,7);
@@ -2501,18 +2537,18 @@ $("ktCsvIn").onchange=ev=>{const f=ev.target.files[0];if(!f)return;
       let msg=ks.map(k=>`${+k.slice(5)}月：${ms[k].n}日分・実働 ${JDUR(ms[k].w)}`).join("\n");
       if(total!=null&&ks.length===1)msg+=ms[ks[0]].w===total?`\nタイムシートの就業時間 ${JDUR(total)} と一致✓`:`\n⚠️ タイムシートの就業時間 ${JDUR(total)} とちがうよ`;
       if(skip)msg+=`\n今日より先の${skip}日は、まだ働いてないから読み込まなかったよ（予定はシフトから出るよ）`;
-      alert("🧸 タイムシートを読み込んだよ\n"+msg);return}
+      yuAlert("🧸 タイムシートを読み込んだよ\n"+msg);return}
     if(/^\s*\uFEFF?\s*date\s*,\s*title/i.test(t)&&typeof importShiftCSV==="function"){
       const r=importShiftCSV(t);
-      if(r){render();if(typeof renderOt==="function")renderOt();if(typeof renderShiftStatus==="function")renderShiftStatus();alert(`🧸 これはシフト（タイムツリー）のCSVだったから、シフトとして${r.added}件読み込んだよ（${r.from}〜${r.to}）`)}
-      else alert("シフトのCSVだけど、読み込めるシフトが見つからなかったよ");
+      if(r){render();if(typeof renderOt==="function")renderOt();if(typeof renderShiftStatus==="function")renderShiftStatus();yuAlert(`🧸 これはシフト（タイムツリー）のCSVだったから、シフトとして${r.added}件読み込んだよ（${r.from}〜${r.to}）`)}
+      else yuAlert("シフトのCSVだけど、読み込めるシフトが見つからなかったよ");
       return}
     let n=0;
     for(const r of parseCSV(t)){const d=(r[0]||"").trim();if(!/^\d{4}-\d{2}-\d{2}$/.test(d))continue;
       const a=toMin(r[2]),b=toMin(r[3]);
       if(a!=null&&b!=null){setDay(d,{in:a,out:b,brk:(r[4]||"")===""?null:+r[4],memo:r[8]||"",fixed:r[9]==="✓"});n++}
       else if(r[8]){setDay(d,{memo:r[8],fixed:false});n++}}
-    if(n){ktSave();render();alert(`${n}日分を読み込んだよ`)}else alert("読み込める行が見つからなかったよ（勤怠ノートで保存したCSVか、タイムシートのテキストか確認してね）")});
+    if(n){ktSave();render();yuAlert(`${n}日分を読み込んだよ`)}else yuAlert("読み込める行が見つからなかったよ（勤怠ノートで保存したCSVか、タイムシートのテキストか確認してね）")});
   ev.target.value=""};
 // iPhoneのホーム画面アプリだと印刷のPDF名がアプリ名になるので、表を画像にしてPDFを作り「YYYY年M月勤務実績.pdf」で共有する（2026-11-22）
 function ktPdfShare(s,rows){
@@ -2550,7 +2586,7 @@ function ktPdfShare(s,rows){
   const xr=len,tot=3+n*3;let x=`xref\n0 ${tot}\n0000000000 65535 f \n`;for(let k=1;k<tot;k++)x+=String(offs[k]).padStart(10,"0")+" 00000 n \n";
   add(x+`trailer\n<< /Size ${tot} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`);
   const f=new File(parts,nm+".pdf",{type:"application/pdf"});
-  if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:nm}).catch(e=>{if(e.name!=="AbortError")alert("共有できなかったよ："+e.message)});
+  if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:nm}).catch(e=>{if(e.name!=="AbortError")yuAlert("共有できなかったよ："+e.message)});
   else{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=f.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),60000)}}
 $("ktPdfOut").onclick=()=>{
   const s=monthCalc(cur.y,cur.m),rows=monthRows(cur.y,cur.m);
@@ -2608,7 +2644,7 @@ const okUrl=u=>/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(u);
 $("ktUrlCopy").onclick=async()=>{const u=KT.url;if(!u)return;let ok=false; // カギはかけたまま、URLだけコピー（2026-11-21）
   try{await navigator.clipboard.writeText(u);ok=true}catch(e){try{const t=document.createElement("textarea");t.value=u;t.setAttribute("readonly","");t.style.cssText="position:fixed;opacity:0";document.body.appendChild(t);t.select();t.setSelectionRange(0,u.length);ok=document.execCommand("copy");t.remove()}catch(e2){}}
   syncNote(ok?"📋 URLをコピーしたよ。メモやパスワードアプリに貼って保存してね（人には見せないでね）":"⚠️ コピーできなかったよ",!ok)};
-$("ktUrlUnlock").onclick=()=>{if(!confirm("スプレッドシートのつなぎ先を変える？\n（ちがうURLにすると、記録が別のシートに行っちゃうよ）"))return;urlUnlocked=true;const ui=$("ktUrl");ui.readOnly=false;ui.classList.remove("ktLocked");ui.value=KT.url||"";$("ktUrlUnlock").style.display="none";ui.focus();gBtnLbl()};
+$("ktUrlUnlock").onclick=async()=>{if(!await yuAsk("スプレッドシートのつなぎ先を変える？\n（ちがうURLにすると、記録が別のシートに行っちゃうよ）","変える",true))return;urlUnlocked=true;const ui=$("ktUrl");ui.readOnly=false;ui.classList.remove("ktLocked");ui.value=KT.url||"";$("ktUrlUnlock").style.display="none";ui.focus();gBtnLbl()};
 $("ktGSave").onclick=()=>{const u=KT.url&&!urlUnlocked?KT.url:$("ktUrl").value.trim();
   if(!okUrl(u)){syncNote("⚠️ URLの形がちがうみたい（https://script.google.com/macros/s/…/exec）",true);return}
   if(KT.url!==u)joining=true;KT.url=u;urlUnlocked=false;store();syncNote("シートとそろえてるよ…");sync(true);if(typeof render==="function")render()};
@@ -3141,7 +3177,7 @@ function draw(){const b=$r("recBody");if(!b)return;
     if(bonusOf(selP)){const bg=inputVal("rBG"),bn=inputVal("rBN");if(bg!==""||bn!=="")R.b[selP]={g:bg,n:bn,u:now};else if(R.b[selP])R.b[selP]={del:true,u:now}}
     touch();if(typeof renderOt==="function")renderOt();badge();
     flash=saveFlash(selP);draw();$r("recBody").scrollTop=0});
-  on("rDel",()=>{if(!confirm("この月の記録を消す？（残業カウンターの明細も消えるよ）"))return;const now=Date.now();
+  on("rDel",async()=>{if(!await yuAsk("この月の記録を消す？（残業カウンターの明細も消えるよ）","消す",true))return;const now=Date.now();
     R.m[selP]={del:true,u:now};if(R.b[selP])R.b[selP]={del:true,u:now};draft=null;editP=null;mirrorOt(selP);touch();if(typeof renderOt==="function")renderOt();badge();flash="";draw()});
 
   on("rExp",()=>{const blob=new Blob([JSON.stringify({app:"yumebell-rec",v:1,at:new Date().toISOString(),m:R.m,b:R.b,w:R.w,f:R.f})],{type:"application/json"});
@@ -3150,8 +3186,8 @@ function draw(){const b=$r("recBody");if(!b)return;
   const fi=$r("rFile");if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;
     try{const j=JSON.parse(await f.text());if(j.app!=="yumebell-rec")throw 0;let c=0;
       for(const kind of["m","b","w","f"])for(const k in(j[kind]||{})){const a=R[kind][k],b=j[kind][k];if((+b.u||0)>(a?(+a.u||0):-1)){R[kind][k]=b;c++;if(kind==="m")mirrorOt(k)}}
-      touch();if(typeof renderOt==="function")renderOt();badge();alert(`読み込んだよ（${c}件）`);draw()}
-    catch(e){alert("記録室のファイルじゃないみたい")}fi.value=""};
+      touch();if(typeof renderOt==="function")renderOt();badge();yuAlert(`読み込んだよ（${c}件）`);draw()}
+    catch(e){yuAlert("記録室のファイルじゃないみたい")}fi.value=""};
 }
 window.recReadSlips=fs=>{openRec();tab="in";draw();readSlips(fs)};
 window.recImportJson=f=>{openRec();tab="sum";draw();const fi=$r("rFile");if(!fi)return;const dt=new DataTransfer();dt.items.add(f);fi.files=dt.files;fi.onchange()};
@@ -3231,7 +3267,7 @@ function drawList(){const el=document.getElementById("impList");if(!el)return;co
   if(ts)h+=row("⏱",ts.txt,ts.ok,ts.when,` <button type="button" class="impOff" id="impTsOff">もう使わない</button>`);
   h+=r?row("📄",`${r.t}明細`,false,"まだだよ"):row("📄","給料の明細",true,"");
   el.innerHTML=h;const off=document.getElementById("impTsOff");
-  if(off)off.onclick=()=>{if(!confirm("タイムシートのお知らせを止める？（勤怠ノートだけで記録するようになったら）"))return;const o=ld();o.tsOff=true;sv(o);refresh()}}
+  if(off)off.onclick=async()=>{if(!await yuAsk("タイムシートのお知らせを止める？（勤怠ノートだけで記録するようになったら）","止める"))return;const o=ld();o.tsOff=true;sv(o);refresh()}}
 function refresh(){drawList();if(typeof renderShiftStatus==="function")renderShiftStatus();if(typeof renderCheer==="function")renderCheer(true)}
 window.impRefresh=refresh;
 window.impPick=()=>{const i=document.getElementById("impAll");if(i)i.click()};
@@ -3244,7 +3280,7 @@ async function handle(files){const pdf=[],csv=[],js=[],other=[];
   for(const f of csv){if(!kt)break;const dt=new DataTransfer();dt.items.add(f);kt.files=dt.files;kt.dispatchEvent(new Event("change"));await new Promise(r=>setTimeout(r,800))}
   for(const f of js)if(window.recImportJson)window.recImportJson(f);
   if(pdf.length&&window.recReadSlips)window.recReadSlips(pdf);
-  if(other.length)alert(`🧸 ${other.map(f=>f.name).join("、")} は読めないファイルみたい（シフト・タイムシートのCSV、明細のPDF・zipを選んでね）`);
+  if(other.length)yuAlert(`🧸 ${other.map(f=>f.name).join("、")} は読めないファイルみたい（シフト・タイムシートのCSV、明細のPDF・zipを選んでね）`);
   setTimeout(refresh,1500)}
 document.addEventListener("DOMContentLoaded",()=>{const b=document.getElementById("impBtn"),i=document.getElementById("impAll");
   if(b)b.onclick=()=>i.click();if(i)i.onchange=()=>{const fs=[...i.files];i.value="";if(fs.length)handle(fs)};
@@ -3441,7 +3477,7 @@ window.fmOpen=openFM;
 // 💴お金の設定はふだんシートと明細から自動。まちがえていじらないようにカギつき、グループを閉じたらまたカギ（2026-11-21）
 (function(){const fs=$("moneyFs"),bt=$("moneyUnlock"),g=$("setMoney");if(!fs||!bt||!g)return;
   const lock=v=>{fs.disabled=v;bt.textContent=v?"🔓 カギをあけて手で直す":"🔒 カギをかける（直しおわったら）"};
-  bt.onclick=()=>{if(fs.disabled){if(confirm("ふだんはシートと明細から自動で入るよ。ほんまに手で直す？🧸"))lock(false)}else lock(true)};
+  bt.onclick=async()=>{if(fs.disabled){if(await yuAsk("ふだんはシートと明細から自動で入るよ。ほんまに手で直す？🧸","手で直す",true))lock(false)}else lock(true)};
   g.addEventListener("toggle",()=>{if(!g.open)lock(true)})})();
 // ===== 更新履歴 → その機能へ飛ぶボタン＋🆕マーク（いちばん新しい更新1つだけ・3日以内）（2026-11-21）=====
 (function(){const now=new Date(),FMN=new Set();FM.forEach(g=>g[1].forEach(it=>FMN.add(it[1])));

@@ -1,11 +1,14 @@
 // ゆめいろ手帳（旧ゆめいろ発車ベル）:電波がなくても開けるようにするための仕組み
 // オンラインのときは毎回最新のページを取りに行き、取れなかったときだけ保存しておいたページを使う
-const CACHE="yumebell-v2";
+const CACHE="yumebell-v3";
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./","./index.html"])).then(()=>self.skipWaiting()))});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener("fetch",e=>{
   const u=new URL(e.request.url);
   if(e.request.method!=="GET"||u.origin!==location.origin)return; // 天気や警報などは対象外
+  // 絵（jpg・webp・png など）は保存してあればそれを使う。電波が弱くてもすぐ開けるように（2026-11-22）。絵を差し替えるときはファイル名か ?v= を変えてね
+  if(/\.(jpe?g|png|webp|gif|svg|ico)$/i.test(u.pathname)){
+    e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{if(res.ok){const c=res.clone();caches.open(CACHE).then(x=>x.put(e.request,c))}return res})));return}
   e.respondWith(fetch(e.request,{cache:"no-cache"}).then(r=>{const c=r.clone();caches.open(CACHE).then(x=>x.put(e.request,c));return r})
     .catch(()=>caches.match(e.request).then(r=>r||caches.match("./index.html"))));
 });

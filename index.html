@@ -2557,7 +2557,7 @@ const $r=id=>document.getElementById(id);
 const YEN=v=>`¥${Math.round(+v||0).toLocaleString()}`;
 const MAN=v=>`${((+v||0)/10000).toFixed(1)}万`;
 let R;try{R=JSON.parse(localStorage.getItem(RK)||"null")}catch(e){}
-R=Object.assign({sync:true,m:{},b:{},w:{},f:{}},R||{});if(!R.m)R.m={};if(!R.b)R.b={};if(!R.w)R.w={};if(!R.f)R.f={};
+R=Object.assign({sync:true,m:{},b:{},w:{},f:{}},R||{});R.sync=true; // 記録室もいつもシートと同期（本人の希望 2026-11-21、オフにする設定はなくした）if(!R.m)R.m={};if(!R.b)R.b={};if(!R.w)R.w={};if(!R.f)R.f={};
 const NAME_FIX=[[/シックリープ/g,"シックリーブ"]];
 const fixName=n=>NAME_FIX.reduce((a,[re,to])=>a.replace(re,to),n);
 function fixItems(it){if(!it)return;for(const c in it){const o=it[c];for(const k of Object.keys(o)){const f=fixName(k);if(f!==k){o[f]=(f in o)?o[f]:o[k];delete o[k]}}}}
@@ -2892,8 +2892,7 @@ function drawSum(){
   h+=`<div class="recNote">${selFY===cur?"今年度はとちゅうまでの合計だよ。":""}${t.tk?`立替精算（出張の交通費など）${YEN(t.tk)}は給料じゃないから、総支給・年収から外してるよ。`:""}社会保険料・税金は、明細の内訳がある月だけの合計。給料は支給月（4月〜翌3月）で数えてるよ。有休は有休カウンターと同じ数え方（働いた日の年度）</div>`;
   h+=drawGensen();
   h+=`<div class="recBox" style="margin-top:12px"><div class="bt">⚙️ 記録室の設定</div>
-    <div class="recRow"><label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" id="rSync" ${R.sync?"checked":""}> ☁️ スプレッドシートにも同期する</label></div>
-    <div class="recNote">勤怠ノートと同じシートに送るよ（同じシートにつないだ端末でも見られる）。オフにすると、この端末だけに保存。${ktLinked()?"":"<b>いまは勤怠ノートがシートにつながってないから、この端末だけに保存されるよ</b>"}</div>
+    <div class="recNote">☁️ 記録室の明細は、勤怠ノートと同じスプレッドシートにいつも保存・共有されるよ（同じシートにつないだ端末でも見られる）。${ktLinked()?"":"<b>いまは勤怠ノートがシートにつながってないから、この端末だけに保存されてるよ。⚙️設定でつないでね</b>"}</div>
     <div class="recRow" style="margin-top:8px"><button class="ktBtn" id="rExp">📤 書き出す</button><button class="ktBtn" id="rImp">📥 読み込む</button><input type="file" id="rFile" accept=".json,application/json" style="display:none"></div>
     <div class="recNote">機種変更のときの控えに。書き出したファイルには給料の数字が入ってるから、人に送らないでね</div></div>`;
   return h}
@@ -3061,7 +3060,7 @@ function draw(){const b=$r("recBody");if(!b)return;
     flash=saveFlash(selP);draw();$r("recBody").scrollTop=0});
   on("rDel",()=>{if(!confirm("この月の記録を消す？（残業カウンターの明細も消えるよ）"))return;const now=Date.now();
     R.m[selP]={del:true,u:now};if(R.b[selP])R.b[selP]={del:true,u:now};draft=null;editP=null;mirrorOt(selP);touch();if(typeof renderOt==="function")renderOt();badge();flash="";draw()});
-  const sy=$r("rSync");if(sy)sy.onchange=()=>{R.sync=sy.checked;storeR();if(window.ktTouch)window.ktTouch()};
+
   on("rExp",()=>{const blob=new Blob([JSON.stringify({app:"yumebell-rec",v:1,at:new Date().toISOString(),m:R.m,b:R.b,w:R.w,f:R.f})],{type:"application/json"});
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`kirokushitsu-${todayK()}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)});
   on("rImp",()=>$r("rFile").click());

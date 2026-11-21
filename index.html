@@ -939,7 +939,10 @@ function cfgMerge(rc){let changed=false,remoteOld=false;const la=+S.cfgAt||1;
   if(!rc)return{changed,remoteOld:true};const ra=+rc.at||1;
   if(ra>la){CFG_KEYS.forEach(k=>{if(rc[k]!==undefined)S[k]=rc[k]});S.cfgAt=ra;changed=true}
   else if(la>ra)remoteOld=true;
-  else{for(const k of ["paidMonths","otMonths"]){const L=S[k]||(S[k]={}),R=rc[k]||{};for(const m in R)if(!(m in L)){L[m]=R[m];changed=true}for(const m in L)if(!(m in R))remoteOld=true}}
+  else{for(const k of ["paidMonths","otMonths"]){const L=S[k]||(S[k]={}),R=rc[k]||{};for(const m in R)if(!(m in L)){L[m]=R[m];changed=true}for(const m in L)if(!(m in R))remoteOld=true}
+    // 同じ時刻どうし（古い端末は at=1 のまま）のとき、残業単価は「入ってるほう」を正にする（2026-11-21 入れ直した端末で¥0になった件）
+    const lr=+S.otRate||0,rr=+rc.otRate||0;if(!lr&&rr){S.otRate=rr;changed=true}else if(lr&&!rr)remoteOld=true;
+    const lh=(S.otRateHist||[]).length,rh=(rc.otRateHist||[]).length;if(!lh&&rh){S.otRateHist=rc.otRateHist;changed=true}else if(lh&&!rh)remoteOld=true}
   if(changed){cfgLast=cfgSig();try{localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
   return{changed,remoteOld}}
 cfgLast=cfgSig();
@@ -1748,7 +1751,7 @@ if(som){if(!S.otMonths)S.otMonths={};
     save();renderOt()};
   som.querySelectorAll("input[data-oth],input[data-oty]").forEach(inp=>{inp.oninput=()=>updOt(inp.dataset.oth||inp.dataset.oty)});
 }
-window.syncSettingsUI=()=>{sw.value=S.walk;sb.value=S.buf;st3.value=S.t3;sar.value=S.arrive;
+window.syncSettingsUI=()=>{sw.value=S.walk;sb.value=S.buf;st3.value=S.t3;sar.value=S.arrive;{const r=document.getElementById("sOtRate");if(r&&document.activeElement!==r)r.value=S.otRate||""}
   document.querySelectorAll("input[data-pm]").forEach(i=>{const v=(S.paidMonths||{})[i.dataset.pm];i.value=v??""});
   document.querySelectorAll("input[data-oth]").forEach(i=>{const e=(S.otMonths||{})[i.dataset.oth];i.value=e&&e.h!=null?e.h:""});
   document.querySelectorAll("input[data-oty]").forEach(i=>{const e=(S.otMonths||{})[i.dataset.oty];i.value=e&&e.y!=null?e.y:""});

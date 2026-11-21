@@ -682,6 +682,22 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
 .fmBar .t{flex:1;text-align:left;min-width:0}.fmBar b{display:block;font-size:14px;color:#8a63e6}.fmBar small{display:block;font-size:11.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fmBar .q{font-size:18px}
 body.dark .fmBar{background:rgba(255,255,255,.06);border-color:#5a4d80}body.dark .fmBar b{color:#cbb8ff}
+/* お仕事タブの整理（2026-11-22）：残業見込みを上に大きく、勤務記録ボタンは控えめ、読み込み欄・有休の折れ直し、カウンターへのチップ */
+.ktSum .big{order:-1}.ktSum .big b{font-size:22px}
+#navKintai #ktDaysWrap>summary.ktSumBtn{background:rgba(255,255,255,.75)!important;border:2px solid #e6d6f7!important;color:var(--ink);font-size:14.5px;padding:11px 14px;box-shadow:none}
+#navKintai #ktDaysWrap>summary.ktSumBtn small{color:var(--sub)}
+#navKintai #ktDaysWrap>summary.ktSumBtn::after{background:var(--lav2)}
+body.dark #navKintai #ktDaysWrap>summary.ktSumBtn{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.15)!important}
+.impRow{flex-wrap:wrap;align-items:flex-start;line-height:1.5}
+.impRow .impT{flex:1;min-width:0;word-break:keep-all;overflow-wrap:anywhere}
+.impRow .impOff{display:block;padding:0;margin-top:1px;white-space:nowrap}
+.pLine.sub{display:block}.pLine.sub span{display:block}
+.ktChips{display:flex;gap:6px;margin:8px 0 2px;flex-wrap:wrap}
+.ktChips button{flex:1;min-width:0;font-family:inherit;font-size:12.5px;font-weight:bold;border-radius:999px;padding:7px 10px;cursor:pointer;white-space:nowrap;color:#55496e}
+.ktChips .cP{background:#fdf3f8;border:1.5px solid #f6c6dd}.ktChips .cO{background:#f3f0fd;border:1.5px solid #cfc2ee}
+.ktChips b{font-size:14px;color:#3a3350}
+body.dark .ktChips button{color:#e8dff2;background:rgba(255,255,255,.06)}body.dark .ktChips b{color:#fff}
+#otInfo,#navKtTools{scroll-margin-top:10px}
 </style>
 <script>
 // 🧸 お知らせ（下から出て消える。うまくいかなかったときはタップするまで残す）と確認（はい/いいえを Promise で返す）
@@ -800,6 +816,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
   <div class="card" id="navKintai">
     <div style="display:flex;align-items:center;gap:10px;margin:0 2px 8px"><img src="kintai-top.webp" alt="ノートに勤務時間を書きこむファーちゃん" width="60" height="60" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--pink);background:#fff;flex:none"><div class="sec" style="margin:0">🗒️ 勤怠ノート<span class="ktBeta">β版</span></div></div>
     <div class="ktNote" style="margin-top:0">計算のたしかめ中なので、記録はタイムシートとタイムツリーにも残してね。</div>
+    <div class="ktChips" id="ktChips"></div>
     <div id="ktTodayWrap"></div>
     <div class="ktMon" style="margin-top:12px">
       <button class="ktBtn" id="ktPrev" type="button">◀</button>
@@ -813,7 +830,17 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       <summary class="ktSumBtn"><span class="ktSumTxt">📅 今月の勤務記録を見る<small>ほかの日の記録もここから見られるよ</small></span></summary>
       <div class="ktDays" id="ktDays"></div>
     </details>
-    <button type="button" class="recOpen" style="margin-top:12px" id="recOpen"><span class="ri"><img src="rec-bear.webp" alt="本棚の前で資料を整理するファーちゃん" width="58" height="58"></span><span class="rt"><b>📚 ファーちゃんの記録室</b><small>給料・ボーナスの明細／源泉徴収票／年度のまとめ</small></span><span class="ra">›</span></button>
+  </div>
+
+  <!-- 有休・残業カウンター(勤怠ノートの今月の数字のすぐあと) -->
+  <div class="card" id="navCount">
+    <div class="paidPanel" id="paidInfo" style="margin-top:0"></div>
+    <div class="otPanel" id="otInfo"></div>
+  </div>
+
+  <!-- 記録室・読み込み・設定（たまに使う道具はカウンターのあとへ。2026-11-22） -->
+  <div class="card" id="navKtTools">
+    <button type="button" class="recOpen" style="margin-top:0" id="recOpen"><span class="ri"><img src="rec-bear.webp" alt="本棚の前で資料を整理するファーちゃん" width="58" height="58"></span><span class="rt"><b>📚 ファーちゃんの記録室</b><small>給料・ボーナスの明細／源泉徴収票／年度のまとめ</small></span><span class="ra">›</span></button>
     <div class="impBox"><button type="button" class="impBtn" id="impBtn">📥 ファイルを読み込む<small>シフト・タイムシート・明細PDF、なんでもOK</small></button><input type="file" id="impAll" multiple style="display:none"><div id="impList"></div>
       <details class="impShift"><summary>🗓 読み込んだシフトを見る・消す</summary>
         <div class="note" id="csvStatus"></div>
@@ -839,12 +866,6 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       <div class="ktNote">読み込み直したいときに。消す前の記録は端末内に1つ控えを残すよ（シフトは📥ファイルを読み込むの「🗓 読み込んだシフトを見る・消す」で別に消せるよ）。</div>
       <div class="ktNote">ルール：所定＝（暦の日数−公休）×8h（有休の日も出勤日に数える）。拘束6時間超のシフトは休憩60分。残業は月の合計で、30分未満は切り捨て・30分以上は切り上げ。単価は残業カウンターの設定を使うよ。</div>
     </details>
-  </div>
-
-  <!-- 有休・残業カウンター(下のボタンの順に合わせて、勤怠ノートのあと)。記録室のボタンは勤怠ノートへ移した -->
-  <div class="card" id="navCount">
-    <div class="paidPanel" id="paidInfo" style="margin-top:0"></div>
-    <div class="otPanel" id="otInfo"></div>
   </div>
 
   <div class="card" id="navOtoku">
@@ -940,7 +961,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.0</span></summary>
       <ul class="verList">
-        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・占いの金運に「課金に注意！」系のひとことを追加（金運が低めの日に出るよ）。「ふつうの金運」みたいなそっけない文も、ちょっとしたアドバイスつきに（総合運・夫婦運・仕事運も）。「好きなこと」「甘やかして」みたいな文は、お風呂やお散歩などお金のかからない例に<br>・いちばん上をすっきり：案内所は日付の下の大きい検索バーに。英語の行・ver・更新ボタンをなくしたよ（更新は画面を下に引っぱってね）<br>・下のタブの「天気」を押すと、いちばん上に戻るように<br>・お知らせと確認を、iPhoneの灰色の画面からクマちゃんのふきだし・カードに（お知らせは3秒で消えるよ。消すボタンは赤っぽく）<br>・電波が弱くてもすぐ開けるように、絵は一回保存したらそれを使うように<br>・天気が取れなかったとき「取ってきてるよ」が出たままにならないように<br>・有休・残業のカウンターで、まだ記録がないときは空っぽのグラフのかわりにひとことを出すように<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）</span></li>
+        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・占いの金運に「課金に注意！」系のひとことを追加（金運が低めの日に出るよ）。「ふつうの金運」みたいなそっけない文も、ちょっとしたアドバイスつきに（総合運・夫婦運・仕事運も）。「好きなこと」「甘やかして」みたいな文は、お風呂やお散歩などお金のかからない例に<br>・いちばん上をすっきり：案内所は日付の下の大きい検索バーに。英語の行・ver・更新ボタンをなくしたよ（更新は画面を下に引っぱってね）<br>・下のタブの「天気」を押すと、いちばん上に戻るように<br>・お知らせと確認を、iPhoneの灰色の画面からクマちゃんのふきだし・カードに（お知らせは3秒で消えるよ。消すボタンは赤っぽく）<br>・電波が弱くてもすぐ開けるように、絵は一回保存したらそれを使うように<br>・天気が取れなかったとき「取ってきてるよ」が出たままにならないように<br>・有休・残業のカウンターで、まだ記録がないときは空っぽのグラフのかわりにひとことを出すように<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）<br>・おしごとタブを見やすく：「残業 見込み」をいちばん上に大きく、勤怠ノートの上に「🏖️有休」「🌙残業」のチップ（タップでカウンターへ）、カウンターは今月の数字のすぐ下に、記録室・ファイルの読み込み・設定はその下にまとめたよ。「今月の勤務記録を見る」ボタンは控えめに、変なところで折れていた文字も直したよ</span></li>
         <li data-go="シートのURLをコピー|カウンターを手で直す・残業単価|ファーちゃんの記録室" data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
         <li data-go="間に合うかの印" data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。<br>・京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
         <li data-go="ひとつ前／おすすめ／ひとつ後|ほかの街の天気|AIに聞く|スプレッドシート" data-short="🚃 電車とあしたの表示がパワーアップ！"><span class="vNo">ver3.5</span><span class="vDate">11/21</span><span class="vTxt">📅あしたタブの行きを「ひとつ前／⭐おすすめ／ひとつ後」の3枚のカードに。タップするとファーちゃんが説明してくれるよ（改札から開始までの早歩き・ダッシュの時間も考えるよ）。🚃電車タブにも同じ印（🌸ゆっくりできる・⭐おすすめ・💨ダッシュなら間に合う・⚠️遅刻の危険）。京急のダイヤ変更（11/21土休日・11/24平日）に対応して、これからのダイヤ改正も週2回自動でチェック。☁️スプレッドシートは⚙️設定に引っこし、歩く時間・到着目標・有休/残業の手入力も2台で共有。ほかの街の天気（風速つき）、占いの文章が2倍、勤怠ノートの記入済み✅/未記入✏️、🔍AIに聞く、アプリが軽くなったよ</span></li>
@@ -1310,11 +1331,16 @@ function paidComment(c){
   if(c.need>0)return `今月はあと${c.need}日使うとペース通りだよ`;
   return "今月はペース通り。この調子でいこう";
 }
+function renderKtChips(){const el=document.getElementById("ktChips");if(!el)return;let p="",o="";
+  try{const c=paidCalc(ymd(jstNow()));p=`🏖️ 有休 あと<b>${c.remain}</b>日`}catch(e){}
+  try{const c=otCalc(ymd(jstNow()));o=`🌙 残業 今年度<b>${c.totH+c.estH}</b>h`}catch(e){}
+  const h=(p?`<button type="button" class="cP" data-j="paidInfo">${p} ›</button>`:"")+(o?`<button type="button" class="cO" data-j="otInfo">${o} ›</button>`:"");
+  if(el.innerHTML===h)return;el.innerHTML=h;el.querySelectorAll("button").forEach(b=>b.onclick=()=>{const t=document.getElementById(b.dataset.j);if(t)t.scrollIntoView({behavior:"smooth"})})}
 let paidCache="";
 function renderPaid(){
   const el=document.getElementById("paidInfo");if(!el)return;
   const c=paidCalc(ymd(jstNow()));
-  let h=`<div class="pTtl">🏖️ ファーちゃんの有休カウンター 🧸</div><div class="paidRow"><div class="boardWrap"><img src="paid-bear.webp" alt="ホワイトボードを持つファーちゃん"><div class="boardNum"><span class="bLab">あと</span><span class="bNum">${c.remain}</span><span class="bDay">日</span></div></div><div class="paidTxt"><div class="pLine"><span>繰り越し分</span><b>残り ${c.remain}日</b></div><div class="pLine sub"><span>令和${c.fy-2019}年度から・今年度 ${c.used}日使用済</span></div><div class="pLine"><span>今年度分</span><b>20日</b></div><div class="pLine tot"><span>合計</span><b>残り ${c.total}日</b></div>`;
+  let h=`<div class="pTtl">🏖️ ファーちゃんの有休カウンター 🧸</div><div class="paidRow"><div class="boardWrap"><img src="paid-bear.webp" alt="ホワイトボードを持つファーちゃん"><div class="boardNum"><span class="bLab">あと</span><span class="bNum">${c.remain}</span><span class="bDay">日</span></div></div><div class="paidTxt"><div class="pLine"><span>繰り越し分</span><b>残り ${c.remain}日</b></div><div class="pLine sub"><span>令和${c.fy-2019}年度からの分</span><span>今年度 ${c.used}日使用済</span></div><div class="pLine"><span>今年度分</span><b>20日</b></div><div class="pLine tot"><span>合計</span><b>残り ${c.total}日</b></div>`;
   if(c.sched>0)h+=`<div>うち${c.sched}日はシフトに入ってるよ（実質あと${c.effRemain}日）</div>`;
   h+=`<div class="paidCap">🧸 ファーちゃん：「${paidComment(c)}」</div>`;
   if(c.effRemain>0)h+=`<div class="paidSub">目安：月${c.pace.toFixed(1)}日ペース</div>`;
@@ -1324,6 +1350,7 @@ function renderPaid(){
   h+=`<div class="paidBars">`+c.bars.map(b=>`<div class="pBar"><div class="bVal">${b.used+b.sched>0?b.used+b.sched:""}</div><div class="bWrap"><div class="bSch" style="height:${Math.round(b.sched/mx*100)}%"></div><div class="bUse" style="height:${Math.round(b.used/mx*100)}%"></div></div><div class="bMon${b.cur?" cur":""}">${b.label}</div></div>`).join("")+`</div>`;
   if(c.rolled)h+=`<div>（4/1に新しい年度の消える分20日へ切り替えたよ）</div>`;
   if(h!==paidCache){paidCache=h;el.innerHTML=h}
+  renderKtChips();
 }
 // ===== 残業がんばりカウンター(時給+月ごとの残業時間・残業代) =====
 // 金額・時間の正は給与明細(S.otMonths、設定で編集可)。明細がまだの完了月は見込み(est)を置ける。進行中の今月は何も表示しない(本人の希望)。
@@ -1394,6 +1421,7 @@ function renderOt(){
   {const show=c.bars.filter(b=>b.stage).slice(-3).reverse();
    if(show.length)h+=`<div class="otStages">`+show.map(b=>`<div class="otStage"><span class="otChip ${b.t}">${b.stage}</span><b>${b.label}勤務</b>・${b.payLabel}　${b.h}h・¥${b.y.toLocaleString()}${b.check?` <span class="${b.check==="✓"?"ktOk":"ktNg"}">${b.check==="✓"?"✓ 勤怠ノートと一致":"✗ 勤怠ノートとちがう"}</span>`:""}</div>`).join("")+`</div>`}
   if(h!==otCache){otCache=h;el.innerHTML=h}
+  renderKtChips();
 }
 function renderShiftStatus(msg){
   const el=document.getElementById("csvStatus"),clr=document.getElementById("csvClear");if(!el)return;
@@ -2217,7 +2245,7 @@ const navBtns=[...document.querySelectorAll("#jumpNav button")];
 function navOn(id){navBtns.forEach(b=>b.classList.toggle("on",b.dataset.t===id))}
 navBtns.forEach(b=>b.addEventListener("click",()=>{if(b.dataset.t==="navWx"){window.scrollTo({top:0,behavior:"smooth"});navOn("navWx");return} // 天気＝いちばん上へ（2026-11-22）
   const el=document.getElementById(b.dataset.t);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});navOn(b.dataset.t)}}));
-if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","navKintai","navCount","navOtoku","navOdekake","navSet"],alias={navCount:"navKintai",navOdekake:"navOtoku"};const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(alias[cur]||cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
+if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","navKintai","navCount","navKtTools","navOtoku","navOdekake","navSet"],alias={navCount:"navKintai",navKtTools:"navKintai",navOdekake:"navOtoku"};const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(alias[cur]||cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
 // ===== 更新ボタン・下に引っぱって更新 =====
 function hardReload(){const p=document.getElementById("ptr");p.textContent="🔄 更新中…";p.style.transform="translate(-50%,12px)";setTimeout(()=>location.reload(),150)}
 
@@ -2330,13 +2358,12 @@ function render(){
   let payLine="";
   if(c.pay){const all=c.workDays>0&&c.fixedDays>=c.workDays,ok=c.pay.h===c.otH&&c.pay.y===c.yen;payLine=`<small>明細：${c.pay.h}時間・¥${c.pay.y.toLocaleString()} ${!all?"（全部の日を入力すると照らし合わせるよ）":ok?'<span class="ktOk">✓ 一致</span>':'<span class="ktNg">✗ ちがうよ</span>'}</small>`}
   $("ktSum").innerHTML=`
+    <div class="big"><small>残業 見込み（${JDUR(c.ot)}${c.ot%60===0?"":c.ot%60>=30?" → 30分以上なので切り上げ":" → 30分未満なので切り捨て"}）</small><b>${c.otH}時間 ・ ¥${c.yen.toLocaleString()}</b>${payLine}</div>
     <div><small>今月の所定労働時間</small><b>${DUR(c.shotei)}</b><small>出勤${c.n-c.kou}日×8h</small></div>
     <div><small>シフトの予定時間</small><b>${DUR(c.planSum)}</b></div>
     <div><small>確定残業</small><b>${DUR(c.kakutei)}</b></div>
-    <div><small>追加残業（入力済み）</small><b class="ktAdd">+${DUR(c.extraSum)}</b></div>
-    <div style="grid-column:1/-1"><small>全労働時間（見込み）</small><b>${DUR(c.planSum+c.extraSum)}</b><small>シフト ${DUR(c.planSum)} ＋ 追加残業 ${DUR(c.extraSum)}</small></div>
-    <div class="big"><small>残業 見込み（${JDUR(c.ot)}${c.ot%60===0?"":c.ot%60>=30?" → 30分以上なので切り上げ":" → 30分未満なので切り捨て"}）</small><b>${c.otH}時間 ・ ¥${c.yen.toLocaleString()}</b>${payLine}</div>`;
-  $("ktSumNote").innerHTML=`<b>記録済み ${c.fixedDays}日 / 出勤 ${c.workDays}日</b><br>残業を記録してない日は、定時として自動で数えるよ<br>残業代は翌月25日に支給`;
+    <div><small>追加残業（入力済み）</small><b class="ktAdd">+${DUR(c.extraSum)}</b></div>`;
+  $("ktSumNote").innerHTML=`<b>記録済み ${c.fixedDays}日 / 出勤 ${c.workDays}日</b>　全労働時間（見込み）<b>${DUR(c.planSum+c.extraSum)}</b><br>残業を記録してない日は、定時として自動で数えるよ<br>残業代は翌月25日に支給`;
   let t;
   if(!hasShift)t="ママ、この月のシフトがまだ入ってないみたい。シフトCSVを読み込むと、予定の時間を全部入れておくよ🧸";
   else if(c.kakutei>0)t=`ママ、この月はシフトの時点で確定残業が${JDUR(c.kakutei)}あるよ。いっぱい頑張ってるね🧸`;
@@ -3272,7 +3299,7 @@ function impNag0(){const{sh,ts}=status(),btn=(t,s)=>`<button type="button" class
   if(ts&&!ts.ok&&ts.lv===1)return btn(`⏱ 手があいたら<b>${ts.txt}</b>を入れてね`,"");
   return""}
 function drawList(){const el=document.getElementById("impList");if(!el)return;const{sh,ts}=status(),r=window.recMissing&&window.recMissing();
-  const row=(ic,txt,ok,when,extra,soon)=>`<div class="impRow">${ic} ${txt}${extra||""}<span class="st ${ok?"ok":soon?"wait":when?"ng":"wait"}">${ok?"✅ 入ってるよ":when?"⏳ "+when:""}</span></div>`;
+  const row=(ic,txt,ok,when,extra,soon)=>`<div class="impRow">${ic} <span class="impT">${txt}${extra||""}</span><span class="st ${ok?"ok":soon?"wait":when?"ng":"wait"}">${ok?"✅ 入ってるよ":when?"⏳ "+when:""}</span></div>`;
   let h=row("🗓",sh.txt,sh.ok,sh.when,"",sh.soon);
   if(ts)h+=row("⏱",ts.txt,ts.ok,ts.when,` <button type="button" class="impOff" id="impTsOff">もう使わない</button>`);
   h+=r?row("📄",`${r.t}明細`,false,"まだだよ"):row("📄","給料の明細",true,"");

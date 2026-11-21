@@ -61,7 +61,7 @@ const FM=[
  ["📝 そのほか",[
   ["📝","アップデート履歴","いままでの変更","バージョン 更新 履歴 ver","#verHist"],
   ["ℹ️","時刻表・天気のデータについて","出典と確認日","出典 データ ダイヤ改正",".infoFold.foot"],
-  ["🔄","更新ボタン","アプリを読み込み直す（下に引っぱってもOK）","リロード 更新","#reloadBtn"]]]
+  ["🔄","引っぱって更新","画面をいちばん上で下に引っぱると読み込み直すよ","リロード 更新 更新ボタン","#date"]]]
 ];
 const $=id=>document.getElementById(id),sh=$("fmSheet"),q=$("fmQ"),list=$("fmList"),chips=$("fmChips");
 const norm=t=>String(t||"").toLowerCase().replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-96)).replace(/\s+/g,"");

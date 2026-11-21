@@ -676,6 +676,12 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
 #yuAsk .no{background:var(--lav2);color:var(--ink)}
 #yuAsk .yes{background:linear-gradient(90deg,var(--lav),var(--pink));color:#fff}
 #yuAsk .yes.danger{background:linear-gradient(90deg,#ff7aa8,#ff5c8a)}
+/* 案内所の入口（日付の下の検索バー 2026-11-22） */
+.fmBar{display:flex;align-items:center;gap:10px;width:100%;margin:2px 0 12px;padding:8px 14px;background:#fff;border:2px solid #e7dbff;border-radius:18px;box-shadow:0 3px 12px rgba(183,156,255,.25);font:inherit;line-height:1.35;cursor:pointer;color:var(--ink)}
+.fmBar img{width:34px;height:34px;border-radius:50%;border:2px solid var(--pink);flex:none;object-fit:cover}
+.fmBar .t{flex:1;text-align:left;min-width:0}.fmBar b{display:block;font-size:14px;color:#8a63e6}.fmBar small{display:block;font-size:11.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fmBar .q{font-size:18px}
+body.dark .fmBar{background:rgba(255,255,255,.06);border-color:#5a4d80}body.dark .fmBar b{color:#cbb8ff}
 </style>
 <script>
 // 🧸 お知らせ（下から出て消える。うまくいかなかったときはタップするまで残す）と確認（はい/いいえを Promise で返す）
@@ -702,7 +708,6 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <img class="avatar" src="avatar.jpg?v=20261121" alt="クマちゃん">
     <div class="brand">
       <h1>ゆめいろ手帳</h1>
-      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver4.0</span><button class="fmBtn" id="fmOpen" type="button" aria-label="ファーちゃんの案内所">🧸 案内所🗺️</button></div>
     </div>
     <div id="payCd" role="button" title="給料日・ボーナスまでのカウントダウン"></div>
     <img class="banner" id="bannerImg" src="banner.jpg?v=20261121" alt="アトリエコットン Atelier Cotton">
@@ -713,8 +718,9 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       <div class="date" id="date">--月--日</div>
       <div class="subrow"><span id="dtype" class="badge b-wd">平日ダイヤ</span><span id="holiName"></span></div>
     </div>
-    <div style="text-align:right"><span class="clkLbl">現在<br>時刻</span><div class="clock" id="clock">--:--:--</div><button class="reload" id="reloadBtn">🔄 更新</button></div>
+    <div style="text-align:right"><div class="clock" id="clock">--:--:--</div></div>
   </div>
+  <button class="fmBar" id="fmOpen" type="button" aria-label="ファーちゃんの案内所"><img src="kintai-face.webp" alt=""><span class="t"><b>🧸 案内所🗺️ さがす・聞く</b><small>例：残業単価どこ？ シートのURLは？</small></span><span class="q">🔍</span></button>
 
   <div id="bdayBar" style="display:none"></div>
 
@@ -934,7 +940,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.0</span></summary>
       <ul class="verList">
-        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・お知らせと確認を、iPhoneの灰色の画面からクマちゃんのふきだし・カードに（お知らせは3秒で消えるよ。消すボタンは赤っぽく）<br>・電波が弱くてもすぐ開けるように、絵は一回保存したらそれを使うように<br>・天気が取れなかったとき「取ってきてるよ」が出たままにならないように<br>・有休・残業のカウンターで、まだ記録がないときは空っぽのグラフのかわりにひとことを出すように<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）</span></li>
+        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・いちばん上をすっきり：案内所は日付の下の大きい検索バーに。英語の行・ver・「現在時刻」の文字・更新ボタンをなくしたよ（更新は画面を下に引っぱってね）<br>・下のタブの「天気」を押すと、いちばん上に戻るように<br>・お知らせと確認を、iPhoneの灰色の画面からクマちゃんのふきだし・カードに（お知らせは3秒で消えるよ。消すボタンは赤っぽく）<br>・電波が弱くてもすぐ開けるように、絵は一回保存したらそれを使うように<br>・天気が取れなかったとき「取ってきてるよ」が出たままにならないように<br>・有休・残業のカウンターで、まだ記録がないときは空っぽのグラフのかわりにひとことを出すように<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）</span></li>
         <li data-go="シートのURLをコピー|カウンターを手で直す・残業単価|ファーちゃんの記録室" data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
         <li data-go="間に合うかの印" data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。<br>・京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
         <li data-go="ひとつ前／おすすめ／ひとつ後|ほかの街の天気|AIに聞く|スプレッドシート" data-short="🚃 電車とあしたの表示がパワーアップ！"><span class="vNo">ver3.5</span><span class="vDate">11/21</span><span class="vTxt">📅あしたタブの行きを「ひとつ前／⭐おすすめ／ひとつ後」の3枚のカードに。タップするとファーちゃんが説明してくれるよ（改札から開始までの早歩き・ダッシュの時間も考えるよ）。🚃電車タブにも同じ印（🌸ゆっくりできる・⭐おすすめ・💨ダッシュなら間に合う・⚠️遅刻の危険）。京急のダイヤ変更（11/21土休日・11/24平日）に対応して、これからのダイヤ改正も週2回自動でチェック。☁️スプレッドシートは⚙️設定に引っこし、歩く時間・到着目標・有休/残業の手入力も2台で共有。ほかの街の天気（風速つき）、占いの文章が2倍、勤怠ノートの記入済み✅/未記入✏️、🔍AIに聞く、アプリが軽くなったよ</span></li>
@@ -1784,8 +1790,9 @@ async function loadWx(){
     renderWx();
   }catch(e){
     const el=document.getElementById("wxNote");
-    if(el)el.innerHTML=`⚠️ 天気を取ってこられなかったよ(電波を確認してね)${WX.days.length?" ・ 前回のデータを表示中":""}`;
-    {const bEl=document.getElementById("bubble");if(bEl&&/取ってきてるよ/.test(bEl.textContent))bEl.innerHTML="天気を取ってこられなかったよ。電波のいいところで「更新」を押してね🧸"} // 「取ってきてるよ」と同時に出ないように（2026-11-22）
+    const bEl=document.getElementById("bubble"),wait=bEl&&/取ってきてるよ/.test(bEl.textContent);
+    if(wait)bEl.innerHTML="天気を取ってこられなかったよ。電波のいいところで、画面を下に引っぱって更新してね🧸"; // お知らせは1回だけ（2026-11-22）
+    if(el)el.innerHTML=wait?"":`⚠️ 天気を取ってこられなかったよ(電波を確認してね)${WX.days.length?" ・ 前回のデータを表示中":""}`; // 「取ってきてるよ」と同時に出ないように（2026-11-22）
   }
 }
 
@@ -2208,11 +2215,12 @@ setInterval(()=>{renderCheer(false);renderBday()},60000);
 // ===== 下部固定ナビ =====
 const navBtns=[...document.querySelectorAll("#jumpNav button")];
 function navOn(id){navBtns.forEach(b=>b.classList.toggle("on",b.dataset.t===id))}
-navBtns.forEach(b=>b.addEventListener("click",()=>{const el=document.getElementById(b.dataset.t);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});navOn(b.dataset.t)}}));
+navBtns.forEach(b=>b.addEventListener("click",()=>{if(b.dataset.t==="navWx"){window.scrollTo({top:0,behavior:"smooth"});navOn("navWx");return} // 天気＝いちばん上へ（2026-11-22）
+  const el=document.getElementById(b.dataset.t);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});navOn(b.dataset.t)}}));
 if("IntersectionObserver" in window){const order=["navWx","navFortune","navTrain","navPlan","navKintai","navCount","navOtoku","navOdekake","navSet"],alias={navCount:"navKintai",navOdekake:"navOtoku"};const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target.id):seen.delete(e.target.id)});const cur=order.filter(id=>seen.has(id)).pop();if(cur)navOn(alias[cur]||cur)},{rootMargin:"-35% 0px -60% 0px"});order.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)})} // 時間帯やシフトの状態が変わったときだけセリフを入れ替える
 // ===== 更新ボタン・下に引っぱって更新 =====
 function hardReload(){const p=document.getElementById("ptr");p.textContent="🔄 更新中…";p.style.transform="translate(-50%,12px)";setTimeout(()=>location.reload(),150)}
-document.getElementById("reloadBtn").onclick=hardReload;
+
 (function(){const p=document.getElementById("ptr");let y0=null,dy=0;const TH=80;
   addEventListener("touchstart",e=>{y0=(window.scrollY<=0&&e.touches.length===1)?e.touches[0].clientY:null;dy=0},{passive:true});
   addEventListener("touchmove",e=>{if(y0==null)return;dy=e.touches[0].clientY-y0;if(dy<=0){p.style.transform="translate(-50%,-60px)";return}
@@ -3354,6 +3362,6 @@ document.getElementById("askGo").onclick=go;q.addEventListener("keydown",e=>{if(
   <div class="fmChips" id="fmChips"></div>
   <div class="fmList" id="fmList"></div>
 </div></div>
-<script src="fm.js?v=20261122"></script>
+<script src="fm.js?v=20261122b"></script>
 </body>
 </html>

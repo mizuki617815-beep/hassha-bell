@@ -415,7 +415,7 @@
 - ⚙️設定（#setMain）の中を折りたたみ4つに：🚃電車 #setTrain（sWalk/sBuf/sT3/sArr/sDia＋ダイヤの説明）、💴お金 #setMoney（.manFixを兼ねる。有休・残業の手入力と時給）、🎨見た目・わたしのこと #setLook（誕生日・星座・画面の色）、☁️スプレッドシート #setSheet（.sheetBox、見出しはsummaryへ移したので.sheetTtlは使わなくなった）。CSSは details.setGrp
 - 入力欄のidは変えてないのでFMのセレクタはそのまま。FMの⚙️設定にグループ見出し3行（設定：電車／お金／見た目）を追加。go() が親の<details>を全部開くので、閉じたグループの中にも飛べる
 - 更新履歴の <li> に data-go="案内所の名前|…"（"@案内所"は案内所をひらく）。読み込み時に「👉 名前」ボタン（.vGo）を足して window.fmGo で飛ぶ。FMにない名前は出さない
-- 🆕：vDate が3日以内の履歴に🆕（.vNew、li.vIsNew）。その data-go の機能は案内所の一覧にも🆕（NEWN、.fmNew）
+- 🆕：いちばん上の履歴1つだけ（本人の希望）、vDate が3日以内なら🆕（.vNew、li.vIsNew）。その data-go の機能は案内所の一覧にも🆕（NEWN、.fmNew）
 - window.fmGo は同じ名前が複数あっても最初の1つだけに飛ぶように。window.fmOpen を追加
 - 新しい履歴を足すときは data-go も付けること
 - ヘッドレスで確認：エラーなし、設定グループ表示、👉ボタン、fmGoでお金グループが開く、案内所に🆕

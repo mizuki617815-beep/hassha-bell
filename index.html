@@ -632,7 +632,7 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
     <img class="avatar" src="avatar.jpg?v=20261121" alt="クマちゃん">
     <div class="brand">
       <h1>ゆめいろ手帳</h1>
-      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver3.8</span></div>
+      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver3.9</span></div>
     </div>
     <div id="payCd" role="button" title="給料日・ボーナスまでのカウントダウン"></div>
     <img class="banner" id="bannerImg" src="banner.jpg?v=20261121" alt="アトリエコットン Atelier Cotton">
@@ -853,8 +853,9 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
 
   <div class="card">
     <details id="verHist">
-      <summary>📝 アップデート履歴 <span class="verBadge">ver3.8</span></summary>
+      <summary>📝 アップデート履歴 <span class="verBadge">ver3.9</span></summary>
       <ul class="verList">
+        <li data-short="💴 残業単価が年度ごとに自動に！"><span class="vNo">ver3.9</span><span class="vDate">11/21</span><span class="vTxt">勤怠ノートの残業代も、働いた月の年度の単価で計算するように。単価は給料明細（記録室・明細の写し）から自動で出すよ。明細がない年度は設定の単価、それもなければ前の年度の単価を使うよ。アプリを入れ直しても、シートとつなげば単価が戻ってくるよ</span></li>
         <li data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.8</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に。電車だけじゃなくて、シフト・おしごと・おでかけまで全部入りになったからだよ。ホーム画面の名前は、アイコンを入れ直すと変わるよ</span></li>
         <li data-short="📋 シートのURLをコピーできるように！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">⚙️設定のスプレッドシートのところに「📋 URLをコピー」ボタン。カギはかけたまま、つなぎ先のURLをコピーできるよ。メモやパスワードアプリに保存しておけば、アプリを入れ直したときも貼るだけでOK</span></li>
         <li data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
@@ -1282,7 +1283,7 @@ function otCalc(today){
   const rr=f=>{try{const r=window.recOtRate&&window.recOtRate(f);return r&&r.rate>0?r:null}catch(e){return null}},rNow=rr(tfy);
   for(let f=tfy-5;f<tfy;f++){const r=rr(f);if(r&&!hist.some(h=>h.fy===f))hist.push({fy:f,rate:r.rate})}
   for(const h of hist){const r=rr(h.fy);if(r)h.rate=r.rate}
-  const curRate=(rNow&&rNow.rate)||autoR(tfy)||+S.otRate||0;if(!hist.some(e=>e.fy===tfy))hist.push({fy:tfy,rate:curRate});
+  const curRate=(rNow&&rNow.rate)||autoR(tfy)||(window.otRateFY?window.otRateFY(tfy):0)||+S.otRate||0;if(!hist.some(e=>e.fy===tfy))hist.push({fy:tfy,rate:curRate});
   hist.sort((a,b)=>a.fy-b.fy);
   const histD=hist.filter(e=>e.rate>0||e.fy===tfy).map(e=>({label:`令和${e.fy-2018}年度`,rate:e.fy===tfy?curRate:e.rate,cur:e.fy===tfy}));
   return{bars,totH,totY,estH,estY,rate:curRate,rateHow:rNow,hist:histD,mp};
@@ -2176,7 +2177,19 @@ function backup(){ // 端末内に日ごとの控えを最大3つ
     localStorage.setItem(KEY+"_bk",JSON.stringify(bk.slice(0,3)))}catch(e){}
 }
 const SH=()=>(typeof SHIFTS!=="undefined"&&SHIFTS)||{};
-const RATE=()=>+((typeof S!=="undefined"&&S.otRate)||0);
+// 残業単価は勤務した月の年度ごと（4月始まり）。①記録室の明細 ②シートで共有してる明細の写し（残業代÷残業時間）③年度ごとの手入力 ④設定の単価 ⑤前の年度で分かってる単価、の順（2026-11-21）
+function otRateFY(fy,noBack){
+  try{const r=window.recOtRate&&window.recOtRate(fy);if(r&&r.rate>0)return r.rate}catch(e){}
+  const om=(typeof S!=="undefined"&&S.otMonths)||{};let h=0,yy=0;
+  for(const k in om){const e=om[k];if(!e||e.t!=="pay"||!(+e.h>0)||!(+e.y>0))continue;const[a,b]=k.split("-").map(Number);if((b>=4?a:a-1)===fy){h+=+e.h;yy+=+e.y}}
+  if(h>0)return Math.round(yy/h);
+  const hs=((typeof S!=="undefined"&&S.otRateHist)||[]).find(e=>+e.fy===fy&&+e.rate>0);if(hs)return +hs.rate;
+  if(noBack)return 0;
+  if(typeof S!=="undefined"&&+S.otRate>0)return +S.otRate;
+  for(let f=fy-1;f>=fy-5;f--){const v=otRateFY(f,true);if(v)return v}
+  return 0}
+window.otRateFY=otRateFY;
+const RATE=(y,m)=>{if(!y){const n=NOW();y=n.getFullYear();m=n.getMonth()+1}return otRateFY(m>=4?y:y-1)};
 let cur=(()=>{const n=NOW();return{y:n.getFullYear(),m:n.getMonth()+1}})();
 const mk=(y,m)=>`${y}-${P(m)}`;
 const daysIn=(y,m)=>new Date(y,m,0).getDate();
@@ -2204,11 +2217,11 @@ function monthCalc(y,m){
   const kou=koukyu(y,m),shotei=(n-kou)*480,kakutei=Math.max(0,planSum-shotei),ot=Math.max(0,effSum-shotei),otH=roundOT(ot);
   const pm=(typeof S!=="undefined"&&S.otMonths&&S.otMonths[mk(y,m)])||null;
   const pay=pm&&pm.t==="pay"&&(+pm.h>0||+pm.y>0)?{h:+pm.h||0,y:+pm.y||0}:null;
-  return{n,kou,shotei,planSum,effSum,extraSum,kakutei,ot,otH,yen:otH*RATE(),fixedDays,workDays,pay};
+  return{n,kou,shotei,planSum,effSum,extraSum,kakutei,ot,otH,yen:otH*RATE(y,m),fixedDays,workDays,pay};
 }
 // 残業カウンター連動用:入力済みの日がある月だけ見込みを返す
 window.ktMonth=key=>{const[y,m]=key.split("-").map(Number);const c=monthCalc(y,m);const hasShift=Object.keys(SH()).some(k=>k.startsWith(key));
-  return{kakH:roundOT(c.kakutei),kakY:roundOT(c.kakutei)*RATE(),otH:c.otH,yen:c.yen,fixedDays:c.fixedDays,workDays:c.workDays,hasShift}};
+  return{kakH:roundOT(c.kakutei),kakY:roundOT(c.kakutei)*RATE(y,m),otH:c.otH,yen:c.yen,fixedDays:c.fixedDays,workDays:c.workDays,hasShift}};
 // 記録室の照合用:その月の日ごとの内訳（追加残業・休憩不足・記録なしで定時扱い）
 window.ktDetail=key=>{const[y,m]=key.split("-").map(Number);const c=monthCalc(y,m),days=[];
   for(let i=1;i<=daysIn(y,m);i++){const d=`${key}-${P(i)}`,x=dayCalc(d);if(!(x.planW>0||x.act))continue;
@@ -2396,7 +2409,7 @@ function monthRows(y,m){
   rows.push(["確認欄",`${y}年${m}月`]);
   rows.push(["今月の所定労働時間",`${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）`]);
   rows.push(["シフトの全労働時間",DUR(s.planSum)],["確定残業",DUR(s.kakutei)],["追加残業",DUR(s.extraSum)]);
-  rows.push(["残業（そのまま）",DUR(s.ot)],["残業（切り上げ・切り捨て後）",`${s.otH}時間（30分以上は切り上げ・30分未満は切り捨て）`],["残業単価",`¥${RATE().toLocaleString()}`],["時間外手当（見込み）",`¥${s.yen.toLocaleString()}`]);
+  rows.push(["残業（そのまま）",DUR(s.ot)],["残業（切り上げ・切り捨て後）",`${s.otH}時間（30分以上は切り上げ・30分未満は切り捨て）`],["残業単価",`¥${RATE(y,m).toLocaleString()}`],["時間外手当（見込み）",`¥${s.yen.toLocaleString()}`]);
   rows.push(["明細の数字",s.pay?`${s.pay.h}時間・¥${s.pay.y.toLocaleString()}`:"（明細が出たら残業カウンターに入力）",s.pay?(!(s.workDays>0&&s.fixedDays>=s.workDays)?"全部の日を入力すると照らし合わせるよ":(s.pay.h===s.otH&&s.pay.y===s.yen)?"✓ 一致":"✗ ちがう"):""]);
   rows.push(["入力済みの日",`${s.fixedDays}日 / 出勤${s.workDays}日`]);
   rows.push([]);rows.push(HEAD);
@@ -2462,7 +2475,7 @@ $("ktPdfOut").onclick=()=>{
   for(const r of rows){if(!/^\d{4}-\d{2}-\d{2}$/.test(r[0]||""))continue;const[Y,M,D]=r[0].split("-").map(Number);
     {const dc=dayCalc(r[0]);if(isPaid(dc.sh)||(dc.e&&/有[休給]/.test(dc.e.memo||""))){r[2]=r[3]=r[4]="";r[8]=r[8]||"有休"}}
     h+=`<tr><td>${M}/${D}(${WD[new Date(Y,M-1,D).getDay()]})</td>${r.slice(1,9).map((v,i)=>`<td${i===7?' class="l"':""}>${ESC(v)}</td>`).join("")}</tr>`}
-  h+=`</table><p style="margin-top:8px">所定労働時間 ${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）／シフトの全労働時間 ${DUR(s.planSum)}／確定残業 ${DUR(s.kakutei)}／追加残業 ${DUR(s.extraSum)}<br>残業 ${DUR(s.ot)} →（30分以上は切り上げ・30分未満は切り捨て）<b>${s.otH}時間</b>　時間外手当 見込み <b>¥${s.yen.toLocaleString()}</b>（単価 ¥${RATE().toLocaleString()}）</p>`;
+  h+=`</table><p style="margin-top:8px">所定労働時間 ${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）／シフトの全労働時間 ${DUR(s.planSum)}／確定残業 ${DUR(s.kakutei)}／追加残業 ${DUR(s.extraSum)}<br>残業 ${DUR(s.ot)} →（30分以上は切り上げ・30分未満は切り捨て）<b>${s.otH}時間</b>　時間外手当 見込み <b>¥${s.yen.toLocaleString()}</b>（単価 ¥${RATE(y,m).toLocaleString()}）</p>`;
   $("ktPrint").innerHTML=h;document.body.classList.add("ktPrinting");
   const off=()=>{document.body.classList.remove("ktPrinting");window.removeEventListener("afterprint",off)};
   window.addEventListener("afterprint",off);window.print();setTimeout(off,60000)};

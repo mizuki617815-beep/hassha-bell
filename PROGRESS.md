@@ -421,3 +421,4 @@
 - ヘッドレスで確認：エラーなし、設定グループ表示、👉ボタン、fmGoでお金グループが開く、案内所に🆕
 - 💴お金 #setMoney を設定のいちばん下へ移動、🔒カギつき（本人の希望：ふだんはシート同期なので触らない・誤操作がこわい）。中身を <fieldset id="moneyFs" disabled> で包み、#moneyUnlock → confirm でカギをあける。グループを閉じるとまたカギ。sPaidMonths/sOtMonths があとから作る入力欄も fieldset でまとめて無効になる
 - 下のタブ #jumpNav：iPhoneで裏の <select>（おでかけの駅えらび）がタブの上に描かれ、タップが貫通していた。left:50%+transform:translateX(-50%) の中央寄せが原因のWebKitの不具合なので、left:0;right:0;margin:0 auto;isolation:isolate に変更（transformを使わない）
+- 勤怠ノート #ktSum に「全労働時間（見込み）」＝planSum＋extraSum（横いっぱい、CSV・PDFにも）。「シフトの全労働時間」→「シフトの予定時間」（本人の選択）

@@ -632,7 +632,7 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
     <img class="avatar" src="avatar.jpg?v=20261121" alt="クマちゃん">
     <div class="brand">
       <h1>ゆめいろ発車ベル</h1>
-      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver3.5</span></div>
+      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver3.6</span></div>
     </div>
     <div id="payCd" role="button" title="給料日・ボーナスまでのカウントダウン"></div>
     <img class="banner" id="bannerImg" src="banner.jpg?v=20261121" alt="アトリエコットン Atelier Cotton">
@@ -852,8 +852,9 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
 
   <div class="card">
     <details id="verHist">
-      <summary>📝 アップデート履歴 <span class="verBadge">ver3.5</span></summary>
+      <summary>📝 アップデート履歴 <span class="verBadge">ver3.6</span></summary>
       <ul class="verList">
+        <li data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
         <li data-short="🚃 電車とあしたの表示がパワーアップ！"><span class="vNo">ver3.5</span><span class="vDate">11/21</span><span class="vTxt">📅あしたタブの行きを「ひとつ前／⭐おすすめ／ひとつ後」の3枚のカードに。タップするとファーちゃんが説明してくれるよ（改札から開始までの早歩き・ダッシュの時間も考えるよ）。🚃電車タブにも同じ印（🌸ゆっくりできる・⭐おすすめ・💨ダッシュなら間に合う・⚠️遅刻の危険）。京急のダイヤ変更（11/21土休日・11/24平日）に対応して、これからのダイヤ改正も週2回自動でチェック。☁️スプレッドシートは⚙️設定に引っこし、歩く時間・到着目標・有休/残業の手入力も2台で共有。ほかの街の天気（風速つき）、占いの文章が2倍、勤怠ノートの記入済み✅/未記入✏️、🔍AIに聞く、アプリが軽くなったよ</span></li>
         <li data-short="🉐 ファーちゃんのお得チェッカーができたよ！"><span class="vNo">ver3.4</span><span class="vDate">11/17</span><span class="vTxt">下のタブに🧳おでかけを追加。🉐ファーちゃんのお得チェッカー（乗り換えガイドの上）：外食はお店に入ったらベネ・JAFの地図で近くの優待をワンタップでさがせるよ。美術館・映画館などの施設は、お店や施設の名前で、手帳割・ベネ・JAFの優待を検索できるよ</span></li>
         <li data-short="📚 ファーちゃんの記録室がオープン！"><span class="vNo">ver3.3</span><span class="vDate">11/17</span><span class="vTxt">📚ファーちゃんの記録室がオープン（勤怠ノートのいちばん上から）：給料・ボーナスの明細を📄PDFからまとめて読み込んで、手取りや残業の推移、年度のまとめ、🧾源泉徴収票、🔮今年度の見込みと答え合わせが見られるよ。明細を入れ忘れてたらファーちゃんが教えてくれるよ🧸</span></li>
@@ -1048,16 +1049,22 @@ function goGoal(now,m){const {d}=svc(now);
     return{target,best,start:sh.start+k*1440}}
   return null}
 // あしたタブ・電車タブ共通の印。arr=T3着、target=到着目標、start=シフト開始（不明ならnull）
-const DASH_MIN=7; // 改札→開始をダッシュで（本人の実感：ふだん7分、ダッシュでもほぼ同じ）
+const DASH_MIN=7,ROOMY_MIN=15; // 改札→開始：ふだん7分（ダッシュでもほぼ同じ）。開始15分前以上に着けば余裕あり
+// 開始までの分（m=開始−T3着）で4段階：🌸余裕あり(15〜)／✅ちょうどいい(到着目標〜14)／💨ギリギリ(7〜)／🚨遅刻(7未満)
+function marginLv(m){const ideal=+S.arrive||10;
+  if(m>=ROOMY_MIN)return["ok","🌸 余裕あり"];
+  if(m>=ideal)return["ok","✅ ちょうどいい"];
+  if(m>=DASH_MIN)return["warn","💨 ギリギリ"];
+  return["ng","🚨 遅刻"]}
+// あしたタブ・電車タブ共通の印。arr=T3着、target=到着目標、start=シフト開始（不明ならnull）
 function arrTag(arr,target,start,isBest,inCard){const d=target-arr;
-  if(isBest&&inCard)return`<span class="poSt ok">✅ 間に合う・目標の${d}分前</span>`;
-  if(isBest)return`<span class="poSt best">⭐ おすすめ・目標の${d}分前</span>`;
-  if(d>=0)return`<span class="poSt ok">🌸 ゆっくりできる・目標の${d}分前</span>`;
-  if(start==null)return`<span class="poSt ng">⚠️ 目標より${-d}分おそい</span>`;
-  const g=start-arr;
-  if(g>=DASH_MIN)return`<span class="poSt warn">💨 ダッシュなら間に合う・開始${g}分前</span>`;
-  if(g>=0)return`<span class="poSt ng">⚠️ 遅刻の危険・開始${g}分前</span>`;
-  return`<span class="poSt ng">🚨 遅刻・開始に${-g}分おくれ</span>`}
+  if(start==null){
+    if(isBest&&!inCard)return`<span class="poSt best">⭐ おすすめ・目標の${d}分前</span>`;
+    if(d>=0)return`<span class="poSt ok">🌸 間に合う・目標の${d}分前</span>`;
+    return`<span class="poSt ng">⚠️ 目標より${-d}分おそい</span>`}
+  const m=start-arr,[c,l]=marginLv(m),t=m>=0?`開始${m}分前`:`開始に${-m}分おくれ`;
+  if(isBest&&!inCard)return`<span class="poSt best">⭐ ${l.slice(2)}・${t}</span>`;
+  return`<span class="poSt ${c}">${l}・${t}</span>`}
 function goTag(g,r){if(!g)return"";return arrTag(r.abs+rideGo(r),g.target,g.start,!!(g.best&&r.abs===g.best.abs))}
 // ===== 今すぐ =====
 function renderNow(){
@@ -1111,9 +1118,10 @@ function plan(){
     const b=list[list.length-1],p=list[list.length-2];const n=table("go",day).find(tr=>tr.m>b.m);
     const shp=SHIFTS[dv],st0=(shp&&!shp.off&&shp.start!=null)?shp.start:null,WALK=+S.arrive||10,DASH=DASH_MIN;
     const startLine=a=>{if(st0==null)return"";const g=st0-a;
-      if(g>=WALK)return`開始の${hm(st0)}まで${g}分あるから、いつもの早歩きで間に合うよ。`;
-      if(g>=DASH)return`開始の${hm(st0)}まで${g}分しかないよ。改札からダッシュしてね💨`;
-      if(g>=0)return`開始の${hm(st0)}まで${g}分だけ…ダッシュでも間に合わないかも。`;
+      if(g>=ROOMY_MIN)return`開始の${hm(st0)}まで${g}分あるから、余裕たっぷり！`;
+      if(g>=WALK)return`開始の${hm(st0)}まで${g}分、ちょうどいい時間に着くよ。`;
+      if(g>=DASH)return`開始の${hm(st0)}まで${g}分…改札からオフィスまで7分やから、ギリギリだよ。急いでね💨`;
+      if(g>=0)return`開始の${hm(st0)}まで${g}分しかないよ。改札からオフィスまで7分かかるから、遅刻になっちゃう…`;
       return`開始の${hm(st0)}より${-g}分おそく着くから、遅刻になっちゃう…`};
     const say=(tr,kind)=>{const a=tr.m+rideGo(tr),d=target-a,home=tr.m-S.walk-S.buf,nm=`${hm(tr.m)}の${TNAME[tr.t]}`;
       if(kind==="prev")return`${nm}なら、目標の${d}分前に着くよ。${startLine(a)}コンビニに寄りたい日や、ゆっくり行きたい日はこれ🧸`;

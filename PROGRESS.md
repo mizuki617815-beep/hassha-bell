@@ -419,3 +419,4 @@
 - window.fmGo は同じ名前が複数あっても最初の1つだけに飛ぶように。window.fmOpen を追加
 - 新しい履歴を足すときは data-go も付けること
 - ヘッドレスで確認：エラーなし、設定グループ表示、👉ボタン、fmGoでお金グループが開く、案内所に🆕
+- 💴お金 #setMoney を設定のいちばん下へ移動、🔒カギつき（本人の希望：ふだんはシート同期なので触らない・誤操作がこわい）。中身を <fieldset id="moneyFs" disabled> で包み、#moneyUnlock → confirm でカギをあける。グループを閉じるとまたカギ。sPaidMonths/sOtMonths があとから作る入力欄も fieldset でまとめて無効になる

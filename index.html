@@ -383,7 +383,7 @@ body.dark .ktToday{background:rgba(255,255,255,.05);border-color:rgba(255,255,25
 .ktChip.off{background:var(--sky2);color:#4f8dd0}
 .ktChip.paid{background:var(--lemon2);color:#b9871a}
 .ktRow{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;align-items:center}
-details.setGrp{margin-top:10px;border:2px solid var(--line);border-radius:16px;padding:9px 12px;background:rgba(255,255,255,.35)}body.dark details.setGrp{background:rgba(255,255,255,.04)}details.setGrp>summary{font-size:14px;color:#9b7cf0;padding:2px 0}body.dark details.setGrp>summary{color:#cbb8ff}details.setGrp>summary:before{content:"▸ "}details.setGrp[open]>summary:before{content:"▾ "}details.setGrp>.set{margin-top:10px}details.setGrp .sheetBox{margin-top:8px}
+details.setGrp{margin-top:10px;border:2px solid var(--line);border-radius:16px;padding:9px 12px;background:rgba(255,255,255,.35)}body.dark details.setGrp{background:rgba(255,255,255,.04)}details.setGrp>summary{font-size:14px;color:#9b7cf0;padding:2px 0}body.dark details.setGrp>summary{color:#cbb8ff}details.setGrp>summary:before{content:"▸ "}details.setGrp[open]>summary:before{content:"▾ "}details.setGrp>.set{margin-top:10px}details.setGrp .sheetBox{margin-top:8px}#moneyFs[disabled]{opacity:.55}
 .sheetBox{margin-top:14px;padding:12px;border-radius:16px;border:2px dashed var(--lav);background:var(--lav2)}.sheetTtl{font-size:14px;font-weight:900;color:#9b7cf0}body.dark .sheetTtl{color:#cbb8ff}.sheetWhat{display:grid;gap:6px;margin-top:8px;font-size:12px;line-height:1.6;color:var(--ink)}.sheetWhat>div{background:rgba(255,255,255,.55);border-radius:10px;padding:6px 9px}body.dark .sheetWhat>div{background:rgba(255,255,255,.05)}
 .ktSet label{display:block;font-size:11.5px;color:var(--sub);margin-top:8px}
 .ktSet input[type=text],.ktSet input[type=number]{font-family:inherit;font-size:15px;color:var(--ink);border:2px solid #ecd6f5;border-radius:12px;padding:6px 10px;width:100%;background:rgba(255,255,255,.8)}
@@ -859,15 +859,6 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
       </div>
       <div class="note">「自動」は土日・祝日を土休日ダイヤにします。年末年始などの特別ダイヤの日は手動で切り替えてね。</div>
       </details>
-      <details class="setGrp manFix" id="setMoney"><summary>💴 お金（有休・残業を手で直す・残業単価）</summary>
-          <div class="note" style="margin:4px 0 6px">有休はシフト・勤怠ノートから、残業の時間・残業代・時給は記録室の明細から自動で出してるよ。明細やシフトがない月だけ、ここで直してね</div>
-          <div class="grid" style="display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:center">
-          <span>有休：月ごとの使用日数(今年度)</span><span></span>
-          <div id="sPaidMonths" style="grid-column:1/-1"></div>
-          <span>残業：時給(円)<br><small style="color:var(--sub)">明細がない年度だけ使うよ</small></span><input type="number" id="sOtRate" min="0" max="99999">
-          <span>残業：月ごとの時間・金額(今年度)</span><span></span>
-          <div id="sOtMonths" style="grid-column:1/-1"></div></div>
-      </details>
       <details class="setGrp" id="setLook"><summary>🎨 見た目・わたしのこと</summary>
       <div class="set">
         <span>お誕生日(月/日)</span><span style="display:flex;gap:4px;align-items:center"><select id="sBdayM" style="flex:none;width:64px"></select>月<select id="sBdayD" style="flex:none;width:64px"></select>日</span>
@@ -892,6 +883,16 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
       <div class="ktNote">同じURLをつないだiPhoneどうしは、上の「☁️ シートに保存・共有されるもの」が自動でそろうよ（開いたとき・記録したとき）。同じ日を2人が直したら、あとから直したほうが残るよ。URLは2人だけの秘密にしてね。</div>
       </div>
       </details>
+      <details class="setGrp manFix" id="setMoney"><summary>💴 お金（ふだんは自動・🔒カギつき）</summary>
+          <div class="note" style="margin:4px 0 6px">有休はシフト・勤怠ノートから、残業の時間・残業代・時給は記録室の明細から自動で出してるよ。明細やシフトがない月だけ、ここで直してね</div>
+          <button class="ktLinkBtn" id="moneyUnlock" type="button">🔓 カギをあけて手で直す</button>
+          <fieldset id="moneyFs" disabled style="border:0;padding:0;margin:8px 0 0;min-width:0"><div class="grid" style="display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:center">
+          <span>有休：月ごとの使用日数(今年度)</span><span></span>
+          <div id="sPaidMonths" style="grid-column:1/-1"></div>
+          <span>残業：時給(円)<br><small style="color:var(--sub)">明細がない年度だけ使うよ</small></span><input type="number" id="sOtRate" min="0" max="99999">
+          <span>残業：月ごとの時間・金額(今年度)</span><span></span>
+          <div id="sOtMonths" style="grid-column:1/-1"></div></div></fieldset>
+      </details>
     </details>
   </div>
 
@@ -899,7 +900,7 @@ body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.0</span></summary>
       <ul class="verList">
-        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）</span></li>
+        <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）</span></li>
         <li data-go="シートのURLをコピー|カウンターを手で直す・残業単価|ファーちゃんの記録室" data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
         <li data-go="間に合うかの印" data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。<br>・京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
         <li data-go="ひとつ前／おすすめ／ひとつ後|ほかの街の天気|AIに聞く|スプレッドシート" data-short="🚃 電車とあしたの表示がパワーアップ！"><span class="vNo">ver3.5</span><span class="vDate">11/21</span><span class="vTxt">📅あしたタブの行きを「ひとつ前／⭐おすすめ／ひとつ後」の3枚のカードに。タップするとファーちゃんが説明してくれるよ（改札から開始までの早歩き・ダッシュの時間も考えるよ）。🚃電車タブにも同じ印（🌸ゆっくりできる・⭐おすすめ・💨ダッシュなら間に合う・⚠️遅刻の危険）。京急のダイヤ変更（11/21土休日・11/24平日）に対応して、これからのダイヤ改正も週2回自動でチェック。☁️スプレッドシートは⚙️設定に引っこし、歩く時間・到着目標・有休/残業の手入力も2台で共有。ほかの街の天気（風速つき）、占いの文章が2倍、勤怠ノートの記入済み✅/未記入✏️、🔍AIに聞く、アプリが軽くなったよ</span></li>
@@ -3398,6 +3399,11 @@ q.oninput=draw;$("fmX").onclick=closeFM;sh.onclick=e=>{if(e.target===sh)closeFM(
 $("fmOpen").onclick=openFM;$("fmOpen2").onclick=openFM;
 window.fmGo=(name)=>{let hit=0;FM.forEach((g,gi)=>g[1].forEach((it,ii)=>{if(!hit&&it[1]===name){hit=1;go(gi,ii)}}))}; // 更新履歴などから呼ぶ用
 window.fmOpen=openFM;
+// 💴お金の設定はふだんシートと明細から自動。まちがえていじらないようにカギつき、グループを閉じたらまたカギ（2026-11-21）
+(function(){const fs=$("moneyFs"),bt=$("moneyUnlock"),g=$("setMoney");if(!fs||!bt||!g)return;
+  const lock=v=>{fs.disabled=v;bt.textContent=v?"🔓 カギをあけて手で直す":"🔒 カギをかける（直しおわったら）"};
+  bt.onclick=()=>{if(fs.disabled){if(confirm("ふだんはシートと明細から自動で入るよ。ほんまに手で直す？🧸"))lock(false)}else lock(true)};
+  g.addEventListener("toggle",()=>{if(!g.open)lock(true)})})();
 // ===== 更新履歴 → その機能へ飛ぶボタン＋🆕マーク（いちばん新しい更新1つだけ・3日以内）（2026-11-21）=====
 (function(){const now=new Date(),FMN=new Set();FM.forEach(g=>g[1].forEach(it=>FMN.add(it[1])));
   document.querySelectorAll("#verHist li").forEach((li,idx)=>{

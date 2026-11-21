@@ -649,6 +649,10 @@ body.dark .fmChips button.on{background:#4a3f6b;color:#ffb7d5}
 .fmItem small{display:block;font-size:11.5px;color:var(--sub);line-height:1.4}
 .fmItem .fa{flex:none;color:#c9b3f5;font-weight:900}
 .fmNone{text-align:center;color:var(--sub);font-size:13px;padding:24px 8px}
+.fmAsk{display:none;gap:8px;align-items:flex-start;margin:6px 0 2px}.fmAsk.show{display:flex}
+.fmAsk .fb{font-size:24px;line-height:1}.fmAsk .fs{background:#fdeef5;color:#b0346a;border-radius:14px;padding:8px 12px;font-size:13.5px;font-weight:700;line-height:1.5}
+body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
+.fmItem.best{outline:2px solid #f59ac0;outline-offset:-2px}
 @keyframes fmGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,111,170,0)}50%{box-shadow:0 0 0 5px rgba(255,111,170,.75)}}
 .fmGlow{animation:fmGlow .7s ease-in-out 4;border-radius:12px;position:relative;z-index:1}
 </style>
@@ -661,7 +665,7 @@ body.dark .fmChips button.on{background:#4a3f6b;color:#ffb7d5}
     <img class="avatar" src="avatar.jpg?v=20261121" alt="クマちゃん">
     <div class="brand">
       <h1>ゆめいろ手帳</h1>
-      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver4.0</span><button class="fmBtn" id="fmOpen" type="button" aria-label="ファーちゃんの案内所">🧸 案内所🗺️</button></div>
+      <div class="tag tagRow"><span>KEIKYU KAMATA ⇄ HANEDA T3</span><span class="verBadge">ver4.1</span><button class="fmBtn" id="fmOpen" type="button" aria-label="ファーちゃんの案内所">🧸 案内所🗺️</button></div>
     </div>
     <div id="payCd" role="button" title="給料日・ボーナスまでのカウントダウン"></div>
     <img class="banner" id="bannerImg" src="banner.jpg?v=20261121" alt="アトリエコットン Atelier Cotton">
@@ -883,8 +887,9 @@ body.dark .fmChips button.on{background:#4a3f6b;color:#ffb7d5}
 
   <div class="card">
     <details id="verHist">
-      <summary>📝 アップデート履歴 <span class="verBadge">ver4.0</span></summary>
+      <summary>📝 アップデート履歴 <span class="verBadge">ver4.1</span></summary>
       <ul class="verList">
+        <li data-short="🧸 案内所でファーちゃんに聞けるように！"><span class="vNo">ver4.1</span><span class="vDate">11/21</span><span class="vTxt">ファーちゃんの案内所で「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞けるように。わかったら「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ。AIは使ってないから、タダで電波がなくても動くよ</span></li>
         <li data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ</span></li>
         <li data-short="💴 残業単価が年度ごとに自動に！"><span class="vNo">ver3.9</span><span class="vDate">11/21</span><span class="vTxt">勤怠ノートの残業代も、年度ごとの単価で計算するように（4月昇給だけど明細に合わせて、新しい単価は6月勤務分から。4・5月分は前の単価＋あとで遡及）。単価は給料明細（記録室・明細の写し）から自動で出すよ。明細がない年度は設定の単価、それもなければ前の年度の単価を使うよ。アプリを入れ直しても、シートとつなげば単価が戻ってくるよ</span></li>
         <li data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.8</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に。電車だけじゃなくて、シフト・おしごと・おでかけまで全部入りになったからだよ。ホーム画面の名前は、アイコンを入れ直すと変わるよ</span></li>
@@ -3259,7 +3264,8 @@ document.getElementById("askGo").onclick=go;q.addEventListener("keydown",e=>{if(
 </script>
 <div id="fmSheet"><div class="fmPanel" role="dialog" aria-label="ファーちゃんの案内所">
   <div class="fmHead"><h3>🧸 ファーちゃんの案内所 🗺️</h3><button class="fmX" id="fmX" type="button">✕ とじる</button></div>
-  <input type="search" id="fmQ" placeholder="さがす（例：残業、シート、帰り、星座）" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false">
+  <input type="search" id="fmQ" placeholder="さがす・聞く（例：残業単価どこ？）" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false">
+  <div class="fmAsk" id="fmAsk"><span class="fb">🧸</span><span class="fs" id="fmAskT"></span></div>
   <div class="fmChips" id="fmChips"></div>
   <div class="fmList" id="fmList"></div>
 </div></div>
@@ -3294,7 +3300,7 @@ const FM=[
   ["📊","今月のまとめ","就業時間・確定残業・追加残業・残業代の見込み","残業代 見込み 合計 今月","#ktSum"],
   ["📅","今月の勤務記録","ほかの日の記録を見る・直す","一覧 カレンダー 記録","#ktDaysWrap"],
   ["📚","ファーちゃんの記録室","給料・ボーナスの明細／源泉徴収票／年度のまとめ","給料 明細 ボーナス 賞与 源泉 手取り 年度",null,"#recOpen",1],
-  ["📥","ファイルを読み込む","シフト・タイムシート・明細PDF","インポート シフト タイムシート PDF CSV","#impBtn"],
+  ["📥","ファイルを読み込む","シフト・タイムシート・明細PDF","インポート シフト タイムシート PDF CSV 取り込み 取込 読み込み 入れる","#impBtn"],
   ["🗓","読み込んだシフトを見る・消す","シフトの削除・復元","シフト 削除 復元 控え",".impShift"],
   ["📤","CSV・PDFで保存","勤怠表を書き出す","出力 エクスポート 印刷","#ktCsvOut"],
   ["🔢","この月の公休日数","ふだん10日・2月は9日","公休 休日数","#ktKoukyu"],
@@ -3332,13 +3338,41 @@ const qn=t=>{let x=norm(t);Object.keys(YOMI).sort((a,b)=>b.length-a.length).forE
 let grp=-1;
 chips.innerHTML=`<button data-g="-1" class="on">ぜんぶ</button>`+FM.map((g,i)=>`<button data-g="${i}">${g[0]}</button>`).join("");
 chips.onclick=e=>{const b=e.target.closest("button");if(!b)return;grp=+b.dataset.g;[...chips.children].forEach(c=>c.classList.toggle("on",c===b));draw()};
-function draw(){const w=qn(q.value).split(/[,、]/).filter(Boolean);let h="",n=0;
+// ===== ファーちゃんに聞く（AIなし）：文章で聞かれたら、知ってることばを拾って点数順にならべる（2026-11-21）=====
+const ASKW=/(どこ|どこに|どこで|どれ|どう(やって|すれば|したら)?|やったっけ|だっけ|っけ|みたい|見たい|知りたい|しりたい|おしえて|教えて|ある[の？?]?|かな|したい|変えたい|かえたい|入れたい|いれたい|直したい|なおしたい|見る|みる|[?？!！。])/;
+const STOP=/(どこ|どれ|どう|やって|すれば|したら|やったっけ|だっけ|っけ|みたい|見たい|知りたい|しりたい|おしえて|教えて|かな|したい|って|[?？!！。、,]|ファーちゃん|ふぁーちゃん)/g;
+let VOC=null;const vocab=()=>{if(VOC)return VOC;const set=new Set();
+  FM.forEach(g=>g[1].forEach(it=>{String(it[3]||"").split(/\s+/).forEach(w=>w&&set.add(w));String(it[1]).split(/[・／/（）()「」、 ]/).forEach(w=>w&&w.length>=2&&set.add(w))}));
+  Object.values(YOMI).forEach(w=>set.add(w));
+  VOC=[...set].map(w=>[w,norm(w)]).filter(([,n])=>n.length>=2||/[一-龥]/.test(n)).sort((a,b)=>b[1].length-a[1].length);return VOC};
+const isAsk=t=>ASKW.test(t)||norm(t).length>=6;
+function rank(t){let x=qn(String(t).replace(STOP," "));const hits=[];
+  for(const[w,n]of vocab()){if(x.includes(n)){hits.push(n);x=x.split(n).join(" ")}}
+  if(!hits.length)return[];const out=[];
+  FM.forEach((g,gi)=>g[1].forEach((it,ii)=>{const nm=norm(it[1]),kw=norm(it[3]),ds=norm(it[2]);let sc=0;
+    for(const n of hits){if(nm.includes(n))sc+=3+n.length*.1;else if(kw.includes(n))sc+=2+n.length*.1;else if(ds.includes(n))sc+=1}
+    if(sc>0)out.push({gi,ii,sc})}));
+  return out.sort((a,b)=>b.sc-a.sc)}
+const ask=$("fmAsk"),askT=$("fmAskT");
+function say(t){if(!t){ask.classList.remove("show");return}askT.innerHTML=t;ask.classList.add("show")}
+function itemBtn(gi,ii,best){const it=FM[gi][1][ii];return`<button class="fmItem${best?" best":""}" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}</b><small>${FM[gi][0]}・${it[2]}</small></span><span class="fa">›</span></button>`}
+function drawAsk(){const r=rank(q.value);
+  if(!r.length){say("ごめんね、わからなかったよ…🧸 ちがう言い方で聞いてみてね（例：「残業単価」「シートのURL」）");list.innerHTML="";return false}
+  const top=r.filter(x=>x.sc===r[0].sc),one=top.length===1&&(r.length===1||r[1].sc<r[0].sc);
+  say(one?`それなら「<b>${FM[r[0].gi][1][r[0].ii][1]}</b>」だよ！タップかEnterで連れていくね`:"どれのこと？えらんでね");
+  list.innerHTML=r.slice(0,8).map((x,i)=>itemBtn(x.gi,x.ii,one&&i===0)).join("");return one?r[0]:null}
+q.addEventListener("keydown",e=>{if(e.key!=="Enter"||e.isComposing)return;e.preventDefault();
+  const v=q.value.trim();if(!v)return;
+  if(isAsk(v)||!list.querySelector(".fmItem")){const one=drawAsk();if(one){say(`「${FM[one.gi][1][one.ii][1]}」はここだよ！🧸`);setTimeout(()=>go(one.gi,one.ii),700)}}
+  else{const b=list.querySelectorAll(".fmItem");if(b.length===1)b[0].click()}});
+function draw(){if(q.value.trim()&&isAsk(q.value)){drawAsk();return}say("");const w=qn(q.value).split(/[,、]/).filter(Boolean);let h="",n=0;
   FM.forEach((g,gi)=>{if(grp>=0&&gi!==grp&&!w.length)return;
     const its=g[1].map((it,ii)=>[it,ii]).filter(([it])=>!w.length||w.every(k=>norm(g[0]+it[1]+it[2]+it[3]).includes(k)));
     if(!its.length)return;n+=its.length;
     h+=`<div class="fmGrp">${g[0]}</div>`+its.map(([it,ii])=>`<button class="fmItem" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}</b><small>${it[2]}</small></span><span class="fa">›</span></button>`).join("")});
+  if(!n&&q.value.trim()){drawAsk();return}
   list.innerHTML=n?h:`<div class="fmNone">見つからなかったよ🧸<br>ちがうことばでさがしてみてね</div>`}
-function openFM(){sh.classList.add("show");q.value="";draw();list.scrollTop=0;document.body.style.overflow="hidden"}
+function openFM(){sh.classList.add("show");q.value="";say("");draw();list.scrollTop=0;document.body.style.overflow="hidden"}
 function closeFM(){sh.classList.remove("show");document.body.style.overflow=""}
 function glow(el){el.classList.remove("fmGlow");void el.offsetWidth;el.classList.add("fmGlow");setTimeout(()=>el.classList.remove("fmGlow"),3000)}
 function go(gi,ii){const it=FM[gi]&&FM[gi][1][ii];if(!it)return;closeFM();

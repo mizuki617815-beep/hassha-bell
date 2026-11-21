@@ -453,8 +453,8 @@
 ## 27. 2026-11-22 ver4.0（追記）おしごとタブのレイアウト整理
 - #ktSum：残業見込み(.big)の位置は今までどおり下（本人：入れ替え不要）。全労働時間の横長タイルもそのまま（.ktTotT：見出しを太字、数字を18pxに）
 - 勤怠ノートの β の注意書きの下に #ktChips（🏖️有休 あと◯日＝paidCalc の remain／🌙残業 今年度◯h＝otCalc の totH+estH）。renderPaid・renderOt の最後で renderKtChips()。タップで #paidInfo / #otInfo へスクロール
-- 並び順：#navKintai（きょう・今月の数字・勤務記録）→ #navCount（有休・残業カウンター）→ 新しい #navKtTools（記録室・ファイルを読み込む・入力/出力/計算の設定）。IntersectionObserver の order と alias（navKtTools→navKintai）に追加
-- 「今月の勤務記録を見る」ボタンを白っぽい控えめなデザインに（記録室との見分け）
+- 並び順：#navKintai（きょう・今月の数字・勤務記録）→ #navCount（有休・残業カウンター）→ 新しい #navKtTools（ファイルを読み込む・入力/出力/計算の設定）。記録室ボタン #recOpen は元どおり勤怠ノートの「今月の勤務記録を見る」の下（本人の希望）。IntersectionObserver の order と alias（navKtTools→navKintai）に追加
+- 「今月の勤務記録を見る」ボタンの色は元のグラデのまま（一度白っぽくしたが本人の希望で戻した）
 - 読み込み欄 .impRow：文字を .impT で包んで「もう使わない」を下の行に（変な折れを修正）
 - 有休カウンター：「令和◯年度からの分」「今年度 ◯日使用済」を2行に
 - 上のクマのアイコンは残す（ほかのカードとそろえるため、本人の希望）。ボタンは増やさない（下のタブは7個のまま）

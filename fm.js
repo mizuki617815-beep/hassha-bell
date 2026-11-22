@@ -108,7 +108,8 @@ function draw(){if(q.value.trim()&&isAsk(q.value)){drawAsk();return}say("");cons
     h+=`<div class="fmGrp">${g[0]}</div>`+its.map(([it,ii])=>`<button class="fmItem" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}${nw(it[1])}</b><small>${it[2]}</small></span><span class="fa">›</span></button>`).join("")});
   if(!n&&q.value.trim()){drawAsk();return}
   list.innerHTML=n?h:`<div class="fmNone">見つからなかったよ🧸<br>ちがうことばでさがしてみてね</div>`}
-function openFM(){sh.classList.add("show");q.value="";say("");draw();list.scrollTop=0;document.body.style.overflow="hidden"}
+// 開くとき画面を1pxだけ動かして戻す：うしろをスクロールしたら直った＝画面のズレのリセット（2026-11-23）
+function openFM(){try{const y=window.scrollY;window.scrollTo(0,y>0?y-1:y+1);window.scrollTo(0,y)}catch(e){}sh.classList.add("show");q.value="";say("");draw();list.scrollTop=0;document.body.style.overflow="hidden"}
 // 閉じる前にキーボード（入力欄のフォーカス）を外す：iPhoneは、フォーカスしたまま隠すと次に開いたとき入力できなくなる（2026-11-23）
 function closeFM(){try{q.blur();if(document.activeElement&&sh.contains(document.activeElement))document.activeElement.blur()}catch(e){}sh.classList.remove("show");document.body.style.overflow=""}
 function glow(el){el.classList.remove("fmGlow");void el.offsetWidth;el.classList.add("fmGlow");setTimeout(()=>el.classList.remove("fmGlow"),3000)}

@@ -656,7 +656,7 @@ details.infoFold{margin-top:8px}details.infoFold>summary{font-size:12px;color:va
 .fmSetBtn small{display:block;font-size:11px;font-weight:700;color:var(--sub)}
 #fmSheet{position:fixed;inset:0;background:rgba(80,60,110,.38);display:none;align-items:flex-end;justify-content:center;z-index:95}
 #fmSheet.show{display:flex}
-.fmPanel{background:#fff;color:var(--ink);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:14px 14px calc(16px + env(safe-area-inset-bottom));height:78vh;max-height:86vh;display:flex;flex-direction:column}
+.fmPanel{background:#fff;color:var(--ink);width:100%;max-width:480px;border-radius:0;padding:calc(14px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));height:100%;max-height:none;box-sizing:border-box;display:flex;flex-direction:column} /* 全画面：うしろの画面にさわれないように（2026-11-23） */
 body.dark .fmPanel{background:#2a2340}
 .fmHead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .fmHead h3{flex:1;margin:0;font-size:17px}
@@ -3624,6 +3624,6 @@ load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidde
 setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
-<script src="fm.js?v=20261123b"></script>
+<script src="fm.js?v=20261123c"></script>
 </body>
 </html>

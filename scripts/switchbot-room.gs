@@ -13,7 +13,7 @@
  *   実行ユーザー：自分 ／ アクセスできるユーザー：全員
  *   出てきた …/exec のURLを、ゆめいろ手帳の⚙️設定「🏠 おうちの温度」に貼る
  *
- * GET  … 温度・湿度・時刻を返す（見るだけ）
+ * GET  … 温度・湿度・明るさ（lightLevel 1〜20）・時刻を返す（見るだけ）
  * POST … {"cmd":"cool"|"heat"|"off","temp":27,"k":"パスワード"} でエアコンを動かす
  *        {"cmd":"light_on"|"light_off","k":"パスワード"} でライト（hapicom経由）
  *        パスワード（SB_KEY）が合わないとき・入ってないときは動かさない
@@ -31,7 +31,7 @@ function doGet() {
     } else {
       const id = hubId_();
       const st = sb_('/devices/' + id + '/status');
-      out = { ok: true, t: st.temperature, h: st.humidity, at: Date.now() };
+      out = { ok: true, t: st.temperature, h: st.humidity, l: st.lightLevel, at: Date.now() }; // l=明るさ（1〜20）
       cache.put('room', JSON.stringify(out), 120); // 2分は同じ値を返して、APIを呼びすぎないように
     }
   } catch (e) {

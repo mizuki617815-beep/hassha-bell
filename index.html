@@ -56,6 +56,9 @@ body.dark #jumpNav button.on{background:#4a3f6b;color:#ffb7d5}
 .wxHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .ttl{font-size:14px;font-weight:900;color:#9b7cf0}
 .mini{font-size:11px;color:var(--sub)}
+.homeEnv{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-4px 0 10px;padding:6px 11px;border-radius:14px;background:var(--mint2);font-size:13px;color:var(--ink);cursor:pointer}
+.homeEnv b{font-size:15px}.homeEnv small{color:var(--sub);font-size:11px}.homeEnv .hc{flex-basis:100%;font-size:12px;line-height:1.45}
+body.dark .homeEnv{background:rgba(127,220,197,.14)}
 .morning{display:flex;gap:10px;align-items:stretch}
 .mbox{flex:1;border-radius:18px;padding:10px;text-align:center;background:linear-gradient(160deg,#fff3fa,#f1ebff)}
 .mbox .h{font-size:12px;color:var(--sub);font-weight:700;line-height:1.2}
@@ -740,6 +743,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
   <!-- 天気&コーデ -->
   <div class="card" id="navWx">
     <div class="wxHead"><span class="ttl" id="mTitle">🌙 あしたの朝 5:30〜6:30</span><span class="mini">大田区</span></div>
+    <div class="homeEnv" id="homeEnv" style="display:none" role="button" tabindex="0" aria-label="おうちの温度と湿度（タップで読みなおす）"></div>
     <div class="wxTop"><div class="wxBearBox" id="wxBearBox" style="display:none"><img class="wxBear" id="wxBear" alt="天気に合わせたクマちゃんの挿絵"><div class="wxBearCap" id="wxBearCap"></div></div><div class="morning" id="morning"></div></div>
     <div class="cheer" id="cheer" style="display:none"><div class="note" id="cheerLbl" style="margin:0 0 4px;display:none"></div><div id="cheerTxt"></div><div class="chips" id="cheerChips"></div></div>
     <div id="alertBox"></div>
@@ -938,6 +942,14 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       <div class="ktNote">同じURLをつないだiPhoneどうしは、上の「☁️ シートに保存・共有されるもの」が自動でそろうよ（開いたとき・記録したとき）。同じ日を2人が直したら、あとから直したほうが残るよ。URLは2人だけの秘密にしてね。</div>
       </div>
       </details>
+      <details class="setGrp" id="setHome"><summary>🏠 おうちの温度（SwitchBot ハブ2）</summary>
+      <div class="ktSet homeBox">
+      <label>おうちの温度のつなぎ先（GASの …/exec で終わるURL）</label>
+      <input type="text" id="homeUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" autocorrect="off" spellcheck="false">
+      <div class="ktRow"><button class="ktBtn main" id="homeSave" type="button">🔗 つないでためす</button> <button class="ktBtn" id="homeOff" type="button">はずす</button></div>
+      <div class="ktNote" id="homeNote">天気のカードの上に、おうちの温度と湿度が出るよ（見るだけ。エアコンなどは動かさないよ）。URLはこのスマホの中にだけ保存されるよ</div>
+      </div>
+      </details>
       <details class="setGrp manFix" id="setMoney"><summary>💴 お金（ふだんは自動・🔒カギつき）</summary>
           <div class="note" style="margin:4px 0 6px">有休はシフト・勤怠ノートから、残業の時間・残業代・時給は記録室の明細から自動で出してるよ。明細やシフトがない月だけ、ここで直してね</div>
           <button class="ktLinkBtn" id="moneyUnlock" type="button">🔓 カギをあけて手で直す</button>
@@ -955,7 +967,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.1</span></summary>
       <ul class="verList">
-        <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸</span></li>
+        <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸<br>🏠 おうちの温度：⚙️設定の「🏠 おうちの温度」にGASのURLを貼ると、天気のカードの上におうちの温度と湿度が出るよ（SwitchBotハブ2、見るだけ。タップで読みなおし）</span></li>
         <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・占いの金運に「課金に注意！」系のひとことを追加（金運が低めの日に出るよ）。「ふつうの金運」みたいなそっけない文も、ちょっとしたアドバイスつきに（総合運・夫婦運・仕事運も）。「好きなこと」「甘やかして」みたいな文は、お風呂やお散歩などお金のかからない例に<br>・いちばん上をすっきり：案内所は日付の下の大きい検索バーに。英語の行・ver・更新ボタンをなくしたよ（更新は画面を下に引っぱってね）<br>・下のタブの「天気」を押すと、いちばん上に戻るように<br>・お知らせと確認を、iPhoneの灰色の画面からクマちゃんのふきだし・カードに（お知らせは3秒で消えるよ。消すボタンは赤っぽく）<br>・電波が弱くてもすぐ開けるように、絵は一回保存したらそれを使うように<br>・天気が取れなかったとき「取ってきてるよ」が出たままにならないように<br>・有休・残業のカウンターで、まだ記録がないときは空っぽのグラフのかわりにひとことを出すように<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）<br>・おしごとタブを見やすく：「全労働時間（見込み）」の文字を太く少し大きく、勤怠ノートの上に「🏖️有休」「🌙残業」のチップ（タップでカウンターへ）、カウンターは勤怠ノートのすぐ下に。<br>・シートとの同期を安全に：シートが読めなかったときは送らないように、シフトは日ごとに合わせるように、日付をまたぐシフトも「残業した？」を聞くようにしたよ変なところで折れていた文字も直したよ</span></li>
         <li data-go="シートのURLをコピー|カウンターを手で直す・残業単価|ファーちゃんの記録室" data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
         <li data-go="間に合うかの印" data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。<br>・京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
@@ -3439,6 +3451,44 @@ document.getElementById("askGo").onclick=go;q.addEventListener("keydown",e=>{if(
   <div class="fmChips" id="fmChips"></div>
   <div class="fmList" id="fmList"></div>
 </div></div>
-<script src="fm.js?v=20261122b"></script>
+<script>
+/* 🏠 おうちの温度・湿度（SwitchBot ハブ2 → GAS → ここ）。URLはこのスマホだけに保存（2026-11-22） */
+(function(){const $=id=>document.getElementById(id),K="yumebell_home",KC="yumebell_home_last";
+const box=$("homeEnv"),ui=$("homeUrl"),note=$("homeNote");if(!box||!ui)return;
+const okUrl=u=>/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(u);
+const getU=()=>{try{return localStorage.getItem(K)||""}catch(e){return""}};
+const hm=ms=>{const d=new Date(ms);return d.getHours()+":"+String(d.getMinutes()).padStart(2,"0")};
+const cmt=(t,h)=>{const a=[];
+  if(t<16)a.push("ひんやりしてるね。こたつつけよか？");else if(t<18)a.push("ちょっと肌寒いかも。1枚はおってね");else if(t>=28)a.push("あつめやね。エアコンと水分わすれずに");
+  if(h<40)a.push("乾燥ぎみ。加湿とのどのケアしてね");else if(h>=65)a.push("じめじめぎみ。換気か除湿がおすすめ");
+  return a.length?"🧸 "+a.join("／"):""};
+const show=d=>{if(!d||typeof d.t!=="number"){box.style.display="none";return}
+  const old=Date.now()-d.at>30*60*1000,c=cmt(d.t,d.h);
+  box.innerHTML='🏠 おうち <b>'+d.t.toFixed(1)+'℃</b> 💧<b>'+Math.round(d.h)+'%</b> <small>'+hm(d.at)+(old?' 時点（ちょっと前）':'')+'</small>'+(c?'<span class="hc">'+c+'</span>':'');
+  box.style.display=""};
+let busy=false,lastTry=0;
+async function load(force){const u=getU();if(!u){box.style.display="none";return null}
+  let c=null;try{c=JSON.parse(localStorage.getItem(KC)||"null")}catch(e){}
+  if(c)show(c);
+  if(busy||(!force&&c&&Date.now()-c.at<5*60*1000)||(!force&&Date.now()-lastTry<60*1000))return c;
+  busy=true;lastTry=Date.now();
+  try{const r=await fetch(u,{cache:"no-store"});const j=await r.json();
+    if(!j.ok)throw new Error(j.err||"読めなかったよ");
+    try{localStorage.setItem(KC,JSON.stringify(j))}catch(e){}show(j);return j}
+  catch(e){if(force)throw e;return c}finally{busy=false}}
+ui.value=getU();
+$("homeSave").onclick=async()=>{const u=ui.value.trim();
+  if(!okUrl(u)){note.textContent="⚠️ URLの形がちがうみたい（https://script.google.com/macros/s/…/exec）";return}
+  try{localStorage.setItem(K,u)}catch(e){}note.textContent="🔄 よみにいってるよ…";
+  try{const j=await load(true);note.textContent="✅ つながったよ！ いま "+j.t.toFixed(1)+"℃・"+Math.round(j.h)+"%"}
+  catch(e){note.textContent="⚠️ 読めなかったよ："+(e.message||e)+"（GASのスクリプトプロパティとデプロイを見てね）"}};
+$("homeOff").onclick=()=>{try{localStorage.removeItem(K);localStorage.removeItem(KC)}catch(e){}ui.value="";box.style.display="none";note.textContent="はずしたよ。また使うときはURLを貼ってね"};
+const tap=()=>{box.style.opacity=".6";load(true).catch(()=>{}).finally(()=>{box.style.opacity=""})};
+box.onclick=tap;box.addEventListener("keydown",e=>{if(e.key==="Enter")tap()});
+load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidden)load(false)});
+setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
+})();
+</script>
+<script src="fm.js?v=20261122c"></script>
 </body>
 </html>

@@ -991,6 +991,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.1</span></summary>
       <ul class="verList">
+        <li data-go="次の給料の予想" data-short="💰 次の給料の手取り予想ができたよ！"><span class="vNo">ver4.2</span><span class="vDate">11/22</span><span class="vTxt">💰「次の給料の予想」が記録室の「📈みる」に：次の給料日にもらえる手取りの見込みを、いちばん新しい明細と勤怠ノートの記録から計算するよ（残業・深夜・休みの日の割増は勤怠ノートの見込み、ほかの支給と社会保険料・住民税は新しい明細と同じ、所得税は概算。賞与はふくまないよ）。明細を入れると、予想と実際の「答え合わせ」も出るよ🧸</span></li>
         <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸<br>🏠 おうちの温度：⚙️設定の「🏠 おうちの温度」にGASのURLを貼ると、天気のカードの上におうちの温度と湿度が出るよ（SwitchBotハブ2。タップで読みなおし）<br>❄️🔥 エアコンのボタン：⚙️設定でエアコンのパスワードを入れると、おうちの温度の下に「冷房・暖房・けす」のボタンが出るよ（押すと確認が出るよ。温度は設定で変えられるよ）<br>💡 ライトとこたつのボタン：エアコンのボタンの下に「ライトつける・けす」「こたつけす」が出るよ（ライトはSwitchBotハブ2の赤外線、こたつはAlexaの定型アクション経由。夜は、もうついてる・消えてるときは何もしないよ）<br>💡 おうちの温度の下に「寝室のライト ON／OFF」のスイッチと明るさ（1〜20）が出るよ（見るだけ。ハブ2の明るさで見てるから「たぶん」だよ。昼はお日さまで明るいのでわからないよ）<br>☁️ おうちの温度のURLとエアコンのパスワードも、勤怠のスプレッドシートで2台にそろうようにしたよ</span></li>
         <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・占いの金運に「課金に注意！」系のひとことを追加（金運が低めの日に出るよ）。「ふつうの金運」みたいなそっけない文も、ちょっとしたアドバイスつきに（総合運・夫婦運・仕事運も）。「好きなこと」「甘やかして」みたいな文は、お風呂やお散歩などお金のかからない例に<br>・いちばん上をすっきり：案内所は日付の下の大きい検索バーに。英語の行・ver・更新ボタンをなくしたよ（更新は画面を下に引っぱってね）<br>・下のタブの「天気」を押すと、いちばん上に戻るように<br>・お知らせと確認を、iPhoneの灰色の画面からクマちゃんのふきだし・カードに（お知らせは3秒で消えるよ。消すボタンは赤っぽく）<br>・電波が弱くてもすぐ開けるように、絵は一回保存したらそれを使うように<br>・天気が取れなかったとき「取ってきてるよ」が出たままにならないように<br>・有休・残業のカウンターで、まだ記録がないときは空っぽのグラフのかわりにひとことを出すように<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）<br>・おしごとタブを見やすく：「全労働時間（見込み）」の文字を太く少し大きく、勤怠ノートの上に「🏖️有休」「🌙残業」のチップ（タップでカウンターへ）、カウンターは勤怠ノートのすぐ下に。<br>・シートとの同期を安全に：シートが読めなかったときは送らないように、シフトは日ごとに合わせるように、日付をまたぐシフトも「残業した？」を聞くようにしたよ変なところで折れていた文字も直したよ</span></li>
         <li data-go="シートのURLをコピー|カウンターを手で直す・残業単価|ファーちゃんの記録室" data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
@@ -2797,14 +2798,14 @@ const $r=id=>document.getElementById(id);
 const YEN=v=>`¥${Math.round(+v||0).toLocaleString()}`;
 const MAN=v=>`${((+v||0)/10000).toFixed(1)}万`;
 let R;try{R=JSON.parse(localStorage.getItem(RK)||"null")}catch(e){}
-R=Object.assign({sync:true,m:{},b:{},w:{},f:{}},R||{});R.sync=true; // 記録室もいつもシートと同期（本人の希望 2026-11-21、オフにする設定はなくした）if(!R.m)R.m={};if(!R.b)R.b={};if(!R.w)R.w={};if(!R.f)R.f={};
+R=Object.assign({sync:true,m:{},b:{},w:{},f:{},p:{}},R||{});R.sync=true; // 記録室もいつもシートと同期（本人の希望 2026-11-21、オフにする設定はなくした）if(!R.m)R.m={};if(!R.b)R.b={};if(!R.w)R.w={};if(!R.f)R.f={};if(!R.p)R.p={};
 const NAME_FIX=[[/シックリープ/g,"シックリーブ"]];
 const fixName=n=>NAME_FIX.reduce((a,[re,to])=>a.replace(re,to),n);
 function fixItems(it){if(!it)return;for(const c in it){const o=it[c];for(const k of Object.keys(o)){const f=fixName(k);if(f!==k){o[f]=(f in o)?o[f]:o[k];delete o[k]}}}}
 function fixAll(){for(const L of[R.m,R.b])for(const k in L)if(L[k]&&L[k].items)fixItems(L[k].items)}
 function storeR(){try{localStorage.setItem(RK,JSON.stringify(R))}catch(e){}}
 try{fixAll()}catch(e){}
-function touch(){try{fixAll();snapF()}catch(e){}storeR();if(R.sync&&window.ktTouch)window.ktTouch()}
+function touch(){try{fixAll();snapF();snapP()}catch(e){}storeR();if(R.sync&&window.ktTouch)window.ktTouch()}
 const addM=(k,n)=>{let[y,m]=k.split("-").map(Number);m+=n;while(m>12){m-=12;y++}while(m<1){m+=12;y--}return`${y}-${P2(m)}`};
 const todayK=()=>ymd(jstNow());
 const fyOfPay=k=>{const[y,m]=k.split("-").map(Number);return m>=4?y:y-1};
@@ -2857,9 +2858,9 @@ function mirrorOt(pk){const e=R.m[pk],w=addM(pk,-1);if(!S.otMonths)S.otMonths={}
   save()}
 
 // ===== 同期(勤怠ノートの sync から呼ばれる) =====
-window.recForSync=()=>R.sync?{m:R.m,b:R.b,w:R.w,f:R.f}:null;
+window.recForSync=()=>R.sync?{m:R.m,b:R.b,w:R.w,f:R.f,p:R.p}:null;
 window.recMerge=rr=>{const out={changed:false,remoteOld:false};if(!R.sync)return out;rr=rr||{};
-  for(const kind of["m","b","w","f"]){const L=R[kind],X=rr[kind]||{};
+  for(const kind of["m","b","w","f","p"]){const L=R[kind],X=rr[kind]||{};
     for(const k of new Set([...Object.keys(L),...Object.keys(X)])){const a=L[k],b=X[k],au=a?(+a.u||0):-1,bu=b?(+b.u||0):-1;
       if(bu>au){L[k]=b;out.changed=true;if(kind==="m")mirrorOt(k)}else if(au>bu)out.remoteOld=true}}
   if(out.changed){try{fixAll()}catch(e){}storeR();if(typeof renderOt==="function")renderOt()}
@@ -3001,6 +3002,7 @@ function drawSee(){
   const ms=fyMonths(selFY),lb=ms.map(k=>+k.slice(5)+"月");
   const net=ms.map(k=>live(R.m[k])?+R.m[k].n||0:0),oh=ms.map(k=>{const o=otOf(k);return o?o.h:0});
   let h=fyNav()+bearSay(tabSay());
+  h+=drawPayFc();
   h+=`<div class="recBox" id="rNetBox"><div class="bt">💰 毎月の手取り<small style="font-weight:normal;font-size:11px;color:var(--sub)">　棒をタップすると明細が見られるよ</small></div>${bars(net,lb,MAN)}</div>`;
   h+=slipView(ms);
   {const names=[];for(const k in R.m){const e=R.m[k];if(!live(e)||!e.items)continue;for(const[c]of CATS)for(const n in(e.items[c]||{})){const id=c+"|"+n;if(!names.includes(id))names.push(id)}}
@@ -3060,6 +3062,48 @@ function drawFc(fy,t){const cur=fyOfPay(latestPay());
     <div class="recNote" style="margin:2px 0 6px">実際：年収 ${MAN1(ag)}／手取り ${MAN1(an)}</div>
     <table class="fcTbl"><tr><th>いつの予想</th><th>年収の予想</th><th>手取りの予想</th></tr>${snaps.map(k=>`<tr><td>${+k.slice(5)}月支給まで</td><td>${MAN1(R.f[k].g)}<small>${d(R.f[k].g,ag)}</small></td><td>${MAN1(R.f[k].n)}<small>${d(R.f[k].n,an)}</small></td></tr>`).join("")}</table>
     <div class="recNote">＋は予想が実際より多かった、−は少なかった、だよ</div></div>`}
+// ===== 次の給料の予想（手取り） =====
+// 土台はいちばん新しい明細：固定の支給と社会保険料・住民税はそのまま、残業・深夜・休みの日の割増は勤怠ノートの見込みに差しかえ、所得税は支給の比で概算。
+// 深夜早朝の手当はほぼ無いので入れない（本人の希望 2026-11-22）。賞与はふくまない。予想は R.p[支給月]={g,n,u} に控えて、明細が入ったら答え合わせ
+const VAR_PAY=/時間外|残業|深夜|休日|休出|早朝|遡及|差額|調整|立替|精算|慶弔|見舞|賞与/;
+const VAR_DED=/調整|差額|年末|欠勤/;
+function payForecast(){
+  const ks=Object.keys(R.m).filter(k=>live(R.m[k])&&R.m[k].items&&okM(R.m[k])).sort();
+  if(!ks.length)return null;
+  const tp=addM(latestPay(),1);if(okM(R.m[tp]))return null; // もう明細がある月は予想しない（答え合わせ側で出す）
+  const bk=ks[ks.length-1],base=R.m[bk],tw=addM(tp,-1);
+  let kt=null;try{kt=window.ktMonth?window.ktMonth(tw):null}catch(e){}
+  const pay={};
+  for(const n in(base.items.pay||{}))if(!VAR_PAY.test(n))pay[n]=+base.items.pay[n]||0;
+  if(kt&&kt.yen)pay["時間外手当（見込み）"]=kt.yen;
+  if(kt&&kt.nightYen)pay["深夜割増（見込み）"]=kt.nightYen;
+  if(kt&&kt.holYen)pay["休日割増（見込み）"]=kt.holYen;
+  const g=Object.values(pay).reduce((a,v)=>a+v,0),gb=gOf(base);
+  const ded={};let taxB=0;
+  for(const n in(base.items.ded||{})){if(/所得税/.test(n)){taxB+=+base.items.ded[n]||0;continue}if(VAR_DED.test(n))continue;ded[n]=+base.items.ded[n]||0}
+  const taxF=taxB&&gb>0?Math.round(taxB*g/gb):taxB;
+  if(taxF)ded["所得税（概算）"]=taxF;
+  const dd=Object.values(ded).reduce((a,v)=>a+v,0);
+  return{tp,tw,bk,g,n:g-dd,pay,ded,kt,taxF}}
+function snapP(){const f=payForecast();if(!f)return false;const o=R.p[f.tp];
+  if(!o||o.g!==f.g||o.n!==f.n){R.p[f.tp]={g:f.g,n:f.n,u:Date.now()};return true}return false}
+function drawPayFc(){
+  let h="";
+  const ak=Object.keys(R.p).filter(k=>live(R.p[k])&&okM(R.m[k])).sort();
+  if(ak.length){const k=ak[ak.length-1],f=R.p[k],a=R.m[k],ag=gOf(a),an=+a.n||0,d=an-f.n;
+    h+=`<div class="recFc"><div class="fcT">🎯 ${+k.slice(5)}月支給の答え合わせ</div>
+    <div class="fcRow"><div><small>手取りの予想</small><b>${YEN(f.n)}</b></div><div><small>実際の手取り</small><b>${YEN(an)}</b><small>差 ${d>=0?"+":"−"}${Math.abs(d).toLocaleString()}円</small></div></div>
+    <div class="recNote" style="margin-top:6px">支給の予想 ${YEN(f.g)} → 実際 ${YEN(ag)} だったよ</div></div>`}
+  const f=payForecast();if(!f)return h;
+  const m=+f.tp.slice(5),wm=+f.tw.slice(5);
+  const ktLine=!f.kt?`${wm}月の勤怠の見込みはまだ取れてないよ`:f.kt.hasShift?`残業 ${f.kt.otH}時間・${YEN(f.kt.yen)}${f.kt.nightYen?`、深夜 ${YEN(f.kt.nightYen)}`:""}${f.kt.holYen?`、休みの日の割増 ${YEN(f.kt.holYen)}`:""}（勤怠ノートの見込み${f.kt.fixedDays<f.kt.workDays?`、記録済み ${f.kt.fixedDays}日／出勤 ${f.kt.workDays}日`:""})`:`${wm}月のシフトがまだ入ってないから、残業分は入ってないよ`;
+  const floor=f.kt&&f.kt.hasShift&&f.kt.fixedDays<f.kt.workDays;
+  const floorLine=!f.kt||!f.kt.hasShift?"":floor?`まだ記録してない日の追加残業は入ってへんから、この金額は下限やよ。残業を記録するたびに、ここから増えていくね。`:`勤務は全部記録済みやから、ほぼ確定の見込みやよ。`;
+  h+=`<div class="recFc"><div class="fcT">🔮 次の給料の予想<span>予想</span></div>
+    <div class="recNote" style="margin:2px 0 4px">${m}月25日ごろ支給（${wm}月に働いた分）</div>
+    <div class="fcRow"><div><small>支給の見込み</small><b>約${YEN(f.g)}</b></div><div><small>手取りの見込み${floor?"（いまの下限）":""}</small><b>約${YEN(f.n)}</b></div></div>
+    <div class="recNote" style="margin-top:6px">※これは予想だよ。土台は${+f.bk.slice(5)}月支給の明細：固定の支給と社会保険料・住民税はそのまま、${ktLine}、所得税は支給の比で概算。賞与はふくまないよ。${floorLine}明細を入れたら答え合わせするね🧸</div></div>`;
+  return h}
 // 明細の勤怠欄の有休（「有休・有給・年休」を含む項目）。明細の勤怠は前の月に働いた分なので、5月〜翌4月支給の明細を足す
 function slipPaid(fy){let sum=0,hit=false;for(let i=0;i<12;i++){const k=addM(`${fy}-05`,i),e=R.m[k];if(!live(e)||!e.items||!e.items.kin)continue;
   for(const n in e.items.kin){const q=String(n).normalize("NFKC").replace(/\s/g,"");if(/有休|有給|年休/.test(q)&&!/残|時間/.test(q)){sum+=+String(e.items.kin[n]).replace(/[^\d.\-]/g,"")||0;hit=true}}}
@@ -3115,7 +3159,7 @@ function drawSum(){
   const t=fyTotals(selFY),p=fyTotals(selFY-1),cur=fyOfPay(latestPay());
   let paid=null;try{const end=`${selFY+1}-03-31`,today=todayK();paid=paidCalc(today<end?today:end);if(paid.fy!==selFY)paid=null}catch(e){}
   const diff=(a,b)=>b&&selFY<cur?`<small class="${a-b>=0?"recUp":"recDown"}">前年度より ${(a-b>=0?"+":"")+(a-b).toLocaleString()}円</small>`:"";
-  let h=fyNav()+bearSay(tabSay());try{if(snapF())storeR()}catch(e){}
+  let h=fyNav()+bearSay(tabSay());try{if(snapF()|snapP())storeR()}catch(e){}
   const mid=selFY>=cur&&!!forecast(selFY),sofar=mid?"ここまでの":"";
   h+=drawFc(selFY,t);
   h+=`${mid?`<div class="fcSofar">📒 ここまでの実際の合計（${t.cnt}か月分）</div>`:""}<div class="recSum">
@@ -3304,12 +3348,12 @@ function draw(){const b=$r("recBody");if(!b)return;
   on("rDel",async()=>{if(!await yuAsk("この月の記録を消す？（残業カウンターの明細も消えるよ）","消す",true))return;const now=Date.now();
     R.m[selP]={del:true,u:now};if(R.b[selP])R.b[selP]={del:true,u:now};draft=null;editP=null;mirrorOt(selP);touch();if(typeof renderOt==="function")renderOt();badge();flash="";draw()});
 
-  on("rExp",()=>{const blob=new Blob([JSON.stringify({app:"yumebell-rec",v:1,at:new Date().toISOString(),m:R.m,b:R.b,w:R.w,f:R.f})],{type:"application/json"});
+  on("rExp",()=>{const blob=new Blob([JSON.stringify({app:"yumebell-rec",v:1,at:new Date().toISOString(),m:R.m,b:R.b,w:R.w,f:R.f,p:R.p})],{type:"application/json"});
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`kirokushitsu-${todayK()}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)});
   on("rImp",()=>$r("rFile").click());
   const fi=$r("rFile");if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;
     try{const j=JSON.parse(await f.text());if(j.app!=="yumebell-rec")throw 0;let c=0;
-      for(const kind of["m","b","w","f"])for(const k in(j[kind]||{})){const a=R[kind][k],b=j[kind][k];if((+b.u||0)>(a?(+a.u||0):-1)){R[kind][k]=b;c++;if(kind==="m")mirrorOt(k)}}
+      for(const kind of["m","b","w","f","p"])for(const k in(j[kind]||{})){const a=R[kind][k],b=j[kind][k];if((+b.u||0)>(a?(+a.u||0):-1)){R[kind][k]=b;c++;if(kind==="m")mirrorOt(k)}}
       touch();if(typeof renderOt==="function")renderOt();badge();yuAlert(`読み込んだよ（${c}件）`);draw()}
     catch(e){yuAlert("記録室のファイルじゃないみたい")}fi.value=""};
 }
@@ -3563,6 +3607,6 @@ load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidde
 setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
-<script src="fm.js?v=20261122d"></script>
+<script src="fm.js?v=20261122e"></script>
 </body>
 </html>

@@ -501,9 +501,3 @@
 - アプリ：エアコンのボタンの下に ltBtns（💡 ライトつける）。パスワードはエアコンと同じ SB_KEY。状態は取れない（送るだけ）
 - 無料プランはトリガー1つ（default）だけなので今は「つける」だけ。こたつは安全のためつながない
 - （追記）おうちの温度のURLとエアコンのパスワードを、勤怠のスプレッドシートで2台にそろえる（本人の希望：夫の端末でも開いたらつながるように）。payload の data.home={u,k,at}、mergeRemote から window.homeMerge（at の新しいほうを残す）。保存・消すと yumebell_home_at を更新して ktTouch。前からつないでいた端末は at=1 にして最初の1回だけシートへ送る。リポジトリには値を書かない（シートとlocalStorageだけ）
-
-## 32. 2026-11-22 ver4.1（追記）ライトけす・こたつのボタン（hapicomベーシック）
-- hapicomをベーシック（月120円・トリガー20個）にして、ライトけす・こたつつける・けすもhapicom経由に（自作Alexaスキルはやめた）
-- GAS：HC_PROP に4つ（light_on/light_off/kotatsu_on/kotatsu_off）。スクリプトプロパティ HC_LIGHT_ON（空ならdefault）・HC_LIGHT_OFF・HC_KOTATSU_ON・HC_KOTATSU_OFF にトリガーIDを本人が入れる。testLight/testLightOff/testKotatsuOn/testKotatsuOff で確認
-- アプリ：ltBtns に「🌙 ライトけす」、その下に kzBtns（♨️ こたつつける／⏹ こたつけす）。こたつつけるの確認は「中や上に燃えやすいもの・洗濯物がないか」のひとことつき。送信中はエアコン・ライト・こたつのボタンを全部止める
-- 本人の希望でこたつもつなぐことにした（前の「こたつはつながない」から変更）

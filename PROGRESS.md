@@ -539,3 +539,6 @@
 - （追記 2026-11-23 Claude）保安球ボタン：アプリ #ltBtns に「🔅 保安球」(light_night)、こたつけすは #ktBtns の別の行へ。GAS は cmd=light_night で、SwitchBotアプリのシーン「保安球」（ライトリモコンの常夜灯を押すだけ）を /scenes/{id}/execute で実行し（customize は 3005 invalid value で不可だった。シーンIDは SB_SCENE_NIGHT に覚える）、9秒後の明るさを返す（状態チェックなし）。testLightNight 追加。GAS は本番バージョン9でデプロイ済み（2026-11-23）
 - （追記 2026-11-23 Claude）ライトの ON/OFF の区切りを明るさ5→4に（3までは消えてる）（いちばん暗くしても4で、消えてる判定になっていたため）。アプリ ltRow と GAS light_ の夜のスキップ判定の両方。GAS は本番バージョン11
 - （追記 2026-11-23 Claude）案内所：質問→Enterで飛んだあと、もう一度開くと検索欄に入力できない（iPhone）→ closeFM で入力欄を blur してから隠すように。fm.js?v=20261123a
+
+- （追記 2026-11-23 Claude）案内所を全画面に＋開くとき1pxスクロールして戻す（飛んだあと入力できないiPhoneの画面ズレ対策。うしろをスクロールすると直ると本人が発見）。ver4.3：案内所をチャット式に。説明書は fm-help.js（FM_HELP＝項目名→読み・使い方・live、FM_SYN＝同じ意味のことば）。fm.js は読み＋同義語＋点数で順位、HOW/STATE の言い方で「使い方」「今のようす（画面の表示を読むだけ）」を出し分け。機能を足したら FM と FM_HELP の両方に足すこと。個人の数字は書かない
+- （追記 2026-11-23 Claude）案内所パワーアップ：家電の言い方（でんき消して等）→ .fmAct で本物の #acBtns/#ltBtns/#ktBtns のボタンを click（確認は yuAsk のまま）。LAST＝直前の項目（「そこに連れてって」「それの使い方」）。日付・時刻。SUMM＝有休・今月の残業見込み・おうちの温度をひとことに。わからなかった質問は localStorage yumebell_fm_miss（端末だけ・30件）

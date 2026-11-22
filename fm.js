@@ -72,44 +72,110 @@ const norm=t=>String(t||"").toLowerCase().replace(/[ァ-ヶ]/g,c=>String.fromCha
 const YOMI={ざんぎょう:"残業",ゆうきゅう:"有休",ゆうきゅうきゅうか:"有休",きゅうりょう:"給料",めいさい:"明細",てんき:"天気",でんしゃ:"電車",せってい:"設定",かえり:"帰り",いき:"行き",たんか:"単価",じきゅう:"時給",せいざ:"星座",たんじょうび:"誕生日",ゆうたい:"優待",のりかえ:"乗換",こうきゅう:"公休",ちこく:"遅刻",きろく:"記録",ほぞん:"保存",うらない:"占い",せんたく:"洗濯",りれき:"履歴",やすみ:"休み",きんたい:"勤怠",じこく:"時刻",よゆう:"余裕",とうちゃく:"到着",かいさつ:"改札",なまえ:"名前",しょうよ:"賞与",げんせん:"源泉",てどり:"手取り",けいほう:"警報",たいふう:"台風",しゅうかん:"週間",ふく:"服",がめん:"画面",いろ:"色",さくじょ:"削除",ちえん:"遅延",うんこう:"運行",あした:"あした",しゅっきん:"出勤"};
 const qn=t=>{let x=norm(t);Object.keys(YOMI).sort((a,b)=>b.length-a.length).forEach(k=>{x=x.split(k).join(norm(YOMI[k]))});return x};
 let grp=-1;const NEWN=new Set(),nw=n=>NEWN.has(n)?' <span class="fmNew">🆕</span>':"";
-chips.innerHTML=`<button data-g="-1" class="on">ぜんぶ</button>`+FM.map((g,i)=>`<button data-g="${i}">${g[0]}</button>`).join("");
-chips.onclick=e=>{const b=e.target.closest("button");if(!b)return;grp=+b.dataset.g;[...chips.children].forEach(c=>c.classList.toggle("on",c===b));draw()};
-// ===== ファーちゃんに聞く（AIなし）：文章で聞かれたら、知ってることばを拾って点数順にならべる（2026-11-21）=====
-const ASKW=/(どこ|どこに|どこで|どれ|どう(やって|すれば|したら)?|やったっけ|だっけ|っけ|みたい|見たい|知りたい|しりたい|おしえて|教えて|ある[の？?]?|かな|したい|変えたい|かえたい|入れたい|いれたい|直したい|なおしたい|見る|みる|[?？!！。])/;
-const STOP=/(どこ|どれ|どう|やって|すれば|したら|やったっけ|だっけ|っけ|みたい|見たい|知りたい|しりたい|おしえて|教えて|かな|したい|って|[?？!！。、,]|ファーちゃん|ふぁーちゃん)/g;
-let VOC=null;const vocab=()=>{if(VOC)return VOC;const set=new Set();
-  FM.forEach(g=>g[1].forEach(it=>{String(it[3]||"").split(/\s+/).forEach(w=>w&&set.add(w));String(it[1]).split(/[・／/（）()「」、 ]/).forEach(w=>w&&w.length>=2&&set.add(w))}));
-  Object.values(YOMI).forEach(w=>set.add(w));
-  VOC=[...set].map(w=>[w,norm(w)]).filter(([,n])=>n.length>=2||/[一-龥]/.test(n)).sort((a,b)=>b[1].length-a[1].length);return VOC};
-const isAsk=t=>ASKW.test(t)||norm(t).length>=6;
-function rank(t){let x=qn(String(t).replace(STOP," "));const hits=[];
-  for(const[w,n]of vocab()){if(x.includes(n)){hits.push(n);x=x.split(n).join(" ")}}
-  if(!hits.length)return[];const out=[];
-  FM.forEach((g,gi)=>g[1].forEach((it,ii)=>{const nm=norm(it[1]),kw=norm(it[3]),ds=norm(it[2]);let sc=0;
-    for(const n of hits){if(nm.includes(n))sc+=3+n.length*.1;else if(kw.includes(n))sc+=2+n.length*.1;else if(ds.includes(n))sc+=1}
-    if(sc>0)out.push({gi,ii,sc})}));
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let LOG=[];const CHAT=-9;
+function drawChips(){chips.innerHTML=(LOG.length?`<button data-g="${CHAT}">💬 会話</button>`:"")+`<button data-g="-1">ぜんぶ</button>`+FM.map((g,i)=>`<button data-g="${i}">${g[0]}</button>`).join("");
+  [...chips.children].forEach(c=>c.classList.toggle("on",+c.dataset.g===grp))}
+drawChips();
+chips.onclick=e=>{const b=e.target.closest("button");if(!b)return;grp=+b.dataset.g;q.value="";drawChips();draw()};
+// ===== 🧸 ファーちゃんに聞く（AIなし・手帳の中だけ）：読み・同じ意味のことば・点数で考えて、使い方と今のようすを答える（2026-11-23）=====
+const HELP=window.FM_HELP||{},SYN=(window.FM_SYN||[]).map(g=>[...new Set(g.map(norm))]);
+const STOP=/(どこ|どれ|どうやって|どうすれば|どうしたら|どうやる|どうする|やったっけ|だっけ|っけ|みたい|見たい|知りたい|しりたい|おしえて|教えて|かな|したい|って|ってなに|って何|使い方|つかいかた|やり方|やりかた|方法|ほうほう|ください|下さい|ほしい|欲しい|ちょうだい|お願い|おねがい|ファーちゃん|ふぁーちゃん|[?？!！。、,・]|です|ます|ある|あった|なに|何)/g;
+const ITEMS=[];FM.forEach((g,gi)=>g[1].forEach((it,ii)=>{const hp=HELP[it[1]]||{},tk=new Set();
+  (String(it[3]||"")+" "+(hp.y||"")).split(/\s+/).forEach(w=>{w=norm(w);if(w)tk.add(w)});
+  String(it[1]).split(/[・／/（）()「」、 ？?→⇔]/).forEach(w=>{w=norm(w);if(w.length>=2)tk.add(w)});
+  ITEMS.push({gi,ii,it,hp,tk:[...tk],nm:norm(it[1]),ds:norm(it[2]+g[0])})}));
+let VOC=null;const vocab=()=>{if(VOC)return VOC;const s=new Set();ITEMS.forEach(x=>x.tk.forEach(w=>s.add(w)));SYN.forEach(g=>g.forEach(w=>s.add(w)));Object.values(YOMI).forEach(w=>s.add(norm(w)));
+  VOC=[...s].filter(n=>n.length>=2||/[一-龥]/.test(n)).sort((a,b)=>b.length-a.length);return VOC};
+function pick(x){const hits=[];for(const n of vocab()){if(x.includes(n)){hits.push(n);x=x.split(n).join(" ")}}return hits}
+function hitsOf(t,typing){const raw=String(t).replace(STOP," ");let h=pick(norm(raw));pick(qn(raw)).forEach(n=>{if(!h.some(m=>m.includes(n)||n.includes(m)))h.push(n)});
+  if(!h.length&&!typing){const x=norm(raw);// 打ちまちがい：1文字ちがいまでOK（3文字以上）
+    for(const n of vocab()){if(n.length<3||/[一-龥]/.test(n))continue;for(let i=0;i+n.length<=x.length;i++){let d=0;for(let j=0;j<n.length&&d<2;j++)if(x[i+j]!==n[j])d++;if(d<=1){h.push(n);break}}if(h.length>=3)break}}
+  return h}
+function rank(t,typing){const hits=hitsOf(t,typing);if(!hits.length)return[];
+  const terms=hits.map(h=>{const g=SYN.find(g=>g.includes(h));return g?[h,...g.filter(w=>w!==h)]:[h]});
+  const out=[];ITEMS.forEach(x=>{let sc=0,all=true;
+    terms.forEach(ts=>{let best=0;ts.forEach((w,k)=>{const wt=k?0.6:1;let s=0;
+        if(x.tk.includes(w))s=3;else if(w.length>=2&&x.nm.includes(w))s=2.5;else if(w.length>=2&&x.tk.some(t=>t.length>=2&&(t.includes(w)||w.includes(t))))s=1.2;else if(w.length>=2&&x.ds.includes(w))s=0.8;
+        best=Math.max(best,s*wt)});if(!best)all=false;sc+=best});
+    if(sc>0)out.push({gi:x.gi,ii:x.ii,x,sc:sc+(all&&terms.length>1?1:0)})});
   return out.sort((a,b)=>b.sc-a.sc)}
 const ask=$("fmAsk"),askT=$("fmAskT");
 function say(t){if(!t){ask.classList.remove("show");return}askT.innerHTML=t;ask.classList.add("show")}
-function itemBtn(gi,ii,best){const it=FM[gi][1][ii];return`<button class="fmItem${best?" best":""}" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}${nw(it[1])}</b><small>${FM[gi][0]}・${it[2]}</small></span><span class="fa">›</span></button>`}
-function drawAsk(){const r=rank(q.value);
-  if(!r.length){say("ごめんね、わからなかったよ…🧸 ちがう言い方で聞いてみてね（例：「残業単価」「シートのURL」）");list.innerHTML="";return false}
-  const top=r.filter(x=>x.sc===r[0].sc),one=top.length===1&&(r.length===1||r[1].sc<r[0].sc);
-  say(one?`それなら「<b>${FM[r[0].gi][1][r[0].ii][1]}</b>」だよ！タップかEnterで連れていくね`:"どれのこと？えらんでね");
-  list.innerHTML=r.slice(0,8).map((x,i)=>itemBtn(x.gi,x.ii,one&&i===0)).join("");return one?r[0]:null}
-q.addEventListener("keydown",e=>{if(e.key!=="Enter"||e.isComposing)return;e.preventDefault();
-  const v=q.value.trim();if(!v)return;
-  if(isAsk(v)||!list.querySelector(".fmItem")){const one=drawAsk();if(one){say(`「${FM[one.gi][1][one.ii][1]}」はここだよ！🧸`);setTimeout(()=>go(one.gi,one.ii),700)}}
-  else{const b=list.querySelectorAll(".fmItem");if(b.length===1)b[0].click()}});
-function draw(){if(q.value.trim()&&isAsk(q.value)){drawAsk();return}say("");const w=qn(q.value).split(/[,、]/).filter(Boolean);let h="",n=0;
-  FM.forEach((g,gi)=>{if(grp>=0&&gi!==grp&&!w.length)return;
-    const its=g[1].map((it,ii)=>[it,ii]).filter(([it])=>!w.length||w.every(k=>norm(g[0]+it[1]+it[2]+it[3]).includes(k)));
-    if(!its.length)return;n+=its.length;
-    h+=`<div class="fmGrp">${g[0]}</div>`+its.map(([it,ii])=>`<button class="fmItem" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}${nw(it[1])}</b><small>${it[2]}</small></span><span class="fa">›</span></button>`).join("")});
-  if(!n&&q.value.trim()){drawAsk();return}
-  list.innerHTML=n?h:`<div class="fmNone">見つからなかったよ🧸<br>ちがうことばでさがしてみてね</div>`}
+function itemBtn(gi,ii,best,cls){const it=FM[gi][1][ii];return`<button class="${cls||"fmItem"}${best?" best":""}" type="button" data-k="${gi}-${ii}"><span class="fi">${it[0]}</span><span class="ft"><b>${it[1]}${nw(it[1])}</b><small>${FM[gi][0]}・${it[2]}</small></span><span class="fa">›</span></button>`}
+const HOWW=/(使い方|つかいかた|どうやって|どうやる|どうすれば|どうしたら|どうする|やり方|やりかた|入れ方|いれかた|方法|ほうほう|しかた|仕方|できる|できない|って何|ってなに|とは|わからん|わからない|教えて|おしえて|したい|たい[？?]?$)/;
+const STATEW=/(ついてる|ついとる|ついてない|つけっぱ|消えてる|きえてる|消えとる|何度|なんど|いくら|何時間|なんじかん|いつ|あと何|あとなん|残り|のこり|何分|なんぷん|何日|なんにち|今月|こんげつ|きょう|今日|あした|明日|どんな|ようす|様子|状態|じょうたい|だいじょうぶ|大丈夫|晴れ|雨|寒い|さむい|暑い|あつい|傘|かさ|いる[？?]?$)/;
+// 今のようすを画面から読む（iPhoneの中だけ。どこにも送らない）
+// よく聞かれる数字は、画面の文からぬき出してひとことで答える（読むだけ・iPhoneの中だけ）
+const SUMM={
+ "#paidInfo":s=>{const m=s.match(/あと\s*(\d+(?:\.\d+)?)\s*日/);return m?`今年度に消える有休は<b>あと${m[1]}日</b>だよ🏖️`:""},
+ "#ktSum":s=>{const m=s.match(/残業\s*見込み[^0-9]*?(\d+時間(?:\d+分)?)[^¥]*¥\s*([\d,]+)/);return m?`今月の残業の見込みは<b>${m[1]}・¥${m[2]}</b>だよ（勤怠ノートの記録から）`:""},
+ "#homeEnv":s=>{const t=s.match(/(-?\d+(?:\.\d)?)\s*℃/),h=s.match(/(\d+(?:\.\d)?)\s*%/);return t?`おうちは<b>${t[1]}℃</b>${h?`・湿度<b>${h[1]}%</b>`:""}だよ🏠`:""}
+};
+function liveOf(x,t){const sel=x.hp.live;if(!sel)return"";
+  if(sel==="#rcEnv"||/でんき|電気|らいと|ライト|あかり|明かり|照明/.test(t)){const sw=document.querySelector("#rcEnv .sw")||document.querySelector("#homeEnv .sw");
+    if(/らいと|ライト|でんき|電気|あかり|明かり|照明|つい|消え|きえ/.test(t))return !sw?"ライトのようすは、⚙️設定で「おうちの温度」をつなぐと見られるよ":sw.classList.contains("on")?"ライトは<b>ついてる</b>みたいだよ💡（明るさで見てるよ）":sw.classList.contains("na")?"ライトのようすはわからなかったよ":"ライトは<b>消えてる</b>みたいだよ🌙（明るさで見てるよ）"}
+  const el=document.querySelector(sel);if(!el)return"";let s=(el.innerText||el.textContent||"").replace(/\s+/g," ").trim();if(!s)return"";
+  {const sm=SUMM[sel]&&SUMM[sel](s);if(sm)return sm}
+  if(s.length>130)s=s.slice(0,130)+"…";return"いま見たら：<b>"+esc(s)+"</b>"}
+let LAST=null;
+function answerItem(x,t){LAST=x;const it=x.it,isState=STATEW.test(t),isHow=HOWW.test(t),where=/どこ/.test(t);let h="";
+  const lv=(isState||!isHow)?liveOf(x,t):"";if(lv)h+=lv+"<br>";
+  if(!(lv&&isState&&!isHow&&!where))h+=esc(x.hp.h||`「${it[1]}」は ${FM[x.gi][0]} の中にあるよ（${it[2]}）`);
+  else h+=`<small>くわしくは「${esc(it[1])}」で見てね</small>`;
+  const canGo=it[4]||it[5];
+  return h+`<div class="fmActs">${canGo?`<button class="fmGoBtn" type="button" data-k="${x.gi}-${x.ii}">📍 そこへ連れていって</button>`:""}${x.hp.h?"":""}</div>`}
+const SUG=["でんき消えてる？","でんき消して","残業代いくら？","有給あと何日","シフトの読み込み方","明細の入れ方","へや何度？","わからなかった質問"];
+const sugBtns=a=>`<div class="fmActs">${a.map(s=>`<button class="fmSug" type="button">${esc(s)}</button>`).join("")}</div>`;
+const MK="yumebell_fm_miss",missGet=()=>{try{return JSON.parse(localStorage.getItem(MK)||"[]")}catch(e){return[]}},missAdd=t=>{try{const m=missGet().filter(x=>x!==t);m.push(String(t).slice(0,60));localStorage.setItem(MK,JSON.stringify(m.slice(-30)))}catch(e){}};
+const ACS=[[/(ほあんきゅう|保安球|じょうやとう|常夜灯|まめでんきゅう|豆電球)/,"light_night","ライトを保安球にする"],
+ [/(でんき|電気|らいと|ライト|あかり|明かり|照明).*(けし|消し|けす|消す|けせ|消せ|おふ|off)/,"light_off","ライトをけす"],
+ [/(でんき|電気|らいと|ライト|あかり|明かり|照明).*(つけ|点け|おん|on)/,"light_on","ライトをつける"],
+ [/(れいぼう|冷房|くーらー|クーラー).*(つけ|いれ|入れ|おん)|^(れいぼう|冷房)$/,"cool","冷房をつける"],
+ [/(だんぼう|暖房).*(つけ|いれ|入れ|おん)|^(だんぼう|暖房)$/,"heat","暖房をつける"],
+ [/(えあこん|エアコン|れいぼう|冷房|だんぼう|暖房|くーらー).*(けし|消し|けす|消す|とめ|止め|おふ)/,"off","エアコンをけす"],
+ [/こたつ.*(けし|消し|けす|消す|おふ|とめ|止め)/,"kotatsu_off","こたつをけす"]];
+function acOf(n){if(/こたつ.*(つけ|いれ|入れ|おん)/.test(n))return"こたつは「けす」だけできるよ🧸（つけるのはアレクサかな）";
+  if(/(えあこん|エアコン).*(つけ|いれ|入れ|おん)/.test(n)&&!/(れいぼう|冷房|だんぼう|暖房)/.test(n))return`冷房と暖房、どっちにする？🧸<div class="fmActs"><button class="fmAct" type="button" data-ac="cool">❄️ 冷房をつける</button><button class="fmAct" type="button" data-ac="heat">🔥 暖房をつける</button></div>`;
+  for(const[re,cmd,lbl]of ACS)if(re.test(n))return`「${lbl}」でいい？下のボタンを押したら、いつもの確認が出るよ🧸<div class="fmActs"><button class="fmAct" type="button" data-ac="${cmd}">🎛 ${lbl}</button></div>`;return""}
+function think(t){const n=norm(t);
+  if(/^(こんにちは|こんばんは|おはよう|やあ|はろー|hello|hi|もしもし|おーい)/.test(n))return"こんにちは！手帳のことならなんでも聞いてね🧸"+sugBtns(SUG.slice(0,4));
+  if(/(ありがと|さんきゅ|たすかった|助かった|さすが|えらい)/.test(n))return"どういたしまして！またいつでも聞いてね🧸";
+  // 🗓 日付・時刻
+  if(/(いまなんじ|今何時|いま何時|なんじ[？?]?$|何時[？?]?$)/.test(n)&&!/でる|出る|でんしゃ|電車/.test(n)){const d=new Date();return`いまは<b>${d.getHours()}時${d.getMinutes()}分</b>だよ🕐`}
+  if(/(きょうなんにち|今日何日|きょう何日|なんようび|何曜日)/.test(n)){const d=new Date();return`きょうは<b>${d.getMonth()+1}月${d.getDate()}日（${"日月火水木金土"[d.getDay()]}）</b>だよ📅`}
+  // 🗒 わからなかった質問
+  if(/(わからなかった質問|わからんかった質問|わからなかったしつもん)/.test(n)){const m=missGet();return m.length?"わからなかった質問だよ（このiPhoneの中だけに残してるよ）👇<br>"+m.slice(-15).reverse().map(x=>"・"+esc(x)).join("<br>")+`<div class="fmActs"><button class="fmMissClr" type="button">🗑 けす</button></div>`:"わからなかった質問はまだないよ🧸"}
+  // 🎛 家電：「でんき消して」→ リモコンのボタンを押す（押したらいつもの確認が出る）
+  {const ac=acOf(n);if(ac)return ac}
+  // 💬 さっきの話のつづき
+  if(LAST&&/^(そこ|それ|そっち|あれ)?(に|へ|まで)?(つれて|連れて|いって|行って|とんで|飛んで|あんない|案内)/.test(n)){setTimeout(()=>go(LAST.gi,LAST.ii),400);return`「${esc(LAST.it[1])}」へ連れていくね🧸`}
+  if(LAST&&/^(それ|そこ|あれ)?(の|って|は)?(つかいかた|使い方|どうやって|どうやる|やりかた|やり方|くわしく|詳しく|もっと)/.test(n)&&!rank(t).length)return answerItem(LAST,"使い方");
+  const r=rank(t);
+  if(!r.length)missAdd(t);
+  if(!r.length||/(なにができる|何ができる|なにきける|何聞ける|へるぷ|help)/.test(n)&&r.length===0){
+    if(/(なにができる|何ができる|なにきける|何聞ける|へるぷ|help)/.test(n))return"天気・占い・電車・あした・おしごと（勤怠・記録室）・おでかけ（お得・リモコン）・設定のことを答えられるよ。使い方も、いまのようすも聞いてね🧸"+sugBtns(SUG);
+    return"ごめんね、わからなかったよ…🧸 ちがう言い方で聞いてみてね。たとえばこんなふうに👇"+sugBtns(SUG)}
+  const top=r[0],second=r[1];
+  if(!second||top.sc>=second.sc*1.3)return answerItem(top.x,t);
+  const c=r.filter(x=>x.sc>=top.sc*0.6).slice(0,5);
+  return"どれのことかな？えらんでね🧸"+`<div class="fmCands">${c.map(x=>itemBtn(x.gi,x.ii,false,"fmItem fmPick")).join("")}</div>`}
+function push(who,html){LOG.push(who==="me"?`<div class="fmMsg me"><span>${esc(html)}</span></div>`:`<div class="fmMsg bot"><span class="fb">🧸</span><div class="fs">${html}</div></div>`);if(LOG.length>60)LOG=LOG.slice(-60)}
+function askFM(t){t=String(t||"").trim();if(!t)return;push("me",t);push("bot",think(t));q.value="";grp=CHAT;drawChips();draw();try{q.blur()}catch(e){}}
+function drawChat(){say("");list.innerHTML=LOG.join("")||"";requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight})}
+function draw(){const v=q.value.trim();
+  if(!v&&grp===CHAT&&LOG.length){drawChat();return}
+  if(v){// 打っているあいだ：点数の高い順に候補を出す
+    const r=rank(v,1).slice(0,10);say(r.length?"🔍 候補だよ。文章で聞くときは Enter（🧸聞く）でファーちゃんが答えるよ":"Enter（🧸聞く）でファーちゃんに聞いてみてね");
+    if(r.length){list.innerHTML=r.map((x,i)=>itemBtn(x.gi,x.ii,i===0&&(!r[1]||x.sc>=r[1].sc*1.3))).join("");return}
+    const w=norm(v);let h="";ITEMS.forEach(x=>{if((x.nm+x.ds).includes(w))h+=itemBtn(x.gi,x.ii)});list.innerHTML=h||`<div class="fmNone">Enterで聞いてみてね🧸</div>`;return}
+  say(LOG.length?"":"なんでも聞いてね🧸 使い方も、いまのようすも答えるよ（例：「でんき消えてる？」「明細の入れ方」）");let h="";
+  FM.forEach((g,gi)=>{if(grp>=0&&gi!==grp)return;h+=`<div class="fmGrp">${g[0]}</div>`+g[1].map((it,ii)=>itemBtn(gi,ii)).join("")});
+  list.innerHTML=h}
+q.addEventListener("keydown",e=>{if(e.key!=="Enter"||e.isComposing)return;e.preventDefault();askFM(q.value)});
+{const sb=$("fmSend");if(sb)sb.onclick=()=>askFM(q.value)}
 // 開くとき画面を1pxだけ動かして戻す：うしろをスクロールしたら直った＝画面のズレのリセット（2026-11-23）
-function openFM(){try{const y=window.scrollY;window.scrollTo(0,y>0?y-1:y+1);window.scrollTo(0,y)}catch(e){}sh.classList.add("show");q.value="";say("");draw();list.scrollTop=0;document.body.style.overflow="hidden"}
+function openFM(){try{const y=window.scrollY;window.scrollTo(0,y>0?y-1:y+1);window.scrollTo(0,y)}catch(e){}sh.classList.add("show");q.value="";grp=LOG.length?CHAT:-1;drawChips();draw();if(grp!==CHAT)list.scrollTop=0;document.body.style.overflow="hidden"}
 // 閉じる前にキーボード（入力欄のフォーカス）を外す：iPhoneは、フォーカスしたまま隠すと次に開いたとき入力できなくなる（2026-11-23）
 function closeFM(){try{q.blur();if(document.activeElement&&sh.contains(document.activeElement))document.activeElement.blur()}catch(e){}sh.classList.remove("show");document.body.style.overflow=""}
 function glow(el){el.classList.remove("fmGlow");void el.offsetWidth;el.classList.add("fmGlow");setTimeout(()=>el.classList.remove("fmGlow"),3000)}
@@ -125,7 +191,13 @@ function go(gi,ii){const it=FM[gi]&&FM[gi][1][ii];if(!it)return;closeFM();
 function afterKb(fn){const vv=window.visualViewport;if(!vv||vv.height>=window.innerHeight-2){setTimeout(fn,60);return}
   let done=0;const f=()=>{if(done)return;done=1;vv.removeEventListener("resize",r);setTimeout(fn,120)},r=()=>{if(vv.height>=window.innerHeight-2)f()};
   vv.addEventListener("resize",r);setTimeout(f,900)}
-list.onclick=e=>{const b=e.target.closest(".fmItem");if(b){const[g,i]=b.dataset.k.split("-");go(+g,+i)}};
+list.onclick=e=>{const ab=e.target.closest(".fmAct");if(ab){const real=document.querySelector(`#acBtns button[data-ac="${ab.dataset.ac}"],#ltBtns button[data-ac="${ab.dataset.ac}"],#ktBtns button[data-ac="${ab.dataset.ac}"]`);
+    if(!real||real.parentElement.style.display==="none"){push("bot","まだリモコンがつながってないみたい…🧸 ⚙️設定で「おうちの温度」のURLとエアコンのパスワードを入れてね");drawChat();return}
+    real.click();return}
+  if(e.target.closest(".fmMissClr")){try{localStorage.removeItem(MK)}catch(x){}push("bot","けしたよ🧸");drawChat();return}
+  const sg=e.target.closest(".fmSug");if(sg){askFM(sg.textContent);return}
+  const pk=e.target.closest(".fmPick");if(pk){const[g,i]=pk.dataset.k.split("-"),x=ITEMS.find(x=>x.gi===+g&&x.ii===+i);if(x){push("me",x.it[1]);push("bot",answerItem(x,""));grp=CHAT;drawChips();draw()}return}
+  const b=e.target.closest(".fmGoBtn,.fmItem");if(b){const[g,i]=b.dataset.k.split("-");go(+g,+i)}};
 q.oninput=draw;$("fmX").onclick=closeFM;sh.onclick=e=>{if(e.target===sh)closeFM()};
 $("fmOpen").onclick=openFM;$("fmOpen2").onclick=openFM;
 window.fmGo=(name)=>{let hit=0;FM.forEach((g,gi)=>g[1].forEach((it,ii)=>{if(!hit&&it[1]===name){hit=1;go(gi,ii)}}))}; // 更新履歴などから呼ぶ用

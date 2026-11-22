@@ -54,8 +54,8 @@ function doPost(e) {
     lock.waitLock(10000);
     try {
       if (q.cmd === 'light_on' || q.cmd === 'light_off' || q.cmd === 'kotatsu_off') {
-        const skip = q.cmd === 'kotatsu_off' ? (hcTrigger_(q.cmd), false) : light_(q.cmd === 'light_on');
-        out = { ok: true, cmd: q.cmd, skip: skip, at: Date.now() };
+        const r = q.cmd === 'kotatsu_off' ? (hcTrigger_(q.cmd), { skip: false }) : light_(q.cmd === 'light_on');
+        out = { ok: true, cmd: q.cmd, skip: r.skip, room: r.room || null, at: Date.now() };
         return ContentService.createTextOutput(JSON.stringify(out))
           .setMimeType(ContentService.MimeType.JSON);
       }
@@ -101,27 +101,35 @@ function sbCmd_(id, command, parameter) {
 //   「全灯」も「ON/OFF」も、ついているときに押すと消える（どちらも切りかえ）。なので送るのは「ON/OFF」（turnOff）だけ
 //   夜：ハブ2の明るさ（消えてる≒1、ついてる≒12）で今の状態を見て、ちがうときだけ1回送る
 //   昼：日差しで状態がわからないので、1回送って約8秒後の明るさを見る。逆に動いた（けすで明るくなった等）ときはもう1回送る
-//   ハブ2の明るさは、ライトが変わってから6〜8秒くらいで反映される（2026-11-22 testLightLag で確認）
+//   ハブ2の明るさは、ライトが変わってから6〜8秒くらいで反映される（2026-11-22 testLightLag で確認）→ 送ったあと9秒待って読みなおし、結果をアプリに返す
 function light_(on) {
   const id = lightId_(), hub = hubId_();
-  const lv = () => { const st = sb_('/devices/' + hub + '/status'); return typeof st.lightLevel === 'number' ? st.lightLevel : null; };
+  const status = () => sb_('/devices/' + hub + '/status');
+  const lvOf = st => st && typeof st.lightLevel === 'number' ? st.lightLevel : null;
   const toggle = () => sbCmd_(id, 'turnOff', 'default');
-  let l0 = null;
-  try { l0 = lv(); } catch (e) {}
-  if (l0 !== null && isNight_(new Date())) {
-    if (on === (l0 >= 5)) return true;  // もうその状態
+  const night = isNight_(new Date());
+  let st0 = null;
+  try { st0 = status(); } catch (e) {}
+  const l0 = lvOf(st0);
+  if (l0 !== null && night && on === (l0 >= 5)) return { skip: true, room: roomOf_(st0) };  // もうその状態
+  toggle();
+  // 明るさが反映されるのを待って読みなおす（アプリの表示もすぐ新しくなるように）
+  Utilities.sleep(9000);
+  let st1 = null;
+  try { st1 = status(); } catch (e) {}
+  const l1 = lvOf(st1);
+  if (!night && l0 !== null && l1 !== null && (on ? l1 <= l0 - 3 : l1 >= l0 + 3)) {  // 昼：逆に動いたのでもう1回
     toggle();
-  } else {
-    toggle();
-    if (l0 !== null) {
-      Utilities.sleep(8000);
-      let l1 = null;
-      try { l1 = lv(); } catch (e) {}
-      if (l1 !== null && (on ? l1 <= l0 - 3 : l1 >= l0 + 3)) toggle();  // 逆に動いたのでもう1回
-    }
+    Utilities.sleep(9000);
+    try { st1 = status(); } catch (e) {}
   }
-  CacheService.getScriptCache().remove('room');
-  return false;
+  const room = st1 ? roomOf_(st1) : null;
+  const cache = CacheService.getScriptCache();
+  if (room) cache.put('room', JSON.stringify(room), 120); else cache.remove('room');
+  return { skip: false, room: room };
+}
+function roomOf_(st) {
+  return { ok: true, t: st.temperature, h: st.humidity, l: st.lightLevel, at: Date.now() };
 }
 function lightId_() {
   const p = PropertiesService.getScriptProperties();
@@ -158,8 +166,8 @@ function hcTrigger_(cmd) {
 }
 
 // エディタで▶実行して確かめる用
-function testLightOn() { Logger.log(light_(true) ? 'もうついてたので送らなかったよ' : 'ライト：つける を送ったよ'); }
-function testLightOff() { Logger.log(light_(false) ? 'もう消えてたので送らなかったよ' : 'ライト：けす を送ったよ'); }
+function testLightOn() { Logger.log(light_(true).skip ? 'もうついてたので送らなかったよ' : 'ライト：つける を送ったよ'); }
+function testLightOff() { Logger.log(light_(false).skip ? 'もう消えてたので送らなかったよ' : 'ライト：けす を送ったよ'); }
 function testKotatsuOff() { hcTrigger_('kotatsu_off'); Logger.log('こたつけす を送ったよ'); }
 // 診断用：消灯（ON/OFF）を1回だけ送って、明るさが何秒で変わるか見る
 function testLightLag() {

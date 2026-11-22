@@ -536,3 +536,4 @@
 - （追記 2026-11-22 Claude）おうちのリモコンを移設（本人の希望）：#acBtns・#ltBtns・#acMsg を天気カードから、おでかけカード（#navOdekake）の末尾の <details id="rcFold">「🎛 おうちのリモコン」（ふだんはたたむ）へ。天気カードには #homeEnv（温度・湿度＋寝室のライト）だけ残す。rcFold の中の #rcEnv に homeEnv の中身（ひとことを除く）をうつす。rcFold は acUI でボタンと同じ条件で表示。案内所に「おうちのリモコン」(#rcFold)、fm.js?v=20261122f。ver4.2 の説明に1行追加
 - （追記 2026-11-22 Claude）本人の希望で rcFold をお得チェッカー（#navOtoku）の末尾へ再移設。トップの #homeEnv からライトの行を外し、ライトの ON/OFF は rcEnv（リモコンの中）だけに出す。fm.js?v=20261122g
 - （追記 2026-11-23 Claude）本人の希望でタイトルの横に ver バッジ（#verTop）を復活。中身と設定の更新履歴のバッジ（#verHistBadge）は、DOMContentLoaded で #verHist のいちばん上の li の .vNo から自動で入れる（ver を上げたら li を足すだけでOK）
+- （追記 2026-11-23 Claude）保安球ボタン：アプリ #ltBtns に「🔅 保安球」(light_night)、こたつけすは #ktBtns の別の行へ。GAS は cmd=light_night で、SwitchBotアプリのシーン「保安球」（ライトリモコンの常夜灯を押すだけ）を /scenes/{id}/execute で実行し（customize は 3005 invalid value で不可だった。シーンIDは SB_SCENE_NIGHT に覚える）、9秒後の明るさを返す（状態チェックなし）。testLightNight 追加。GAS は本番バージョン9でデプロイ済み（2026-11-23）

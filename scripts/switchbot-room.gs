@@ -16,6 +16,7 @@
  * GET  … 温度・湿度・明るさ（lightLevel 1〜20）・時刻を返す（見るだけ）
  * POST … {"cmd":"cool"|"heat"|"off","temp":27,"k":"パスワード"} でエアコンを動かす
  *        {"cmd":"light_on"|"light_off","k":"パスワード"} でライト（ハブ2の赤外線。リモコンを覚えさせたもの）
+ *        {"cmd":"light_night","k":"パスワード"} でライトを保安球に（SwitchBotアプリのシーン「保安球」を実行）
  *        {"cmd":"kotatsu_off","k":"パスワード"} でこたつをけす（hapicom → Alexa定型アクション）
  *        パスワード（SB_KEY）が合わないとき・入ってないときは動かさない
  */
@@ -53,8 +54,9 @@ function doPost(e) {
     const lock = LockService.getScriptLock();
     lock.waitLock(10000);
     try {
-      if (q.cmd === 'light_on' || q.cmd === 'light_off' || q.cmd === 'kotatsu_off') {
-        const r = q.cmd === 'kotatsu_off' ? (hcTrigger_(q.cmd), { skip: false }) : light_(q.cmd === 'light_on');
+      if (q.cmd === 'light_on' || q.cmd === 'light_off' || q.cmd === 'light_night' || q.cmd === 'kotatsu_off') {
+        const r = q.cmd === 'kotatsu_off' ? (hcTrigger_(q.cmd), { skip: false })
+          : q.cmd === 'light_night' ? lightNight_() : light_(q.cmd === 'light_on');
         out = { ok: true, cmd: q.cmd, skip: r.skip, room: r.room || null, at: Date.now() };
         return ContentService.createTextOutput(JSON.stringify(out))
           .setMimeType(ContentService.MimeType.JSON);
@@ -128,6 +130,30 @@ function light_(on) {
   if (room) cache.put('room', JSON.stringify(room), 120); else cache.remove('room');
   return { skip: false, room: room };
 }
+// 保安球：SwitchBotアプリの「シーン」で「保安球」（ライトリモコンの「常夜灯」を押すだけ）を作っておき、それを実行する（2026-11-23）
+//   覚えさせたボタンを名前で送る方法（customize）は、このリモコンでは 3005 invalid value で使えなかったのでシーン経由にした
+//   SB_SCENE_NIGHT … (なくてOK) シーンID。空なら名前「保安球」でさがして覚える
+//   保安球は明るさで ON/OFF を見分けにくいので、状態チェックはしない（9秒後の明るさだけアプリに返す）
+const LIGHT_NIGHT_SCENE = '保安球';
+function nightSceneId_() {
+  const p = PropertiesService.getScriptProperties();
+  const saved = p.getProperty('SB_SCENE_NIGHT');
+  if (saved) return saved;
+  const sc = (sb_('/scenes') || []).find(x => String(x.sceneName || '').trim() === LIGHT_NIGHT_SCENE);
+  if (!sc) throw new Error('SwitchBotアプリにシーン「' + LIGHT_NIGHT_SCENE + '」が見つからないよ');
+  p.setProperty('SB_SCENE_NIGHT', sc.sceneId);
+  return sc.sceneId;
+}
+function lightNight_() {
+  sb_('/scenes/' + nightSceneId_() + '/execute', {});
+  Utilities.sleep(9000);
+  let st1 = null;
+  try { st1 = sb_('/devices/' + hubId_() + '/status'); } catch (e) {}
+  const room = st1 ? roomOf_(st1) : null;
+  const cache = CacheService.getScriptCache();
+  if (room) cache.put('room', JSON.stringify(room), 120); else cache.remove('room');
+  return { skip: false, room: room };
+}
 function roomOf_(st) {
   return { ok: true, t: st.temperature, h: st.humidity, l: st.lightLevel, at: Date.now() };
 }
@@ -168,6 +194,7 @@ function hcTrigger_(cmd) {
 // エディタで▶実行して確かめる用
 function testLightOn() { Logger.log(light_(true).skip ? 'もうついてたので送らなかったよ' : 'ライト：つける を送ったよ'); }
 function testLightOff() { Logger.log(light_(false).skip ? 'もう消えてたので送らなかったよ' : 'ライト：けす を送ったよ'); }
+function testLightNight() { lightNight_(); Logger.log('ライト：保安球（常夜灯）を送ったよ'); }
 function testKotatsuOff() { hcTrigger_('kotatsu_off'); Logger.log('こたつけす を送ったよ'); }
 // 診断用：消灯（ON/OFF）を1回だけ送って、明るさが何秒で変わるか見る
 function testLightLag() {

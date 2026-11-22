@@ -759,7 +759,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <div class="wxHead"><span class="ttl" id="mTitle">🌙 あしたの朝 5:30〜6:30</span><span class="mini">大田区</span></div>
     <div class="homeEnv" id="homeEnv" style="display:none" role="button" tabindex="0" aria-label="おうちの温度と湿度（タップで読みなおす）"></div>
     <div class="acBtns" id="acBtns" style="display:none"><button type="button" class="c" data-ac="cool">❄️ 冷房</button><button type="button" class="h" data-ac="heat">🔥 暖房</button><button type="button" data-ac="off">⏹ けす</button></div>
-    <div class="acBtns" id="ltBtns" style="display:none"><button type="button" data-ac="light_off">🌙 ライトけす</button></div>
+    <div class="acBtns" id="ltBtns" style="display:none"><button type="button" class="l" data-ac="light_on">💡 ライトつける</button><button type="button" data-ac="light_off">🌙 ライトけす</button><button type="button" data-ac="kotatsu_off">♨️ こたつけす</button></div>
     <div class="acMsg" id="acMsg" style="display:none"></div>
     <div class="wxTop"><div class="wxBearBox" id="wxBearBox" style="display:none"><img class="wxBear" id="wxBear" alt="天気に合わせたクマちゃんの挿絵"><div class="wxBearCap" id="wxBearCap"></div></div><div class="morning" id="morning"></div></div>
     <div class="cheer" id="cheer" style="display:none"><div class="note" id="cheerLbl" style="margin:0 0 4px;display:none"></div><div id="cheerTxt"></div><div class="chips" id="cheerChips"></div></div>
@@ -991,7 +991,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.1</span></summary>
       <ul class="verList">
-        <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸<br>🏠 おうちの温度：⚙️設定の「🏠 おうちの温度」にGASのURLを貼ると、天気のカードの上におうちの温度と湿度が出るよ（SwitchBotハブ2。タップで読みなおし）<br>❄️🔥 エアコンのボタン：⚙️設定でエアコンのパスワードを入れると、おうちの温度の下に「冷房・暖房・けす」のボタンが出るよ（押すと確認が出るよ。温度は設定で変えられるよ）<br>💡 ライトのボタン：エアコンのボタンの下に「ライトけす」が出るよ（旅行中の消し忘れ用。Alexaの定型アクション経由）<br>💡 おうちの温度の下に「寝室のライト ON／OFF」のスイッチと明るさ（1〜20）が出るよ（見るだけ。ハブ2の明るさで見てるから「たぶん」だよ。昼はお日さまで明るいのでわからないよ）<br>☁️ おうちの温度のURLとエアコンのパスワードも、勤怠のスプレッドシートで2台にそろうようにしたよ</span></li>
+        <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸<br>🏠 おうちの温度：⚙️設定の「🏠 おうちの温度」にGASのURLを貼ると、天気のカードの上におうちの温度と湿度が出るよ（SwitchBotハブ2。タップで読みなおし）<br>❄️🔥 エアコンのボタン：⚙️設定でエアコンのパスワードを入れると、おうちの温度の下に「冷房・暖房・けす」のボタンが出るよ（押すと確認が出るよ。温度は設定で変えられるよ）<br>💡 ライトとこたつのボタン：エアコンのボタンの下に「ライトつける・けす」「こたつけす」が出るよ（ライトはSwitchBotハブ2の赤外線、こたつはAlexaの定型アクション経由。けすは消えてたら何もしないよ）<br>💡 おうちの温度の下に「寝室のライト ON／OFF」のスイッチと明るさ（1〜20）が出るよ（見るだけ。ハブ2の明るさで見てるから「たぶん」だよ。昼はお日さまで明るいのでわからないよ）<br>☁️ おうちの温度のURLとエアコンのパスワードも、勤怠のスプレッドシートで2台にそろうようにしたよ</span></li>
         <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・占いの金運に「課金に注意！」系のひとことを追加（金運が低めの日に出るよ）。「ふつうの金運」みたいなそっけない文も、ちょっとしたアドバイスつきに（総合運・夫婦運・仕事運も）。「好きなこと」「甘やかして」みたいな文は、お風呂やお散歩などお金のかからない例に<br>・いちばん上をすっきり：案内所は日付の下の大きい検索バーに。英語の行・ver・更新ボタンをなくしたよ（更新は画面を下に引っぱってね）<br>・下のタブの「天気」を押すと、いちばん上に戻るように<br>・お知らせと確認を、iPhoneの灰色の画面からクマちゃんのふきだし・カードに（お知らせは3秒で消えるよ。消すボタンは赤っぽく）<br>・電波が弱くてもすぐ開けるように、絵は一回保存したらそれを使うように<br>・天気が取れなかったとき「取ってきてるよ」が出たままにならないように<br>・有休・残業のカウンターで、まだ記録がないときは空っぽのグラフのかわりにひとことを出すように<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）<br>・おしごとタブを見やすく：「全労働時間（見込み）」の文字を太く少し大きく、勤怠ノートの上に「🏖️有休」「🌙残業」のチップ（タップでカウンターへ）、カウンターは勤怠ノートのすぐ下に。<br>・シートとの同期を安全に：シートが読めなかったときは送らないように、シフトは日ごとに合わせるように、日付をまたぐシフトも「残業した？」を聞くようにしたよ変なところで折れていた文字も直したよ</span></li>
         <li data-go="シートのURLをコピー|カウンターを手で直す・残業単価|ファーちゃんの記録室" data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
         <li data-go="間に合うかの印" data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。<br>・京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
@@ -3542,15 +3542,15 @@ $("acSave").onclick=()=>{const v=ak.value.trim();if(!v){ak.focus();return}const 
 $("acUnlock").onclick=async()=>{if(!await yuAsk("エアコンのパスワードを変える？\n（GASの SB_KEY も同じにしてね）","変える",true))return;acUnl=true;acUI();ak.focus()};
 $("acOff").onclick=async()=>{if(!await yuAsk("エアコンのパスワードを消す？\n（天気カードのエアコンのボタンも消えるよ。またパスワードを入れればもどせるよ）","消す",true))return;const o=acGet();delete o.k;acPut(o);hTouch();acUnl=false;acUI()};
 const acClick=async e=>{const b=e.target.closest("button[data-ac]");if(!b)return;
-  const cmd=b.dataset.ac,o=acGet(),temp=cmd==="cool"?(o.acCool||27):cmd==="heat"?(o.acHeat||25):0,lt=cmd.startsWith("light");
-  const lbl=lt?(cmd==="light_on"?"ライトをつける":"ライトをけす"):cmd==="off"?"エアコンをけす":(cmd==="cool"?"冷房":"暖房")+temp+"℃でつける";
+  const cmd=b.dataset.ac,o=acGet(),temp=cmd==="cool"?(o.acCool||27):cmd==="heat"?(o.acHeat||25):0,DV={light_on:"ライトをつける",light_off:"ライトをけす",kotatsu_off:"こたつをけす"},lt=!!DV[cmd];
+  const lbl=lt?DV[cmd]:cmd==="off"?"エアコンをけす":(cmd==="cool"?"冷房":"暖房")+temp+"℃でつける";
   if(!await yuAsk(lbl+"？","送る"))return;
-  ab.querySelectorAll("button").forEach(x=>x.disabled=true);am.style.display="";am.textContent="📡 送ってるよ…";
+  const allB=document.querySelectorAll("#acBtns button,#ltBtns button");allB.forEach(x=>x.disabled=true);am.style.display="";am.textContent="📡 送ってるよ…";
   try{const r=await fetch(getU(),{method:"POST",body:JSON.stringify({cmd,temp,k:o.k})});const j=await r.json();
     if(!j.ok)throw new Error(j.err||"送れなかったよ");
-    am.textContent="✅ "+hm(Date.now())+" に「"+lbl+"」を送ったよ"+(lt?"":"（ついたかは部屋の温度で見てね）");yuAlert("🧸 「"+lbl+"」を送ったよ！")}
+    if(j.skip){am.textContent="🌙 "+hm(Date.now())+" もう消えてたから、なにも送らなかったよ";yuAlert("🧸 ライトはもう消えてたよ")}else{am.textContent="✅ "+hm(Date.now())+" に「"+lbl+"」を送ったよ"+(lt?"":"（ついたかは部屋の温度で見てね）");yuAlert("🧸 「"+lbl+"」を送ったよ！")}if(cmd.startsWith("light"))setTimeout(()=>load(true).catch(()=>{}),4000)}
   catch(err){am.textContent="⚠️ 送れなかったよ："+String(err.message||err).replace(/合言葉/g,"パスワード")}
-  finally{ab.querySelectorAll("button").forEach(x=>x.disabled=false)}};
+  finally{allB.forEach(x=>x.disabled=false)}};
 ab.addEventListener("click",acClick);$("ltBtns").addEventListener("click",acClick);
 acUI();
 if(!hAt()&&(getU()||acGet().k)){try{localStorage.setItem(KH,"1")}catch(e){}} // 前からつないでいた端末：最初の1回はこの端末の内容をシートへ

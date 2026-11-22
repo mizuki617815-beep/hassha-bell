@@ -509,3 +509,10 @@
 - ライトけす・こたつのボタン（hapicomベーシック）は本人が課金はまだやめとくとのことで取り消し（revert）
 - 無料のトリガー（default）を「つける」→「けす」に入れ替え（本人：旅行中の消し忘れがこわい）。アプリのボタンは「🌙 ライトけす」（light_off）。GASのスクリプトプロパティに HC_LIGHT_OFF=default を追加済み。Alexaの定型アクションの中身（オン→オフ）は本人が変える
 - （追記）スイッチの横に「明るさ ○/20」（ハブ2の lightLevel）も表示
+
+## 33. 2026-11-22 ver4.1（追記）ライトはハブ2の赤外線に、hapicomはこたつけすに
+- ＋スタイルのリモコンが見つかったので、SwitchBotハブ2に学習（DIY Light「ライトリモコン」）。customize（ボタン名）は 190 エラー → アプリの「点灯」にリモコンの「全灯」、「消灯」にリモコンの「ON/OFF」を覚えさせ、API は turnOn / turnOff
+- GAS（本番バージョン5）：light_on＝turnOn、light_off＝（夜で明るさ<5なら skip:true で何もしない）turnOn→1.5秒→turnOff（ON/OFFがトグルなので必ず消える）。リモコンIDは SB_LIGHT に自動保存
+- hapicom の無料トリガー（default）は kotatsu_off に。HC_KOTATSU_OFF（なくてOK、空なら default）。Alexaの定型アクションの中身を「こたつオフ」に本人が変える。HC_LIGHT_OFF は使わなくなった
+- アプリ：ltBtns＝💡ライトつける／🌙ライトけす／♨️こたつけす。skip のときは「もう消えてたよ」。ライト操作の4秒後におうちの温度（明るさ）を読みなおす
+- テスト関数：testLightOn / testLightOff / testKotatsuOff / testRemotes / testHubStatus

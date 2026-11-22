@@ -15,7 +15,8 @@
  *
  * GET  … 温度・湿度・明るさ（lightLevel 1〜20）・時刻を返す（見るだけ）
  * POST … {"cmd":"cool"|"heat"|"off","temp":27,"k":"パスワード"} でエアコンを動かす
- *        {"cmd":"light_on"|"light_off","k":"パスワード"} でライト（hapicom経由）
+ *        {"cmd":"light_on"|"light_off","k":"パスワード"} でライト（ハブ2の赤外線。リモコンを覚えさせたもの）
+ *        {"cmd":"kotatsu_off","k":"パスワード"} でこたつをけす（hapicom → Alexa定型アクション）
  *        パスワード（SB_KEY）が合わないとき・入ってないときは動かさない
  */
 
@@ -52,9 +53,9 @@ function doPost(e) {
     const lock = LockService.getScriptLock();
     lock.waitLock(10000);
     try {
-      if (q.cmd === 'light_on' || q.cmd === 'light_off') {
-        hcTrigger_(q.cmd);
-        out = { ok: true, cmd: q.cmd, at: Date.now() };
+      if (q.cmd === 'light_on' || q.cmd === 'light_off' || q.cmd === 'kotatsu_off') {
+        const skip = q.cmd === 'kotatsu_off' ? (hcTrigger_(q.cmd), false) : light_(q.cmd === 'light_on');
+        out = { ok: true, cmd: q.cmd, skip: skip, at: Date.now() };
         return ContentService.createTextOutput(JSON.stringify(out))
           .setMimeType(ContentService.MimeType.JSON);
       }
@@ -94,18 +95,52 @@ function sbCmd_(id, command, parameter) {
   return sb_('/devices/' + id + '/commands', { command: command, parameter: parameter, commandType: 'command' });
 }
 
-// ライト：hapicom「仮想トリガーボタン」→ Alexaの定型アクション → シーリングライト
-//   HC_KEY       … hapicomのAPIキー（tr_…）
-//   HC_LIGHT_ON  … (なくてOK) 「つける」のトリガーID。空なら default
-//   HC_LIGHT_OFF … 「けす」のトリガーID（ベーシックプランで作ったら入れる）
+// ライト：ハブ2に覚えさせた赤外線リモコン（＋スタイルのリモコンは ON/OFF が1つのボタン）
+//   SB_LIGHT … (なくてOK) ライトのリモコンID。空なら自動でさがして覚える
+//   SwitchBotアプリの「点灯」にリモコンの「全灯」、「消灯」にリモコンの「ON/OFF」を覚えさせてある
+//   つける … turnOn（＝全灯。消えていても全灯でつく）
+//   けす   … turnOn → 1.5秒 → turnOff（＝ON/OFF）。いったん必ずつけてから切りかえるので、最後は必ず消える
+//            夜にハブ2の明るさで「もう消えてる」とわかるときは何も送らない（一瞬つくのをふせぐ）
+function light_(on) {
+  const id = lightId_();
+  if (on) { sbCmd_(id, 'turnOn', 'default'); return false; }
+  try {
+    const st = sb_('/devices/' + hubId_() + '/status');
+    if (isNight_(new Date()) && typeof st.lightLevel === 'number' && st.lightLevel < 5) return true; // もう消えてる
+  } catch (e) {}
+  sbCmd_(id, 'turnOn', 'default');
+  Utilities.sleep(1500);
+  sbCmd_(id, 'turnOff', 'default');
+  CacheService.getScriptCache().remove('room');
+  return false;
+}
+function lightId_() {
+  const p = PropertiesService.getScriptProperties();
+  const saved = p.getProperty('SB_LIGHT');
+  if (saved) return saved;
+  const list = sb_('/devices').infraredRemoteList || [];
+  const lt = list.find(d => /Light/i.test(d.remoteType || ''));
+  if (!lt) throw new Error('ライトのリモコンが見つからないよ');
+  p.setProperty('SB_LIGHT', lt.deviceId);
+  return lt.deviceId;
+}
+// 東京の日の出・日の入り（おおよそ）の30分前後より外なら夜
+function isNight_(d) {
+  const N = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5), r = Math.PI / 180;
+  const dec = 23.44 * Math.sin(2 * Math.PI * (284 + N) / 365) * r;
+  const half = Math.acos(-Math.tan(35.6 * r) * Math.tan(dec)) / r / 15;
+  const h = Number(Utilities.formatDate(d, 'Asia/Tokyo', 'H')) + Number(Utilities.formatDate(d, 'Asia/Tokyo', 'm')) / 60;
+  return h < 11.7 - half - 0.5 || h > 11.7 + half + 0.5;
+}
+
+// こたつをけす：hapicom「仮想トリガーボタン」(無料の default) → Alexaの定型アクション → こたつ
+//   HC_KEY         … hapicomのAPIキー（tr_…）
+//   HC_KOTATSU_OFF … (なくてOK) トリガーID。空なら default
 function hcTrigger_(cmd) {
   const p = PropertiesService.getScriptProperties();
   const key = String(p.getProperty('HC_KEY') || '').replace(/\s/g, '');
   if (!key) throw new Error('HC_KEY（hapicomのAPIキー）が入ってないよ');
-  const trig = cmd === 'light_on'
-    ? String(p.getProperty('HC_LIGHT_ON') || 'default').trim()
-    : String(p.getProperty('HC_LIGHT_OFF') || '').trim();
-  if (!trig) throw new Error('「けす」のトリガーがまだないよ');
+  const trig = String(p.getProperty('HC_KOTATSU_OFF') || 'default').trim();
   const res = UrlFetchApp.fetch('https://alexa.hapicom.jp/tr/' + encodeURIComponent(trig), {
     headers: { Authorization: 'Bearer ' + key }, muteHttpExceptions: true
   });
@@ -113,11 +148,12 @@ function hcTrigger_(cmd) {
   if (code < 200 || code >= 300) throw new Error('hapicom: ' + code + ' ' + res.getContentText().slice(0, 100));
 }
 
-// エディタで▶実行すると、ライトがつくか確認できるよ
-function testLight() {
-  hcTrigger_('light_on');
-  Logger.log('ライトつける を送ったよ');
-}
+// エディタで▶実行して確かめる用
+function testLightOn() { light_(true); Logger.log('ライト：全灯 を送ったよ'); }
+function testLightOff() { Logger.log(light_(false) ? 'もう消えてたので送らなかったよ' : 'ライト：けす を送ったよ'); }
+function testKotatsuOff() { hcTrigger_('kotatsu_off'); Logger.log('こたつけす を送ったよ'); }
+function testRemotes() { Logger.log(JSON.stringify(sb_('/devices').infraredRemoteList)); }
+function testHubStatus() { Logger.log(JSON.stringify(sb_('/devices/' + hubId_() + '/status'))); }
 
 // ハブ2のIDをさがして、スクリプトプロパティに覚えておく
 function hubId_() {

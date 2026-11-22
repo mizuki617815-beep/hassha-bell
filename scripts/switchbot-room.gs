@@ -51,7 +51,8 @@ function hubId_() {
 // SwitchBot API v1.1 の呼び出し（署名つき）
 function sb_(path) {
   const p = PropertiesService.getScriptProperties();
-  const token = p.getProperty('SB_TOKEN'), secret = p.getProperty('SB_SECRET');
+  // 貼るときに入った空白・改行は取りのぞく（入っていると Unauthorized になる）
+  const token = String(p.getProperty('SB_TOKEN') || '').replace(/\s/g, ''), secret = String(p.getProperty('SB_SECRET') || '').replace(/\s/g, '');
   if (!token || !secret) throw new Error('SB_TOKEN / SB_SECRET が入ってないよ');
   const t = String(Date.now());
   const nonce = Utilities.getUuid();

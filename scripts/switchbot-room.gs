@@ -98,23 +98,28 @@ function sbCmd_(id, command, parameter) {
 // ライト：ハブ2に覚えさせた赤外線リモコン（＋スタイルのリモコンは ON/OFF が1つのボタン）
 //   SB_LIGHT … (なくてOK) ライトのリモコンID。空なら自動でさがして覚える
 //   SwitchBotアプリの「点灯」にリモコンの「全灯」、「消灯」にリモコンの「ON/OFF」を覚えさせてある
-//   つける … turnOn（＝全灯。消えていても全灯でつく）
-//   けす   … turnOn → 1.5秒 → turnOff（＝ON/OFF）。いったん必ずつけてから切りかえるので、最後は必ず消える
-//            夜にハブ2の明るさで「もう消えてる」とわかるときは何も送らない（一瞬つくのをふせぐ）
+//   「全灯」も「ON/OFF」も、ついているときに押すと消える（どちらも切りかえ）。なので送るのは「ON/OFF」（turnOff）だけ
+//   夜：ハブ2の明るさ（消えてる≒1、ついてる≒12）で今の状態を見て、ちがうときだけ1回送る
+//   昼：日差しで状態がわからないので、1回送って約8秒後の明るさを見る。逆に動いた（けすで明るくなった等）ときはもう1回送る
+//   ハブ2の明るさは、ライトが変わってから6〜8秒くらいで反映される（2026-11-22 testLightLag で確認）
 function light_(on) {
-  const id = lightId_();
-  // 夜はハブ2の明るさで今の状態を見て、同じ状態なら何も送らない（つけるで消える・けすでつく、をふせぐ）
-  try {
-    const st = sb_('/devices/' + hubId_() + '/status');
-    if (isNight_(new Date()) && typeof st.lightLevel === 'number') {
-      if (on && st.lightLevel >= 5) return true;  // もうついてる
-      if (!on && st.lightLevel < 5) return true;  // もう消えてる
+  const id = lightId_(), hub = hubId_();
+  const lv = () => { const st = sb_('/devices/' + hub + '/status'); return typeof st.lightLevel === 'number' ? st.lightLevel : null; };
+  const toggle = () => sbCmd_(id, 'turnOff', 'default');
+  let l0 = null;
+  try { l0 = lv(); } catch (e) {}
+  if (l0 !== null && isNight_(new Date())) {
+    if (on === (l0 >= 5)) return true;  // もうその状態
+    toggle();
+  } else {
+    toggle();
+    if (l0 !== null) {
+      Utilities.sleep(8000);
+      let l1 = null;
+      try { l1 = lv(); } catch (e) {}
+      if (l1 !== null && (on ? l1 <= l0 - 3 : l1 >= l0 + 3)) toggle();  // 逆に動いたのでもう1回
     }
-  } catch (e) {}
-  if (on) { sbCmd_(id, 'turnOn', 'default'); CacheService.getScriptCache().remove('room'); return false; }
-  sbCmd_(id, 'turnOn', 'default');
-  Utilities.sleep(1500);
-  sbCmd_(id, 'turnOff', 'default');
+  }
   CacheService.getScriptCache().remove('room');
   return false;
 }
@@ -153,9 +158,17 @@ function hcTrigger_(cmd) {
 }
 
 // エディタで▶実行して確かめる用
-function testLightOn() { Logger.log(light_(true) ? 'もうついてたので送らなかったよ' : 'ライト：全灯 を送ったよ'); }
+function testLightOn() { Logger.log(light_(true) ? 'もうついてたので送らなかったよ' : 'ライト：つける を送ったよ'); }
 function testLightOff() { Logger.log(light_(false) ? 'もう消えてたので送らなかったよ' : 'ライト：けす を送ったよ'); }
 function testKotatsuOff() { hcTrigger_('kotatsu_off'); Logger.log('こたつけす を送ったよ'); }
+// 診断用：消灯（ON/OFF）を1回だけ送って、明るさが何秒で変わるか見る
+function testLightLag() {
+  const lv = () => sb_('/devices/' + hubId_() + '/status').lightLevel;
+  const out = ['前: ' + lv()];
+  sbCmd_(lightId_(), 'turnOff', 'default');
+  for (let i = 1; i <= 5; i++) { Utilities.sleep(2000); out.push((i * 2) + '秒: ' + lv()); }
+  Logger.log(out.join(' / '));
+}
 function testRemotes() { Logger.log(JSON.stringify(sb_('/devices').infraredRemoteList)); }
 function testHubStatus() { Logger.log(JSON.stringify(sb_('/devices/' + hubId_() + '/status'))); }
 

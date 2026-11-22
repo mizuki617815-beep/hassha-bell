@@ -3548,7 +3548,7 @@ const acClick=async e=>{const b=e.target.closest("button[data-ac]");if(!b)return
   const allB=document.querySelectorAll("#acBtns button,#ltBtns button");allB.forEach(x=>x.disabled=true);am.style.display="";am.textContent="📡 送ってるよ…";
   try{const r=await fetch(getU(),{method:"POST",body:JSON.stringify({cmd,temp,k:o.k})});const j=await r.json();
     if(!j.ok)throw new Error(j.err||"送れなかったよ");
-    if(j.skip){const on=cmd==="light_on";am.textContent=(on?"💡 ":"🌙 ")+hm(Date.now())+(on?" もうついてたから":" もう消えてたから")+"、なにも送らなかったよ";yuAlert(on?"🧸 ライトはもうついてたよ":"🧸 ライトはもう消えてたよ")}else{am.textContent="✅ "+hm(Date.now())+" に「"+lbl+"」を送ったよ"+(lt?"":"（ついたかは部屋の温度で見てね）");yuAlert("🧸 「"+lbl+"」を送ったよ！")}if(cmd.startsWith("light"))setTimeout(()=>load(true).catch(()=>{}),4000)}
+    if(j.skip){const on=cmd==="light_on";am.textContent=(on?"💡 ":"🌙 ")+hm(Date.now())+(on?" もうついてたから":" もう消えてたから")+"、なにも送らなかったよ";yuAlert(on?"🧸 ライトはもうついてたよ":"🧸 ライトはもう消えてたよ")}else{am.textContent="✅ "+hm(Date.now())+" に「"+lbl+"」を送ったよ"+(lt?"":"（ついたかは部屋の温度で見てね）");yuAlert("🧸 「"+lbl+"」を送ったよ！")}if(cmd.startsWith("light"))setTimeout(()=>load(true).catch(()=>{}),10000)}
   catch(err){am.textContent="⚠️ 送れなかったよ："+String(err.message||err).replace(/合言葉/g,"パスワード")}
   finally{allB.forEach(x=>x.disabled=false)}};
 ab.addEventListener("click",acClick);$("ltBtns").addEventListener("click",acClick);

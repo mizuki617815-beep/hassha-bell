@@ -119,7 +119,11 @@ function go(gi,ii){const it=FM[gi]&&FM[gi][1][ii];if(!it)return;closeFM();
   while(el&&el.parentElement&&!el.offsetHeight&&!el.closest("details:not([open])"))el=el.parentElement;
   for(let d=el.closest("details");d;d=d.parentElement&&d.parentElement.closest("details"))d.open=true;
   const target=(el.matches("input,select")&&el.previousElementSibling&&el.previousElementSibling.tagName==="SPAN")?el.parentElement:null;
-  setTimeout(()=>{el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{glow(el);if(target&&el.previousElementSibling)glow(el.previousElementSibling)},450)},60)}
+  afterKb(()=>{el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{glow(el);if(target&&el.previousElementSibling)glow(el.previousElementSibling)},450)})}
+// iPhoneは、キーボードが引っこむ途中で画面をスクロールすると画面のズレが残って、次に案内所を開いたとき文字が入らなくなる。キーボードが閉じきってからスクロールする（2026-11-23）
+function afterKb(fn){const vv=window.visualViewport;if(!vv||vv.height>=window.innerHeight-2){setTimeout(fn,60);return}
+  let done=0;const f=()=>{if(done)return;done=1;vv.removeEventListener("resize",r);setTimeout(fn,120)},r=()=>{if(vv.height>=window.innerHeight-2)f()};
+  vv.addEventListener("resize",r);setTimeout(f,900)}
 list.onclick=e=>{const b=e.target.closest(".fmItem");if(b){const[g,i]=b.dataset.k.split("-");go(+g,+i)}};
 q.oninput=draw;$("fmX").onclick=closeFM;sh.onclick=e=>{if(e.target===sh)closeFM()};
 $("fmOpen").onclick=openFM;$("fmOpen2").onclick=openFM;

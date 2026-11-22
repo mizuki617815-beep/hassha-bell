@@ -501,6 +501,7 @@ body.dark .impBtn{background:#2a2340;color:#d9c6ff}
 .impBtn small{display:block;font-size:11px;font-weight:normal;color:var(--sub)}
 .impRow{display:flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 4px 0}
 .impRow .st{margin-left:auto;font-size:11.5px;white-space:nowrap}.impRow .ok{color:#2f9e6a}.impRow .ng{color:#d0457f;font-weight:bold}.impRow .wait{color:var(--sub)}
+.lockTag{display:none;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--lav2);color:#7a5bd6;font-size:10.5px;font-weight:bold;vertical-align:1px}.lockTag.on{display:inline-block}body.dark .lockTag{background:rgba(183,156,255,.18);color:#cdb8ff}
 .ktLocked{background:#f4eefc!important;color:var(--sub)!important;font-size:12.5px!important}body.dark .ktLocked{background:#2a2340!important}
 .ktLinkBtn{font-family:inherit;font-size:11.5px;border:0;background:none;color:var(--sub);text-decoration:underline;cursor:pointer;padding:2px 0;margin:2px 0 4px}
 .manFix summary{cursor:pointer;font-size:13px;color:var(--sub);padding:4px 0}
@@ -929,7 +930,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       <details class="setGrp" id="setSheet"><summary>☁️ スプレッドシート（バックアップ・2台で共有）</summary>
       <div class="ktSet sheetBox">
       <div class="sheetWhat"><div><b>☁️ シートに保存・共有されるもの</b><br>勤務の記録・公休・シフト・記録室の明細・🚃電車の歩く時間など4つ・有休/残業の手入力</div><div><b>📱 このスマホだけ</b><br>お誕生日・星座・画面の色・ダイヤの手動切り替え</div></div>
-      <label>Googleスプレッドシートのつなぎ先（…/exec で終わるURL）</label>
+      <label>Googleスプレッドシートのつなぎ先（…/exec で終わるURL）<span class="lockTag" id="ktLockTag">🔒 カギつき</span></label>
       <input type="text" id="ktUrl" placeholder="https://script.google.com/macros/s/…/exec">
       <button class="ktLinkBtn" id="ktUrlCopy" type="button" style="display:none">📋 URLをコピー（メモに保存しておく用）</button>
       <button class="ktLinkBtn" id="ktUrlUnlock" type="button" style="display:none">🔓 つなぎ先を変える</button>
@@ -944,9 +945,10 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       </details>
       <details class="setGrp" id="setHome"><summary>🏠 おうちの温度（SwitchBot ハブ2）</summary>
       <div class="ktSet homeBox">
-      <label>おうちの温度のつなぎ先（GASの …/exec で終わるURL）</label>
+      <label>おうちの温度のつなぎ先（GASの …/exec で終わるURL）<span class="lockTag" id="homeLockTag">🔒 カギつき</span></label>
       <input type="text" id="homeUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" autocorrect="off" spellcheck="false">
-      <div class="ktRow"><button class="ktBtn main" id="homeSave" type="button">🔗 つないでためす</button> <button class="ktBtn" id="homeOff" type="button">はずす</button></div>
+      <button class="ktLinkBtn" id="homeUnlock" type="button" style="display:none">🔓 つなぎ先を変える</button>
+      <div class="ktRow"><button class="ktBtn main" id="homeSave" type="button">🔗 つないでためす</button> <button class="ktBtn" id="homeOff" type="button" style="display:none">はずす</button></div>
       <div class="ktNote" id="homeNote">天気のカードの上に、おうちの温度と湿度が出るよ（見るだけ。エアコンなどは動かさないよ）。URLはこのスマホの中にだけ保存されるよ</div>
       </div>
       </details>
@@ -2436,7 +2438,7 @@ function render(){
   $("ktDays").querySelectorAll(".ktDay").forEach(r=>r.onclick=()=>openDay(r.dataset.d));
   $("ktKoukyu").value=koukyu(y,m);
   {const ui=$("ktUrl"),lk=!!KT.url&&!urlUnlocked; // つないだあとは、うっかり書きかえないようにカギをかける（2026-11-17）
-   ui.readOnly=lk;ui.classList.toggle("ktLocked",lk);$("ktUrlUnlock").style.display=lk?"":"none";$("ktUrlCopy").style.display=KT.url?"":"none";
+   ui.readOnly=lk;ui.classList.toggle("ktLocked",lk);$("ktLockTag").classList.toggle("on",lk);$("ktUrlUnlock").style.display=lk?"":"none";$("ktUrlCopy").style.display=KT.url?"":"none";
    if(lk)ui.value="🔒 つながってるよ（…"+KT.url.replace(/\/exec.*$/,"").slice(-6)+"/exec）";else if(document.activeElement!==ui&&!urlUnlocked)ui.value=KT.url||""}
   if(document.activeElement!==$("ktWho"))$("ktWho").value=KT.who||"";
   syncNote();
@@ -3476,13 +3478,20 @@ async function load(force){const u=getU();if(!u){box.style.display="none";return
     if(!j.ok)throw new Error(j.err||"読めなかったよ");
     try{localStorage.setItem(KC,JSON.stringify(j))}catch(e){}show(j);return j}
   catch(e){if(force)throw e;return c}finally{busy=false}}
-ui.value=getU();
-$("homeSave").onclick=async()=>{const u=ui.value.trim();
+let unlocked=false;
+const lockUI=()=>{const has=!!getU(),lk=has&&!unlocked; // つないだあとはカギ（スプレッドシートと同じ。2026-11-22）
+  ui.readOnly=lk;ui.classList.toggle("ktLocked",lk);$("homeLockTag").classList.toggle("on",lk);
+  $("homeUnlock").style.display=lk?"":"none";$("homeOff").style.display=lk?"":"none";
+  $("homeSave").textContent=lk?"🔄 いま読みなおす":"🔗 つないでためす";if(lk)ui.value=getU()};
+ui.value=getU();lockUI();
+$("homeUnlock").onclick=async()=>{if(!await yuAsk("おうちの温度のつなぎ先を変える？\n（GASを作りなおしたときだけでOKだよ）","変える",true))return;unlocked=true;lockUI();ui.focus()};
+$("homeSave").onclick=async()=>{if(ui.readOnly){note.textContent="🔄 よみにいってるよ…";try{const j=await load(true);note.textContent="✅ いま "+j.t.toFixed(1)+"℃・"+Math.round(j.h)+"%"}catch(e){note.textContent="⚠️ 読めなかったよ："+(e.message||e)}return}
+  const u=ui.value.trim();
   if(!okUrl(u)){note.textContent="⚠️ URLの形がちがうみたい（https://script.google.com/macros/s/…/exec）";return}
   try{localStorage.setItem(K,u)}catch(e){}note.textContent="🔄 よみにいってるよ…";
-  try{const j=await load(true);note.textContent="✅ つながったよ！ いま "+j.t.toFixed(1)+"℃・"+Math.round(j.h)+"%"}
+  unlocked=false;lockUI();try{const j=await load(true);note.textContent="✅ つながったよ！ いま "+j.t.toFixed(1)+"℃・"+Math.round(j.h)+"%"}
   catch(e){note.textContent="⚠️ 読めなかったよ："+(e.message||e)+"（GASのスクリプトプロパティとデプロイを見てね）"}};
-$("homeOff").onclick=()=>{try{localStorage.removeItem(K);localStorage.removeItem(KC)}catch(e){}ui.value="";box.style.display="none";note.textContent="はずしたよ。また使うときはURLを貼ってね"};
+$("homeOff").onclick=async()=>{if(!await yuAsk("おうちの温度をはずす？\n（またURLを貼ればもどせるよ）","はずす",true))return;unlocked=false;try{localStorage.removeItem(K);localStorage.removeItem(KC)}catch(e){}ui.value="";lockUI();box.style.display="none";note.textContent="はずしたよ。また使うときはURLを貼ってね"};
 const tap=()=>{box.style.opacity=".6";load(true).catch(()=>{}).finally(()=>{box.style.opacity=""})};
 box.onclick=tap;box.addEventListener("keydown",e=>{if(e.key==="Enter")tap()});
 load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidden)load(false)});

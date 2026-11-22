@@ -42,6 +42,8 @@ body.dark #jumpNav button.on{background:#4a3f6b;color:#ffb7d5}
 .brand h1{margin:0;font-size:22px;font-weight:900;letter-spacing:.04em;
   background:linear-gradient(90deg,#ff8cc6,#b28bff 55%,#6fb8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
 .brand .tag{font-size:11px;color:var(--sub);letter-spacing:.08em}
+/* タイトルの横の ver バッジ（2026-11-22 本人の希望で復活。中身は更新履歴のいちばん上から自動） */
+.brand{display:flex;align-items:center;gap:6px}.brand .verTop{flex:0 0 auto;font-size:10px;padding:2px 7px}.brand .verTop:empty{display:none}
 .datebox{display:flex;align-items:flex-end;justify-content:space-between;margin:0 4px 12px}
 .date{font-size:26px;font-weight:900;line-height:1.1}
 .date .dow{display:inline-block;margin-left:4px;font-size:16px;padding:2px 9px;border-radius:999px;vertical-align:4px;background:var(--lav2);color:#8a63e6}
@@ -744,7 +746,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
   <div class="top">
     <img class="avatar" src="avatar.jpg?v=20261121" alt="クマちゃん">
     <div class="brand">
-      <h1>ゆめいろ手帳</h1>
+      <h1>ゆめいろ手帳</h1><span class="verBadge verTop" id="verTop"></span>
     </div>
     <div id="payCd" role="button" title="給料日・ボーナスまでのカウントダウン"></div>
     <img class="banner" id="bannerImg" src="banner.jpg?v=20261121" alt="アトリエコットン Atelier Cotton">
@@ -999,7 +1001,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
 
   <div class="card">
     <details id="verHist">
-      <summary>📝 アップデート履歴 <span class="verBadge">ver4.1</span></summary>
+      <summary>📝 アップデート履歴 <span class="verBadge" id="verHistBadge">ver4.2</span></summary>
       <ul class="verList">
         <li data-quiet="1" data-go="次の給料の予想" data-short="💰 次の給料の手取り予想ができたよ！"><span class="vNo">ver4.2</span><span class="vDate">11/22</span><span class="vTxt">💰「次の給料の予想」が記録室の「📈みる」に：次の給料日にもらえる手取りの見込みを、いちばん新しい明細と勤怠ノートの記録から計算するよ（残業・深夜・休みの日の割増は勤怠ノートの見込み、ほかの支給と社会保険料・住民税は新しい明細と同じ、所得税は概算。賞与はふくまないよ）。12月・6月・7月・10月は、明細がふだんとちがってズレやすいことも教えてくれるよ。明細を入れると、予想と実際の「答え合わせ」も出るよ🧸<br>🎛 おうちのリモコン（エアコン・ライト・こたつ）は「お得チェッカー」カードにおひっこし。天気カードにはおうちの温度の行だけ残したよ</span></li>
         <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸<br>🏠 おうちの温度：⚙️設定の「🏠 おうちの温度」にGASのURLを貼ると、天気のカードの上におうちの温度と湿度が出るよ（SwitchBotハブ2。タップで読みなおし）<br>❄️🔥 エアコンのボタン：⚙️設定でエアコンのパスワードを入れると、おうちの温度の下に「冷房・暖房・けす」のボタンが出るよ（押すと確認が出るよ。温度は設定で変えられるよ）<br>💡 ライトとこたつのボタン：エアコンのボタンの下に「ライトつける・けす」「こたつけす」が出るよ（ライトはSwitchBotハブ2の赤外線、こたつはAlexaの定型アクション経由。夜は、もうついてる・消えてるときは何もしないよ）<br>💡 おうちの温度の下に「寝室のライト ON／OFF」のスイッチと明るさ（1〜20）が出るよ（見るだけ。ハブ2の明るさで見てるから「たぶん」だよ。昼はお日さまで明るいのでわからないよ）<br>☁️ おうちの温度のURLとエアコンのパスワードも、勤怠のスプレッドシートで2台にそろうようにしたよ</span></li>
@@ -3426,6 +3428,7 @@ function status(){const t=jstNow(),y=t.getFullYear(),m=t.getMonth()+1,d=t.getDat
 // 大きいアップデート（ver が上がったとき）は、トップのひとことでファーちゃんが1回だけ教える。タップで履歴をひらいて、見たことにする
 const VK="yumebell_seenVer";
 // data-quiet の ver はトップでお知らせしない（ver4.1は案内所のお知らせのまま。2026-11-22）
+document.addEventListener("DOMContentLoaded",()=>{try{const v=(document.querySelector("#verHist li .vNo")||{}).textContent||"";if(v){const t=document.getElementById("verTop"),h=document.getElementById("verHistBadge");if(t)t.textContent=v;if(h)h.textContent=v}}catch(e){}});
 function verNag(){const li=document.querySelector("#verHist li:not([data-quiet])");if(!li)return"";const v=(li.querySelector(".vNo")||{}).textContent||"";
   let first=null;try{first=JSON.parse(localStorage.getItem(VK+"_at")||"null")}catch(e){}
   if(!v)return"";if(!first||first.v!==v){first={v,t:Date.now()};try{localStorage.setItem(VK+"_at",JSON.stringify(first))}catch(e){}}

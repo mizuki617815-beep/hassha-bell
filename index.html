@@ -89,6 +89,7 @@ body.dark .wxBear{border-color:#4a3f6b}
 .cheer{position:relative;margin-top:10px;background:#fff;border:2px solid var(--pink2);border-radius:14px;padding:6px 10px;font-size:13px;line-height:1.5;color:var(--ink)}
 .cheer{padding-left:56px!important;min-height:52px}
 .cheer:before{content:"";position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:50%;background:#fff0f8 url(face-talk.webp) center/cover no-repeat;border:2px solid var(--pink)!important}
+.cheer.yay:before{background-image:url(face-yay.webp)} /* 給料日・お休み・お誕生日はばんざいの顔（2026-11-22） */
 .cheer:after{display:none}
 .cheer:before,.cheer:after{border-width:2px}
 
@@ -1603,6 +1604,7 @@ function renderCheer(force){
     else if(o.n===0)chips.push("🌸 明日はお休み");
     else chips.push(`🌸 あと${o.n}日でお休み`)}
   if(payMsg)chips.unshift(payMsg.startsWith("🎁")?"🎁 今日はボーナス":"💰 今日は給料日");
+  {let yay=!!payMsg||!!bdayKind(now);if(!yay&&has){const o=offInfo(now);yay=!o.unknown&&(o.i===0||o.n===0)}box.classList.toggle("yay",yay)}
   document.getElementById("cheerChips").innerHTML=chips.map(c=>`<span class="chip">${c}</span>`).join("");
   box.style.display="";
   renderPlanCheer(now);
@@ -2493,7 +2495,7 @@ function renderToday(){
   h+=card(t,askToday()?"きょう　🧸 おつかれさま！残業した？":"きょう");
   w.innerHTML=h;
   const fix=d=>{const dc=dayCalc(d);if(!(dc.plan&&!dc.plan.paid))return;setDay(d,{in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:(KT.days[d]&&KT.days[d].memo)||"",fixed:true})};
-  const done=()=>{ktSave();render();if(typeof renderOt==="function")renderOt();ktChip()};
+  const done=()=>{ktSave();render();if(typeof renderOt==="function")renderOt();ktChip();yuAlert("🧸 定時で記録したよ！今日もおつかれさま")};
   w.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openDay(b.dataset.edit));
   w.querySelectorAll("[data-zan]").forEach(b=>b.onclick=()=>openDay(b.dataset.zan,"zan"));
   w.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{fix(b.dataset.plan);done()});
@@ -2562,7 +2564,7 @@ function openDay(d,startMode){
   xIn.oninput=upd;xOut.oninput=upd;
   if(usePlan){$("kxTeiji").onclick=()=>setMode("teiji");$("kxZan").onclick=()=>{setMode("zan");try{xOut.focus()}catch(e){}}}
   setMode(mode);
-  const close=()=>{$("ktSheet").classList.remove("show");$("ktSheet").onclick=sheetBg},done=()=>{ktSave();close();render();if(typeof renderOt==="function")renderOt();ktChip()};
+  const close=()=>{$("ktSheet").classList.remove("show");$("ktSheet").onclick=sheetBg},done=()=>{ktSave();close();render();if(typeof renderOt==="function")renderOt();ktChip();yuAlert("🧸 記録したよ！今日もおつかれさま")};
   // 入力を変えたまま閉じようとしたら「記録して閉じる／記録しないで閉じる」を聞く
   const snap=()=>[xIn.value,xOut.value,brk,$("kxMemo").value,mode].join("|");const first=snap();
   const tryClose=()=>{if(snap()===first){close();return}
@@ -2744,7 +2746,7 @@ async function sync(manual){if(!KT.url||syncing)return;syncing=true;
     if(!j||typeof j!=="object"||Array.isArray(j))throw new Error("read");
     const m=mergeRemote(j);store();if(m.changed)refreshAll(m.shChanged);
     if(m.remoteOld||KT.dirty||manual){const r=await fetch(KT.url,{method:"POST",body:JSON.stringify(payload())});const t=await r.text();if(!/ok/.test(t))throw 0}
-    KT.lastSync=new Date().toISOString();KT.dirty=false;store();syncNote(manual?(m.changed?"✅ シートとそろえたよ（新しい記録を取りこんだよ）":"✅ シートとそろえたよ"):"")}
+    KT.lastSync=new Date().toISOString();KT.dirty=false;store();syncNote(manual?(m.changed?"✅ シートとそろえたよ（新しい記録を取りこんだよ）":"✅ シートとそろえたよ"):"");if(manual)yuAlert(m.changed?"🧸 シートとそろえたよ！新しい記録も取りこんだよ":"🧸 シートとそろえたよ！")}
   catch(e){syncNote("⚠️ シートとつながらなかったよ。電波のいいところでもう一度ためしてね",true)}
   finally{syncing=false}}
 function syncNote(msg,ng){const el=$("ktGNote");if(!el)return;let t=msg||"";
@@ -3530,7 +3532,7 @@ ab.addEventListener("click",async e=>{const b=e.target.closest("button[data-ac]"
   ab.querySelectorAll("button").forEach(x=>x.disabled=true);am.style.display="";am.textContent="📡 送ってるよ…";
   try{const r=await fetch(getU(),{method:"POST",body:JSON.stringify({cmd,temp,k:o.k})});const j=await r.json();
     if(!j.ok)throw new Error(j.err||"送れなかったよ");
-    am.textContent="✅ "+hm(Date.now())+" に「"+lbl+"」を送ったよ（ついたかは部屋の温度で見てね）"}
+    am.textContent="✅ "+hm(Date.now())+" に「"+lbl+"」を送ったよ（ついたかは部屋の温度で見てね）";yuAlert("🧸 「"+lbl+"」を送ったよ！")}
   catch(err){am.textContent="⚠️ 送れなかったよ："+String(err.message||err).replace(/合言葉/g,"パスワード")}
   finally{ab.querySelectorAll("button").forEach(x=>x.disabled=false)}});
 acUI();

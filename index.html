@@ -383,7 +383,6 @@ body.dark .ktToday{background:rgba(255,255,255,.05);border-color:rgba(255,255,25
 .ktChip.off{background:var(--sky2);color:#4f8dd0}
 .ktChip.paid{background:var(--lemon2);color:#b9871a}
 .ktChip.hol{background:#e6f4ff;color:#2f6fa8}body.dark .ktChip.hol{background:rgba(120,180,255,.18);color:#bfe0ff}
-.ktHolBtn{width:100%;margin:8px 0 2px;padding:10px;border-radius:14px;border:2px dashed #b9d7f2;background:#f4faff;color:#2f6fa8;font:bold 14px inherit;font-family:inherit;cursor:pointer}.ktHolBtn.on{border-style:solid;background:#2f8fd8;color:#fff;border-color:#2f8fd8}body.dark .ktHolBtn:not(.on){background:rgba(255,255,255,.05);color:#bfe0ff;border-color:rgba(160,200,255,.35)}
 .ktRow{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;align-items:center}
 details.setGrp{margin-top:10px;border:2px solid var(--line);border-radius:16px;padding:9px 12px;background:rgba(255,255,255,.35)}body.dark details.setGrp{background:rgba(255,255,255,.04)}details.setGrp>summary{font-size:14px;color:#9b7cf0;padding:2px 0}body.dark details.setGrp>summary{color:#cbb8ff}details.setGrp>summary:before{content:"▸ "}details.setGrp[open]>summary:before{content:"▾ "}details.setGrp>.set{margin-top:10px}details.setGrp .sheetBox{margin-top:8px}#moneyFs[disabled]{opacity:.55}
 .sheetBox{margin-top:14px;padding:12px;border-radius:16px;border:2px dashed var(--lav);background:var(--lav2)}.sheetTtl{font-size:14px;font-weight:900;color:#9b7cf0}body.dark .sheetTtl{color:#cbb8ff}.sheetWhat{display:grid;gap:6px;margin-top:8px;font-size:12px;line-height:1.6;color:var(--ink)}.sheetWhat>div{background:rgba(255,255,255,.55);border-radius:10px;padding:6px 9px}body.dark .sheetWhat>div{background:rgba(255,255,255,.05)}
@@ -1279,9 +1278,10 @@ function parseCSVText(text){
 function hm4(v){v=String(v).replace(/\D/g,"");if(v.length<3)return null;v=v.padStart(4,"0");const h=+v.slice(0,-2),mi=+v.slice(-2);if(h>29||mi>59)return null;return h*60+mi}
 function shiftFromTitle(title){
   const t=String(title||"");
-  if(/お休み/.test(t))return{title:t,off:true,start:null,end:null};
+  if(/^\s*残業/.test(t))return null; // TimeTreeの「残業0030-0055」などはシフトではない（実績はタイムシートが正）
+  if(/お休み|leave|特休|休暇/i.test(t))return{title:t,off:true,start:null,end:null}; // Marriage Leave など休暇も読む（2026-11-22）
   const m=t.match(/(\d{3,4})\s*[-–ー~〜]\s*(\d{3,4})/);
-  if(/^(cx|CX)/.test(t)&&m)return{title:t,off:false,start:hm4(m[1]),end:hm4(m[2])};
+  if(m){const a=hm4(m[1]),b=hm4(m[2]);if(a!=null&&b!=null)return{title:t,off:false,start:a,end:b}} // CXだけでなくD7なども読む（2026-11-22）
   return null;
 }
 function importShiftCSV(text){
@@ -2289,11 +2289,11 @@ function backup(){ // 端末内に日ごとの控えを最大3つ
     localStorage.setItem(KEY+"_bk",JSON.stringify(bk.slice(0,3)))}catch(e){}
 }
 const SH=()=>(typeof SHIFTS!=="undefined"&&SHIFTS)||{};
-// 残業単価は年度ごと（切りかえは6月勤務から。下のRATEの説明）。①記録室の明細 ②シートで共有してる明細の写し（残業代÷残業時間）③年度ごとの手入力 ④設定の単価 ⑤前の年度で分かってる単価、の順（2026-11-21）
+// 残業単価は年度ごと（切りかえは5月勤務から。下のRATEの説明）。①記録室の明細 ②シートで共有してる明細の写し（残業代÷残業時間）③年度ごとの手入力 ④設定の単価 ⑤前の年度で分かってる単価、の順（2026-11-21）
 function otRateFY(fy,noBack){
   try{const r=window.recOtRate&&window.recOtRate(fy);if(r&&r.rate>0)return r.rate}catch(e){}
   const om=(typeof S!=="undefined"&&S.otMonths)||{};let h=0,yy=0;
-  for(const k in om){const e=om[k];if(!e||e.t!=="pay"||!(+e.h>0)||!(+e.y>0))continue;const[a,b]=k.split("-").map(Number);if((b>=6?a:a-1)===fy){h+=+e.h;yy+=+e.y}}
+  for(const k in om){const e=om[k];if(!e||e.t!=="pay"||!(+e.h>0)||!(+e.y>0))continue;const[a,b]=k.split("-").map(Number);if((b>=5?a:a-1)===fy){h+=+e.h;yy+=+e.y}}
   if(h>0)return Math.round(yy/h);
   const hs=((typeof S!=="undefined"&&S.otRateHist)||[]).find(e=>+e.fy===fy&&+e.rate>0);if(hs)return +hs.rate;
   if(noBack)return 0;
@@ -2301,62 +2301,74 @@ function otRateFY(fy,noBack){
   for(let f=fy-1;f>=fy-5;f--){const v=otRateFY(f,true);if(v)return v}
   return 0}
 window.otRateFY=otRateFY;
-// 4月昇給だけど、4・5月に働いた分は前の単価で払われて、6月勤務（7月支給）から新しい単価＋4・5月分は遡及残業代として別に出る。
-// なので明細と合わせるため、単価の切りかえは「6月勤務から」（4・5月勤務は前の年度の単価）
-const RATE=(y,m)=>{if(!y){const n=NOW();y=n.getFullYear();m=n.getMonth()+1}return otRateFY(m>=6?y:y-1)};
+// 4月昇給。明細（2026年5・6月支給）で確認：4月に働いた分（5月支給）は前の単価で払われて、6月支給で遡及残業代として差額が出る。
+// 5月に働いた分（6月支給）からは新しい単価。なので単価の切りかえは「5月勤務から」（4月勤務は前の年度の単価。2026-11-22）
+const RATE=(y,m)=>{if(!y){const n=NOW();y=n.getFullYear();m=n.getMonth()+1}return otRateFY(m>=5?y:y-1)};
 let cur=(()=>{const n=NOW();return{y:n.getFullYear(),m:n.getMonth()+1}})();
 const mk=(y,m)=>`${y}-${P(m)}`;
 const daysIn=(y,m)=>new Date(y,m,0).getDate();
 const koukyu=(y,m)=>{const k=mk(y,m);return KT.koukyu[k]!=null?+KT.koukyu[k]:(m===2?9:10)};
-const isPaid=sh=>!!(sh&&sh.off&&/有休/.test(sh.title||""));
+const LEAVE=/有[休給]|特休|leave|休暇/i; // 有休と同じ扱い（特休＝結婚休暇など。2026-11-22）
+const isPaid=sh=>!!(sh&&sh.off&&LEAVE.test(sh.title||""));
 // 深夜（22〜5時）に働いた分。休憩は深夜以外の時間から先にとった扱い（2026-11-22）
 const nightMin=(st,span,brk)=>{let ov=0;const en=st+span;for(let n=-1;n<=2;n++){const a=1320+1440*n,b=1740+1440*n;ov+=Math.max(0,Math.min(en,b)-Math.max(st,a))}
   return Math.max(0,ov-Math.max(0,(brk||0)-(span-ov)))};
-// 休日出勤＝1.35倍、深夜割増＝0.25（残業と重なれば1.50倍、休日出勤と重なれば1.60倍）。どちらも基礎賃金÷164から、1円未満は切り上げ。休日出勤中は残業にならない（2026-11-22 本人確認）
-const BASE=(y,m)=>{const fy=m>=6?y:y-1;let b=0;try{b=window.recBase?window.recBase(fy):0}catch(e){}return b>0?b:RATE(y,m)/1.25};
-const HOLR=(y,m)=>Math.ceil(BASE(y,m)*1.35-1e-9),NIGHTR=(y,m)=>Math.ceil(BASE(y,m)*0.25-1e-9);
+// 深夜割増＝0.25（残業と重なれば1.50倍）。休みの日に働いた時間（夜勤が0時をまたいで入りこんだ分・呼ばれて出た分）は残業にも入れたうえで、
+// 予定どおりの時間に＋0.35、予定より延びた時間に＋0.10（明細の「法定休日035／010」。1日ごとに15分単位で切り上げ）。どれも基礎賃金÷164から、1円未満は切り上げ。
+// 明細（2026年5・6月支給）とタイムシート・TimeTreeで1分・1円まで確認。ただし会社がどの公休を法定休日にしているかは分からないので、休みの日は全部数える＝目安（2026-11-22）
+const BASE=(y,m)=>{const fy=m>=5?y:y-1;let b=0;try{b=window.recBase?window.recBase(fy):0}catch(e){}return b>0?b:RATE(y,m)/1.25};
+const R35=(y,m)=>Math.ceil(BASE(y,m)*0.35-1e-9),R10=(y,m)=>Math.ceil(BASE(y,m)*0.10-1e-9),NIGHTR=(y,m)=>Math.ceil(BASE(y,m)*0.25-1e-9);
+const c15=x=>Math.ceil(x/15)*15;
 const stdBreak=span=>span>360?60:0;
 function dayCalc(d){
   const sh=SH()[d],e=KT.days[d];let plan=null,act=null;
   if(sh&&!sh.off&&sh.start!=null&&sh.end!=null){let span=sh.end-sh.start;if(span<0)span+=1440;
     plan={start:sh.start,end:sh.end,span,brk:stdBreak(span),work:span-stdBreak(span)}}
   if(isPaid(sh))plan={paid:true,work:480};
-  const pm=!!(e&&/有[休給]/.test(e.memo||"")); // タイムシートで有休（便宜上の時刻）→ シフトが古いままでも有休8時間で数える（2026-11-22）
+  const pm=!!(e&&LEAVE.test(e.memo||"")); // タイムシートで有休（便宜上の時刻）→ シフトが古いままでも有休8時間で数える（2026-11-22）
   if(pm)plan={paid:true,work:480};
   if(!pm&&e&&e.in!=null&&e.out!=null){let span=e.out-e.in;if(span<0)span+=1440;
     const brk=e.brk!=null?e.brk:stdBreak(span);act={start:e.in,end:e.out,span,brk,work:span-brk}}
-  const hol=!!(e&&e.hol&&act&&!(plan&&!plan.paid)); // 休日出勤（シフトがお休み・なしの日に、本人がボタンで選んだ日）
   const planW=plan?plan.work:0,actW=act?act.work:null;
-  const eff=hol?0:(actW==null?planW:Math.max(actW,planW)); // 休日出勤の時間は残業の計算に入れない
-  const extra=(hol||actW==null||!plan)?0:Math.max(0,actW-planW); // シフトがない日は内訳(追加残業)を出せない
-  const holW=hol?actW:0;
+  const eff=actW==null?planW:Math.max(actW,planW);
+  const extra=(actW==null||!plan)?0:Math.max(0,actW-planW); // シフトがない日は内訳(追加残業)を出せない
   const auto=!act&&!!plan&&d<YMD(NOW()); // 残業した日だけ記録する運用：記録のない過去の日は定時(有休)として自動で記録済み扱い
   const night=act?nightMin(act.start,act.span,act.brk):(plan&&!plan.paid?nightMin(plan.start,plan.span,plan.brk):0);
-  return{sh,e,plan,act,planW,eff,extra,hol,holW,night,holNight:hol?night:0,fixed:!!(e&&e.fixed),auto};
+  return{sh,e,plan,act,planW,eff,extra,night,fixed:!!(e&&e.fixed),auto};
 }
+// 休みの日（公休）に働いた時間：p35＝予定どおりの時間（＋0.35）、p10＝延びた時間・呼ばれて出た時間（＋0.10）
+function holCalc(d){const sh=SH()[d];if(!(sh&&sh.off&&!isPaid(sh)))return null;let a=0,b=0;
+  const own=dayCalc(d);if(own.act)b+=own.act.work; // 休みの日に呼ばれて出勤
+  const pd=new Date(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)-1),pc=dayCalc(YMD(pd)); // 前の日の夜勤が0時をまたいだ分
+  const pl=pc.plan&&!pc.plan.paid?pc.plan:null,pe=pl?pl.start+pl.span:0;
+  if(pc.act){const ae=pc.act.start+pc.act.span;const sp=Math.max(0,ae-Math.max(1440,pc.act.start));
+    const sc=pl?Math.max(0,Math.min(ae,pe)-Math.max(1440,pc.act.start,pl.start)):0;a+=sc;b+=sp-sc}
+  else if(pl)a+=Math.max(0,pe-Math.max(1440,pl.start));
+  a=c15(a);b=c15(b);return a||b?{a,b}:null}
 const roundOT=min=>{const h=Math.floor(min/60);return min%60>=30?h+1:h};
 function monthCalc(y,m){
-  const n=daysIn(y,m);let planSum=0,effSum=0,extraSum=0,fixedDays=0,workDays=0,holSum=0,nightSum=0,holDays=0,otherSum=0;
+  const n=daysIn(y,m);let planSum=0,effSum=0,extraSum=0,fixedDays=0,workDays=0,h35=0,h10=0,nightSum=0,otherSum=0;
   for(let i=1;i<=n;i++){const c=dayCalc(`${mk(y,m)}-${P(i)}`);
-    planSum+=c.planW;effSum+=c.eff;extraSum+=c.extra;holSum+=c.holW;nightSum+=c.night;if(c.hol)holDays++;
-    if(c.act&&!c.plan&&!c.hol)otherSum+=c.act.work; // シフトなしの日の勤務（休日出勤にしていない分）
+    planSum+=c.planW;effSum+=c.eff;extraSum+=c.extra;nightSum+=c.night;
+    {const h=holCalc(`${mk(y,m)}-${P(i)}`);if(h){h35+=h.a;h10+=h.b}}
+    if(c.act&&!c.plan)otherSum+=c.act.work; // シフトなし・休みの日の勤務
     if(c.fixed||c.auto)fixedDays++;if(c.planW>0||c.act)workDays++}
   const kou=koukyu(y,m),shotei=(n-kou)*480,kakutei=Math.max(0,planSum-shotei),ot=Math.max(0,effSum-shotei),otH=roundOT(ot);
   const pm=(typeof S!=="undefined"&&S.otMonths&&S.otMonths[mk(y,m)])||null;
   const pay=pm&&pm.t==="pay"&&(+pm.h>0||+pm.y>0)?{h:+pm.h||0,y:+pm.y||0}:null;
-  const holH=roundOT(holSum),nightH=roundOT(nightSum),holYen=holH*HOLR(y,m),nightYen=nightH*NIGHTR(y,m);
+  const nightH=roundOT(nightSum),nightYen=nightH*NIGHTR(y,m),holYen=Math.round(h35/60*R35(y,m)+h10/60*R10(y,m));
   return{n,kou,shotei,planSum,effSum,extraSum,kakutei,ot,otH,yen:otH*RATE(y,m),fixedDays,workDays,pay,
-    holSum,holH,holYen,holDays,nightSum,nightH,nightYen,otherSum,total:planSum+extraSum+otherSum+holSum};
+    h35,h10,holYen,nightSum,nightH,nightYen,otherSum,total:planSum+extraSum+otherSum};
 }
 // 残業カウンター連動用:入力済みの日がある月だけ見込みを返す
 window.ktMonth=key=>{const[y,m]=key.split("-").map(Number);const c=monthCalc(y,m);const hasShift=Object.keys(SH()).some(k=>k.startsWith(key));
   return{kakH:roundOT(c.kakutei),kakY:roundOT(c.kakutei)*RATE(y,m),otH:c.otH,yen:c.yen,fixedDays:c.fixedDays,workDays:c.workDays,hasShift,
-    holH:c.holH,holYen:c.holYen,nightH:c.nightH,nightYen:c.nightYen,total:c.total}};
+    h35:c.h35,h10:c.h10,holYen:c.holYen,nightH:c.nightH,nightYen:c.nightYen,total:c.total}};
 // 記録室の照合用:その月の日ごとの内訳（追加残業・休憩不足・記録なしで定時扱い）
 window.ktDetail=key=>{const[y,m]=key.split("-").map(Number);const c=monthCalc(y,m),days=[];
   for(let i=1;i<=daysIn(y,m);i++){const d=`${key}-${P(i)}`,x=dayCalc(d);if(!(x.planW>0||x.act))continue;
     const miss=x.act?Math.max(0,stdBreak(x.act.span)-x.act.brk):0;
-    days.push({d,extra:x.extra,miss,auto:x.auto,paid:!!(x.plan&&x.plan.paid),noShift:!x.plan&&!!x.act&&!x.hol,hol:x.hol,holW:x.holW,night:x.night})}
+    days.push({d,extra:x.extra,miss,auto:x.auto,paid:!!(x.plan&&x.plan.paid),noShift:!x.plan&&!!x.act,hol:holCalc(d),night:x.night})}
   return{ot:c.ot,otH:c.otH,yen:c.yen,fixedDays:c.fixedDays,workDays:c.workDays,days}};
 window.ktTouch=()=>{KT.dirty=true;store();scheduleSync()};
 window.ktEst=key=>{const[y,m]=key.split("-").map(Number);const c=monthCalc(y,m);return c.fixedDays?{h:c.otH,y:c.yen}:null};
@@ -2373,9 +2385,9 @@ function render(){
     <div><small>シフトの予定時間</small><b>${DUR(c.planSum)}</b></div>
     <div><small>確定残業</small><b>${DUR(c.kakutei)}</b></div>
     <div><small>追加残業（入力済み）</small><b class="ktAdd">+${DUR(c.extraSum)}</b></div>
-    ${c.holSum?`<div><small>休日出勤（1.35倍）</small><b>${DUR(c.holSum)}</b><small>${c.holDays}日・${c.holH}時間 ¥${c.holYen.toLocaleString()}</small></div>`:""}
+    ${c.h35||c.h10?`<div><small>休みの日の割増（目安）</small><b>${DUR(c.h35+c.h10)}</b><small>＋0.35 ${DUR(c.h35)}・＋0.10 ${DUR(c.h10)}　¥${c.holYen.toLocaleString()}</small></div>`:""}
     ${c.nightSum?`<div><small>深夜 22〜5時（＋0.25）</small><b>${DUR(c.nightSum)}</b><small>${c.nightH}時間 ¥${c.nightYen.toLocaleString()}</small></div>`:""}
-    <div class="ktTotT" style="grid-column:1/-1"><small>全労働時間（見込み）</small><b>${DUR(c.total)}</b><small>シフト ${DUR(c.planSum)} ＋ 追加残業 ${DUR(c.extraSum)}${c.otherSum?` ＋ シフトなしの日 ${DUR(c.otherSum)}`:""}${c.holSum?` ＋ 休日出勤 ${DUR(c.holSum)}`:""}</small></div>
+    <div class="ktTotT" style="grid-column:1/-1"><small>全労働時間（見込み）</small><b>${DUR(c.total)}</b><small>シフト ${DUR(c.planSum)} ＋ 追加残業 ${DUR(c.extraSum)}${c.otherSum?` ＋ シフトなし・休みの日 ${DUR(c.otherSum)}`:""}</small></div>
     <div class="big"><small>残業 見込み（${JDUR(c.ot)}${c.ot%60===0?"":c.ot%60>=30?" → 30分以上なので切り上げ":" → 30分未満なので切り捨て"}）</small><b>${c.otH}時間 ・ ¥${c.yen.toLocaleString()}</b>${payLine}</div>`;
   $("ktSumNote").innerHTML=`<b>記録済み ${c.fixedDays}日 / 出勤 ${c.workDays}日</b><br>残業を記録してない日は、定時として自動で数えるよ<br>残業代は翌月25日に支給`;
   let t;
@@ -2391,17 +2403,18 @@ function render(){
   const today=YMD(NOW());let h="";
   for(let i=1;i<=c.n;i++){
     const d=`${key}-${P(i)}`,dc=dayCalc(d),w=new Date(y,m-1,i).getDay();let main,sub="",chip="";
-    const yuu=isPaid(dc.sh)||!!(dc.e&&/有[休給]/.test(dc.e.memo||"")); // タイムシートに有休ボタンがなく便宜上の時刻で入れているので、時刻は出さない
-    if(yuu){main="🏖️ 有休";sub="勤務なし・8時間として計算";chip=`<span class="ktChip paid">有休</span>`}
+    const yuu=isPaid(dc.sh)||!!(dc.e&&LEAVE.test(dc.e.memo||"")); // タイムシートに有休ボタンがなく便宜上の時刻で入れているので、時刻は出さない
+    if(yuu){main=/特休|leave|休暇/i.test(((dc.sh&&dc.sh.title)||"")+" "+((dc.e&&dc.e.memo)||""))?"🌸 特休":"🏖️ 有休";sub="勤務なし・8時間として計算";chip=`<span class="ktChip paid">有休</span>`}
     else if(dc.act){main=`${HM(dc.act.start)}〜${HM(dc.act.end)}　休${dc.act.brk}分`;
       sub=`実働 ${DUR(dc.act.work)}`+(dc.extra?`　<span class="ktAdd">追加残業 +${DUR(dc.extra)}</span>`:"");
-      chip=dc.hol?`<span class="ktChip hol">🏢 休日出勤</span>`:dc.fixed?`<span class="ktChip fix">✅ 記入済み</span>`:`<span class="ktChip plan">入力中</span>`;
-      if(dc.hol)sub=`実働 ${DUR(dc.act.work)}　<span class="ktAdd">休日出勤（1.35倍）</span>`;
+      const hc=holCalc(d);chip=hc&&!dc.plan?`<span class="ktChip hol">🏢 休みの日</span>`:dc.fixed?`<span class="ktChip fix">✅ 記入済み</span>`:`<span class="ktChip plan">入力中</span>`;
+      if(hc&&!dc.plan)sub=`実働 ${DUR(dc.act.work)}　<span class="ktAdd">休みの日の勤務（＋0.10 目安）</span>`;
       if(dc.night)sub+=`　<span style="white-space:nowrap">🌙深夜 ${DUR(dc.night)}</span>`;
       if(dc.e.by&&dc.e.by!==(KT.who||""))sub+=`　✍️${ESC(dc.e.by)}`}
     else if(dc.plan&&!dc.plan.paid){main=`${HM(dc.plan.start)}〜${HM(dc.plan.end)}　休${dc.plan.brk}分`;
       sub=dc.auto?`未記入なので定時あつかい　${ESC(dc.sh.title)}`:`予定 ${DUR(dc.plan.work)}　${ESC(dc.sh.title)}`;chip=dc.auto?`<span class="ktChip ng">✏️ 未記入</span>`:`<span class="ktChip plan">予定</span>`}
-    else if(dc.sh&&dc.sh.off){main="お休み";chip=`<span class="ktChip off">休</span>`}
+    else if(dc.sh&&dc.sh.off){main="お休み";chip=`<span class="ktChip off">休</span>`;
+      const hc=holCalc(d);if(hc)sub=`🌙 前の日の勤務が0時をこえた分 ${DUR(hc.a+hc.b)}（休みの日の割増 目安）`}
     else main=`<span style="color:var(--sub)">シフトなし</span>`;
     if(dc.e&&dc.e.memo&&!(yuu&&/^\s*有[休給]\s*$/.test(dc.e.memo)))sub+=`　📝${ESC(dc.e.memo)}`;
     h+=`<div class="ktDay${d===today?" today":""}" data-d="${d}"><div class="ktDd ${w===0?"sun":w===6?"sat":""}">${m}/${i}<small>${WD[w]}</small></div><div class="ktDm"><div class="t">${main}</div><div class="s">${sub}</div></div>${chip}</div>`;
@@ -2482,7 +2495,6 @@ function openDay(d,startMode){
   p.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:17px">${M}/${D}（${WD[w]}）</b><button class="ktBtn" id="kxClose" type="button">とじる</button></div>
     <div class="ktNote">${dc.sh?`シフト：${ESC(dc.sh.title)}`:"シフトなし"}${usePlan?`（予定 ${HM(dc.plan.start)}〜${HM(dc.plan.end)}・実働${DUR(dc.plan.work)}）`:""}</div>
     ${usePlan?`<div class="ktChoice"><button type="button" id="kxTeiji" class="ktCh"><span class="ic">🌸</span><b>定時で終わった</b><small>${HM(dc.plan.end)}に終わり</small></button><button type="button" id="kxZan" class="ktCh"><span class="ic">⏰</span><b>残業した</b><small>終わった時刻を入れる</small></button></div>`:""}
-    ${usePlan?"":`<button type="button" class="ktHolBtn${e.hol?" on":""}" id="kxHol">🏢 休日出勤（1.35倍）${e.hol?"にしてるよ":"にする"}</button>`}
     <div id="kxOutWrap"><label>🏁 何時に終わった？（退勤）</label>
     <div class="ktBigTime"><input type="time" id="kxOut" value="${toTime(pout)}"></div>
     <div class="ktOtLine" id="kxOtLine"></div></div>
@@ -2494,7 +2506,7 @@ function openDay(d,startMode){
     <div class="ktRow" style="justify-content:space-between;margin-top:10px"><span></span><button class="ktBtn" id="kxDel" type="button" style="font-size:11.5px">この日の入力を消す</button></div>
     <div class="ktFixBar"><button class="ktBtn main" id="kxFix" type="button">✔ この内容で記録する</button></div>`;
   let mode=usePlan?(startMode||((pout!=null&&pout!==dc.plan.end)?"zan":"teiji")):"free";
-  const xIn=$("kxIn"),xOut=$("kxOut");let brk=e.brk!=null?e.brk:null,hol=!usePlan&&!!e.hol;
+  const xIn=$("kxIn"),xOut=$("kxOut");let brk=e.brk!=null?e.brk:null;const offDay=!!(dc.sh&&dc.sh.off&&!isPaid(dc.sh));
   const span=()=>{const a=toMin(xIn.value),b=toMin(xOut.value);if(a==null||b==null)return null;let s=b-a;if(s<0)s+=1440;return s};
   const curBrk=()=>{const s=span();return brk!=null?brk:(s==null?0:stdBreak(s))};
   const ext=()=>{if(!usePlan)return 0;const b=toMin(xOut.value);if(b==null)return 0;let x=b-dc.plan.end%1440;if(x<-720)x+=1440;if(x>720)x-=1440;return x};
@@ -2513,18 +2525,17 @@ function openDay(d,startMode){
       let parts=[];if(x)parts.push(`のびた分 ${JDUR(x)}`);if(miss)parts.push(`休憩がとれなかった分 ${JDUR(miss)}`);if(early)parts.push(`早出など ${JDUR(early)}`);
       $("kxCalc").innerHTML=`予定 ${DUR(pw)}　→　実働 <b>${DUR(wk)}</b><br>追加残業 <b class="ktAdd">+${DUR(ex)}</b>${parts.length?`（${parts.join("＋")}）`:""}`}
     else $("kxCalc").innerHTML=`拘束 ${DUR(s)} − 休憩 ${b}分 ＝ 実働 <b>${DUR(wk)}</b>`+(miss?`<br>🧸 休憩がとれなかった${miss}分は、労働時間に入るよ`:"")
-      +(hol?`<br>🏢 休日出勤：<b>${DUR(wk)}</b>（1.35倍・残業には入らないよ）`:"");
-    {const a=toMin(xIn.value);const nt=a==null?0:nightMin(a,s,b);if(nt)$("kxCalc").innerHTML+=`<br>🌙 深夜 22〜5時：<b>${DUR(nt)}</b>（＋0.25${hol?"・休日出勤と合わせて1.60倍":usePlan?"・残業の分は合わせて1.50倍":""}）`}}
+      +(offDay?`<br>🏢 休みの日の勤務：残業に入って、＋0.10の割増がつく目安（合わせて1.35倍）`:"");
+    {const a=toMin(xIn.value);const nt=a==null?0:nightMin(a,s,b);if(nt)$("kxCalc").innerHTML+=`<br>🌙 深夜 22〜5時：<b>${DUR(nt)}</b>（＋0.25${usePlan?"・残業の分は合わせて1.50倍":""}）`}}
   p.querySelectorAll("#kxBrk button").forEach(x=>x.onclick=()=>{brk=+x.dataset.b;$("kxBrkN").value="";if(brk===60)$("kxBrkMore").style.display="none";upd()});
   $("kxBrkToggle").onclick=()=>{const m=$("kxBrkMore");m.style.display=m.style.display==="none"?"":"none"};
   $("kxBrkN").oninput=ev=>{const v=ev.target.value;brk=v===""?null:Math.max(0,+v);upd()};
   xIn.oninput=upd;xOut.oninput=upd;
-  if($("kxHol"))$("kxHol").onclick=()=>{hol=!hol;const b=$("kxHol");b.classList.toggle("on",hol);b.textContent=hol?"🏢 休日出勤（1.35倍）にしてるよ":"🏢 休日出勤（1.35倍）にする";upd()};
   if(usePlan){$("kxTeiji").onclick=()=>setMode("teiji");$("kxZan").onclick=()=>{setMode("zan");try{xOut.focus()}catch(e){}}}
   setMode(mode);
   const close=()=>{$("ktSheet").classList.remove("show");$("ktSheet").onclick=sheetBg},done=()=>{ktSave();close();render();if(typeof renderOt==="function")renderOt();ktChip()};
   // 入力を変えたまま閉じようとしたら「記録して閉じる／記録しないで閉じる」を聞く
-  const snap=()=>[xIn.value,xOut.value,brk,$("kxMemo").value,mode,hol].join("|");const first=snap();
+  const snap=()=>[xIn.value,xOut.value,brk,$("kxMemo").value,mode].join("|");const first=snap();
   const tryClose=()=>{if(snap()===first){close();return}
     const q=document.createElement("div");q.className="ktQuit";
     q.innerHTML=`<div class="ktQuitBox"><b>入力した内容、どうする？</b><button class="ktBtn main ktDayBtn" type="button" data-q="save">✔ 記録して閉じる</button><button class="ktBtn ktDayBtn" type="button" data-q="drop">記録しないで閉じる</button><button class="ktBtn" type="button" data-q="back" style="font-size:12px">入力にもどる</button></div>`;
@@ -2532,7 +2543,7 @@ function openDay(d,startMode){
   $("kxClose").onclick=tryClose;$("ktSheet").onclick=ev=>{if(ev.target.id==="ktSheet")tryClose()};
   $("kxFix").onclick=()=>{const a=toMin(xIn.value),b=toMin(xOut.value),memo=$("kxMemo").value.trim();
     if(a==null||b==null){if(memo){setDay(d,{memo,fixed:false});done();return}yuAlert("出勤と退勤を入れてね");return}
-    const o={in:a,out:b,brk:curBrk(),memo,fixed:true};if(hol)o.hol=true;setDay(d,o);done()};
+    setDay(d,{in:a,out:b,brk:curBrk(),memo,fixed:true});done()};
   if($("kxAsPlan"))$("kxAsPlan").onclick=()=>{setDay(d,{in:dc.plan.start,out:dc.plan.end,brk:dc.plan.brk,memo:$("kxMemo").value.trim(),fixed:true});done()};
   $("kxDel").onclick=async()=>{if(!await yuAsk("この日の入力を消す？","消す",true))return;setDay(d,{del:true});done()};
   $("ktSheet").classList.add("show");
@@ -2553,7 +2564,7 @@ function monthRows(y,m){
   rows.push(["確認欄",`${y}年${m}月`]);
   rows.push(["今月の所定労働時間",`${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）`]);
   rows.push(["シフトの予定時間",DUR(s.planSum)],["確定残業",DUR(s.kakutei)],["追加残業",DUR(s.extraSum)],["全労働時間",DUR(s.total)]);
-  if(s.holSum)rows.push(["休日出勤（1.35倍）",`${DUR(s.holSum)}（${s.holDays}日）→ ${s.holH}時間`,`¥${s.holYen.toLocaleString()}（単価 ¥${HOLR(y,m).toLocaleString()}）`]);
+  if(s.h35||s.h10)rows.push(["休みの日の割増（目安）",`＋0.35 ${DUR(s.h35)}・＋0.10 ${DUR(s.h10)}`,`¥${s.holYen.toLocaleString()}（単価 ＋0.35 ¥${R35(y,m).toLocaleString()}・＋0.10 ¥${R10(y,m).toLocaleString()}）`]);
   if(s.nightSum)rows.push(["深夜 22〜5時（＋0.25）",`${DUR(s.nightSum)} → ${s.nightH}時間`,`¥${s.nightYen.toLocaleString()}（単価 ¥${NIGHTR(y,m).toLocaleString()}）`]);
   rows.push(["残業（そのまま）",DUR(s.ot)],["残業（切り上げ・切り捨て後）",`${s.otH}時間（30分以上は切り上げ・30分未満は切り捨て）`],["残業単価",`¥${RATE(y,m).toLocaleString()}`],["時間外手当（見込み）",`¥${s.yen.toLocaleString()}`]);
   rows.push(["明細の数字",s.pay?`${s.pay.h}時間・¥${s.pay.y.toLocaleString()}`:"（明細が出たら残業カウンターに入力）",s.pay?(!(s.workDays>0&&s.fixedDays>=s.workDays)?"全部の日を入力すると照らし合わせるよ":(s.pay.h===s.otH&&s.pay.y===s.yen)?"✓ 一致":"✗ ちがう"):""]);
@@ -2561,7 +2572,7 @@ function monthRows(y,m){
   rows.push([]);rows.push(HEAD);
   for(let i=1;i<=s.n;i++){const d=`${mk(y,m)}-${P(i)}`,c=dayCalc(d);
     rows.push([d,c.sh?c.sh.title:"",c.act?toTime(c.act.start):"",c.act?toTime(c.act.end):"",c.act?String(c.act.brk):"",
-      c.act?DUR(c.act.work):"",c.planW?DUR(c.planW):"",c.extra?DUR(c.extra):"",[c.hol?"休日出勤":"",c.night?`深夜${DUR(c.night)}`:"",c.e&&c.e.memo||""].filter(Boolean).join("・"),c.fixed?"✓":"",c.e&&c.e.by||""])}
+      c.act?DUR(c.act.work):"",c.planW?DUR(c.planW):"",c.extra?DUR(c.extra):"",[holCalc(d)?"休みの日の割増":"",c.night?`深夜${DUR(c.night)}`:"",c.e&&c.e.memo||""].filter(Boolean).join("・"),c.fixed?"✓":"",c.e&&c.e.by||""])}
   return rows;
 }
 const csvLine=r=>r.map(v=>{v=String(v??"");return/[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v}).join(",");
@@ -2619,9 +2630,9 @@ $("ktCsvIn").onchange=ev=>{const f=ev.target.files[0];if(!f)return;
 function ktPdfShare(s,rows){
   const nm=`${cur.y}年${cur.m}月勤務実績`,W=1240,H=1754,MG=70,FF='"Hiragino Sans","Zen Maru Gothic",sans-serif';
   const body=[];for(const r of rows){if(!/^\d{4}-\d{2}-\d{2}$/.test(r[0]||""))continue;const[Y,M,D]=r[0].split("-").map(Number);
-    {const dc=dayCalc(r[0]);if(isPaid(dc.sh)||(dc.e&&/有[休給]/.test(dc.e.memo||""))){r[2]=r[3]=r[4]="";r[8]=r[8]||"有休"}}
+    {const dc=dayCalc(r[0]);if(isPaid(dc.sh)||(dc.e&&LEAVE.test(dc.e.memo||""))){r[2]=r[3]=r[4]="";r[8]=r[8]||"有休"}}
     body.push([`${M}/${D}(${WD[new Date(Y,M-1,D).getDay()]})`,...r.slice(1,9).map(v=>String(v??""))])}
-  const foot=[`所定労働時間 ${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）／シフトの予定時間 ${DUR(s.planSum)}／確定残業 ${DUR(s.kakutei)}／追加残業 ${DUR(s.extraSum)}／全労働時間 ${DUR(s.total)}`,...(s.holSum||s.nightSum?[[s.holSum?`休日出勤 ${DUR(s.holSum)}（${s.holH}時間 ¥${s.holYen.toLocaleString()}）`:"",s.nightSum?`深夜 ${DUR(s.nightSum)}（${s.nightH}時間 ¥${s.nightYen.toLocaleString()}）`:""].filter(Boolean).join("／")]:[]),
+  const foot=[`所定労働時間 ${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）／シフトの予定時間 ${DUR(s.planSum)}／確定残業 ${DUR(s.kakutei)}／追加残業 ${DUR(s.extraSum)}／全労働時間 ${DUR(s.total)}`,...(s.h35||s.h10||s.nightSum?[[s.h35||s.h10?`休みの日の割増（目安）＋0.35 ${DUR(s.h35)}・＋0.10 ${DUR(s.h10)}（¥${s.holYen.toLocaleString()}）`:"",s.nightSum?`深夜 ${DUR(s.nightSum)}（${s.nightH}時間 ¥${s.nightYen.toLocaleString()}）`:""].filter(Boolean).join("／")]:[]),
     `残業 ${DUR(s.ot)} →（30分以上は切り上げ・30分未満は切り捨て）${s.otH}時間　時間外手当 見込み ¥${s.yen.toLocaleString()}（単価 ¥${RATE(cur.y,cur.m).toLocaleString()}）`];
   const CW=[.11,.18,.08,.08,.08,.08,.12,.09,.18].map(x=>x*(W-MG*2)),RH=40,per=Math.floor((H-MG*2-60-RH)/RH);
   const fit=(c,t,w)=>{if(c.measureText(t).width<=w)return t;while(t&&c.measureText(t+"…").width>w)t=t.slice(0,-1);return t+"…"};
@@ -2657,9 +2668,9 @@ $("ktPdfOut").onclick=()=>{
   const s=monthCalc(cur.y,cur.m),rows=monthRows(cur.y,cur.m);
   let h=`<h2 style="margin:0 0 6px">勤怠表　${cur.y}年${cur.m}月</h2><table><tr>${HEAD.slice(0,9).map(x=>`<th>${x}</th>`).join("")}</tr>`;
   for(const r of rows){if(!/^\d{4}-\d{2}-\d{2}$/.test(r[0]||""))continue;const[Y,M,D]=r[0].split("-").map(Number);
-    {const dc=dayCalc(r[0]);if(isPaid(dc.sh)||(dc.e&&/有[休給]/.test(dc.e.memo||""))){r[2]=r[3]=r[4]="";r[8]=r[8]||"有休"}}
+    {const dc=dayCalc(r[0]);if(isPaid(dc.sh)||(dc.e&&LEAVE.test(dc.e.memo||""))){r[2]=r[3]=r[4]="";r[8]=r[8]||"有休"}}
     h+=`<tr><td>${M}/${D}(${WD[new Date(Y,M-1,D).getDay()]})</td>${r.slice(1,9).map((v,i)=>`<td${i===7?' class="l"':""}>${ESC(v)}</td>`).join("")}</tr>`}
-  h+=`</table><p style="margin-top:8px">所定労働時間 ${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）／シフトの予定時間 ${DUR(s.planSum)}／確定残業 ${DUR(s.kakutei)}／追加残業 ${DUR(s.extraSum)}／全労働時間 ${DUR(s.total)}${s.holSum?`／休日出勤 ${DUR(s.holSum)}（${s.holH}時間 ¥${s.holYen.toLocaleString()}）`:""}${s.nightSum?`／深夜 ${DUR(s.nightSum)}（${s.nightH}時間 ¥${s.nightYen.toLocaleString()}）`:""}<br>残業 ${DUR(s.ot)} →（30分以上は切り上げ・30分未満は切り捨て）<b>${s.otH}時間</b>　時間外手当 見込み <b>¥${s.yen.toLocaleString()}</b>（単価 ¥${RATE(cur.y,cur.m).toLocaleString()}）</p>`;
+  h+=`</table><p style="margin-top:8px">所定労働時間 ${DUR(s.shotei)}（出勤${s.n-s.kou}日×8h）／シフトの予定時間 ${DUR(s.planSum)}／確定残業 ${DUR(s.kakutei)}／追加残業 ${DUR(s.extraSum)}／全労働時間 ${DUR(s.total)}${s.h35||s.h10?`／休みの日の割増（目安）＋0.35 ${DUR(s.h35)}・＋0.10 ${DUR(s.h10)}（¥${s.holYen.toLocaleString()}）`:""}${s.nightSum?`／深夜 ${DUR(s.nightSum)}（${s.nightH}時間 ¥${s.nightYen.toLocaleString()}）`:""}<br>残業 ${DUR(s.ot)} →（30分以上は切り上げ・30分未満は切り捨て）<b>${s.otH}時間</b>　時間外手当 見込み <b>¥${s.yen.toLocaleString()}</b>（単価 ¥${RATE(cur.y,cur.m).toLocaleString()}）</p>`;
   if(navigator.standalone){ktPdfShare(s,rows);return} // ホーム画面アプリはPDFを直接作って名前つきで共有（2026-11-22）
   $("ktPrint").innerHTML=h;document.body.classList.add("ktPrinting");
   const ttl=document.title;document.title=`${cur.y}年${cur.m}月勤務実績`; // 保存するPDFの名前になる（2026-11-22）

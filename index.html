@@ -88,7 +88,7 @@ body.dark .wxBear{border-color:#4a3f6b}
 .bubble b{color:#e0609a}
 .cheer{position:relative;margin-top:10px;background:#fff;border:2px solid var(--pink2);border-radius:14px;padding:6px 10px;font-size:13px;line-height:1.5;color:var(--ink)}
 .cheer{padding-left:56px!important;min-height:52px}
-.cheer:before{content:"";position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:50%;background:#fff0f8 url(kintai-face.webp) center/cover no-repeat;border:2px solid var(--pink)!important}
+.cheer:before{content:"";position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:50%;background:#fff0f8 url(face-talk.webp) center/cover no-repeat;border:2px solid var(--pink)!important}
 .cheer:after{display:none}
 .cheer:before,.cheer:after{border-width:2px}
 
@@ -708,16 +708,16 @@ body.dark .ktChips button{color:#e8dff2;background:rgba(255,255,255,.06)}body.da
 </style>
 <script>
 // 🧸 お知らせ（下から出て消える。うまくいかなかったときはタップするまで残す）と確認（はい/いいえを Promise で返す）
-const YU_FACE="kintai-face.webp";
+const YU_FACE="face-ask.webp"; // 場面ごとの顔（2026-11-22）：確認=ask・消す確認=really・お知らせ=yay・エラー=oops
 function yuAlert(msg){msg=String(msg??"");let t=document.getElementById("yuToast");
   if(!t){t=document.createElement("div");t.id="yuToast";t.innerHTML=`<img src="${YU_FACE}" alt=""><div><div class="m"></div><div class="x"></div></div>`;t.onclick=()=>t.classList.remove("show");document.body.appendChild(t)}
   const err=/なかった|できなかった|じゃない|読めない|入れてね|まだない|失敗|エラー|⚠️/.test(msg);
   t.querySelector(".m").textContent=msg.replace(/^🧸\s*/,"")+(/🧸/.test(msg)?"":" 🧸");t.querySelector(".x").textContent=err?"タップで閉じるよ":"";
-  t.classList.toggle("err",err);clearTimeout(t._tm);requestAnimationFrame(()=>t.classList.add("show"));
+  t.querySelector("img").src=err?"face-oops.webp":"face-yay.webp";t.classList.toggle("err",err);clearTimeout(t._tm);requestAnimationFrame(()=>t.classList.add("show"));
   if(!err)t._tm=setTimeout(()=>t.classList.remove("show"),3000+Math.min(msg.length*40,3000))}
 function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document.getElementById("yuAsk");
   if(!a){a=document.createElement("div");a.id="yuAsk";a.innerHTML=`<div class="cf"><img src="${YU_FACE}" alt=""><div class="m"></div><div class="b"><button type="button" class="no">やめる</button><button type="button" class="yes"></button></div></div>`;document.body.appendChild(a)}
-  a.querySelector(".m").textContent=msg;const y=a.querySelector(".yes"),n=a.querySelector(".no");y.textContent=ok;y.classList.toggle("danger",!!danger);
+  a.querySelector(".m").textContent=msg;const y=a.querySelector(".yes"),n=a.querySelector(".no");y.textContent=ok;y.classList.toggle("danger",!!danger);a.querySelector("img").src=danger?"face-really.webp":"face-ask.webp";
   const end=v=>{a.classList.remove("show");y.onclick=n.onclick=a.onclick=null;res(v)};
   y.onclick=e=>{e.stopPropagation();end(true)};n.onclick=e=>{e.stopPropagation();end(false)};a.onclick=e=>{if(e.target===a)end(false)};
   a.classList.add("show")})}
@@ -743,7 +743,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     </div>
     <div style="text-align:right"><span class="clkLbl">現在<br>時刻</span><div class="clock" id="clock">--:--:--</div></div>
   </div>
-  <button class="fmBar" id="fmOpen" type="button" aria-label="ファーちゃんの案内所"><img src="kintai-face.webp" alt=""><span class="t"><b>🧸 案内所🗺️ さがす・聞く</b><small>例：残業単価どこ？ シートのURLは？</small></span><span class="q">🔍</span></button>
+  <button class="fmBar" id="fmOpen" type="button" aria-label="ファーちゃんの案内所"><img src="face-guide.webp" alt=""><span class="t"><b>🧸 案内所🗺️ さがす・聞く</b><small>例：残業単価どこ？ シートのURLは？</small></span><span class="q">🔍</span></button>
 
   <div id="bdayBar" style="display:none"></div>
 

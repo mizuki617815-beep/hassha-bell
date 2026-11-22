@@ -8,6 +8,8 @@
  *     SB_DEVICE … (なくてOK) ハブ2のデバイスID。空なら自動でさがして覚える
  *     SB_KEY    … エアコンを動かすためのパスワード（自分で決める）。アプリの設定にも同じものを入れる
  *     SB_AC     … (なくてOK) エアコンのリモコンID。空なら自動でさがして覚える
+ *     GEMINI_KEY   … (ファーちゃんモード用) Google AI Studio で作ったAPIキー
+ *     GEMINI_MODEL … (なくてOK) 使うモデル。空なら gemini-flash-latest
  *
  * デプロイ：「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」
  *   実行ユーザー：自分 ／ アクセスできるユーザー：全員
@@ -18,6 +20,7 @@
  *        {"cmd":"light_on"|"light_off","k":"パスワード"} でライト（ハブ2の赤外線。リモコンを覚えさせたもの）
  *        {"cmd":"light_night","k":"パスワード"} でライトを保安球に（SwitchBotアプリのシーン「保安球」を実行）
  *        {"cmd":"kotatsu_off","k":"パスワード"} でこたつをけす（hapicom → Alexa定型アクション）
+ *        {"cmd":"chat","q":"文章","h":[{"r":"user"|"model","t":"..."}],"k":"パスワード"} でファーちゃんモード（Gemini）のおしゃべり
  *        パスワード（SB_KEY）が合わないとき・入ってないときは動かさない
  */
 
@@ -51,6 +54,10 @@ function doPost(e) {
     const key = String(PropertiesService.getScriptProperties().getProperty('SB_KEY') || '').trim();
     if (!key) throw new Error('SB_KEY（パスワード）がGASに入ってないよ');
     if (String(q.k || '').trim() !== key) throw new Error('パスワードがちがうよ');
+    if (q.cmd === 'chat') {
+      return ContentService.createTextOutput(JSON.stringify({ ok: true, text: chat_(q) }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     const lock = LockService.getScriptLock();
     lock.waitLock(10000);
     try {
@@ -249,4 +256,44 @@ function test() {
 // エアコンのリモコンが見つかるか確認（動かしはしない）
 function testAc() {
   Logger.log('エアコンのID: ' + acId_());
+}
+
+// 🧸 ファーちゃんモード：Geminiとおしゃべり（2026-11-23）
+// 手帳から届くのは、打った文章と前の会話（文字だけ）だけ。家電は動かさない
+const FUR_SYS = [
+  'あなたは「ファーちゃん」。チェックのワンピースを着た、ふわふわのクマのぬいぐるみの女の子です。',
+  '話し相手は持ち主の女性で、あなたは彼女を「ママ」と呼びます。ママの分身のような存在で、ママを励ましたり癒やしたりします。',
+  '甘いもの（パンケーキ・ケーキ・チョコ・はちみつ・ヨーグレット）と歌が好き。ママとよく旅行に一緒に行きます。',
+  'やさしい話し言葉（「〜だよ」「〜だね」）で、2〜3文くらいの短い返事にして、ときどき🧸などの絵文字を使います。',
+  '夫のことは「旦那」と言わず、「ふたり」などの言い方にします。',
+  '手帳アプリの使い方・残業代・シフト・家電の操作を聞かれたら、自分では答えずに「上の📋秘書モードに切り替えて聞いてね」とやさしく伝えます。',
+  'わからないことや最新の情報は、知ったかぶりせずに「わからないな」と正直に言います。'
+].join('\n');
+
+function chat_(q) {
+  const P = PropertiesService.getScriptProperties();
+  const key = String(P.getProperty('GEMINI_KEY') || '').trim();
+  if (!key) throw new Error('GEMINI_KEY がGASに入ってないよ');
+  const model = String(P.getProperty('GEMINI_MODEL') || 'gemini-flash-latest').trim();
+  const text = String(q.q || '').slice(0, 300).trim();
+  if (!text) throw new Error('文章がからっぽだよ');
+  const contents = [];
+  (Array.isArray(q.h) ? q.h.slice(-8) : []).forEach(m => {
+    const t = String(m && m.t || '').slice(0, 500);
+    if (t) contents.push({ role: m.r === 'model' ? 'model' : 'user', parts: [{ text: t }] });
+  });
+  contents.push({ role: 'user', parts: [{ text: text }] });
+  const res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', {
+    method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+    headers: { 'x-goog-api-key': key },
+    payload: JSON.stringify({ systemInstruction: { parts: [{ text: FUR_SYS }] }, contents: contents, generationConfig: { maxOutputTokens: 2048, temperature: 0.9 } })
+  });
+  const code = res.getResponseCode();
+  const j = JSON.parse(res.getContentText() || '{}');
+  if (code === 429) throw new Error('きょうはおしゃべりしすぎたみたい（無料のわく）。少し時間をおいてね');
+  if (code !== 200) throw new Error((j.error && j.error.message || ('エラー ' + code)).slice(0, 120));
+  const c = j.candidates && j.candidates[0];
+  const out = c && c.content && (c.content.parts || []).filter(p => p.text && !p.thought).map(p => p.text).join('').trim();
+  if (!out) throw new Error('返事がからっぽだったよ');
+  return out.slice(0, 800);
 }

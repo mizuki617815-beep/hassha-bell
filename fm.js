@@ -190,11 +190,36 @@ function faceOf(h){h=String(h);
   if(/みたいだよ|いまは<b>|きょうは<b>/.test(h))return"talk";
   if(/連れていくね|fmGoBtn|使い方|つかいかた/.test(h))return"guide";
   return"talk"}
-function push(who,html){LOG.push(who==="me"?`<div class="fmMsg me"><span>${esc(html)}</span></div>`:`<div class="fmMsg bot"><img class="fb" src="face-${faceOf(html)}.webp" alt=""><div class="fs">${html}</div></div>`);if(LOG.length>60)LOG=LOG.slice(-60)}
-function askFM(t){t=String(t||"").trim();if(!t)return;push("me",t);push("bot",think(t));q.value="";grp=CHAT;drawChips();draw();try{q.blur()}catch(e){}}
+const TAG={sec:"📋 秘書モード",fur:"🧸 ファーちゃんモード"};
+const botHtml=(html,m,face)=>`<div class="fmMsg bot"><img class="fb" src="face-${face||faceOf(html)}.webp" alt=""><div class="fw"><div class="fs">${html}</div><div class="fmTag">${TAG[m||"sec"]}</div></div></div>`;
+function push(who,html,m){LOG.push(who==="me"?`<div class="fmMsg me"><span>${esc(html)}</span></div>`:botHtml(html,m));if(LOG.length>60)LOG=LOG.slice(-60);return LOG.length-1}
+// ===== 📋秘書モード（辞書）／🧸ファーちゃんモード（Gemini）の切り替え（2026-11-23）=====
+// ファーちゃんモードは、打った文章とその前の会話（文字だけ・最大8件）だけをGASへ送る。手帳の数字（残業・明細・シフト・温度など）は送らない。家電のボタンはさわらせない
+const MDK="yumebell_fm_mode";let MODE=(()=>{try{return localStorage.getItem(MDK)==="fur"?"fur":"sec"}catch(e){return"sec"}})();
+let HIST=[];
+function setMode(m){MODE=m==="fur"?"fur":"sec";try{localStorage.setItem(MDK,MODE)}catch(e){}
+  const mb=$("fmMode");if(mb)[...mb.querySelectorAll("button")].forEach(b=>b.classList.toggle("on",b.dataset.m===MODE));
+  q.placeholder=MODE==="fur"?"ファーちゃんとおしゃべりしよ":"ファーちゃんに聞いてね";sh.classList.toggle("fur",MODE==="fur")}
+{const mb=$("fmMode");if(mb)mb.onclick=e=>{const b=e.target.closest("button[data-m]");if(!b)return;setMode(b.dataset.m);if(!q.value.trim()&&LOG.length){grp=CHAT;drawChips()}draw()}}
+const plain=h=>String(h).replace(/<br\s*\/?>/g,"\n").replace(/<[^>]+>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").trim();
+async function askFur(t){push("me",t);const wid="w"+Date.now();LOG.push(botHtml(`<span class="fmDots" data-wait="${wid}">考え中<i>.</i><i>.</i><i>.</i></span>`,"fur","talk"));if(LOG.length>60)LOG=LOG.slice(-60);
+  q.value="";grp=CHAT;drawChips();draw();try{q.blur()}catch(e){}
+  let html,face;
+  try{if(!window.fmGem)throw new Error("noconn");const txt=await window.fmGem(t.slice(0,300),HIST.slice(-8));
+    HIST.push({r:"user",t:t.slice(0,300)},{r:"model",t:String(txt).slice(0,500)});HIST=HIST.slice(-8);
+    html=esc(txt).replace(/\n/g,"<br>")}
+  catch(e){const m=String(e&&e.message||e);const c=chatOf(norm(t));
+    html=/noconn/.test(m)?"ファーちゃんモードはまだ準備中だよ…🧸<br><small>⚙️設定の「おうちの温度」のURLとエアコンのパスワード、GASの GEMINI_KEY がそろうとおしゃべりできるよ</small>"
+      :(c?c+"<br>":"")+`<small>（いまうまくつながらなかったよ…${esc(m.slice(0,60))}）</small>`;face=c?null:"oops"}
+  const j=LOG.findIndex(x=>x.includes(`data-wait="${wid}"`)),nh=botHtml(html,"fur",face);if(j>=0)LOG[j]=nh;else LOG.push(nh);if(sh.classList.contains("show")&&grp===CHAT&&!q.value.trim())drawChat()}
+function askFM(t){t=String(t||"").trim();if(!t)return;if(MODE==="fur"){askFur(t);return}push("me",t);push("bot",think(t));q.value="";grp=CHAT;drawChips();draw();try{q.blur()}catch(e){}}
 function drawChat(){say("");list.innerHTML=LOG.join("")||"";requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight})}
 function draw(){const v=q.value.trim();
   if(!v&&grp===CHAT&&LOG.length){drawChat();return}
+  if(v&&LOG.length){// 会話があるときは会話を見せたまま：秘書モードは候補を上に小さく3つだけ、ファーちゃんモードは候補なし（2026-11-23）
+    if(grp!==CHAT){grp=CHAT;drawChips()}list.innerHTML=LOG.join("");list.scrollTop=list.scrollHeight;
+    if(MODE==="fur"){say("");return}
+    const r=rank(v,1).slice(0,3);say(r.length?`<span class="fmMinis">${r.map(x=>`<button class="fmMini" type="button" data-k="${x.gi}-${x.ii}">${x.x.it[0]} ${esc(x.x.it[1])}</button>`).join("")}</span>`:"Enter（🧸聞く）で聞いてみてね");return}
   if(v){// 打っているあいだ：点数の高い順に候補を出す
     const r=rank(v,1).slice(0,10);say(r.length?"🔍 候補だよ。文章で聞くときは Enter（🧸聞く）でファーちゃんが答えるよ":"Enter（🧸聞く）でファーちゃんに聞いてみてね");
     if(r.length){list.innerHTML=r.map((x,i)=>itemBtn(x.gi,x.ii,i===0&&(!r[1]||x.sc>=r[1].sc*1.3))).join("");return}
@@ -228,6 +253,8 @@ list.onclick=e=>{const ab=e.target.closest(".fmAct");if(ab){const real=document.
   const sg=e.target.closest(".fmSug");if(sg){askFM(sg.textContent);return}
   const pk=e.target.closest(".fmPick");if(pk){const[g,i]=pk.dataset.k.split("-"),x=ITEMS.find(x=>x.gi===+g&&x.ii===+i);if(x){push("me",x.it[1]);push("bot",answerItem(x,""));grp=CHAT;drawChips();draw()}return}
   const b=e.target.closest(".fmGoBtn,.fmItem");if(b){const[g,i]=b.dataset.k.split("-");go(+g,+i)}};
+ask.onclick=e=>{const b=e.target.closest(".fmMini");if(!b)return;const[g,i]=b.dataset.k.split("-"),x=ITEMS.find(x=>x.gi===+g&&x.ii===+i);if(x){q.value="";push("me",x.it[1]);push("bot",answerItem(x,""));grp=CHAT;drawChips();draw()}};
+setMode(MODE);
 q.oninput=draw;$("fmX").onclick=closeFM;sh.onclick=e=>{if(e.target===sh)closeFM()};
 $("fmOpen").onclick=openFM;$("fmOpen2").onclick=openFM;
 window.fmGo=(name)=>{let hit=0;FM.forEach((g,gi)=>g[1].forEach((it,ii)=>{if(!hit&&it[1]===name){hit=1;go(gi,ii)}}))}; // 更新履歴などから呼ぶ用

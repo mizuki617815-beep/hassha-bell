@@ -15,7 +15,7 @@
  *
  * GET  … 温度・湿度・時刻を返す（見るだけ）
  * POST … {"cmd":"cool"|"heat"|"off","temp":27,"k":"パスワード"} でエアコンを動かす
- *        {"cmd":"light_on"|"light_off","k":"パスワード"} でライト（hapicom経由）
+ *        {"cmd":"light_on"|"light_off"|"kotatsu_on"|"kotatsu_off","k":"パスワード"} でライト・こたつ（hapicom経由）
  *        パスワード（SB_KEY）が合わないとき・入ってないときは動かさない
  */
 
@@ -52,7 +52,7 @@ function doPost(e) {
     const lock = LockService.getScriptLock();
     lock.waitLock(10000);
     try {
-      if (q.cmd === 'light_on' || q.cmd === 'light_off') {
+      if (HC_PROP[q.cmd]) {
         hcTrigger_(q.cmd);
         out = { ok: true, cmd: q.cmd, at: Date.now() };
         return ContentService.createTextOutput(JSON.stringify(out))
@@ -94,18 +94,26 @@ function sbCmd_(id, command, parameter) {
   return sb_('/devices/' + id + '/commands', { command: command, parameter: parameter, commandType: 'command' });
 }
 
-// ライト：hapicom「仮想トリガーボタン」→ Alexaの定型アクション → シーリングライト
-//   HC_KEY       … hapicomのAPIキー（tr_…）
-//   HC_LIGHT_ON  … (なくてOK) 「つける」のトリガーID。空なら default
-//   HC_LIGHT_OFF … 「けす」のトリガーID（ベーシックプランで作ったら入れる）
+// ライト・こたつ：hapicom「仮想トリガーボタン」→ Alexaの定型アクション → 家電
+//   HC_KEY         … hapicomのAPIキー（tr_…）
+//   HC_LIGHT_ON    … (なくてOK) 「ライトつける」のトリガーID。空なら default
+//   HC_LIGHT_OFF   … 「ライトけす」のトリガーID
+//   HC_KOTATSU_ON  … 「こたつつける」のトリガーID
+//   HC_KOTATSU_OFF … 「こたつけす」のトリガーID
+const HC_PROP = {
+  light_on:    ['HC_LIGHT_ON', 'default', 'ライトつける'],
+  light_off:   ['HC_LIGHT_OFF', '', 'ライトけす'],
+  kotatsu_on:  ['HC_KOTATSU_ON', '', 'こたつつける'],
+  kotatsu_off: ['HC_KOTATSU_OFF', '', 'こたつけす']
+};
 function hcTrigger_(cmd) {
+  const def = HC_PROP[cmd];
+  if (!def) throw new Error('わからない操作だよ');
   const p = PropertiesService.getScriptProperties();
   const key = String(p.getProperty('HC_KEY') || '').replace(/\s/g, '');
   if (!key) throw new Error('HC_KEY（hapicomのAPIキー）が入ってないよ');
-  const trig = cmd === 'light_on'
-    ? String(p.getProperty('HC_LIGHT_ON') || 'default').trim()
-    : String(p.getProperty('HC_LIGHT_OFF') || '').trim();
-  if (!trig) throw new Error('「けす」のトリガーがまだないよ');
+  const trig = String(p.getProperty(def[0]) || def[1]).trim();
+  if (!trig) throw new Error('「' + def[2] + '」のトリガーがまだないよ（' + def[0] + '）');
   const res = UrlFetchApp.fetch('https://alexa.hapicom.jp/tr/' + encodeURIComponent(trig), {
     headers: { Authorization: 'Bearer ' + key }, muteHttpExceptions: true
   });
@@ -113,11 +121,11 @@ function hcTrigger_(cmd) {
   if (code < 200 || code >= 300) throw new Error('hapicom: ' + code + ' ' + res.getContentText().slice(0, 100));
 }
 
-// エディタで▶実行すると、ライトがつくか確認できるよ
-function testLight() {
-  hcTrigger_('light_on');
-  Logger.log('ライトつける を送ったよ');
-}
+// エディタで▶実行すると、それぞれ動くか確認できるよ
+function testLight() { hcTrigger_('light_on'); Logger.log('ライトつける を送ったよ'); }
+function testLightOff() { hcTrigger_('light_off'); Logger.log('ライトけす を送ったよ'); }
+function testKotatsuOn() { hcTrigger_('kotatsu_on'); Logger.log('こたつつける を送ったよ'); }
+function testKotatsuOff() { hcTrigger_('kotatsu_off'); Logger.log('こたつけす を送ったよ'); }
 
 // ハブ2のIDをさがして、スクリプトプロパティに覚えておく
 function hubId_() {

@@ -955,7 +955,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       <label>おうちの温度のつなぎ先（GASの …/exec で終わるURL）<span class="lockTag" id="homeLockTag">🔒 カギつき</span></label>
       <input type="text" id="homeUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" autocorrect="off" spellcheck="false">
       <button class="ktLinkBtn" id="homeUnlock" type="button" style="display:none">🔓 つなぎ先を変える</button>
-      <div class="ktRow"><button class="ktBtn main" id="homeSave" type="button">🔗 つないでためす</button> <button class="ktBtn" id="homeOff" type="button" style="display:none">はずす</button></div>
+      <div class="ktRow"><button class="ktBtn main" id="homeSave" type="button">🔗 つないでためす</button> <button class="ktBtn" id="homeOff" type="button" style="display:none">🗑 URLを消す</button></div>
       <div class="ktNote" id="homeNote">天気のカードの上に、おうちの温度と湿度が出るよ。URLはこのスマホの中にだけ保存されるよ</div>
       <label>❄️🔥 エアコンのパスワード（GASの SB_KEY と同じもの）<span class="lockTag" id="acLockTag">🔒 カギつき</span></label>
       <input type="password" id="acKey" placeholder="入れると天気カードにエアコンのボタンが出るよ" autocomplete="off">
@@ -3504,7 +3504,7 @@ $("homeSave").onclick=async()=>{if(ui.readOnly){note.textContent="🔄 よみに
   try{localStorage.setItem(K,u)}catch(e){}note.textContent="🔄 よみにいってるよ…";
   unlocked=false;lockUI();try{const j=await load(true);note.textContent="✅ つながったよ！ いま "+j.t.toFixed(1)+"℃・"+Math.round(j.h)+"%"}
   catch(e){note.textContent="⚠️ 読めなかったよ："+(e.message||e)+"（GASのスクリプトプロパティとデプロイを見てね）"}};
-$("homeOff").onclick=async()=>{if(!await yuAsk("おうちの温度をはずす？\n（またURLを貼ればもどせるよ）","はずす",true))return;unlocked=false;try{localStorage.removeItem(K);localStorage.removeItem(KC)}catch(e){}ui.value="";lockUI();box.style.display="none";note.textContent="はずしたよ。また使うときはURLを貼ってね"};
+$("homeOff").onclick=async()=>{if(!await yuAsk("おうちの温度のURLを消す？\n（天気カードのおうちの温度とエアコンのボタンが出なくなるよ。またURLを貼ればもどせるよ）","消す",true))return;unlocked=false;try{localStorage.removeItem(K);localStorage.removeItem(KC)}catch(e){}ui.value="";lockUI();box.style.display="none";note.textContent="URLを消したよ。また使うときはURLを貼ってね"};
 const tap=()=>{box.style.opacity=".6";load(true).catch(()=>{}).finally(()=>{box.style.opacity=""})};
 box.onclick=tap;box.addEventListener("keydown",e=>{if(e.key==="Enter")tap()});
 /* ❄️🔥 エアコン（パスワードつき、2026-11-22） */
@@ -3521,7 +3521,7 @@ const acUI=()=>{const o=acGet(),has=!!o.k,lk=has&&!acUnl;
   ab.querySelector(".c").textContent="❄️ 冷房"+(o.acCool||27)+"℃";ab.querySelector(".h").textContent="🔥 暖房"+(o.acHeat||25)+"℃"};
 $("acSave").onclick=()=>{const v=ak.value.trim();if(!v){ak.focus();return}const o=acGet();o.k=v;acPut(o);acUnl=false;acUI()};
 $("acUnlock").onclick=async()=>{if(!await yuAsk("エアコンのパスワードを変える？\n（GASの SB_KEY も同じにしてね）","変える",true))return;acUnl=true;acUI();ak.focus()};
-$("acOff").onclick=async()=>{if(!await yuAsk("エアコンのパスワードを消す？\n（天気カードのエアコンのボタンも消えるよ。またパスワードを入れればもどせるよ）","はずす",true))return;const o=acGet();delete o.k;acPut(o);acUnl=false;acUI()};
+$("acOff").onclick=async()=>{if(!await yuAsk("エアコンのパスワードを消す？\n（天気カードのエアコンのボタンも消えるよ。またパスワードを入れればもどせるよ）","消す",true))return;const o=acGet();delete o.k;acPut(o);acUnl=false;acUI()};
 ab.addEventListener("click",async e=>{const b=e.target.closest("button[data-ac]");if(!b)return;
   const cmd=b.dataset.ac,o=acGet(),temp=cmd==="cool"?(o.acCool||27):cmd==="heat"?(o.acHeat||25):0;
   const lbl=cmd==="off"?"エアコンをけす":(cmd==="cool"?"冷房":"暖房")+temp+"℃でつける";

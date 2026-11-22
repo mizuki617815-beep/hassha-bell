@@ -665,7 +665,7 @@ body.dark .fmPanel{background:#2a2340}
 .fmRow{display:flex;gap:6px;align-items:stretch}.fmSend{flex:none;border:0;border-radius:14px;padding:0 12px;background:linear-gradient(135deg,#ffb3d1,#c9a8ff);color:#fff;font:inherit;font-size:14px;font-weight:900;cursor:pointer}
 .fmMsg{display:flex;gap:8px;margin:10px 2px;align-items:flex-start}.fmMsg.me{justify-content:flex-end}
 .fmMsg.me span{background:var(--lav2);color:var(--ink);border-radius:16px 16px 4px 16px;padding:8px 12px;font-size:14px;max-width:80%;word-break:break-word}
-.fmMsg.bot .fb{font-size:24px;line-height:1;flex:none}.fmMsg.bot .fs{background:#fdeef5;color:#7a2a50;border-radius:16px 16px 16px 4px;padding:9px 12px;font-size:13.5px;line-height:1.6;max-width:85%;word-break:break-word}
+.fmMsg.bot .fb{width:40px;height:40px;border-radius:50%;object-fit:cover;flex:none;border:2px solid #ffc6df;background:#fff0f8}.fmMsg.bot .fs{background:#fdeef5;color:#7a2a50;border-radius:16px 16px 16px 4px;padding:9px 12px;font-size:13.5px;line-height:1.6;max-width:85%;word-break:break-word}
 .fmMsg.bot .fs b{color:#d6336c}.fmMsg.bot .fs small{color:var(--sub)}
 body.dark .fmMsg.bot .fs{background:#4a3f6b;color:#ffe3ef}body.dark .fmMsg.bot .fs b{color:#ffb7d5}
 .fmActs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.fmActs:empty{display:none}
@@ -688,7 +688,7 @@ body.dark .fmChips button.on{background:#4a3f6b;color:#ffb7d5}
 .fmItem .fa{flex:none;color:#c9b3f5;font-weight:900}
 .fmNone{text-align:center;color:var(--sub);font-size:13px;padding:24px 8px}
 .fmAsk{display:none;gap:8px;align-items:flex-start;margin:6px 0 2px}.fmAsk.show{display:flex}
-.fmAsk .fb{font-size:24px;line-height:1}.fmAsk .fs{background:#fdeef5;color:#b0346a;border-radius:14px;padding:8px 12px;font-size:13.5px;font-weight:700;line-height:1.5}
+.fmAsk .fb{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none;border:2px solid #ffc6df;background:#fff0f8}.fmAsk .fs{background:#fdeef5;color:#b0346a;border-radius:14px;padding:8px 12px;font-size:13.5px;font-weight:700;line-height:1.5}
 body.dark .fmAsk .fs{background:#4a3f6b;color:#ffd1e4}
 .fmItem.best{outline:2px solid #f59ac0;outline-offset:-2px}
 @keyframes fmGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,111,170,0)}50%{box-shadow:0 0 0 5px rgba(255,111,170,.75)}}
@@ -1014,7 +1014,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge" id="verHistBadge">ver4.2</span></summary>
       <ul class="verList">
-        <li data-quiet="1" data-go="@案内所" data-short="🧸 案内所のファーちゃんが答えてくれるようになったよ！"><span class="vNo">ver4.3</span><span class="vDate">11/23</span><span class="vTxt">🧸 案内所がファーちゃんとのおしゃべりに：「でんき消えてる？」「明細の入れ方」みたいに聞くと、使い方や今のようすを答えてくれるよ。ひらがなでも、言い方がちがっても、ちょっと打ちまちがえてもだいじょうぶ。答えの「📍 そこへ連れていって」でその場所へ飛ぶよ（「そこに連れてって」「それの使い方は？」でもOK）。「でんき消して」「暖房つけて」でリモコンのボタンも押せるよ（いつもの確認が出るよ）。わからなかった質問は「わからなかった質問」で見られるよ。案内所は全画面になったよ</span></li>
+        <li data-quiet="1" data-go="@案内所" data-short="🧸 案内所のファーちゃんが答えてくれるようになったよ！"><span class="vNo">ver4.3</span><span class="vDate">11/23</span><span class="vTxt">🧸 案内所がファーちゃんとのおしゃべりに：「でんき消えてる？」「明細の入れ方」みたいに聞くと、使い方や今のようすを答えてくれるよ。ひらがなでも、言い方がちがっても、ちょっと打ちまちがえてもだいじょうぶ。答えの「📍 そこへ連れていって」でその場所へ飛ぶよ（「そこに連れてって」「それの使い方は？」でもOK）。「でんき消して」「暖房つけて」でリモコンのボタンも押せるよ（いつもの確認が出るよ）。わからなかった質問は「わからなかった質問」で見られるよ。案内所は全画面になったよ。おしゃべりのファーちゃんは、答えに合わせて6つの顔に変わるよ</span></li>
         <li data-quiet="1" data-go="次の給料の予想" data-short="💰 次の給料の手取り予想ができたよ！"><span class="vNo">ver4.2</span><span class="vDate">11/22</span><span class="vTxt">💰「次の給料の予想」が記録室の「📈みる」に：次の給料日にもらえる手取りの見込みを、いちばん新しい明細と勤怠ノートの記録から計算するよ（残業・深夜・休みの日の割増は勤怠ノートの見込み、ほかの支給と社会保険料・住民税は新しい明細と同じ、所得税は概算。賞与はふくまないよ）。12月・6月・7月・10月は、明細がふだんとちがってズレやすいことも教えてくれるよ。明細を入れると、予想と実際の「答え合わせ」も出るよ🧸<br>🎛 おうちのリモコン（エアコン・ライト・こたつ）は「お得チェッカー」カードにおひっこし。天気カードにはおうちの温度の行だけ残したよ。ライトに「🔅 保安球」ボタンも追加</span></li>
         <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸<br>🏠 おうちの温度：⚙️設定の「🏠 おうちの温度」にGASのURLを貼ると、天気のカードの上におうちの温度と湿度が出るよ（SwitchBotハブ2。タップで読みなおし）<br>❄️🔥 エアコンのボタン：⚙️設定でエアコンのパスワードを入れると、おうちの温度の下に「冷房・暖房・けす」のボタンが出るよ（押すと確認が出るよ。温度は設定で変えられるよ）<br>💡 ライトとこたつのボタン：エアコンのボタンの下に「ライトつける・けす」「こたつけす」が出るよ（ライトはSwitchBotハブ2の赤外線、こたつはAlexaの定型アクション経由。夜は、もうついてる・消えてるときは何もしないよ）<br>💡 おうちの温度の下に「寝室のライト ON／OFF」のスイッチと明るさ（1〜20）が出るよ（見るだけ。ハブ2の明るさで見てるから「たぶん」だよ。昼はお日さまで明るいのでわからないよ）<br>☁️ おうちの温度のURLとエアコンのパスワードも、勤怠のスプレッドシートで2台にそろうようにしたよ</span></li>
         <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・占いの金運に「課金に注意！」系のひとことを追加（金運が低めの日に出るよ）。「ふつうの金運」みたいなそっけない文も、ちょっとしたアドバイスつきに（総合運・夫婦運・仕事運も）。「好きなこと」「甘やかして」みたいな文は、お風呂やお散歩などお金のかからない例に<br>・いちばん上をすっきり：案内所は日付の下の大きい検索バーに。英語の行・ver・更新ボタンをなくしたよ（更新は画面を下に引っぱってね）<br>・下のタブの「天気」を押すと、いちばん上に戻るように<br>・お知らせと確認を、iPhoneの灰色の画面からクマちゃんのふきだし・カードに（お知らせは3秒で消えるよ。消すボタンは赤っぽく）<br>・電波が弱くてもすぐ開けるように、絵は一回保存したらそれを使うように<br>・天気が取れなかったとき「取ってきてるよ」が出たままにならないように<br>・有休・残業のカウンターで、まだ記録がないときは空っぽのグラフのかわりにひとことを出すように<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）<br>・おしごとタブを見やすく：「全労働時間（見込み）」の文字を太く少し大きく、勤怠ノートの上に「🏖️有休」「🌙残業」のチップ（タップでカウンターへ）、カウンターは勤怠ノートのすぐ下に。<br>・シートとの同期を安全に：シートが読めなかったときは送らないように、シフトは日ごとに合わせるように、日付をまたぐシフトも「残業した？」を聞くようにしたよ変なところで折れていた文字も直したよ</span></li>
@@ -3544,7 +3544,7 @@ document.getElementById("askGo").onclick=go;q.addEventListener("keydown",e=>{if(
 <div id="fmSheet"><div class="fmPanel" role="dialog" aria-label="ファーちゃんの案内所">
   <div class="fmHead"><h3>🧸 ファーちゃんの案内所 🗺️</h3><button class="fmX" id="fmX" type="button">✕ とじる</button></div>
   <div class="fmRow"><input type="search" id="fmQ" placeholder="ファーちゃんに聞いてね" enterkeyhint="send" autocomplete="off" autocorrect="off" spellcheck="false"><button type="button" class="fmSend" id="fmSend">🧸 聞く</button></div>
-  <div class="fmAsk" id="fmAsk"><span class="fb">🧸</span><span class="fs" id="fmAskT"></span></div>
+  <div class="fmAsk" id="fmAsk"><img class="fb" src="face-guide.webp" alt=""><span class="fs" id="fmAskT"></span></div>
   <div class="fmChips" id="fmChips"></div>
   <div class="fmList" id="fmList"></div>
 </div></div>
@@ -3635,7 +3635,7 @@ load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidde
 setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
-<script src="fm-help.js?v=20261123d"></script>
-<script src="fm.js?v=20261123d"></script>
+<script src="fm-help.js?v=20261123e"></script>
+<script src="fm.js?v=20261123e"></script>
 </body>
 </html>

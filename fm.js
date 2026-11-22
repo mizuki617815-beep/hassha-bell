@@ -160,7 +160,16 @@ function think(t){const n=norm(t);
   if(!second||top.sc>=second.sc*1.3)return answerItem(top.x,t);
   const c=r.filter(x=>x.sc>=top.sc*0.6).slice(0,5);
   return"どれのことかな？えらんでね🧸"+`<div class="fmCands">${c.map(x=>itemBtn(x.gi,x.ii,false,"fmItem fmPick")).join("")}</div>`}
-function push(who,html){LOG.push(who==="me"?`<div class="fmMsg me"><span>${esc(html)}</span></div>`:`<div class="fmMsg bot"><span class="fb">🧸</span><div class="fs">${html}</div></div>`);if(LOG.length>60)LOG=LOG.slice(-60)}
+// 🧸 返事の中身でファーちゃんの顔を変える（2026-11-23）：わからない=oops・えらんで/確認=ask・けす確認=really・あいさつ/お礼/できた=yay・連れていく/使い方=guide・それ以外=talk
+function faceOf(h){h=String(h);
+  if(/わからなかったよ|ごめんね|つながってないみたい/.test(h))return"oops";
+  if(/data-ac="[^"]*(off|kesu|stop)|けす」でいい|消す」でいい/.test(h))return"really";
+  if(/どれのことかな|どっちにする|でいい？/.test(h))return"ask";
+  if(/こんにちは|どういたしまして|けしたよ/.test(h))return"yay";
+  if(/みたいだよ|いまは<b>|きょうは<b>/.test(h))return"talk";
+  if(/連れていくね|fmGoBtn|使い方|つかいかた/.test(h))return"guide";
+  return"talk"}
+function push(who,html){LOG.push(who==="me"?`<div class="fmMsg me"><span>${esc(html)}</span></div>`:`<div class="fmMsg bot"><img class="fb" src="face-${faceOf(html)}.webp" alt=""><div class="fs">${html}</div></div>`);if(LOG.length>60)LOG=LOG.slice(-60)}
 function askFM(t){t=String(t||"").trim();if(!t)return;push("me",t);push("bot",think(t));q.value="";grp=CHAT;drawChips();draw();try{q.blur()}catch(e){}}
 function drawChat(){say("");list.innerHTML=LOG.join("")||"";requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight})}
 function draw(){const v=q.value.trim();

@@ -492,3 +492,11 @@
 - ナイトモード：確認（yuAsk）とお知らせ（yuToast）の白い箱を暗い色に（文字が見えなかった）
 - 顔アイコンを場面ごとに：face-guide（案内所）・face-talk（ひとこと）・face-ask（確認）・face-really（消す確認）・face-yay（お知らせ）・face-oops（エラー）。チャッピーの6コマから切り出し（256px webp）。kintai-face.webp は今は未使用
 - ばんざいの顔（face-yay）の出番：勤怠を記録したとき・定時で記録したとき・エアコンを送れたとき・「今すぐそろえる」のあと（お知らせ）。給料日・ボーナス・今日/明日お休み・お誕生日はひとこと（#cheer.yay）の顔もばんざいに
+
+## 31. 2026-11-22 ver4.1（追記）ライトのボタン（hapicom → Alexa定型アクション）
+- ライト（+Style PS-CEL-W02、Wi-Fi・リモコンなし）はSwitchBotの赤外線プリセットになく、Voice Monkeyは日本のAlexaで使えない → hapicom「仮想トリガーボタン（Alexa定型アクション用）」を使う
+- 仕組み：アプリ → GAS doPost {cmd:light_on|light_off,k} → GET https://alexa.hapicom.jp/tr/<トリガーID>（Authorization: Bearer HC_KEY）→ Alexaの定型アクション → ライト
+- GASのスクリプトプロパティ：HC_KEY（hapicomのAPIキー）、HC_LIGHT_ON（なくてOK、空なら default）、HC_LIGHT_OFF（ベーシックプラン月120円で作ったら入れる）。testLight() で確認できる
+- GASは本番に反映済み（バージョン3）。HC_KEY は本人が入れる
+- アプリ：エアコンのボタンの下に ltBtns（💡 ライトつける）。パスワードはエアコンと同じ SB_KEY。状態は取れない（送るだけ）
+- 無料プランはトリガー1つ（default）だけなので今は「つける」だけ。こたつは安全のためつながない

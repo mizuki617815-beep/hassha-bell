@@ -101,7 +101,7 @@ function sbCmd_(id, command, parameter) {
 //   SB_LIGHT … (なくてOK) ライトのリモコンID。空なら自動でさがして覚える
 //   SwitchBotアプリの「点灯」にリモコンの「全灯」、「消灯」にリモコンの「ON/OFF」を覚えさせてある
 //   「全灯」も「ON/OFF」も、ついているときに押すと消える（どちらも切りかえ）。なので送るのは「ON/OFF」（turnOff）だけ
-//   夜：ハブ2の明るさ（消えてる≒1、ついてる≒12）で今の状態を見て、ちがうときだけ1回送る
+//   夜：ハブ2の明るさ（消えてる≒1、ついてる≒12、いちばん暗くしてもついてる≒4）で今の状態を見て、ちがうときだけ1回送る。4以上ならついてる（2026-11-23 5→4）
 //   昼：日差しで状態がわからないので、1回送って約8秒後の明るさを見る。逆に動いた（けすで明るくなった等）ときはもう1回送る
 //   ハブ2の明るさは、ライトが変わってから6〜8秒くらいで反映される（2026-11-22 testLightLag で確認）→ 送ったあと9秒待って読みなおし、結果をアプリに返す
 function light_(on) {
@@ -113,7 +113,7 @@ function light_(on) {
   let st0 = null;
   try { st0 = status(); } catch (e) {}
   const l0 = lvOf(st0);
-  if (l0 !== null && night && on === (l0 >= 5)) return { skip: true, room: roomOf_(st0) };  // もうその状態
+  if (l0 !== null && night && on === (l0 >= 4)) return { skip: true, room: roomOf_(st0) };  // もうその状態
   toggle();
   // 明るさが反映されるのを待って読みなおす（アプリの表示もすぐ新しくなるように）
   Utilities.sleep(9000);

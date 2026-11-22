@@ -109,7 +109,8 @@ function draw(){if(q.value.trim()&&isAsk(q.value)){drawAsk();return}say("");cons
   if(!n&&q.value.trim()){drawAsk();return}
   list.innerHTML=n?h:`<div class="fmNone">見つからなかったよ🧸<br>ちがうことばでさがしてみてね</div>`}
 function openFM(){sh.classList.add("show");q.value="";say("");draw();list.scrollTop=0;document.body.style.overflow="hidden"}
-function closeFM(){sh.classList.remove("show");document.body.style.overflow=""}
+// 閉じる前にキーボード（入力欄のフォーカス）を外す：iPhoneは、フォーカスしたまま隠すと次に開いたとき入力できなくなる（2026-11-23）
+function closeFM(){try{q.blur();if(document.activeElement&&sh.contains(document.activeElement))document.activeElement.blur()}catch(e){}sh.classList.remove("show");document.body.style.overflow=""}
 function glow(el){el.classList.remove("fmGlow");void el.offsetWidth;el.classList.add("fmGlow");setTimeout(()=>el.classList.remove("fmGlow"),3000)}
 function go(gi,ii){const it=FM[gi]&&FM[gi][1][ii];if(!it)return;closeFM();
   const pre=it[5]&&document.querySelector(it[5]);if(pre)pre.click();if(it[6])return;

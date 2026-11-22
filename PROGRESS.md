@@ -537,3 +537,5 @@
 - （追記 2026-11-22 Claude）本人の希望で rcFold をお得チェッカー（#navOtoku）の末尾へ再移設。トップの #homeEnv からライトの行を外し、ライトの ON/OFF は rcEnv（リモコンの中）だけに出す。fm.js?v=20261122g
 - （追記 2026-11-23 Claude）本人の希望でタイトルの横に ver バッジ（#verTop）を復活。中身と設定の更新履歴のバッジ（#verHistBadge）は、DOMContentLoaded で #verHist のいちばん上の li の .vNo から自動で入れる（ver を上げたら li を足すだけでOK）
 - （追記 2026-11-23 Claude）保安球ボタン：アプリ #ltBtns に「🔅 保安球」(light_night)、こたつけすは #ktBtns の別の行へ。GAS は cmd=light_night で、SwitchBotアプリのシーン「保安球」（ライトリモコンの常夜灯を押すだけ）を /scenes/{id}/execute で実行し（customize は 3005 invalid value で不可だった。シーンIDは SB_SCENE_NIGHT に覚える）、9秒後の明るさを返す（状態チェックなし）。testLightNight 追加。GAS は本番バージョン9でデプロイ済み（2026-11-23）
+- （追記 2026-11-23 Claude）ライトの ON/OFF の区切りを明るさ5→4に（3までは消えてる）（いちばん暗くしても4で、消えてる判定になっていたため）。アプリ ltRow と GAS light_ の夜のスキップ判定の両方。GAS は本番バージョン11
+- （追記 2026-11-23 Claude）案内所：質問→Enterで飛んだあと、もう一度開くと検索欄に入力できない（iPhone）→ closeFM で入力欄を blur してから隠すように。fm.js?v=20261123a

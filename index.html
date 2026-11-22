@@ -3555,7 +3555,7 @@ const cmt=(t,h)=>{const a=[];
 const isNight=ms=>{const d=new Date(ms),N=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5),r=Math.PI/180,
   dec=23.44*Math.sin(2*Math.PI*(284+N)/365)*r,half=Math.acos(-Math.tan(35.6*r)*Math.tan(dec))/r/15,
   h=d.getHours()+d.getMinutes()/60;return h<11.7-half-0.5||h>11.7+half+0.5}; // 東京の日の出・日の入り（おおよそ）の30分前後
-const ltRow=d=>typeof d.l!=="number"?"":'<span class="ltRow">💡 寝室のライト '+(!isNight(d.at)?'<span class="sw na">☀️ 昼はわからへん</span>':d.l>=5?'<span class="sw on">ON<i></i></span>':'<span class="sw"><i></i>OFF</span>')+' <small>明るさ '+d.l+'/20</small></span>';
+const ltRow=d=>typeof d.l!=="number"?"":'<span class="ltRow">💡 寝室のライト '+(!isNight(d.at)?'<span class="sw na">☀️ 昼はわからへん</span>':d.l>=4?'<span class="sw on">ON<i></i></span>':'<span class="sw"><i></i>OFF</span>')+' <small>明るさ '+d.l+'/20</small></span>';
 const show=d=>{if(!d||typeof d.t!=="number"){box.style.display="none";return}
   const old=Date.now()-d.at>30*60*1000,c=cmt(d.t,d.h);
   const env='🏠 おうち <b>'+d.t.toFixed(1)+'℃</b> 💧<b>'+Math.round(d.h)+'%</b> <small>'+hm(d.at)+(old?' 時点（ちょっと前）':'')+'</small>';
@@ -3624,6 +3624,6 @@ load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidde
 setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
-<script src="fm.js?v=20261122g"></script>
+<script src="fm.js?v=20261123a"></script>
 </body>
 </html>

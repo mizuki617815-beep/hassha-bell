@@ -6,7 +6,7 @@
  *     SB_TOKEN  … SwitchBotアプリのトークン
  *     SB_SECRET … SwitchBotアプリのシークレット
  *     SB_DEVICE … (なくてOK) ハブ2のデバイスID。空なら自動でさがして覚える
- *     SB_KEY    … エアコンを動かすための合言葉（自分で決める）。アプリの設定にも同じものを入れる
+ *     SB_KEY    … エアコンを動かすためのパスワード（自分で決める）。アプリの設定にも同じものを入れる
  *     SB_AC     … (なくてOK) エアコンのリモコンID。空なら自動でさがして覚える
  *
  * デプロイ：「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」
@@ -14,8 +14,8 @@
  *   出てきた …/exec のURLを、ゆめいろ手帳の⚙️設定「🏠 おうちの温度」に貼る
  *
  * GET  … 温度・湿度・時刻を返す（見るだけ）
- * POST … {"cmd":"cool"|"heat"|"off","temp":27,"k":"合言葉"} でエアコンを動かす
- *        合言葉（SB_KEY）が合わないとき・入ってないときは動かさない
+ * POST … {"cmd":"cool"|"heat"|"off","temp":27,"k":"パスワード"} でエアコンを動かす
+ *        パスワード（SB_KEY）が合わないとき・入ってないときは動かさない
  */
 
 const SB_API = 'https://api.switch-bot.com/v1.1';
@@ -40,14 +40,14 @@ function doGet() {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// エアコンの操作（合言葉つき）
+// エアコンの操作（パスワードつき）
 function doPost(e) {
   let out;
   try {
     const q = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     const key = String(PropertiesService.getScriptProperties().getProperty('SB_KEY') || '').trim();
-    if (!key) throw new Error('SB_KEY（合言葉）がGASに入ってないよ');
-    if (String(q.k || '').trim() !== key) throw new Error('合言葉がちがうよ');
+    if (!key) throw new Error('SB_KEY（パスワード）がGASに入ってないよ');
+    if (String(q.k || '').trim() !== key) throw new Error('パスワードがちがうよ');
     const lock = LockService.getScriptLock();
     lock.waitLock(10000);
     try {

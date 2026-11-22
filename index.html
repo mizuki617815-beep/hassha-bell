@@ -957,12 +957,12 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       <button class="ktLinkBtn" id="homeUnlock" type="button" style="display:none">🔓 つなぎ先を変える</button>
       <div class="ktRow"><button class="ktBtn main" id="homeSave" type="button">🔗 つないでためす</button> <button class="ktBtn" id="homeOff" type="button" style="display:none">はずす</button></div>
       <div class="ktNote" id="homeNote">天気のカードの上に、おうちの温度と湿度が出るよ。URLはこのスマホの中にだけ保存されるよ</div>
-      <label>❄️🔥 エアコンの合言葉（GASの SB_KEY と同じもの）<span class="lockTag" id="acLockTag">🔒 カギつき</span></label>
+      <label>❄️🔥 エアコンのパスワード（GASの SB_KEY と同じもの）<span class="lockTag" id="acLockTag">🔒 カギつき</span></label>
       <input type="password" id="acKey" placeholder="入れると天気カードにエアコンのボタンが出るよ" autocomplete="off">
-      <button class="ktLinkBtn" id="acUnlock" type="button" style="display:none">🔓 合言葉を変える</button>
+      <button class="ktLinkBtn" id="acUnlock" type="button" style="display:none">🔓 パスワードを変える</button>
       <div class="acTemps">❄️ 冷房 <select id="acCool"></select>℃　🔥 暖房 <select id="acHeat"></select>℃</div>
-      <div class="ktRow"><button class="ktBtn main" id="acSave" type="button">🔐 合言葉を保存</button> <button class="ktBtn" id="acOff" type="button" style="display:none">エアコンのボタンをはずす</button></div>
-      <div class="ktNote">ボタンを押すと、ハブ2からエアコンに赤外線を送るよ。ほんまについたかはわからないから、おうちの温度の変わり方で見てね。合言葉はこのスマホの中だけに保存されるよ</div>
+      <div class="ktRow"><button class="ktBtn main" id="acSave" type="button">🔐 パスワードを保存</button> <button class="ktBtn" id="acOff" type="button" style="display:none">🗑 パスワードを消す</button></div>
+      <div class="ktNote">ボタンを押すと、ハブ2からエアコンに赤外線を送るよ。ほんまについたかはわからないから、おうちの温度の変わり方で見てね。パスワードはこのスマホの中だけに保存されるよ。消すと天気カードのエアコンのボタンも消えるよ</div>
       </div>
       </details>
       <details class="setGrp manFix" id="setMoney"><summary>💴 お金（ふだんは自動・🔒カギつき）</summary>
@@ -982,7 +982,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge">ver4.1</span></summary>
       <ul class="verList">
-        <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸<br>🏠 おうちの温度：⚙️設定の「🏠 おうちの温度」にGASのURLを貼ると、天気のカードの上におうちの温度と湿度が出るよ（SwitchBotハブ2。タップで読みなおし）<br>❄️🔥 エアコンのボタン：⚙️設定でエアコンの合言葉を入れると、おうちの温度の下に「冷房・暖房・けす」のボタンが出るよ（押すと確認が出るよ。温度は設定で変えられるよ）</span></li>
+        <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸<br>🏠 おうちの温度：⚙️設定の「🏠 おうちの温度」にGASのURLを貼ると、天気のカードの上におうちの温度と湿度が出るよ（SwitchBotハブ2。タップで読みなおし）<br>❄️🔥 エアコンのボタン：⚙️設定でエアコンのパスワードを入れると、おうちの温度の下に「冷房・暖房・けす」のボタンが出るよ（押すと確認が出るよ。温度は設定で変えられるよ）</span></li>
         <li data-go="@案内所" data-short="🧸 ファーちゃんの案内所がオープン！"><span class="vNo">ver4.0</span><span class="vDate">11/21</span><span class="vTxt">🧸ファーちゃんの案内所🗺️：いちばん上の「🧸 案内所🗺️」か⚙️設定のいちばん上から開けるよ。アプリの機能をタブごとに一覧で見られて、ことばでさがすこともできるよ（ひらがなでもOK、例：ざんぎょう・しーと・かえり）。タップするとその場所まで飛んで、ピンクに光ってお知らせ。閉じている項目は自動で開くよ<br>🧸 案内所でファーちゃんに聞ける：「残業単価どこ？」「シートのURLどこやったっけ」みたいに文章で聞くと、「ここだよ！」って連れていって光らせるよ。いくつかあるときは「どれのこと？」って選べるよ（AIは使ってないから、タダで電波がなくても動くよ）<br>・⚙️設定を「🚃電車／💴お金／🎨見た目・わたしのこと／☁️スプレッドシート」の折りたたみに整理したよ<br>・この履歴から「👉」ボタンでその機能へ飛べるように。いちばん新しい更新に🆕マーク（3日間、案内所の一覧にも出るよ）<br>・下のタブに、裏の選ぶボタンなどが透けて重なり、タップが下まで通ってしまうのを直したよ<br>・勤怠ノートに「全労働時間（見込み）」（シフト＋追加残業）を追加、「シフトの全労働時間」は「シフトの予定時間」に名前を変えたよ<br>・勤怠ノートの「PDFにする」ボタンが反応しなかったのを直したよ<br>・有休の日はいつも「実働8時間」で計算するように（チェックはなくしたよ）<br>・占いの金運に「課金に注意！」系のひとことを追加（金運が低めの日に出るよ）。「ふつうの金運」みたいなそっけない文も、ちょっとしたアドバイスつきに（総合運・夫婦運・仕事運も）。「好きなこと」「甘やかして」みたいな文は、お風呂やお散歩などお金のかからない例に<br>・いちばん上をすっきり：案内所は日付の下の大きい検索バーに。英語の行・ver・更新ボタンをなくしたよ（更新は画面を下に引っぱってね）<br>・下のタブの「天気」を押すと、いちばん上に戻るように<br>・お知らせと確認を、iPhoneの灰色の画面からクマちゃんのふきだし・カードに（お知らせは3秒で消えるよ。消すボタンは赤っぽく）<br>・電波が弱くてもすぐ開けるように、絵は一回保存したらそれを使うように<br>・天気が取れなかったとき「取ってきてるよ」が出たままにならないように<br>・有休・残業のカウンターで、まだ記録がないときは空っぽのグラフのかわりにひとことを出すように<br>・「PDFにする」で保存するときの名前を「2026年8月勤務実績」みたいに、その月がわかる名前にしたよ（ホーム画面のアプリでは、PDFを作ってそのまま共有できるように。ファイルに保存やLINEで送れるよ）<br>・💴お金の設定はいちばん下にして🔒カギつきに（まちがえていじらないように。閉じるとまたカギがかかるよ）<br>・おしごとタブを見やすく：「全労働時間（見込み）」の文字を太く少し大きく、勤怠ノートの上に「🏖️有休」「🌙残業」のチップ（タップでカウンターへ）、カウンターは勤怠ノートのすぐ下に。<br>・シートとの同期を安全に：シートが読めなかったときは送らないように、シフトは日ごとに合わせるように、日付をまたぐシフトも「残業した？」を聞くようにしたよ変なところで折れていた文字も直したよ</span></li>
         <li data-go="シートのURLをコピー|カウンターを手で直す・残業単価|ファーちゃんの記録室" data-short="📔 「ゆめいろ手帳」に名前が変わったよ！"><span class="vNo">ver3.7</span><span class="vDate">11/21</span><span class="vTxt">アプリの名前を「ゆめいろ発車ベル」から「ゆめいろ手帳」に（ホーム画面の名前は、アイコンを入れ直すと変わるよ）。<br>・⚙️設定に「📋 URLをコピー」：カギはかけたまま、シートのURLをコピーしてメモに保存できるよ<br>・残業単価が年度ごとに自動に：給料明細から出すよ。4月昇給でも明細に合わせて、新しい単価は6月勤務分から<br>・記録室の明細はいつもシートと同期（チェックはなくしたよ）<br>・アプリを入れ直しても、残業単価がシートから戻るように直したよ<br>・下のタブを大きくして、iPhoneのホームバーと重ならないようにしたよ</span></li>
         <li data-go="間に合うかの印" data-short="⏰ 間に合うかの印が4段階に！"><span class="vNo">ver3.6</span><span class="vDate">11/21</span><span class="vTxt">行きの印を、開始まで何分あるかで4段階に：🌸余裕あり（15分以上）・✅ちょうどいい（10〜14分）・💨ギリギリ（7〜9分）・🚨遅刻（7分未満、改札からオフィスまで7分かかるため）。⭐おすすめにも段階がつくよ。<br>・京急の全線全駅時刻表で、行き・帰りの着く時刻を全部公式の数字に直したよ</span></li>
@@ -3507,7 +3507,7 @@ $("homeSave").onclick=async()=>{if(ui.readOnly){note.textContent="🔄 よみに
 $("homeOff").onclick=async()=>{if(!await yuAsk("おうちの温度をはずす？\n（またURLを貼ればもどせるよ）","はずす",true))return;unlocked=false;try{localStorage.removeItem(K);localStorage.removeItem(KC)}catch(e){}ui.value="";lockUI();box.style.display="none";note.textContent="はずしたよ。また使うときはURLを貼ってね"};
 const tap=()=>{box.style.opacity=".6";load(true).catch(()=>{}).finally(()=>{box.style.opacity=""})};
 box.onclick=tap;box.addEventListener("keydown",e=>{if(e.key==="Enter")tap()});
-/* ❄️🔥 エアコン（合言葉つき、2026-11-22） */
+/* ❄️🔥 エアコン（パスワードつき、2026-11-22） */
 const KA="yumebell_ac",ab=$("acBtns"),am=$("acMsg"),ak=$("acKey");
 const acGet=()=>{try{return JSON.parse(localStorage.getItem(KA)||"{}")}catch(e){return{}}};
 const acPut=o=>{try{localStorage.setItem(KA,JSON.stringify(o))}catch(e){}};
@@ -3520,8 +3520,8 @@ const acUI=()=>{const o=acGet(),has=!!o.k,lk=has&&!acUnl;
   ab.style.display=has&&getU()?"":"none";
   ab.querySelector(".c").textContent="❄️ 冷房"+(o.acCool||27)+"℃";ab.querySelector(".h").textContent="🔥 暖房"+(o.acHeat||25)+"℃"};
 $("acSave").onclick=()=>{const v=ak.value.trim();if(!v){ak.focus();return}const o=acGet();o.k=v;acPut(o);acUnl=false;acUI()};
-$("acUnlock").onclick=async()=>{if(!await yuAsk("エアコンの合言葉を変える？\n（GASの SB_KEY も同じにしてね）","変える",true))return;acUnl=true;acUI();ak.focus()};
-$("acOff").onclick=async()=>{if(!await yuAsk("エアコンのボタンをはずす？\n（合言葉をこのスマホから消すよ）","はずす",true))return;const o=acGet();delete o.k;acPut(o);acUnl=false;acUI()};
+$("acUnlock").onclick=async()=>{if(!await yuAsk("エアコンのパスワードを変える？\n（GASの SB_KEY も同じにしてね）","変える",true))return;acUnl=true;acUI();ak.focus()};
+$("acOff").onclick=async()=>{if(!await yuAsk("エアコンのパスワードを消す？\n（天気カードのエアコンのボタンも消えるよ。またパスワードを入れればもどせるよ）","はずす",true))return;const o=acGet();delete o.k;acPut(o);acUnl=false;acUI()};
 ab.addEventListener("click",async e=>{const b=e.target.closest("button[data-ac]");if(!b)return;
   const cmd=b.dataset.ac,o=acGet(),temp=cmd==="cool"?(o.acCool||27):cmd==="heat"?(o.acHeat||25):0;
   const lbl=cmd==="off"?"エアコンをけす":(cmd==="cool"?"冷房":"暖房")+temp+"℃でつける";
@@ -3530,13 +3530,13 @@ ab.addEventListener("click",async e=>{const b=e.target.closest("button[data-ac]"
   try{const r=await fetch(getU(),{method:"POST",body:JSON.stringify({cmd,temp,k:o.k})});const j=await r.json();
     if(!j.ok)throw new Error(j.err||"送れなかったよ");
     am.textContent="✅ "+hm(Date.now())+" に「"+lbl+"」を送ったよ（ついたかは部屋の温度で見てね）"}
-  catch(err){am.textContent="⚠️ 送れなかったよ："+(err.message||err)}
+  catch(err){am.textContent="⚠️ 送れなかったよ："+String(err.message||err).replace(/合言葉/g,"パスワード")}
   finally{ab.querySelectorAll("button").forEach(x=>x.disabled=false)}});
 acUI();
 load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidden)load(false)});
 setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
-<script src="fm.js?v=20261122c"></script>
+<script src="fm.js?v=20261122d"></script>
 </body>
 </html>

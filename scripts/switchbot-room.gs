@@ -103,11 +103,15 @@ function sbCmd_(id, command, parameter) {
 //            夜にハブ2の明るさで「もう消えてる」とわかるときは何も送らない（一瞬つくのをふせぐ）
 function light_(on) {
   const id = lightId_();
-  if (on) { sbCmd_(id, 'turnOn', 'default'); return false; }
+  // 夜はハブ2の明るさで今の状態を見て、同じ状態なら何も送らない（つけるで消える・けすでつく、をふせぐ）
   try {
     const st = sb_('/devices/' + hubId_() + '/status');
-    if (isNight_(new Date()) && typeof st.lightLevel === 'number' && st.lightLevel < 5) return true; // もう消えてる
+    if (isNight_(new Date()) && typeof st.lightLevel === 'number') {
+      if (on && st.lightLevel >= 5) return true;  // もうついてる
+      if (!on && st.lightLevel < 5) return true;  // もう消えてる
+    }
   } catch (e) {}
+  if (on) { sbCmd_(id, 'turnOn', 'default'); CacheService.getScriptCache().remove('room'); return false; }
   sbCmd_(id, 'turnOn', 'default');
   Utilities.sleep(1500);
   sbCmd_(id, 'turnOff', 'default');
@@ -149,7 +153,7 @@ function hcTrigger_(cmd) {
 }
 
 // エディタで▶実行して確かめる用
-function testLightOn() { light_(true); Logger.log('ライト：全灯 を送ったよ'); }
+function testLightOn() { Logger.log(light_(true) ? 'もうついてたので送らなかったよ' : 'ライト：全灯 を送ったよ'); }
 function testLightOff() { Logger.log(light_(false) ? 'もう消えてたので送らなかったよ' : 'ライト：けす を送ったよ'); }
 function testKotatsuOff() { hcTrigger_('kotatsu_off'); Logger.log('こたつけす を送ったよ'); }
 function testRemotes() { Logger.log(JSON.stringify(sb_('/devices').infraredRemoteList)); }

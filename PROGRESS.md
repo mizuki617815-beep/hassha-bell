@@ -516,3 +516,4 @@
 - hapicom の無料トリガー（default）は kotatsu_off に。HC_KOTATSU_OFF（なくてOK、空なら default）。Alexaの定型アクションの中身を「こたつオフ」に本人が変える。HC_LIGHT_OFF は使わなくなった
 - アプリ：ltBtns＝💡ライトつける／🌙ライトけす／♨️こたつけす。skip のときは「もう消えてたよ」。ライト操作の4秒後におうちの温度（明るさ）を読みなおす
 - テスト関数：testLightOn / testLightOff / testKotatsuOff / testRemotes / testHubStatus
+- （追記・GASバージョン6）夜は light_on も明るさ≥5なら skip（もうついてる）。本人：ついてるのにONで消える・その逆のチグハグをなくしたい。リモコン本体のON/OFFはトグルのまま

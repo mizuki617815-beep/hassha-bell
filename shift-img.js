@@ -1,5 +1,5 @@
 // ゆめいろ手帳：📷 プラネットのシフト表のスクショ → CSV（このiPhoneの中だけでOCR。画像はどこにも送らない）＆ 🌳 TimeTree用に書き出し（2026-11-23）
-// いまは試しの段階：読んだ結果は手帳に入れず、CSVにするだけ（本人が確かめてから手で取り込む）
+// 読んだ結果を一覧で確かめて「手帳に入れる」で取り込む（2026-11-23 ステップ2。CSVはオプション）
 (function(){
 const W="日月火水木金土",pad=n=>String(n).padStart(2,"0");
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -98,12 +98,25 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
     const csv=window.PlanetOCR.toCSV(res.days);
     await pg.finish();pg.stop();
     a.classList.add("full");
-    msg(`${res.days.length}日分のCSVができたよ！<br><small>まだ手帳には入れてないよ。まちがいがないか確かめてね</small>`);
+    const ym=res.days[0].d.slice(0,7);
+    msg(`${+ym.slice(5)}月のシフトを${res.days.length}日分読んだよ！<br><small>プラネットの画面と見くらべて、合ってたら「📒 手帳に入れる」を押してね</small>`);
     a.querySelector(".ls").innerHTML=res.days.map(x=>`<div class="r${x.k==="work"?"":" off"}${x.k==="other"?" warn":""}"><b>${md(x.d)}</b><span>${esc(x.title)}</span></div>`).join("");
-    a.querySelector(".nt").textContent="ピンクの行は読みとりがあやしい日だよ。「📋 コピー」か「📤 CSVを保存」で書き出して、プラネットの画面と見くらべてね";
-    const b=a.querySelector(".b");b.insertAdjacentHTML("beforeend",`<button type="button" class="yes cp">📋 コピー</button><button type="button" class="yes sv">📤 CSVを保存</button>`);
-    b.querySelector(".cp").onclick=async()=>{try{await navigator.clipboard.writeText(csv);yuAlert("🧸 CSVをコピーしたよ")}catch(e){yuAlert("⚠️ コピーできなかったよ。「CSVを保存」を使ってね")}};
-    b.querySelector(".sv").onclick=async()=>{const nm=`シフト_${res.days[0].d.slice(0,7)}_スクショ.csv`,f=new File(["﻿"+csv],nm,{type:"text/csv"});
+    a.querySelector(".nt").innerHTML=`ピンクの行は読みとりがあやしい日だよ。入れる前に今のシフトの控えを残すから、まちがってても「↩️ 消したシフトを復元」で戻せるよ　<a href="#" class="sv" style="color:var(--sub)">📤 CSVで保存</a>`;
+    const b=a.querySelector(".b");b.insertAdjacentHTML("beforeend",`<button type="button" class="yes in">📒 手帳に入れる</button>`);
+    // ステップ2（2026-11-23）：読んだシフトをそのまま手帳へ。保存すると勤怠のスプレッドシートでほかの端末ともそろう
+    b.querySelector(".in").onclick=()=>{
+      if(typeof SHIFTS!=="object"||typeof shiftFromTitle!=="function"||typeof saveShifts!=="function"){yuAlert("⚠️ 手帳に入れられなかったよ。開きなおしてもう一回やってみてね");return}
+      try{if(typeof backupShifts==="function")backupShifts()}catch(e){}
+      let n=0;const skip=[];
+      for(const x of res.days){const sh=shiftFromTitle(x.title);if(sh){SHIFTS[x.d]=sh;n++}else skip.push(md(x.d))}
+      saveShifts();
+      try{if(typeof renderShiftStatus==="function")renderShiftStatus();if(typeof applyShiftForDate==="function")applyShiftForDate(true);if(typeof renderCheer==="function")renderCheer(true);if(typeof renderPaid==="function")renderPaid();if(typeof render==="function")render()}catch(e){}
+      const fc=a.querySelector(".hd img");if(fc)fc.src="face-yay.webp";
+      msg(`${n}日分を手帳に入れたよ！🧸✨<br><small>${skip.length?`読めなかった日（${skip.join("・")}）は入れてないよ。あとで手で直してね<br>`:""}つぎは「🌳 TimeTree用に書き出す」だよ</small>`);
+      a.querySelector(".nt").textContent="入れる前のシフトは控えに残してあるよ。まちがってたら勤怠ノートの「↩️ 消したシフトを復元」で戻せるよ";
+      b.innerHTML=`<button type="button" class="no">とじる</button><button type="button" class="yes tt">🌳 TimeTree用に書き出す</button>`;
+      b.querySelector(".no").onclick=()=>a.remove();b.querySelector(".tt").onclick=()=>ttFlow(ym)};
+    a.querySelector(".sv").onclick=async ev=>{ev.preventDefault();const nm=`シフト_${ym}_スクショ.csv`,f=new File(["\uFEFF"+csv],nm,{type:"text/csv"});
       if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e&&e.name==="AbortError")return}}
       const u=URL.createObjectURL(f),l=document.createElement("a");l.href=u;l.download=nm;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)};
   }catch(e){pg.stop();const fc=a.querySelector(".hd img");if(fc)fc.src="face-oops.webp";
@@ -160,7 +173,7 @@ async function deliver(text,name){const f=new File([text],name,{type:"text/calen
   if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return true}catch(e){if(e&&e.name==="AbortError")return false}}
   const u=URL.createObjectURL(f),l=document.createElement("a");l.href=u;l.download=name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return true}
 
-function ttFlow(){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
+function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
   const ms=monthsOf();if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
   css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";a.className="full";
   a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">TimeTree用に書き出すよ🌳<br><small>どの月にする？（同じ月を何回も入れると予定がだぶるから、1か月ずつがおすすめ）</small></div></div>
@@ -168,7 +181,7 @@ function ttFlow(){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAl
   <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">📤 書き出す</button></div>
   <div style="text-align:center;margin-top:8px"><button type="button" class="ed" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🐾 動物の追加・変更</button></div></div>`;
   document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();a.querySelector(".ed").onclick=()=>animalSheet(ttFlow);
-  let cur=ms[0];const mo=a.querySelector(".mo");
+  let cur=typeof pre==="string"&&ms.includes(pre)?pre:ms[0];const mo=a.querySelector(".mo");
   const draw=()=>{mo.innerHTML=ms.map(m=>`<button type="button" data-m="${m}" class="${m===cur?"yes":"no"}" style="flex:none;padding:6px 12px;border:0;border-radius:99px;font:inherit;font-weight:800;font-size:13px;cursor:pointer">${+m.slice(5)}月</button>`).join("");
     mo.querySelectorAll("button").forEach(b=>b.onclick=()=>{cur=b.dataset.m;draw()});
     const map=animalMap(),ds=Object.keys(SHIFTS).filter(d=>d.startsWith(cur)).sort();
@@ -188,6 +201,6 @@ function ttFlow(){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAl
 function addBtn(){const st=document.getElementById("csvStatus");if(!st||document.getElementById("ttOut"))return;
   const b=document.createElement("button");b.id="ttOut";b.type="button";b.className="btn2 sub";
   b.style.cssText="font-family:inherit;cursor:pointer;font-size:12px;margin-top:6px";b.textContent="🌳 TimeTree用に書き出す（動物の絵文字つき）";
-  b.onclick=ttFlow;st.parentNode.insertBefore(b,st.nextSibling)}
+  b.onclick=()=>ttFlow();st.parentNode.insertBefore(b,st.nextSibling)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addBtn);else addBtn();
 })();

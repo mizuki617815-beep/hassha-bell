@@ -21,7 +21,6 @@
  *        {"cmd":"light_night","k":"パスワード"} でライトを保安球に（SwitchBotアプリのシーン「保安球」を実行）
  *        {"cmd":"kotatsu_off","k":"パスワード"} でこたつをけす（hapicom → Alexa定型アクション）
  *        {"cmd":"chat","q":"文章","h":[{"r":"user"|"model","t":"..."}],"k":"パスワード"} でファーちゃんモード（Gemini）のおしゃべり
- *        {"cmd":"shiftimg","img":"base64","mt":"image/jpeg","k":"パスワード"} でシフト表のスクショをGeminiが読んで日付ごとのシフトを返す（画像は読んだら捨てる。どこにも保存しない）
  *        パスワード（SB_KEY）が合わないとき・入ってないときは動かさない
  */
 
@@ -55,10 +54,6 @@ function doPost(e) {
     const key = String(PropertiesService.getScriptProperties().getProperty('SB_KEY') || '').trim();
     if (!key) throw new Error('SB_KEY（パスワード）がGASに入ってないよ');
     if (String(q.k || '').trim() !== key) throw new Error('パスワードがちがうよ');
-    if (q.cmd === 'shiftimg') {
-      return ContentService.createTextOutput(JSON.stringify({ ok: true, days: shiftImg_(q) }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
     if (q.cmd === 'chat') {
       return ContentService.createTextOutput(JSON.stringify({ ok: true, text: chat_(q) }))
         .setMimeType(ContentService.MimeType.JSON);
@@ -309,41 +304,4 @@ function gemFetch_(key, model, body) {
   if (code === 429) throw new Error('きょうはおしゃべりしすぎたみたい（無料のわく）。少し時間をおいてね');
   if (code !== 200) throw new Error((j.error && j.error.message || ('エラー ' + code)).slice(0, 120));
   return j;
-}
-
-// 📷 シフト表のスクショを読む（2026-11-23）。画像は読んだら捨てる（シート・ドライブには保存しない）
-const SHIFT_PROMPT = [
-  'これは航空会社の勤務シフト表のスクリーンショットです。マスの上の日付は「日/月/年」(DD/MM/YYYY)の形です。',
-  '写っている日付ごとに、次の形のJSON配列だけを返してください（説明文は書かない）：',
-  '[{"d":"YYYY-MM-DD","k":"work|off|leave|other|none","s":"HH:MM","e":"HH:MM","x":"文字"}]',
-  'ルール：',
-  '・「HH:MM-HH:MM」の時刻があるマスは k="work"、s=開始、e=終了。かっこ内の時間や、下に並ぶ業務名（CX 549 MEAL など）は無視。',
-  '・「オフ」は k="off"。',
-  '・「L」と「08:00」だけのマスは k="leave"（有休）。',
-  '・「スケジュール不可」や空のマスは k="none"。',
-  '・それ以外の特別な文字（休暇・研修など）は k="other"、x にその文字。時刻もあれば s と e も入れる。',
-  '・右端の「週」の列（週番号と合計時間）は無視。マスの色は無視。読めないところは推測で埋めずに k="none"。'
-].join('\n');
-
-function shiftImg_(q) {
-  const P = PropertiesService.getScriptProperties();
-  const key = String(P.getProperty('GEMINI_KEY') || '').trim();
-  if (!key) throw new Error('GEMINI_KEY がGASに入ってないよ');
-  const model = String(P.getProperty('GEMINI_MODEL') || 'gemini-flash-lite-latest').trim();
-  const img = String(q.img || '');
-  if (!img || img.length > 6000000) throw new Error('画像が大きすぎるか、からっぽだよ');
-  const mt = /^image\/(png|jpeg|webp)$/.test(q.mt) ? q.mt : 'image/jpeg';
-  const j = gemFetch_(key, model, {
-    contents: [{ role: 'user', parts: [{ inline_data: { mime_type: mt, data: img } }, { text: SHIFT_PROMPT }] }],
-    generationConfig: { maxOutputTokens: 8192, temperature: 0, responseMimeType: 'application/json' }
-  });
-  const c = j.candidates && j.candidates[0];
-  const txt = c && c.content && (c.content.parts || []).filter(p => p.text && !p.thought).map(p => p.text).join('').trim();
-  if (!txt) throw new Error('シフトが読めなかったよ');
-  let arr;
-  try { arr = JSON.parse(txt.replace(/^```(?:json)?|```$/g, '')); } catch (e) { throw new Error('読んだ結果の形がへんだったよ。もう一回ためしてね'); }
-  if (!Array.isArray(arr)) throw new Error('読んだ結果の形がへんだったよ');
-  const hm = v => /^\d{1,2}:\d{2}$/.test(String(v || '')) ? String(v).padStart(5, '0') : '';
-  return arr.filter(x => x && /^\d{4}-\d{2}-\d{2}$/.test(x.d) && x.k !== 'none').slice(0, 62)
-    .map(x => ({ d: x.d, k: ['work', 'off', 'leave', 'other'].indexOf(x.k) >= 0 ? x.k : 'other', s: hm(x.s), e: hm(x.e), x: String(x.x || '').slice(0, 40) }));
 }

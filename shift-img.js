@@ -1,28 +1,10 @@
-// ゆめいろ手帳：📷 シフト表のスクショ → シフト読み込み ＆ 📅 iPhoneカレンダーへ書き出し（2026-11-23）
-// スクショはこのiPhoneで小さくしてから、GAS経由でGeminiに読ませる（GASは読んだら画像を捨てる）。
-// 読んだ結果は確認画面で直してから、いつものシフトCSVと同じ道（date,title）で取り込む。
+// ゆめいろ手帳：📷 プラネットのシフト表のスクショ → CSV（このiPhoneの中だけでOCR。画像はどこにも送らない）＆ 📅 iPhoneカレンダーへ書き出し（2026-11-23）
+// いまは試しの段階：読んだ結果は手帳に入れず、CSVにするだけ（本人がClaudeに見せて確かめてから手で取り込む）
 (function(){
 const W="日月火水木金土",pad=n=>String(n).padStart(2,"0");
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const md=d=>{const[y,m,dd]=d.split("-").map(Number);return`${m}/${dd}(${W[new Date(y,m-1,dd).getDay()]})`};
-const nc=v=>String(v||"").replace(":","");
 
-// ---- 画像を小さくする（長い辺2000px・JPEG）----
-async function shrink(file){
-  let img;try{img=await createImageBitmap(file)}catch(e){img=await new Promise((ok,ng)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ng(new Error("画像が開けなかったよ"));i.src=URL.createObjectURL(file)})}
-  const w=img.width,h=img.height,r=Math.min(1,1400/w,2400/h),c=document.createElement("canvas");
-  c.width=Math.round(w*r);c.height=Math.round(h*r);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);
-  return c.toDataURL("image/jpeg",0.88).split(",")[1]}
-
-// ---- Geminiの答え → 手帳のシフトの書き方 ----
-function toTitle(x){
-  if(x.k==="work"&&x.s&&x.e)return`CX ${nc(x.s)}-${nc(x.e)}`;
-  if(x.k==="off")return"公休日（お休み）";
-  if(x.k==="leave")return"有休（お休み）";
-  const t=String(x.x||"とくべつ").trim();
-  return x.s&&x.e?`${t} ${nc(x.s)}-${nc(x.e)}`:`${t}（お休み）`}
-
-// ---- 確認画面 ----
 function css(){if(document.getElementById("siCss"))return;const st=document.createElement("style");st.id="siCss";st.textContent=`
 #siBox{position:fixed;inset:0;z-index:10001;background:rgba(60,40,80,.32);display:flex;align-items:center;justify-content:center;padding:14px}
 #siBox .cf{width:100%;max-width:380px;max-height:86vh;display:flex;flex-direction:column;background:#fff;border-radius:22px;border:2px solid var(--pink2);box-shadow:0 10px 30px rgba(183,156,255,.4);padding:14px 12px 12px}
@@ -31,6 +13,7 @@ function css(){if(document.getElementById("siCss"))return;const st=document.crea
 #siBox .ls{overflow:auto;flex:1;border-top:1px dashed #e3d6ff;border-bottom:1px dashed #e3d6ff;padding:4px 0}
 #siBox .r{display:flex;align-items:center;gap:8px;padding:3px 2px}
 #siBox .r b{width:64px;flex:none;font-size:13px;color:var(--ink)}
+#siBox .r span{flex:1;font-size:13.5px;color:var(--ink)}#siBox .r.off span{color:var(--sub)}#siBox .r.warn span{color:#e0447a}
 #siBox .r input{flex:1;min-width:0;font:inherit;font-size:14px;padding:6px 8px;border:1.5px solid #e3d6ff;border-radius:10px;background:#fff;color:var(--ink)}
 #siBox .r.off input{color:var(--sub)}
 #siBox .r .x{border:0;background:none;font-size:16px;cursor:pointer;padding:2px 4px}
@@ -40,36 +23,56 @@ function css(){if(document.getElementById("siCss"))return;const st=document.crea
 #siBox .no{background:var(--lav2);color:var(--ink)}#siBox .yes{background:linear-gradient(90deg,var(--lav),var(--pink));color:#fff}
 body.dark #siBox .cf{background:#2e2747;border-color:#5a3a5c}body.dark #siBox .r input{background:#241e38;border-color:#4a3d6b}body.dark #siBox .no{background:rgba(255,255,255,.12)}`;document.head.appendChild(st)}
 
-function confirmRows(rows){return new Promise(res=>{css();const a=document.createElement("div");a.id="siBox";
-  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div>スクショから${rows.length}日分読んだよ！<br>まちがいがないか見てね（直せるよ）</div></div>
-  <div class="ls">${rows.map((r,i)=>`<div class="r${/お休み/.test(r.t)?" off":""}" data-i="${i}"><b>${md(r.d)}</b><input value="${esc(r.t)}" aria-label="${md(r.d)}のシフト"><button class="x" type="button" aria-label="この日を読み込まない">✕</button></div>`).join("")}</div>
-  <div class="nt">出勤は「CX 0620-1645」の形、休みは「（お休み）」がついてるよ。✕でその日は読み込まないよ</div>
-  <div class="b"><button type="button" class="no">やめる</button><button type="button" class="yes">読み込む</button></div></div>`;
-  document.body.appendChild(a);
-  a.querySelectorAll(".x").forEach(b=>b.onclick=()=>b.parentNode.remove());
-  const end=v=>{a.remove();res(v)};
-  a.querySelector(".no").onclick=()=>end(null);
-  a.querySelector(".yes").onclick=()=>end([...a.querySelectorAll(".r")].map(el=>({d:rows[+el.dataset.i].d,t:el.querySelector("input").value.trim()})).filter(r=>r.t))})}
+// ---- 📷 スクショ → OCR（このiPhoneの中だけ）→ CSV ----
+// OCRの部品（Tesseract.js）は最初の1回だけネットから読み込む。画像はどこにも送らない
+const TJS="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+let tjsP=null;const loadT=()=>tjsP||(tjsP=new Promise((ok,ng)=>{if(window.Tesseract)return ok(window.Tesseract);const sc=document.createElement("script");sc.src=TJS;sc.onload=()=>window.Tesseract?ok(window.Tesseract):ng(new Error("OCRの部品が読み込めなかったよ"));sc.onerror=()=>{tjsP=null;ng(new Error("OCRの部品が読み込めなかったよ（はじめての1回は電波が必要だよ）"))};document.head.appendChild(sc)}));
 
-// ---- いつものシフトCSVの道で取り込む ----
-function feed(rows){const q=v=>/[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v;
-  const csv="date,title\n"+rows.map(r=>`${r.d},${q(r.t)}`).join("\n")+"\n";
-  const kt=document.getElementById("ktCsvIn");if(!kt)throw new Error("勤怠ノートが見つからなかったよ");
-  const dt=new DataTransfer();dt.items.add(new File([csv],"shift-from-screenshot.csv",{type:"text/csv"}));kt.files=dt.files;window.__siImport=true;kt.dispatchEvent(new Event("change"))}
+async function toGray(file){let img;
+  try{img=await createImageBitmap(file)}catch(e){img=await new Promise((ok,ng)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ng(new Error("画像が開けなかったよ"));i.src=URL.createObjectURL(file)})}
+  const r=Math.min(2,1914/img.width),W=Math.round(img.width*r),H=Math.round(img.height*r),c=document.createElement("canvas");c.width=W;c.height=H;
+  const x=c.getContext("2d",{willReadFrequently:true});x.fillStyle="#fff";x.fillRect(0,0,W,H);x.drawImage(img,0,0,W,H);
+  const d=x.getImageData(0,0,W,H),g=new Uint8Array(W*H);for(let i=0,j=0;i<g.length;i++,j+=4){const v=Math.round(d.data[j]*0.299+d.data[j+1]*0.587+d.data[j+2]*0.114);g[i]=v;d.data[j]=d.data[j+1]=d.data[j+2]=v}
+  x.putImageData(d,0,0);return{c,g,W,H}}
+// ななめのしましま（オフのマス）の強さ。文字のふちは除いて、ななめ2方向の差をくらべる
+function stripeFn(g,W,H){const k=Math.max(3,Math.round(6*W/1914));return(x0,y0,x1,y1)=>{let a=0,b=0,n=0;
+  for(let y=Math.max(k,y0|0);y<Math.min(H-k,y1);y+=2)for(let x=Math.max(k,x0|0);x<Math.min(W-k,x1);x+=2){const v=g[y*W+x],p=g[(y+k)*W+x+k],q=g[(y-k)*W+x+k];
+    if(Math.max(v,p,q)-Math.min(v,p,q)>60)continue;a+=Math.abs(v-p);b+=Math.abs(v-q);n++}
+  if(n<50)return 1;a/=n;b/=n;return Math.max(a,b)/(Math.min(a,b)+1)}}
+function crop(g,W,H,[x0,y0,x1,y1]){x0=Math.max(0,x0|0);y0=Math.max(0,y0|0);x1=Math.min(W,x1|0);y1=Math.min(H,y1|0);
+  const w=x1-x0,h=y1-y0,c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d"),d=x.createImageData(w,h);
+  for(let y=0;y<h;y++)for(let i=0;i<w;i++){const v=g[(y0+y)*W+x0+i]>90?255:0,j=(y*w+i)*4;d.data[j]=d.data[j+1]=d.data[j+2]=v;d.data[j+3]=255}
+  x.putImageData(d,0,0);return c}
+const wordsOf=data=>{let ws=data.words||[];if(!ws.length){ws=[];(data.blocks||[]).forEach(b=>(b.paragraphs||[]).forEach(p=>(p.lines||[]).forEach(l=>(l.words||[]).forEach(w=>ws.push(w)))))}
+  return ws.map(w=>({t:w.text,x0:w.bbox.x0,y0:w.bbox.y0,x1:w.bbox.x1,y1:w.bbox.y1}))};
+
+function sheet(){css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";
+  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">スクショを読んでるよ…<br><small>このiPhoneの中だけで読んでるから、画像はどこにも送らないよ</small></div></div><div class="ls"></div><div class="nt"></div><div class="b"><button type="button" class="no">とじる</button></div></div>`;
+  document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();return a}
 
 let busy=false;
-window.shiftImgFlow=async file=>{if(busy)return;busy=true;
-  try{yuAlert("🧸 スクショを読んでるよ…30秒くらい待ってね");
-    const b64=await shrink(file);
-    let days;try{days=await window.fmShiftImg(b64,"image/jpeg")}
-    catch(e){const m=String(e&&e.message||e);yuAlert(/noconn/.test(m)?"⚠️ スクショを読むには、⚙️設定の「おうちの温度」のURLとエアコンのパスワードが必要だよ":"⚠️ スクショが読めなかったよ…"+m.slice(0,80));return}
-    const by={};for(const x of days)by[x.d]=toTitle(x);
-    const rows=Object.keys(by).sort().map(d=>({d,t:by[d]}));
-    if(!rows.length){yuAlert("⚠️ シフトが見つからなかったよ。シフト表のスクショか確認してね");return}
-    const ok=await confirmRows(rows);if(!ok||!ok.length)return;
-    feed(ok);
-  }catch(e){yuAlert("⚠️ うまくいかなかったよ…"+String(e&&e.message||e).slice(0,80))}
-  finally{busy=false}};
+window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),msg=t=>{const m=a.querySelector(".msg");if(m)m.innerHTML=t};let w1,w2;
+  try{msg("OCRの部品を用意してるよ…<br><small>はじめての1回だけ少し時間がかかるよ</small>");
+    const T=await loadT();const im=await toGray(file);
+    const pr=p=>m=>{if(m&&m.status==="recognizing text")msg(`${p}…${Math.round((m.progress||0)*100)}%<br><small>このiPhoneの中だけで読んでるよ</small>`)};
+    w1=await T.createWorker("eng",1,{logger:pr("スクショを読んでるよ")});await w1.setParameters({tessedit_pageseg_mode:"11"});
+    const r1=await w1.recognize(im.c,{},{blocks:true});
+    const res=window.PlanetOCR.parsePlanet(wordsOf(r1.data),stripeFn(im.g,im.W,im.H));
+    if(!res.days.length&&!res.todo.length)throw new Error(res.why||"シフト表が見つからなかったよ");
+    if(res.todo.length){w2=await T.createWorker("jpn+eng",1,{logger:pr("読みにくいマスをもう一度見てるよ")});await w2.setParameters({tessedit_pageseg_mode:"6"});
+      for(const it of res.todo){const r=await w2.recognize(crop(im.g,im.W,im.H,it.box));const c=window.PlanetOCR.classify(r.data.text,it);if(c)res.days.push(c)}}
+    res.days.sort((x,y)=>x.d<y.d?-1:1);
+    const csv=window.PlanetOCR.toCSV(res.days);
+    msg(`${res.days.length}日分のCSVができたよ！<br><small>まだ手帳には入れてないよ。まちがいがないか確かめてね</small>`);
+    a.querySelector(".ls").innerHTML=res.days.map(x=>`<div class="r${x.k==="work"?"":" off"}${x.k==="other"?" warn":""}"><b>${md(x.d)}</b><span>${esc(x.title)}</span></div>`).join("");
+    a.querySelector(".nt").textContent="「📋 コピー」か「📤 CSVを保存」で、Claudeに見せて確かめてもらってね";
+    const b=a.querySelector(".b");b.insertAdjacentHTML("beforeend",`<button type="button" class="yes cp">📋 コピー</button><button type="button" class="yes sv">📤 CSVを保存</button>`);
+    b.querySelector(".cp").onclick=async()=>{try{await navigator.clipboard.writeText(csv);yuAlert("🧸 CSVをコピーしたよ")}catch(e){yuAlert("⚠️ コピーできなかったよ。「CSVを保存」を使ってね")}};
+    b.querySelector(".sv").onclick=async()=>{const nm=`シフト_${res.days[0].d.slice(0,7)}_スクショ.csv`,f=new File(["﻿"+csv],nm,{type:"text/csv"});
+      if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e&&e.name==="AbortError")return}}
+      const u=URL.createObjectURL(f),l=document.createElement("a");l.href=u;l.download=nm;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)};
+  }catch(e){msg("⚠️ うまく読めなかったよ…<br><small>"+esc(String(e&&e.message||e).slice(0,100))+"</small>")}
+  finally{busy=false;try{w1&&w1.terminate()}catch(e){}try{w2&&w2.terminate()}catch(e){}}};
 
 // ---- 📅 iPhoneのカレンダーへ書き出し（前の晩21時に通知）----
 function ics(){if(typeof SHIFTS!=="object")throw new Error("シフトが見つからなかったよ");

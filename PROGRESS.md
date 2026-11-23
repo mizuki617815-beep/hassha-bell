@@ -24,6 +24,7 @@
 
 - `index.html`：アプリ本体（1ファイル）
 - `sw.js`：電波がなくても開けるための仕組み（オンライン時は毎回最新を取得）
+- `shift-img.js`：📷シフト表のスクショ→GAS（`cmd:shiftimg`）→Geminiで読む→確認画面→いつものシフトCSV（date,title）の道で取り込み。📅iPhoneカレンダーへ.ics書き出し（今日以降・前の晩21時に通知・公休日は入れない）（2026-11-23）
 - `weather/*.webp`・`banner-night.webp`・`fortune-*.webp`・`paid-bear.webp`：クマの挿絵
 - `fortune.json`＋`scripts/fetch_fortune.py`＋`.github/workflows/fortune.yml`：占いデータの毎日自動取得
 

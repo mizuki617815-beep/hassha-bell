@@ -872,7 +872,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       <div class="ktDays" id="ktDays"></div>
     </details>
     <button type="button" class="recOpen" style="margin-top:12px" id="recOpen"><span class="ri"><img src="rec-bear.webp" alt="本棚の前で資料を整理するファーちゃん" width="58" height="58"></span><span class="rt"><b>📚 ファーちゃんの記録室</b><small>給料・ボーナスの明細／源泉徴収票／年度のまとめ</small></span><span class="ra">›</span></button>
-    <div class="impBox"><button type="button" class="impBtn" id="impBtn">📥 ファイルを読み込む<small>シフト・タイムシート・明細PDF、なんでもOK</small></button><input type="file" id="impAll" multiple style="display:none"><div id="impList"></div>
+    <div class="impBox"><button type="button" class="impBtn" id="impBtn">📥 ファイルを読み込む<small>シフトのスクショ・タイムシート・明細PDF、なんでもOK</small></button><input type="file" id="impAll" multiple style="display:none"><div id="impList"></div>
       <details class="impShift"><summary>🗓 読み込んだシフトを見る・消す</summary>
         <div class="note" id="csvStatus"></div>
         <div class="row" style="margin-top:6px;gap:6px">
@@ -1021,6 +1021,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge" id="verHistBadge">ver4.2</span></summary>
       <ul class="verList">
+        <li data-go="シフトのスクショから読み込む|iPhoneカレンダーに書き出す" data-short="📷 シフトのスクショを読み込めるようになったよ！"><span class="vNo">ver4.4</span><span class="vDate">11/23</span><span class="vTxt">📷 シフト表のスクショを「📥 ファイルを読み込む」で選ぶと、ファーちゃん（Gemini）が読んでシフトにしてくれるよ。読んだあとに確認画面が出るから、まちがいがあったらその場で直してね。📅「iPhoneのカレンダーに書き出す」で、今日から先のシフトをカレンダーの予定にできるよ（前の晩21時にお知らせつき。公休日は入れないよ）。TimeTreeの「iPhoneカレンダーから取り込む」を使えば、ふたりの共有カレンダーにも入るよ</span></li>
         <li data-quiet="1" data-go="@案内所" data-short="🧸 案内所のファーちゃんが答えてくれるようになったよ！"><span class="vNo">ver4.3</span><span class="vDate">11/23</span><span class="vTxt">🧸 案内所がファーちゃんとのおしゃべりに：「でんき消えてる？」「明細の入れ方」みたいに聞くと、使い方や今のようすを答えてくれるよ。ひらがなでも、言い方がちがっても、ちょっと打ちまちがえてもだいじょうぶ。答えの「📍 そこへ連れていって」でその場所へ飛ぶよ（「そこに連れてって」「それの使い方は？」でもOK）。「でんき消して」「暖房つけて」でリモコンのボタンも押せるよ（いつもの確認が出るよ）。わからなかった質問は「わからなかった質問」で見られるよ。案内所は全画面になったよ。おしゃべりのファーちゃんは、答えに合わせて6つの顔に変わるよ。上のボタンで「📋 秘書モード」と「🧸 ファーちゃんモード」（もっと自由におしゃべり）を切り替えられるよ。打っているあいだも会話が見えたままになったよ。「おはよう」「おやすみ」「つかれた」「雑談しよ」みたいなおしゃべりにも、時間に合わせてこたえてくれるよ</span></li>
         <li data-quiet="1" data-go="次の給料の予想" data-short="💰 次の給料の手取り予想ができたよ！"><span class="vNo">ver4.2</span><span class="vDate">11/22</span><span class="vTxt">💰「次の給料の予想」が記録室の「📈みる」に：次の給料日にもらえる手取りの見込みを、いちばん新しい明細と勤怠ノートの記録から計算するよ（残業・深夜・休みの日の割増は勤怠ノートの見込み、ほかの支給と社会保険料・住民税は新しい明細と同じ、所得税は概算。賞与はふくまないよ）。12月・6月・7月・10月は、明細がふだんとちがってズレやすいことも教えてくれるよ。明細を入れると、予想と実際の「答え合わせ」も出るよ🧸<br>🎛 おうちのリモコン（エアコン・ライト・こたつ）は「お得チェッカー」カードにおひっこし。天気カードにはおうちの温度の行だけ残したよ。ライトに「🔅 保安球」ボタンも追加</span></li>
         <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸<br>🏠 おうちの温度：⚙️設定の「🏠 おうちの温度」にGASのURLを貼ると、天気のカードの上におうちの温度と湿度が出るよ（SwitchBotハブ2。タップで読みなおし）<br>❄️🔥 エアコンのボタン：⚙️設定でエアコンのパスワードを入れると、おうちの温度の下に「冷房・暖房・けす」のボタンが出るよ（押すと確認が出るよ。温度は設定で変えられるよ）<br>💡 ライトとこたつのボタン：エアコンのボタンの下に「ライトつける・けす」「こたつけす」が出るよ（ライトはSwitchBotハブ2の赤外線、こたつはAlexaの定型アクション経由。夜は、もうついてる・消えてるときは何もしないよ）<br>💡 おうちの温度の下に「寝室のライト ON／OFF」のスイッチと明るさ（1〜20）が出るよ（見るだけ。ハブ2の明るさで見てるから「たぶん」だよ。昼はお日さまで明るいのでわからないよ）<br>☁️ おうちの温度のURLとエアコンのパスワードも、勤怠のスプレッドシートで2台にそろうようにしたよ</span></li>
@@ -2686,7 +2687,7 @@ $("ktCsvIn").onchange=ev=>{const f=ev.target.files[0];if(!f)return;
       yuAlert("🧸 タイムシートを読み込んだよ\n"+msg);return}
     if(/^\s*\uFEFF?\s*date\s*,\s*title/i.test(t)&&typeof importShiftCSV==="function"){
       const r=importShiftCSV(t);
-      if(r){render();if(typeof renderOt==="function")renderOt();if(typeof renderShiftStatus==="function")renderShiftStatus();yuAlert(`🧸 これはシフト（タイムツリー）のCSVだったから、シフトとして${r.added}件読み込んだよ（${r.from}〜${r.to}）`)}
+      if(r){render();if(typeof renderOt==="function")renderOt();if(typeof renderShiftStatus==="function")renderShiftStatus();yuAlert(window.__siImport?`🧸 スクショからシフトを${r.added}日分読み込んだよ（${r.from}〜${r.to}）`:`🧸 これはシフト（タイムツリー）のCSVだったから、シフトとして${r.added}件読み込んだよ（${r.from}〜${r.to}）`);window.__siImport=false}
       else yuAlert("シフトのCSVだけど、読み込めるシフトが見つからなかったよ");
       return}
     let n=0;
@@ -3474,16 +3475,18 @@ function drawList(){const el=document.getElementById("impList");if(!el)return;co
 function refresh(){drawList();if(typeof renderShiftStatus==="function")renderShiftStatus();if(typeof renderCheer==="function")renderCheer(true)}
 window.impRefresh=refresh;
 window.impPick=()=>{const i=document.getElementById("impAll");if(i)i.click()};
-async function handle(files){const pdf=[],csv=[],js=[],other=[];
+async function handle(files){const pdf=[],csv=[],js=[],other=[],img=[];
   // 拡張子がないファイルもあるので、中身の先頭で見分ける（%PDF→PDF、PK→zip、{→控え、それ以外の文字→CSV）
   for(const f of files){let h="";try{h=new TextDecoder("latin1").decode(await f.slice(0,8).arrayBuffer())}catch(e){}
     if(/^%PDF/.test(h)||/^PK/.test(h))pdf.push(f);else if(/^\s*\{/.test(h))js.push(f);
-    else if(/\.(png|jpe?g|heic|gif|mov|mp4)$/i.test(f.name))other.push(f);else csv.push(f)}
+    else if(/^image\//.test(f.type)||/\.(png|jpe?g|heic|webp)$/i.test(f.name))img.push(f);
+    else if(/\.(gif|mov|mp4)$/i.test(f.name))other.push(f);else csv.push(f)}
+  if(img.length){if(window.shiftImgFlow)window.shiftImgFlow(img[0]);else yuAlert("⚠️ スクショの読み込みがまだ準備できてないみたい。ページを読み込み直してね")}
   const kt=document.getElementById("ktCsvIn");
   for(const f of csv){if(!kt)break;const dt=new DataTransfer();dt.items.add(f);kt.files=dt.files;kt.dispatchEvent(new Event("change"));await new Promise(r=>setTimeout(r,800))}
   for(const f of js)if(window.recImportJson)window.recImportJson(f);
   if(pdf.length&&window.recReadSlips)window.recReadSlips(pdf);
-  if(other.length)yuAlert(`🧸 ${other.map(f=>f.name).join("、")} は読めないファイルみたい（シフト・タイムシートのCSV、明細のPDF・zipを選んでね）`);
+  if(other.length)yuAlert(`🧸 ${other.map(f=>f.name).join("、")} は読めないファイルみたい（シフトのスクショ・CSV、タイムシート、明細のPDF・zipを選んでね）`);
   setTimeout(refresh,1500)}
 document.addEventListener("DOMContentLoaded",()=>{const b=document.getElementById("impBtn"),i=document.getElementById("impAll");
   if(b)b.onclick=()=>i.click();if(i)i.onchange=()=>{const fs=[...i.files];i.value="";if(fs.length)handle(fs)};
@@ -3622,6 +3625,11 @@ $("acSave").onclick=()=>{const v=ak.value.trim();if(!v){ak.focus();return}const 
 $("acUnlock").onclick=async()=>{if(!await yuAsk("エアコンのパスワードを変える？\n（GASの SB_KEY も同じにしてね）","変える",true))return;acUnl=true;acUI();ak.focus()};
 $("acOff").onclick=async()=>{if(!await yuAsk("エアコンのパスワードを消す？\n（お得チェッカーのリモコンも消えるよ。またパスワードを入れればもどせるよ）","消す",true))return;const o=acGet();delete o.k;acPut(o);hTouch();acUnl=false;acUI()};
 /* 🧸 ファーちゃんモード：打った文章だけをGAS→Geminiへ（2026-11-23）。URLとパスワードはリモコンと同じものを使う */
+/* 📷 シフト表のスクショ → GAS → Gemini（2026-11-23）。画像はGASで読んだら捨てる */
+window.fmShiftImg=async(img,mt)=>{const u=getU(),o=acGet();if(!u||!o.k)throw new Error("noconn");
+  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),90000);
+  try{const r=await fetch(u,{method:"POST",body:JSON.stringify({cmd:"shiftimg",img,mt,k:o.k}),signal:ctl.signal});const j=await r.json();if(!j.ok)throw new Error(j.err||"送れなかったよ");return j.days||[]}
+  catch(e){throw new Error(e&&e.name==="AbortError"?"時間がかかりすぎたよ":(e&&e.message)||"送れなかったよ")}finally{clearTimeout(tm)}};
 window.fmGem=async(q,h)=>{const u=getU(),o=acGet();if(!u||!o.k)throw new Error("noconn");
   const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),25000);
   try{const r=await fetch(u,{method:"POST",body:JSON.stringify({cmd:"chat",q,h,k:o.k}),signal:ctl.signal});const j=await r.json();if(!j.ok)throw new Error(j.err||"送れなかったよ");return j.text}
@@ -3648,7 +3656,8 @@ load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidde
 setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
-<script src="fm-help.js?v=20261123h"></script>
-<script src="fm.js?v=20261123h"></script>
+<script src="fm-help.js?v=20261123i"></script>
+<script src="fm.js?v=20261123i"></script>
+<script src="shift-img.js?v=20261123i"></script>
 </body>
 </html>

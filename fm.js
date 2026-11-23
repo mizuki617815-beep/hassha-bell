@@ -202,7 +202,7 @@ function setMode(m){MODE=m==="fur"?"fur":"sec";try{localStorage.setItem(MDK,MODE
   q.placeholder=MODE==="fur"?"ファーちゃんとおしゃべりしよ":"ファーちゃんに聞いてね";sh.classList.toggle("fur",MODE==="fur")}
 {const mb=$("fmMode");if(mb)mb.onclick=e=>{const b=e.target.closest("button[data-m]");if(!b)return;setMode(b.dataset.m);if(!q.value.trim()&&LOG.length){grp=CHAT;drawChips()}draw()}}
 const plain=h=>String(h).replace(/<br\s*\/?>/g,"\n").replace(/<[^>]+>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").trim();
-async function askFur(t){push("me",t);const wid="w"+Date.now();LOG.push(botHtml(`<span class="fmDots" data-wait="${wid}">考え中<i>.</i><i>.</i><i>.</i></span>`,"fur","talk"));if(LOG.length>60)LOG=LOG.slice(-60);
+async function askFur(t){push("me",t);const wid="w"+Date.now();LOG.push(botHtml(`<span class="fmDots" data-wait="${wid}">入力中<i>.</i><i>.</i><i>.</i></span>`,"fur","talk"));if(LOG.length>60)LOG=LOG.slice(-60);
   q.value="";grp=CHAT;drawChips();draw();try{q.blur()}catch(e){}
   let html,face;
   try{if(!window.fmGem)throw new Error("noconn");const txt=await window.fmGem(t.slice(0,300),HIST.slice(-8));

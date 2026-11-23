@@ -6,10 +6,11 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const md=d=>{const[y,m,dd]=d.split("-").map(Number);return`${m}/${dd}(${W[new Date(y,m-1,dd).getDay()]})`};
 
 function css(){if(document.getElementById("siCss"))return;const st=document.createElement("style");st.id="siCss";st.textContent=`
-#siBox{position:fixed;inset:0;z-index:10001;background:rgba(60,40,80,.32);display:flex;align-items:stretch;justify-content:center;padding:calc(env(safe-area-inset-top) + 8px) 8px calc(env(safe-area-inset-bottom) + 8px);overscroll-behavior:contain;touch-action:none}
+#siBox{position:fixed;inset:0;z-index:10001;background:rgba(60,40,80,.32);display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 8px) 8px calc(env(safe-area-inset-bottom) + 8px);overscroll-behavior:contain;touch-action:none}
 html:has(#siBox),body:has(#siBox){overflow:hidden!important;overscroll-behavior:none}
 #siBox .ls,#siBox textarea{overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}#siBox input,#siBox button{touch-action:manipulation}
-#siBox .cf{width:100%;max-width:480px;height:100%;box-sizing:border-box;display:flex;flex-direction:column;background:#fff;border-radius:22px;border:2px solid var(--pink2);box-shadow:0 10px 30px rgba(183,156,255,.4);padding:14px 12px 12px}
+#siBox.full .cf{height:100%}
+#siBox .cf{width:100%;max-width:480px;max-height:100%;box-sizing:border-box;display:flex;flex-direction:column;background:#fff;border-radius:22px;border:2px solid var(--pink2);box-shadow:0 10px 30px rgba(183,156,255,.4);padding:14px 12px 12px}
 #siBox .hd{display:flex;gap:10px;align-items:center;font-size:13.5px;font-weight:700;line-height:1.5;color:var(--ink);margin-bottom:8px}
 #siBox .hd img{width:46px;height:46px;border-radius:50%;border:3px solid var(--pink);object-fit:cover;flex:none}
 #siBox .ls{overflow:auto;flex:1;min-height:0;border-top:1px dashed #e3d6ff;border-bottom:1px dashed #e3d6ff;padding:4px 0}
@@ -96,6 +97,7 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
     res.days.sort((x,y)=>x.d<y.d?-1:1);
     const csv=window.PlanetOCR.toCSV(res.days);
     await pg.finish();pg.stop();
+    a.classList.add("full");
     msg(`${res.days.length}日分のCSVができたよ！<br><small>まだ手帳には入れてないよ。まちがいがないか確かめてね</small>`);
     a.querySelector(".ls").innerHTML=res.days.map(x=>`<div class="r${x.k==="work"?"":" off"}${x.k==="other"?" warn":""}"><b>${md(x.d)}</b><span>${esc(x.title)}</span></div>`).join("");
     a.querySelector(".nt").textContent="ピンクの行は読みとりがあやしい日だよ。「📋 コピー」か「📤 CSVを保存」で書き出して、プラネットの画面と見くらべてね";
@@ -160,7 +162,7 @@ async function deliver(text,name){const f=new File([text],name,{type:"text/calen
 
 function ttFlow(){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
   const ms=monthsOf();if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
-  css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";
+  css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";a.className="full";
   a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">TimeTree用に書き出すよ🌳<br><small>どの月にする？（同じ月を何回も入れると予定がだぶるから、1か月ずつがおすすめ）</small></div></div>
   <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
   <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">📤 書き出す</button></div>

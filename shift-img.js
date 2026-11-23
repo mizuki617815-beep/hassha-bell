@@ -100,7 +100,8 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
     a.classList.add("full");
     const ym=res.days[0].d.slice(0,7);
     msg(`${+ym.slice(5)}月のシフトを${res.days.length}日分読んだよ！<br><small>プラネットの画面と見くらべて、合ってたら「📒 手帳に入れる」を押してね</small>`);
-    a.querySelector(".ls").innerHTML=res.days.map(x=>`<div class="r${x.k==="work"?"":" off"}${x.k==="other"?" warn":""}"><b>${md(x.d)}</b><span>${esc(x.title)}</span></div>`).join("");
+    const am=animalMap(),emo=x=>{if(x.k!=="work"||typeof shiftFromTitle!=="function")return"";const sh=shiftFromTitle(x.title);return sh&&!sh.off&&sh.start!=null?(am[keyOf(sh.start,sh.end)]||"❓")+" ":""};
+    a.querySelector(".ls").innerHTML=res.days.map(x=>`<div class="r${x.k==="work"?"":" off"}${x.k==="other"?" warn":""}"><b>${md(x.d)}</b><span>${emo(x)}${esc(x.title)}</span></div>`).join("");
     a.querySelector(".nt").innerHTML=`ピンクの行は読みとりがあやしい日だよ。入れる前に今のシフトの控えを残すから、まちがってても「↩️ 消したシフトを復元」で戻せるよ　<a href="#" class="sv" style="color:var(--sub)">📤 CSVで保存</a>`;
     const b=a.querySelector(".b");b.insertAdjacentHTML("beforeend",`<button type="button" class="yes in">📒 手帳に入れる</button>`);
     // ステップ2（2026-11-23）：読んだシフトをそのまま手帳へ。保存すると勤怠のスプレッドシートでほかの端末ともそろう

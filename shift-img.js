@@ -87,9 +87,10 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
     w1=await T.createWorker("eng",1,{logger:pr("read",15,80)});await w1.setParameters({tessedit_pageseg_mode:"11"});
     pg.set("read",15);const r1=await w1.recognize(im.c,{},{blocks:true});pg.set("read",80);
     const res=window.PlanetOCR.parsePlanet(wordsOf(r1.data),stripeFn(im.g,im.W,im.H));
-    if(!res.days.length&&!res.todo.length)throw new Error(res.why||"シフト表が見つからなかったよ");
+    if(!res.days.length&&!res.todo.length){const er=new Error(res.why||"シフト表が見つからなかったよ");er.notShift=true;throw er}
     if(res.todo.length){w2=await T.createWorker("jpn+eng",1,{logger:pr("again",82,84)});await w2.setParameters({tessedit_pageseg_mode:"6"});
       let ti=0;for(const it of res.todo){pg.set("again",84+14*(ti++/res.todo.length));const r=await w2.recognize(crop(im.g,im.W,im.H,it.box));const c=window.PlanetOCR.classify(r.data.text,it);if(c)res.days.push(c)}}
+    if(!res.days.length){const er=new Error("シフトが読みとれなかったよ");er.notShift=true;throw er}
     res.days.sort((x,y)=>x.d<y.d?-1:1);
     const csv=window.PlanetOCR.toCSV(res.days);
     await pg.finish();pg.stop();
@@ -101,7 +102,10 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
     b.querySelector(".sv").onclick=async()=>{const nm=`シフト_${res.days[0].d.slice(0,7)}_スクショ.csv`,f=new File(["﻿"+csv],nm,{type:"text/csv"});
       if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e&&e.name==="AbortError")return}}
       const u=URL.createObjectURL(f),l=document.createElement("a");l.href=u;l.download=nm;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)};
-  }catch(e){pg.stop();msg("⚠️ うまく読めなかったよ…<br><small>"+esc(String(e&&e.message||e).slice(0,100))+"</small>")}
+  }catch(e){pg.stop();const fc=a.querySelector(".hd img");if(fc)fc.src="face-oops.webp";
+    const em=String(e&&e.message||e);
+    if(e&&e.notShift){msg("あれれ…これ、シフト表じゃないみたい💦<br><small>プラネットのシフト表のスクショを選んでね。日付と時間が見えるように、1か月分が入った画面を撮ってくれたら読めるよ🧸</small>")}
+    else{msg("ごめんね、うまく読めなかったよ…💦<br><small>"+esc(em.slice(0,100))+"</small>")}}
   finally{busy=false;try{w1&&w1.terminate()}catch(e){}try{w2&&w2.terminate()}catch(e){}}};
 
 // ---- 📅 iPhoneのカレンダーへ書き出し（前の晩21時に通知）----

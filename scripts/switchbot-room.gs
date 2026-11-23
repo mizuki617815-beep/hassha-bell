@@ -21,6 +21,9 @@
  *        {"cmd":"light_night","k":"パスワード"} でライトを保安球に（SwitchBotアプリのシーン「保安球」を実行）
  *        {"cmd":"kotatsu_off","k":"パスワード"} でこたつをけす（hapicom → Alexa定型アクション）
  *        {"cmd":"chat","q":"文章","h":[{"r":"user"|"model","t":"..."}],"k":"パスワード"} でファーちゃんモード（Gemini）のおしゃべり
+ *        {"cmd":"tt_cal","ym":"2026-12","ev":[{"d":"2026-12-01","t":"CX FC 0615-1515"},{"d":"2026-12-01","t":"🐇"}],"k":"パスワード"}
+ *          → Googleカレンダー「ゆめいろシフト」のその月の予定を入れかえる（TimeTreeが「外部カレンダーの予定をインポート」で取り込む用）
+ *          ※はじめてのときは、デプロイし直すときにカレンダーの許可を聞かれるので「許可」してね
  *        パスワード（SB_KEY）が合わないとき・入ってないときは動かさない
  */
 
@@ -54,6 +57,14 @@ function doPost(e) {
     const key = String(PropertiesService.getScriptProperties().getProperty('SB_KEY') || '').trim();
     if (!key) throw new Error('SB_KEY（パスワード）がGASに入ってないよ');
     if (String(q.k || '').trim() !== key) throw new Error('パスワードがちがうよ');
+    if (q.cmd === 'tt_cal') {
+      const lk = LockService.getScriptLock();
+      lk.waitLock(20000);
+      try {
+        return ContentService.createTextOutput(JSON.stringify(Object.assign({ ok: true }, ttCal_(q))))
+          .setMimeType(ContentService.MimeType.JSON);
+      } finally { lk.releaseLock(); }
+    }
     if (q.cmd === 'chat') {
       return ContentService.createTextOutput(JSON.stringify({ ok: true, text: chat_(q) }))
         .setMimeType(ContentService.MimeType.JSON);
@@ -269,6 +280,34 @@ const FUR_SYS = [
   '手帳アプリの使い方・残業代・シフト・家電の操作を聞かれたら、自分では答えずに「上の📋秘書モードに切り替えて聞いてね」とやさしく伝えます。',
   'わからないことや最新の情報は、知ったかぶりせずに「わからないな」と正直に言います。'
 ].join('\n');
+
+// 🌳 TimeTree用：Googleカレンダー「ゆめいろシフト」に、その月のシフトと動物を終日予定で入れる（2026-11-23）
+// 同じ月を送り直したら、その月の分を消してから入れ直す（だぶらない）。ほかのカレンダーはさわらない
+function ttCal_(q) {
+  const ym = String(q.ym || '');
+  if (!/^\d{4}-\d{2}$/.test(ym)) throw new Error('月がわからないよ');
+  const ev = Array.isArray(q.ev) ? q.ev : [];
+  if (!ev.length || ev.length > 200) throw new Error('予定の数がおかしいよ');
+  const P = PropertiesService.getScriptProperties();
+  const NAME = 'ゆめいろシフト';
+  let cal = null;
+  const id = P.getProperty('TT_CAL');
+  if (id) { try { cal = CalendarApp.getCalendarById(id); } catch (e) { cal = null; } }
+  if (!cal) cal = (CalendarApp.getOwnedCalendarsByName(NAME) || [])[0] || null;
+  if (!cal) cal = CalendarApp.createCalendar(NAME, { timeZone: 'Asia/Tokyo' });
+  P.setProperty('TT_CAL', cal.getId());
+  const y = +ym.slice(0, 4), m = +ym.slice(5, 7);
+  const from = new Date(y, m - 1, 1), to = new Date(y, m, 1);
+  cal.getEvents(from, to).forEach(function (e) { e.deleteEvent(); });
+  let n = 0;
+  ev.forEach(function (x) {
+    const d = String(x && x.d || ''), t = String(x && x.t || '').replace(/[\r\n]/g, ' ').trim().slice(0, 80);
+    if (!t || !/^\d{4}-\d{2}-\d{2}$/.test(d) || d.slice(0, 7) !== ym) return;
+    cal.createAllDayEvent(t, new Date(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)));
+    n++;
+  });
+  return { n: n, cal: NAME };
+}
 
 function chat_(q) {
   const P = PropertiesService.getScriptProperties();

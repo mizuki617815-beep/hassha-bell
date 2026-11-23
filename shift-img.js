@@ -113,9 +113,9 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
       saveShifts();
       try{if(typeof renderShiftStatus==="function")renderShiftStatus();if(typeof applyShiftForDate==="function")applyShiftForDate(true);if(typeof renderCheer==="function")renderCheer(true);if(typeof renderPaid==="function")renderPaid();if(typeof render==="function")render()}catch(e){}
       const fc=a.querySelector(".hd img");if(fc)fc.src="face-yay.webp";
-      msg(`${n}日分を手帳に入れたよ！🧸✨<br><small>${skip.length?`読めなかった日（${skip.join("・")}）は入れてないよ。あとで手で直してね<br>`:""}つぎは「🌳 TimeTree用に書き出す」だよ</small>`);
+      msg(`${n}日分を手帳に入れたよ！🧸✨<br><small>${skip.length?`読めなかった日（${skip.join("・")}）は入れてないよ。あとで手で直してね<br>`:""}つぎは「🌳 TimeTreeへ送る」だよ</small>`);
       a.querySelector(".nt").textContent="入れる前のシフトは控えに残してあるよ。まちがってたら勤怠ノートの「↩️ 消したシフトを復元」で戻せるよ";
-      b.innerHTML=`<button type="button" class="no">とじる</button><button type="button" class="yes tt">🌳 TimeTree用に書き出す</button>`;
+      b.innerHTML=`<button type="button" class="no">とじる</button><button type="button" class="yes tt">🌳 TimeTreeへ送る</button>`;
       b.querySelector(".no").onclick=()=>a.remove();b.querySelector(".tt").onclick=()=>ttFlow(ym)};
     a.querySelector(".sv").onclick=async ev=>{ev.preventDefault();const nm=`シフト_${ym}_スクショ.csv`,f=new File(["\uFEFF"+csv],nm,{type:"text/csv"});
       if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e&&e.name==="AbortError")return}}
@@ -126,7 +126,7 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
     else{msg("ごめんね、うまく読めなかったよ…💦<br><small>"+esc(em.slice(0,100))+"</small>")}}
   finally{busy=false;try{w1&&w1.terminate()}catch(e){}try{w2&&w2.terminate()}catch(e){}}};
 
-// ---- 🌳 TimeTree用に書き出す（2026-11-23）----
+// ---- 🌳 TimeTreeへ送る（2026-11-23）：GAS経由でGoogleカレンダー「ゆめいろシフト」に入れる → TimeTreeの「外部カレンダーの予定をインポート」で取り込む ----
 // 出勤の日は「シフト名」と「動物の絵文字」を別々の終日予定に。お休みは「お休み」「お休み(有休)」のまま。お知らせはつけない
 // 動物は出勤-退勤のセットで決まる。基本の一覧（TimeTreeのメモ「予定の動物たち」）はアプリに入れてOKと本人了承（2026-11-23）。
 // 新しい時間・入れ替えは設定（S.animals）に保存して基本の一覧より優先。勤怠のスプレッドシートで他の端末ともそろう
@@ -160,26 +160,12 @@ function animalSheet(after){css();let a=document.getElementById("siBox");if(a)a.
 const monthsOf=()=>{if(typeof SHIFTS!=="object")return[];const now=new Date(Date.now()+9*3600e3).toISOString().slice(0,7);
   return[...new Set(Object.keys(SHIFTS).map(d=>d.slice(0,7)))].filter(m=>m>=now).sort()};
 
-function ttIcs(days){
-  const dd=(d,plus=0)=>{const[y,m,x]=d.split("-").map(Number),o=new Date(Date.UTC(y,m-1,x+plus));return o.toISOString().slice(0,10).replace(/-/g,"")};
-  const stamp=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
-  const clean=t=>String(t||"").replace(/[\r\n]/g," ").replace(/([,;\\])/g,"\\$1").trim();
-  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//yumeiro-techo//timetree//JA","CALSCALE:GREGORIAN","X-WR-CALNAME:ゆめいろシフト"];
-  const ev=(d,n,t)=>L.push("BEGIN:VEVENT",`UID:${d}-${n}@yumeiro-techo`,`DTSTAMP:${stamp}`,`DTSTART;VALUE=DATE:${dd(d)}`,`DTEND;VALUE=DATE:${dd(d,1)}`,`SUMMARY:${clean(t)}`,"TRANSP:TRANSPARENT","END:VEVENT");
-  days.forEach(x=>{ev(x.d,"s",x.title);if(x.emoji)ev(x.d,"a",x.emoji)});
-  L.push("END:VCALENDAR");return L.join("\r\n")+"\r\n"}
-
-// ホーム画面から開いた手帳だと、ファイルを別の画面で開くと真っ白になる（2026-11-23 実機）→ 共有シートで渡す
-async function deliver(text,name){const f=new File([text],name,{type:"text/calendar"});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return true}catch(e){if(e&&e.name==="AbortError")return false}}
-  const u=URL.createObjectURL(f),l=document.createElement("a");l.href=u;l.download=name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return true}
-
 function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
   const ms=monthsOf();if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
   css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";a.className="full";
-  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">TimeTree用に書き出すよ🌳<br><small>どの月にする？（同じ月を何回も入れると予定がだぶるから、1か月ずつがおすすめ）</small></div></div>
+  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">TimeTreeへ送るよ🌳<br><small>どの月にする？ Googleカレンダーの「ゆめいろシフト」に入れるから、そのあとTimeTreeで取り込んでね</small></div></div>
   <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
-  <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">📤 書き出す</button></div>
+  <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">🌳 TimeTreeへ送る</button></div>
   <div style="text-align:center;margin-top:8px"><button type="button" class="ed" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🐾 動物の追加・変更</button></div></div>`;
   document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();a.querySelector(".ed").onclick=()=>animalSheet(ttFlow);
   let cur=typeof pre==="string"&&ms.includes(pre)?pre:ms[0];const mo=a.querySelector(".mo");
@@ -194,14 +180,23 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
     a.querySelector(".go").onclick=async()=>{
       const add=[];for(const inp of a.querySelectorAll("input[data-k]")){const v=inp.value.trim();if(!v){yuAlert("⚠️ まだ決まってない動物があるよ");inp.focus();return}add.push(v+" "+fmtKey(inp.dataset.k))}
       if(add.length){lsSet(lsGet().replace(/\s*$/,"")+"\n"+add.join("\n"));draw();return yuAlert(`🧸 ${add.length}組の動物をおぼえたよ。もう一回「書き出す」を押してね`)}
-      if(!await deliver(ttIcs(rows),`yumeiro-timetree-${cur}.ics`))return;
-      const hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");if(fc)fc.src="face-yay.webp";
-      hd.innerHTML=`${+cur.slice(5)}月のTimeTree用ファイルができたよ！🌳<br><small>①iPhoneのカレンダーに「ゆめいろシフト」を作っておいてね。共有の画面で「カレンダー」が出たらそれを、なければ「“ファイル”に保存」→ファイルアプリでそのファイルを開いて「すべてを追加」で「ゆめいろシフト」に入れてね（途中の置き場所だよ）<br>②TimeTreeで「外部カレンダーの予定をインポート」から「ゆめいろシフト」を選ぶと、いつもの共有カレンダーに入るよ<br>③入ったら、iPhoneで「ゆめいろシフト」のカレンダーごと削除すれば一気に消えるよ（TimeTreeの予定は消えないよ）</small>`}};
+      const ev=[];rows.forEach(r=>{ev.push({d:r.d,t:r.title});if(r.emoji)ev.push({d:r.d,t:r.emoji})});
+      const go=a.querySelector(".go"),hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");
+      if(typeof window.ttGas!=="function"){yuAlert("⚠️ 開きなおしてもう一回やってみてね");return}
+      go.disabled=true;go.textContent="📡 送ってるよ…";
+      try{const j=await window.ttGas(cur,ev);
+        if(fc)fc.src="face-yay.webp";
+        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！🌳（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろシフト」を選んでね。同じ月を送り直しても、Googleのほうはだぶらないよ</small>`;
+        go.textContent="✅ 送ったよ"}
+      catch(e){go.disabled=false;go.textContent="🌳 TimeTreeへ送る";if(fc)fc.src="face-oops.webp";
+        const m=String(e&&e.message||e);
+        hd.innerHTML=m==="noconn"?"ごめんね、まだGASとつながってないみたい💦<br><small>⚙️設定の「🏠 おうちの温度」のURLとパスワードを入れてね</small>"
+          :`ごめんね、送れなかったよ…💦<br><small>${esc(m.slice(0,100))}${/許可|権限|authoriz|permission/i.test(m)?"<br>GASをデプロイし直して、カレンダーの許可をしてね":""}</small>`}}};
   draw()}
 
 function addBtn(){const st=document.getElementById("csvStatus");if(!st||document.getElementById("ttOut"))return;
   const b=document.createElement("button");b.id="ttOut";b.type="button";b.className="btn2 sub";
-  b.style.cssText="font-family:inherit;cursor:pointer;font-size:12px;margin-top:6px";b.textContent="🌳 TimeTree用に書き出す（動物の絵文字つき）";
+  b.style.cssText="font-family:inherit;cursor:pointer;font-size:12px;margin-top:6px";b.textContent="🌳 TimeTreeへ送る（動物の絵文字つき）";
   b.onclick=()=>ttFlow();st.parentNode.insertBefore(b,st.nextSibling)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addBtn);else addBtn();
 })();

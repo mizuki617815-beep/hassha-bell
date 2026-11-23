@@ -17,6 +17,12 @@ function css(){if(document.getElementById("siCss"))return;const st=document.crea
 #siBox .r input{flex:1;min-width:0;font:inherit;font-size:14px;padding:6px 8px;border:1.5px solid #e3d6ff;border-radius:10px;background:#fff;color:var(--ink)}
 #siBox .r.off input{color:var(--sub)}
 #siBox .r .x{border:0;background:none;font-size:16px;cursor:pointer;padding:2px 4px}
+#siBox .pg{padding:18px 6px 8px}#siBox .pg .ln{font-size:14px;font-weight:700;color:var(--ink);text-align:center;min-height:1.6em;margin-bottom:22px}
+#siBox .pg .tr{position:relative;height:14px;border-radius:99px;background:var(--lav2);margin:0 18px}
+#siBox .pg .fl{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--lav),var(--pink))}
+#siBox .pg .bb{position:absolute;top:-30px;left:-18px;width:40px;height:40px;border-radius:50%;border:3px solid var(--pink);object-fit:cover;background:#fff;transition:transform .2s}
+#siBox .pg .bb.hop{transform:translateY(-5px)}
+#siBox .pg .pc{text-align:center;font-size:12.5px;color:var(--sub);margin-top:10px;font-weight:700}
 #siBox .nt{font-size:11.5px;color:var(--sub);margin:6px 2px}
 #siBox .b{display:flex;gap:10px;margin-top:8px}
 #siBox .b button{flex:1;padding:11px 6px;border:0;border-radius:99px;font:inherit;font-weight:800;font-size:14px;cursor:pointer}
@@ -50,19 +56,43 @@ function sheet(){css();let a=document.getElementById("siBox");if(a)a.remove();a=
   a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">スクショを読んでるよ…<br><small>このiPhoneの中だけで読んでるから、画像はどこにも送らないよ</small></div></div><div class="ls"></div><div class="nt"></div><div class="b"><button type="button" class="no">とじる</button></div></div>`;
   document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();return a}
 
+// ---- ⏳ 待っている間のプログレスバー（ファーちゃんがバーの上を歩くよ）----
+// 本当の進み具合より速くは進まない＋最低 MIN_MS は見られる＋終わったら少し余韻（DONE_MS）
+const MIN_MS=8000,DONE_MS=2200;
+const LINES={prep:["読みとりの準備をしてるよ…","メガネをかけたよ👓","よーし、がんばるぞ🧸"],
+  read:["スクショを読んでるよ…","日付をさがしてるよ📅","時間をメモしてるよ✏️","しましまのマスはオフの日だね","CKINかな？FCかな？🔍","ひとマスずつ見ていくね"],
+  again:["読みにくいマスをもう一回見てるよ🔍","有休の日かな？🏖️","ここはまだ出てないみたい…"]};
+function progress(a){const box=document.createElement("div");box.className="pg";
+  box.innerHTML=`<div class="ln">読みとりの準備をしてるよ…</div><div class="tr"><div class="fl"></div><img class="bb" src="face-talk.webp" alt=""></div><div class="pc">0%</div>`;
+  a.querySelector(".ls").before(box);
+  const fl=box.querySelector(".fl"),bb=box.querySelector(".bb"),pc=box.querySelector(".pc"),ln=box.querySelector(".ln");
+  const t0=performance.now();let target=0,shown=0,stage="prep",li=0,lt=t0,raf=0,doneRes=null;
+  const tick=now=>{const cap=Math.min(100,(now-t0)/MIN_MS*100);const goal=Math.min(target,cap);shown+=(goal-shown)*0.06;if(goal-shown<0.05)shown=goal;
+    fl.style.width=shown+"%";bb.style.left=`calc(${shown}% - 18px)`;bb.classList.toggle("hop",Math.floor(now/260)%2===0&&shown<99.5);pc.textContent=stage==="done"?"100%":Math.floor(shown)+"%";
+    if(stage!=="done"){const st=shown<14?"prep":shown<82?"read":"again"; // 一言はバーの見た目の進みに合わせる
+      if(st!==stage){stage=st;li=0;ln.textContent=LINES[st][0];lt=now}else if(now-lt>2300){const L=LINES[stage];li=(li+1)%L.length;ln.textContent=L[li];lt=now}}
+    if(doneRes&&shown>=99.5){shown=100;doneRes();doneRes=null}
+    raf=requestAnimationFrame(tick)};
+  raf=requestAnimationFrame(tick);
+  return{set(st,v){target=Math.max(target,v)},
+    finish(){target=100;return new Promise(ok=>{doneRes=ok}).then(()=>{stage="done";bb.src="face-yay.webp";bb.classList.remove("hop");ln.textContent="できたよ！🧸✨";pc.textContent="100%";
+      return new Promise(ok=>setTimeout(ok,DONE_MS))})},
+    stop(){cancelAnimationFrame(raf);box.remove()}}}
+
 let busy=false;
-window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),msg=t=>{const m=a.querySelector(".msg");if(m)m.innerHTML=t};let w1,w2;
-  try{msg("OCRの部品を用意してるよ…<br><small>はじめての1回だけ少し時間がかかるよ</small>");
-    const T=await loadT();const im=await toGray(file);
-    const pr=p=>m=>{if(m&&m.status==="recognizing text")msg(`${p}…${Math.round((m.progress||0)*100)}%<br><small>このiPhoneの中だけで読んでるよ</small>`)};
-    w1=await T.createWorker("eng",1,{logger:pr("スクショを読んでるよ")});await w1.setParameters({tessedit_pageseg_mode:"11"});
-    const r1=await w1.recognize(im.c,{},{blocks:true});
+window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=progress(a),msg=t=>{const m=a.querySelector(".msg");if(m)m.innerHTML=t};let w1,w2;
+  try{msg("ファーちゃんがシフト表を読んでるよ<br><small>このiPhoneの中だけで読んでるから、画像はどこにも送らないよ</small>");pg.set("prep",3);
+    const T=await loadT();pg.set("prep",8);const im=await toGray(file);pg.set("prep",12);
+    const pr=(st,a0,a1)=>m=>{if(m&&m.status==="recognizing text")pg.set(st,a0+(a1-a0)*(m.progress||0))};
+    w1=await T.createWorker("eng",1,{logger:pr("read",15,80)});await w1.setParameters({tessedit_pageseg_mode:"11"});
+    pg.set("read",15);const r1=await w1.recognize(im.c,{},{blocks:true});pg.set("read",80);
     const res=window.PlanetOCR.parsePlanet(wordsOf(r1.data),stripeFn(im.g,im.W,im.H));
     if(!res.days.length&&!res.todo.length)throw new Error(res.why||"シフト表が見つからなかったよ");
-    if(res.todo.length){w2=await T.createWorker("jpn+eng",1,{logger:pr("読みにくいマスをもう一度見てるよ")});await w2.setParameters({tessedit_pageseg_mode:"6"});
-      for(const it of res.todo){const r=await w2.recognize(crop(im.g,im.W,im.H,it.box));const c=window.PlanetOCR.classify(r.data.text,it);if(c)res.days.push(c)}}
+    if(res.todo.length){w2=await T.createWorker("jpn+eng",1,{logger:pr("again",82,84)});await w2.setParameters({tessedit_pageseg_mode:"6"});
+      let ti=0;for(const it of res.todo){pg.set("again",84+14*(ti++/res.todo.length));const r=await w2.recognize(crop(im.g,im.W,im.H,it.box));const c=window.PlanetOCR.classify(r.data.text,it);if(c)res.days.push(c)}}
     res.days.sort((x,y)=>x.d<y.d?-1:1);
     const csv=window.PlanetOCR.toCSV(res.days);
+    await pg.finish();pg.stop();
     msg(`${res.days.length}日分のCSVができたよ！<br><small>まだ手帳には入れてないよ。まちがいがないか確かめてね</small>`);
     a.querySelector(".ls").innerHTML=res.days.map(x=>`<div class="r${x.k==="work"?"":" off"}${x.k==="other"?" warn":""}"><b>${md(x.d)}</b><span>${esc(x.title)}</span></div>`).join("");
     a.querySelector(".nt").textContent="ピンクの行は読みとりがあやしい日だよ。「📋 コピー」か「📤 CSVを保存」で書き出して、プラネットの画面と見くらべてね";
@@ -71,7 +101,7 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),msg=t=
     b.querySelector(".sv").onclick=async()=>{const nm=`シフト_${res.days[0].d.slice(0,7)}_スクショ.csv`,f=new File(["﻿"+csv],nm,{type:"text/csv"});
       if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e&&e.name==="AbortError")return}}
       const u=URL.createObjectURL(f),l=document.createElement("a");l.href=u;l.download=nm;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)};
-  }catch(e){msg("⚠️ うまく読めなかったよ…<br><small>"+esc(String(e&&e.message||e).slice(0,100))+"</small>")}
+  }catch(e){pg.stop();msg("⚠️ うまく読めなかったよ…<br><small>"+esc(String(e&&e.message||e).slice(0,100))+"</small>")}
   finally{busy=false;try{w1&&w1.terminate()}catch(e){}try{w2&&w2.terminate()}catch(e){}}};
 
 // ---- 📅 iPhoneのカレンダーへ書き出し（前の晩21時に通知）----

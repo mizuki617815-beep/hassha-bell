@@ -153,8 +153,10 @@ function ttIcs(days){
   days.forEach(x=>{ev(x.d,"s",x.title);if(x.emoji)ev(x.d,"a",x.emoji)});
   L.push("END:VCALENDAR");return L.join("\r\n")+"\r\n"}
 
-function deliver(text,name){const f=new File([text],name,{type:"text/calendar"}),u=URL.createObjectURL(f),l=document.createElement("a");
-  l.href=u;l.target="_blank";l.rel="noopener";document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return f}
+// ホーム画面から開いた手帳だと、ファイルを別の画面で開くと真っ白になる（2026-11-23 実機）→ 共有シートで渡す
+async function deliver(text,name){const f=new File([text],name,{type:"text/calendar"});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return true}catch(e){if(e&&e.name==="AbortError")return false}}
+  const u=URL.createObjectURL(f),l=document.createElement("a");l.href=u;l.download=name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return true}
 
 function ttFlow(){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
   const ms=monthsOf();if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
@@ -173,12 +175,12 @@ function ttFlow(){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAl
     a.querySelector(".ls").innerHTML=(miss.length?`<div class="nt" style="color:#e0447a;font-weight:700">🧸 この時間の動物がまだ決まってないよ。絵文字を入れてね</div>`+miss.map(k=>`<div class="r warn"><b style="width:104px">${fmtKey(k)}</b><input data-k="${k}" placeholder="🐾 絵文字" maxlength="8"></div>`).join("")+`<div style="height:6px"></div>`:"")
       +rows.map(r=>`<div class="r${r.work?"":" off"}"><b>${md(r.d)}</b><span>${r.work?(r.emoji||"❓")+" ":""}${esc(r.title)}</span></div>`).join("");
     a.querySelector(".ft").textContent=miss.length?"":`${rows.length}日分。出勤の日は「シフト」と「動物」が別々の終日予定になるよ`;
-    a.querySelector(".go").onclick=()=>{
+    a.querySelector(".go").onclick=async()=>{
       const add=[];for(const inp of a.querySelectorAll("input[data-k]")){const v=inp.value.trim();if(!v){yuAlert("⚠️ まだ決まってない動物があるよ");inp.focus();return}add.push(v+" "+fmtKey(inp.dataset.k))}
       if(add.length){lsSet(lsGet().replace(/\s*$/,"")+"\n"+add.join("\n"));draw();return yuAlert(`🧸 ${add.length}組の動物をおぼえたよ。もう一回「書き出す」を押してね`)}
-      deliver(ttIcs(rows),`yumeiro-timetree-${cur}.ics`);
+      if(!await deliver(ttIcs(rows),`yumeiro-timetree-${cur}.ics`))return;
       const hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");if(fc)fc.src="face-yay.webp";
-      hd.innerHTML=`${+cur.slice(5)}月のTimeTree用ファイルができたよ！🌳<br><small>①iPhoneのカレンダーに「ゆめいろシフト」を作って、ファイルを開いて「すべてを追加」でそこに入れてね（途中の置き場所だよ）<br>②TimeTreeで「外部カレンダーの予定をインポート」から「ゆめいろシフト」を選ぶと、いつもの共有カレンダーに入るよ<br>③入ったら、iPhoneで「ゆめいろシフト」のカレンダーごと削除すれば一気に消えるよ（TimeTreeの予定は消えないよ）</small>`}};
+      hd.innerHTML=`${+cur.slice(5)}月のTimeTree用ファイルができたよ！🌳<br><small>①iPhoneのカレンダーに「ゆめいろシフト」を作っておいてね。共有の画面で「カレンダー」が出たらそれを、なければ「“ファイル”に保存」→ファイルアプリでそのファイルを開いて「すべてを追加」で「ゆめいろシフト」に入れてね（途中の置き場所だよ）<br>②TimeTreeで「外部カレンダーの予定をインポート」から「ゆめいろシフト」を選ぶと、いつもの共有カレンダーに入るよ<br>③入ったら、iPhoneで「ゆめいろシフト」のカレンダーごと削除すれば一気に消えるよ（TimeTreeの予定は消えないよ）</small>`}};
   draw()}
 
 function addBtn(){const st=document.getElementById("csvStatus");if(!st||document.getElementById("ttOut"))return;

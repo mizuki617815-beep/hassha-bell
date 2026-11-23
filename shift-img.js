@@ -171,7 +171,7 @@ function ttFlow(){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAl
       if(add.length){lsSet(lsGet().replace(/\s*$/,"")+"\n"+add.join("\n"));draw();return yuAlert(`🧸 ${add.length}組の動物をおぼえたよ。もう一回「書き出す」を押してね`)}
       deliver(ttIcs(rows),`yumeiro-timetree-${cur}.ics`);
       const hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");if(fc)fc.src="face-yay.webp";
-      hd.innerHTML=`${+cur.slice(5)}月のTimeTree用ファイルができたよ！🌳<br><small>①iPhoneのカレンダーに「ゆめいろシフト」みたいな専用のカレンダーを作って、そこに追加してね<br>②TimeTreeで「外部カレンダーの予定をインポート」から、そのカレンダーを選んでね</small>`}};
+      hd.innerHTML=`${+cur.slice(5)}月のTimeTree用ファイルができたよ！🌳<br><small>①ファイルを開いて「すべてを追加」でiPhoneのカレンダーに入れてね（ここは途中の置き場所だよ）<br>②TimeTreeで「外部カレンダーの予定をインポート」からそのカレンダーを選ぶと、いつもの共有カレンダーに入るよ</small>`}};
   draw()}
 
 function addBtn(){const st=document.getElementById("csvStatus");if(!st||document.getElementById("ttOut"))return;

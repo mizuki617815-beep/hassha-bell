@@ -6,11 +6,13 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const md=d=>{const[y,m,dd]=d.split("-").map(Number);return`${m}/${dd}(${W[new Date(y,m-1,dd).getDay()]})`};
 
 function css(){if(document.getElementById("siCss"))return;const st=document.createElement("style");st.id="siCss";st.textContent=`
-#siBox{position:fixed;inset:0;z-index:10001;background:rgba(60,40,80,.32);display:flex;align-items:center;justify-content:center;padding:14px}
-#siBox .cf{width:100%;max-width:380px;max-height:86vh;display:flex;flex-direction:column;background:#fff;border-radius:22px;border:2px solid var(--pink2);box-shadow:0 10px 30px rgba(183,156,255,.4);padding:14px 12px 12px}
+#siBox{position:fixed;inset:0;z-index:10001;background:rgba(60,40,80,.32);display:flex;align-items:stretch;justify-content:center;padding:calc(env(safe-area-inset-top) + 8px) 8px calc(env(safe-area-inset-bottom) + 8px);overscroll-behavior:contain;touch-action:none}
+html:has(#siBox),body:has(#siBox){overflow:hidden!important;overscroll-behavior:none}
+#siBox .ls,#siBox textarea{overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}#siBox input,#siBox button{touch-action:manipulation}
+#siBox .cf{width:100%;max-width:480px;height:100%;box-sizing:border-box;display:flex;flex-direction:column;background:#fff;border-radius:22px;border:2px solid var(--pink2);box-shadow:0 10px 30px rgba(183,156,255,.4);padding:14px 12px 12px}
 #siBox .hd{display:flex;gap:10px;align-items:center;font-size:13.5px;font-weight:700;line-height:1.5;color:var(--ink);margin-bottom:8px}
 #siBox .hd img{width:46px;height:46px;border-radius:50%;border:3px solid var(--pink);object-fit:cover;flex:none}
-#siBox .ls{overflow:auto;flex:1;border-top:1px dashed #e3d6ff;border-bottom:1px dashed #e3d6ff;padding:4px 0}
+#siBox .ls{overflow:auto;flex:1;min-height:0;border-top:1px dashed #e3d6ff;border-bottom:1px dashed #e3d6ff;padding:4px 0}
 #siBox .r{display:flex;align-items:center;gap:8px;padding:3px 2px}
 #siBox .r b{width:64px;flex:none;font-size:13px;color:var(--ink)}
 #siBox .r span{flex:1;font-size:13.5px;color:var(--ink)}#siBox .r.off span{color:var(--sub)}#siBox .r.warn span{color:#e0447a}

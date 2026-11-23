@@ -1021,7 +1021,8 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge" id="verHistBadge">ver4.2</span></summary>
       <ul class="verList">
-        <li data-go="シフトのスクショからCSVを作る|iPhoneカレンダーに書き出す" data-short="📷 シフトのスクショからCSVが作れるようになったよ！"><span class="vNo">ver4.4</span><span class="vDate">11/23</span><span class="vTxt">📷 プラネットのシフト表のスクショを「📥 ファイルを読み込む」で選ぶと、このiPhoneの中だけで文字を読んで、TimeTreeと同じ書き方のシフトのCSVを作るよ（画像はどこにも送らないよ。はじめての1回だけ読み取りの部品をダウンロードするよ）。いまは試しの段階なので、手帳にはまだ入れずにCSVを作るだけ。📅「iPhoneのカレンダーに書き出す」で、今日から先のシフトをカレンダーの予定にもできるよ（前の晩21時にお知らせつき）<br>シフト表じゃない画像を選んだときは、ファーちゃんがやさしく教えてくれるようになったよ</span></li>
+        <li data-go="TimeTree用に書き出す" data-short="🌳 シフトをTimeTree用に書き出せるようになったよ！"><span class="vNo">ver4.5</span><span class="vDate">11/23</span><span class="vTxt">🌳「TimeTree用に書き出す」で、手帳のシフトを月ごとにTimeTreeへ入れられるファイルにできるよ。出勤の日は「シフト」と「動物の絵文字」が別々の終日予定、お休みは「お休み」「お休み(有休)」のまま。動物はTimeTreeのメモ「予定の動物たち」を貼っておくと、出勤〜退勤の時間で自動で選ぶよ（このiPhoneの中だけに保存）。まだ決まってない時間はその場で入れられるよ。前の晩21時のお知らせはなくしたよ</span></li>
+        <li data-go="シフトのスクショからCSVを作る" data-short="📷 シフトのスクショからCSVが作れるようになったよ！"><span class="vNo">ver4.4</span><span class="vDate">11/23</span><span class="vTxt">📷 プラネットのシフト表のスクショを「📥 ファイルを読み込む」で選ぶと、このiPhoneの中だけで文字を読んで、TimeTreeと同じ書き方のシフトのCSVを作るよ（画像はどこにも送らないよ。はじめての1回だけ読み取りの部品をダウンロードするよ）。いまは試しの段階なので、手帳にはまだ入れずにCSVを作るだけ。<br>シフト表じゃない画像を選んだときは、ファーちゃんがやさしく教えてくれるようになったよ</span></li>
         <li data-quiet="1" data-go="@案内所" data-short="🧸 案内所のファーちゃんが答えてくれるようになったよ！"><span class="vNo">ver4.3</span><span class="vDate">11/23</span><span class="vTxt">🧸 案内所がファーちゃんとのおしゃべりに：「でんき消えてる？」「明細の入れ方」みたいに聞くと、使い方や今のようすを答えてくれるよ。ひらがなでも、言い方がちがっても、ちょっと打ちまちがえてもだいじょうぶ。答えの「📍 そこへ連れていって」でその場所へ飛ぶよ（「そこに連れてって」「それの使い方は？」でもOK）。「でんき消して」「暖房つけて」でリモコンのボタンも押せるよ（いつもの確認が出るよ）。わからなかった質問は「わからなかった質問」で見られるよ。案内所は全画面になったよ。おしゃべりのファーちゃんは、答えに合わせて6つの顔に変わるよ。上のボタンで「📋 秘書モード」と「🧸 ファーちゃんモード」（もっと自由におしゃべり）を切り替えられるよ。打っているあいだも会話が見えたままになったよ。「おはよう」「おやすみ」「つかれた」「雑談しよ」みたいなおしゃべりにも、時間に合わせてこたえてくれるよ</span></li>
         <li data-quiet="1" data-go="次の給料の予想" data-short="💰 次の給料の手取り予想ができたよ！"><span class="vNo">ver4.2</span><span class="vDate">11/22</span><span class="vTxt">💰「次の給料の予想」が記録室の「📈みる」に：次の給料日にもらえる手取りの見込みを、いちばん新しい明細と勤怠ノートの記録から計算するよ（残業・深夜・休みの日の割増は勤怠ノートの見込み、ほかの支給と社会保険料・住民税は新しい明細と同じ、所得税は概算。賞与はふくまないよ）。12月・6月・7月・10月は、明細がふだんとちがってズレやすいことも教えてくれるよ。明細を入れると、予想と実際の「答え合わせ」も出るよ🧸<br>🎛 おうちのリモコン（エアコン・ライト・こたつ）は「お得チェッカー」カードにおひっこし。天気カードにはおうちの温度の行だけ残したよ。ライトに「🔅 保安球」ボタンも追加</span></li>
         <li data-quiet="1"><span class="vNo">ver4.1</span><span class="vDate">11/22</span><span class="vTxt">💰勤怠ノートが明細とぴったり合うように：深夜（22〜5時）の割増＋0.25、休みの日に入った時間の割増（予定どおりの時間は＋0.35、延びた分は＋0.10・目安）を自動で計算するよ。残業単価は5月に働いた分から新しい単価に。シフトはD7などもMarriage Leaveも読み込めるようにしたから、前のシフトは読み込み直してね🧸<br>🏠 おうちの温度：⚙️設定の「🏠 おうちの温度」にGASのURLを貼ると、天気のカードの上におうちの温度と湿度が出るよ（SwitchBotハブ2。タップで読みなおし）<br>❄️🔥 エアコンのボタン：⚙️設定でエアコンのパスワードを入れると、おうちの温度の下に「冷房・暖房・けす」のボタンが出るよ（押すと確認が出るよ。温度は設定で変えられるよ）<br>💡 ライトとこたつのボタン：エアコンのボタンの下に「ライトつける・けす」「こたつけす」が出るよ（ライトはSwitchBotハブ2の赤外線、こたつはAlexaの定型アクション経由。夜は、もうついてる・消えてるときは何もしないよ）<br>💡 おうちの温度の下に「寝室のライト ON／OFF」のスイッチと明るさ（1〜20）が出るよ（見るだけ。ハブ2の明るさで見てるから「たぶん」だよ。昼はお日さまで明るいのでわからないよ）<br>☁️ おうちの温度のURLとエアコンのパスワードも、勤怠のスプレッドシートで2台にそろうようにしたよ</span></li>
@@ -3651,9 +3652,9 @@ load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidde
 setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
-<script src="fm-help.js?v=20261123m"></script>
-<script src="fm.js?v=20261123m"></script>
-<script src="shift-ocr-parse.js?v=20261123m"></script>
-<script src="shift-img.js?v=20261123m"></script>
+<script src="fm-help.js?v=20261123n"></script>
+<script src="fm.js?v=20261123n"></script>
+<script src="shift-ocr-parse.js?v=20261123n"></script>
+<script src="shift-img.js?v=20261123n"></script>
 </body>
 </html>

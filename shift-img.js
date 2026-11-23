@@ -1,4 +1,4 @@
-// ゆめいろ手帳：📷 プラネットのシフト表のスクショ → CSV（このiPhoneの中だけでOCR。画像はどこにも送らない）＆ 📅 iPhoneカレンダーへ書き出し（2026-11-23）
+// ゆめいろ手帳：📷 プラネットのシフト表のスクショ → CSV（このiPhoneの中だけでOCR。画像はどこにも送らない）＆ 🌳 TimeTree用に書き出し（2026-11-23）
 // いまは試しの段階：読んだ結果は手帳に入れず、CSVにするだけ（本人が確かめてから手で取り込む）
 (function(){
 const W="日月火水木金土",pad=n=>String(n).padStart(2,"0");
@@ -108,36 +108,75 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
     else{msg("ごめんね、うまく読めなかったよ…💦<br><small>"+esc(em.slice(0,100))+"</small>")}}
   finally{busy=false;try{w1&&w1.terminate()}catch(e){}try{w2&&w2.terminate()}catch(e){}}};
 
-// ---- 📅 iPhoneのカレンダーへ書き出し（前の晩21時に通知）----
-function ics(){if(typeof SHIFTS!=="object")throw new Error("シフトが見つからなかったよ");
-  const now=new Date(Date.now()+9*3600e3),today=now.toISOString().slice(0,10);
-  const ds=Object.keys(SHIFTS).filter(d=>d>=today).sort();
-  const t=m=>`${pad(Math.floor(m/60)%24)}${pad(m%60)}00`,hm=m=>`${pad(Math.floor(m/60)%24)}:${pad(m%60)}`;
+// ---- 🌳 TimeTree用に書き出す（2026-11-23）----
+// 出勤の日は「シフト名」と「動物の絵文字」を別々の終日予定に。お休みは「お休み」「お休み(有休)」のまま。お知らせはつけない
+// 動物は出勤-退勤のセットで決まる。一覧（TimeTreeのメモ「予定の動物たち」）は本人が貼る＝このiPhoneの中だけに保存（公開リポジトリには書かない）
+const AK="yumebell-animals";
+const lsGet=()=>{try{return localStorage.getItem(AK)||""}catch(e){return""}};
+const lsSet=v=>{try{localStorage.setItem(AK,v)}catch(e){}};
+const k4=m=>pad(Math.floor(m/60)%24)+pad(m%60);
+const keyOf=(a,b)=>k4(a)+"-"+k4(b);
+function parseAnimals(text){const map={};
+  String(text||"").split(/\r?\n/).forEach(l=>{const m=l.match(/^\s*(.*?)\s*(\d{1,2})\s*[:：]?\s*(\d{2})\s*[-–ー~〜]\s*(\d{1,2})\s*[:：]?\s*(\d{2})/);
+    if(!m)return;const e=m[1].trim();if(!e)return;map[keyOf(+m[2]*60+ +m[3],+m[4]*60+ +m[5])]=e});return map}
+const fmtKey=k=>k.slice(0,2)+":"+k.slice(2,4)+"-"+k.slice(5,7)+":"+k.slice(7);
+
+function animalSheet(after){css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";
+  const n=Object.keys(parseAnimals(lsGet())).length;
+  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-talk.webp" alt=""><div class="msg">予定の動物たちを貼ってね🐾<br><small>TimeTreeのメモ「予定の動物たち」を全部コピーして、そのまま貼るだけでOK。このiPhoneの中だけに保存するよ${n?`（いまは${n}組おぼえてるよ）`:""}</small></div></div>
+  <textarea class="at" rows="10" style="width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:8px;border:1.5px solid #e3d6ff;border-radius:12px;resize:vertical" placeholder="🐝 06:20-15:30&#10;🐿️ 06:20-16:00"></textarea>
+  <div class="nt">時間が変わったり動物を入れかえたりしたら、ここを貼りなおしてね</div>
+  <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes">💾 保存</button></div></div>`;
+  document.body.appendChild(a);const ta=a.querySelector(".at");ta.value=lsGet();
+  a.querySelector(".no").onclick=()=>a.remove();
+  a.querySelector(".yes").onclick=()=>{const c=Object.keys(parseAnimals(ta.value)).length;
+    if(ta.value.trim()&&!c){yuAlert("⚠️ 時間が読めなかったよ。「🐝 06:20-15:30」みたいな形で貼ってね");return}
+    lsSet(ta.value);a.remove();yuAlert(`🧸 ${c}組の動物をおぼえたよ`);if(after)after()}}
+
+const monthsOf=()=>{if(typeof SHIFTS!=="object")return[];const now=new Date(Date.now()+9*3600e3).toISOString().slice(0,7);
+  return[...new Set(Object.keys(SHIFTS).map(d=>d.slice(0,7)))].filter(m=>m>=now).sort()};
+
+function ttIcs(days){
   const dd=(d,plus=0)=>{const[y,m,x]=d.split("-").map(Number),o=new Date(Date.UTC(y,m-1,x+plus));return o.toISOString().slice(0,10).replace(/-/g,"")};
   const stamp=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
-  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//yumeiro-techo//shift//JA","CALSCALE:GREGORIAN",
-    "BEGIN:VTIMEZONE","TZID:Asia/Tokyo","BEGIN:STANDARD","DTSTART:19700101T000000","TZOFFSETFROM:+0900","TZOFFSETTO:+0900","TZNAME:JST","END:STANDARD","END:VTIMEZONE"];
-  let n=0;
-  for(const d of ds){const sh=SHIFTS[d];if(!sh)continue;const ttl=String(sh.title||"").replace(/[,;\\]/g," ").trim();
-    if(!sh.off&&sh.start!=null&&sh.end!=null){
-      const lab=(ttl.match(/^[A-Za-z]+/)||["シフト"])[0],end=sh.end>sh.start?sh.end:sh.end+1440;
-      L.push("BEGIN:VEVENT",`UID:${d}-shift@yumeiro-techo`,`DTSTAMP:${stamp}`,`DTSTART;TZID=Asia/Tokyo:${dd(d)}T${t(sh.start)}`,`DTEND;TZID=Asia/Tokyo:${dd(d,end>=1440?1:0)}T${t(end)}`,
-        `SUMMARY:${lab} ${hm(sh.start)}-${hm(sh.end)}`,
-        "BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:🧸 明日は ${lab} ${hm(sh.start)}からだよ`,`TRIGGER:-PT${sh.start+180}M`,"END:VALARM","END:VEVENT");n++}
-    else if(sh.off&&!/公休/.test(ttl)){ // 公休日は入れない。有休・特休などだけ終日の予定に
-      L.push("BEGIN:VEVENT",`UID:${d}-shift@yumeiro-techo`,`DTSTAMP:${stamp}`,`DTSTART;VALUE=DATE:${dd(d)}`,`DTEND;VALUE=DATE:${dd(d,1)}`,`SUMMARY:${ttl.replace(/（お休み）/,"")||"お休み"}`,"END:VEVENT");n++}}
-  L.push("END:VCALENDAR");return{text:L.join("\r\n")+"\r\n",n,from:ds[0],to:ds[ds.length-1]}}
+  const clean=t=>String(t||"").replace(/[\r\n]/g," ").replace(/([,;\\])/g,"\\$1").trim();
+  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//yumeiro-techo//timetree//JA","CALSCALE:GREGORIAN","X-WR-CALNAME:ゆめいろシフト"];
+  const ev=(d,n,t)=>L.push("BEGIN:VEVENT",`UID:${d}-${n}@yumeiro-techo`,`DTSTAMP:${stamp}`,`DTSTART;VALUE=DATE:${dd(d)}`,`DTEND;VALUE=DATE:${dd(d,1)}`,`SUMMARY:${clean(t)}`,"TRANSP:TRANSPARENT","END:VEVENT");
+  days.forEach(x=>{ev(x.d,"s",x.title);if(x.emoji)ev(x.d,"a",x.emoji)});
+  L.push("END:VCALENDAR");return L.join("\r\n")+"\r\n"}
 
-async function exportIcs(){try{const r=ics();if(!r.n){yuAlert("⚠️ 今日から先のシフトがないみたい。先にシフトを読み込んでね");return}
-  const f=new File([r.text],"yumeiro-shift.ics",{type:"text/calendar"});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:"シフト"});return}catch(e){if(e&&e.name==="AbortError")return}}
-  const u=URL.createObjectURL(f),a=document.createElement("a");a.href=u;a.download=f.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
-  yuAlert(`🧸 ${r.n}日分のカレンダーファイルを作ったよ（${md(r.from)}〜${md(r.to)}）`)}
-  catch(e){yuAlert("⚠️ 書き出せなかったよ…"+String(e&&e.message||e).slice(0,80))}}
+function deliver(text,name){const f=new File([text],name,{type:"text/calendar"}),u=URL.createObjectURL(f),l=document.createElement("a");
+  l.href=u;l.target="_blank";l.rel="noopener";document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return f}
 
-function addBtn(){const st=document.getElementById("csvStatus");if(!st||document.getElementById("icsOut"))return;
-  const b=document.createElement("button");b.id="icsOut";b.type="button";b.className="btn2 sub";
-  b.style.cssText="font-family:inherit;cursor:pointer;font-size:12px;margin-top:6px";b.textContent="📅 iPhoneのカレンダーに書き出す（前の晩21時にお知らせ）";
-  b.onclick=exportIcs;st.parentNode.insertBefore(b,st.nextSibling)}
+function ttFlow(){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
+  const ms=monthsOf();if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
+  if(!lsGet().trim()){animalSheet(ttFlow);return}
+  css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";
+  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">TimeTree用に書き出すよ🌳<br><small>どの月にする？（同じ月を何回も入れると予定がだぶるから、1か月ずつがおすすめ）</small></div></div>
+  <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
+  <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">📤 書き出す</button></div>
+  <div style="text-align:center;margin-top:8px"><button type="button" class="ed" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🐾 予定の動物たちを貼りなおす</button></div></div>`;
+  document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();a.querySelector(".ed").onclick=()=>animalSheet(ttFlow);
+  let cur=ms[0];const mo=a.querySelector(".mo");
+  const draw=()=>{mo.innerHTML=ms.map(m=>`<button type="button" data-m="${m}" class="${m===cur?"yes":"no"}" style="flex:none;padding:6px 12px;border:0;border-radius:99px;font:inherit;font-weight:800;font-size:13px;cursor:pointer">${+m.slice(5)}月</button>`).join("");
+    mo.querySelectorAll("button").forEach(b=>b.onclick=()=>{cur=b.dataset.m;draw()});
+    const map=parseAnimals(lsGet()),ds=Object.keys(SHIFTS).filter(d=>d.startsWith(cur)).sort();
+    const rows=ds.map(d=>{const sh=SHIFTS[d],work=!sh.off&&sh.start!=null&&sh.end!=null,k=work?keyOf(sh.start,sh.end):"";return{d,title:sh.title||(sh.off?"お休み":""),work,k,emoji:work?map[k]||"":""}});
+    const miss=[...new Set(rows.filter(r=>r.work&&!r.emoji).map(r=>r.k))];
+    a.querySelector(".ls").innerHTML=(miss.length?`<div class="nt" style="color:#e0447a;font-weight:700">🧸 この時間の動物がまだ決まってないよ。絵文字を入れてね</div>`+miss.map(k=>`<div class="r warn"><b style="width:104px">${fmtKey(k)}</b><input data-k="${k}" placeholder="🐾 絵文字" maxlength="8"></div>`).join("")+`<div style="height:6px"></div>`:"")
+      +rows.map(r=>`<div class="r${r.work?"":" off"}"><b>${md(r.d)}</b><span>${r.work?(r.emoji||"❓")+" ":""}${esc(r.title)}</span></div>`).join("");
+    a.querySelector(".ft").textContent=miss.length?"":`${rows.length}日分。出勤の日は「シフト」と「動物」が別々の終日予定になるよ`;
+    a.querySelector(".go").onclick=()=>{
+      const add=[];for(const inp of a.querySelectorAll("input[data-k]")){const v=inp.value.trim();if(!v){yuAlert("⚠️ まだ決まってない動物があるよ");inp.focus();return}add.push(v+" "+fmtKey(inp.dataset.k))}
+      if(add.length){lsSet(lsGet().replace(/\s*$/,"")+"\n"+add.join("\n"));draw();return yuAlert(`🧸 ${add.length}組の動物をおぼえたよ。もう一回「書き出す」を押してね`)}
+      deliver(ttIcs(rows),`yumeiro-timetree-${cur}.ics`);
+      const hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");if(fc)fc.src="face-yay.webp";
+      hd.innerHTML=`${+cur.slice(5)}月のTimeTree用ファイルができたよ！🌳<br><small>①iPhoneのカレンダーに「ゆめいろシフト」みたいな専用のカレンダーを作って、そこに追加してね<br>②TimeTreeで「外部カレンダーの予定をインポート」から、そのカレンダーを選んでね</small>`}};
+  draw()}
+
+function addBtn(){const st=document.getElementById("csvStatus");if(!st||document.getElementById("ttOut"))return;
+  const b=document.createElement("button");b.id="ttOut";b.type="button";b.className="btn2 sub";
+  b.style.cssText="font-family:inherit;cursor:pointer;font-size:12px;margin-top:6px";b.textContent="🌳 TimeTree用に書き出す（動物の絵文字つき）";
+  b.onclick=ttFlow;st.parentNode.insertBefore(b,st.nextSibling)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addBtn);else addBtn();
 })();

@@ -24,7 +24,7 @@
 
 - `index.html`：アプリ本体（1ファイル）
 - `sw.js`：電波がなくても開けるための仕組み（オンライン時は毎回最新を取得）
-- `shift-ocr-parse.js`＋`shift-img.js`：📷プラネットのシフト表スクショ→端末内OCR（Tesseract.js、jsdelivrから読み込み・画像は送らない）→ TimeTreeと同じ書き方の `date,title,category` CSV（試しの段階：手帳には入れない）。業務名は便ごとにFC＞CKIN＞LNG、2便目は2行以上のときだけ、CKIN続きは1つ・FC→FCはそのまま。オフはななめのしましまで判定、読めないマスだけ切り出して jpn+eng で読み直し。🌳TimeTree用.ics書き出し（ver4.5、2026-11-23）：月ごと、出勤日は「シフト名」と「動物の絵文字」を別々の終日予定、お休みはタイトルのまま、通知なし。動物は出勤-退勤のペアで決まり、一覧は本人が貼る（localStorage `yumebell-animals`、リポジトリには書かない）。一覧にないペアはその場で入力→一覧に追記。前の晩21時通知の書き出しは廃止
+- `shift-ocr-parse.js`＋`shift-img.js`：📷プラネットのシフト表スクショ→端末内OCR（Tesseract.js、jsdelivrから読み込み・画像は送らない）→ TimeTreeと同じ書き方の `date,title,category` CSV（試しの段階：手帳には入れない）。業務名は便ごとにFC＞CKIN＞LNG、2便目は2行以上のときだけ、CKIN続きは1つ・FC→FCはそのまま。オフはななめのしましまで判定、読めないマスだけ切り出して jpn+eng で読み直し。🌳TimeTree用.ics書き出し（ver4.5、2026-11-23）：月ごと、出勤日は「シフト名」と「動物の絵文字」を別々の終日予定、お休みはタイトルのまま、通知なし。動物は出勤-退勤のペアで決まる。基本の一覧は shift-img.js の BASE_ANIMALS（アプリに入れてOKと本人了承）、追加・入れ替えは localStorage `yumebell-animals` に保存して優先。一覧にないペアはその場で入力→追記。前の晩21時通知の書き出しは廃止
 - `weather/*.webp`・`banner-night.webp`・`fortune-*.webp`・`paid-bear.webp`：クマの挿絵
 - `fortune.json`＋`scripts/fetch_fortune.py`＋`.github/workflows/fortune.yml`：占いデータの毎日自動取得
 

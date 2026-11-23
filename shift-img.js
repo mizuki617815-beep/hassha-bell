@@ -110,8 +110,10 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
 
 // ---- 🌳 TimeTree用に書き出す（2026-11-23）----
 // 出勤の日は「シフト名」と「動物の絵文字」を別々の終日予定に。お休みは「お休み」「お休み(有休)」のまま。お知らせはつけない
-// 動物は出勤-退勤のセットで決まる。一覧（TimeTreeのメモ「予定の動物たち」）は本人が貼る＝このiPhoneの中だけに保存（公開リポジトリには書かない）
+// 動物は出勤-退勤のセットで決まる。基本の一覧（TimeTreeのメモ「予定の動物たち」）はアプリに入れてOKと本人了承（2026-11-23）。
+// 新しい時間・入れ替えはこのiPhoneに追加保存して、基本の一覧より優先する
 const AK="yumebell-animals";
+const BASE_ANIMALS="🐆 06:15-10:15|🦐 06:15-10:30|🐇 06:15-15:15|🦮 06:15-15:30|🐦\u200d🔥 06:15-16:30|🦀 06:15-16:45|🐒 06:20-10:50|🦕 06:20-11:20|🦝 06:20-11:30|🦚 06:20-11:45|🐪 06:20-14:20|🪼 06:20-14:30|🦦 06:20-14:40|🐡 06:20-14:50|🐝 06:20-15:30|🐿 06:20-16:00|🦘 06:20-16:10|🕊 06:20-16:20|🐏 06:20-16:30|🍯 06:20-16:40|🦔 06:20-16:45|🦥 06:20-16:50|🦈 06:20-17:00|🐬 06:30-15:00|🦉 06:30-16:30|🐮 06:40-10:50|🐻\u200d❄️ 06:40-11:45|🐅 06:40-15:10|🐓 06:40-15:30|🐄 06:40-16:20|🦒 06:40-16:30|🧸 06:40-16:40|🐰 06:40-16:45|🐳 06:40-16:50|🐧 06:45-16:30|🦅 06:45-16:45|🐁 06:45-18:00|🐩 06:50-16:30|🦭 06:50-16:45|🦧 06:50-17:00|🐘 07:00-15:30|🐈\u200d⬛ 07:00-16:00|🐍 07:00-16:30|🦑 07:00-17:00|🐢 07:30-16:00|🐷 07:30-17:00|🦩 08:00-16:00|🦜 08:00-16:30|🐙 08:20-16:50|🐣 08:30-16:30|🦌 11:30-16:20|🦁 11:30-16:30|🐌 11:30-16:50|🐈 11:45-16:45|🦋 11:50-16:50".split("|").join("\n");
 const lsGet=()=>{try{return localStorage.getItem(AK)||""}catch(e){return""}};
 const lsSet=v=>{try{localStorage.setItem(AK,v)}catch(e){}};
 const k4=m=>pad(Math.floor(m/60)%24)+pad(m%60);
@@ -121,17 +123,18 @@ function parseAnimals(text){const map={};
     if(!m)return;const e=m[1].trim();if(!e)return;map[keyOf(+m[2]*60+ +m[3],+m[4]*60+ +m[5])]=e});return map}
 const fmtKey=k=>k.slice(0,2)+":"+k.slice(2,4)+"-"+k.slice(5,7)+":"+k.slice(7);
 
+const animalMap=()=>Object.assign(parseAnimals(BASE_ANIMALS),parseAnimals(lsGet()));
 function animalSheet(after){css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";
-  const n=Object.keys(parseAnimals(lsGet())).length;
-  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-talk.webp" alt=""><div class="msg">予定の動物たちを貼ってね🐾<br><small>TimeTreeのメモ「予定の動物たち」を全部コピーして、そのまま貼るだけでOK。このiPhoneの中だけに保存するよ${n?`（いまは${n}組おぼえてるよ）`:""}</small></div></div>
+  const n=Object.keys(animalMap()).length;
+  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-talk.webp" alt=""><div class="msg">動物の追加・変更🐾<br><small>いまは${n}組おぼえてるよ。新しい時間や入れかえた動物だけ「🐧 06:45-16:30」の形で書いてね（基本の一覧より優先するよ）</small></div></div>
   <textarea class="at" rows="10" style="width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:8px;border:1.5px solid #e3d6ff;border-radius:12px;resize:vertical" placeholder="🐝 06:20-15:30&#10;🐿️ 06:20-16:00"></textarea>
-  <div class="nt">時間が変わったり動物を入れかえたりしたら、ここを貼りなおしてね</div>
+  <div class="nt">TimeTreeのメモをまるごと貼ってもOKだよ</div>
   <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes">💾 保存</button></div></div>`;
   document.body.appendChild(a);const ta=a.querySelector(".at");ta.value=lsGet();
   a.querySelector(".no").onclick=()=>a.remove();
   a.querySelector(".yes").onclick=()=>{const c=Object.keys(parseAnimals(ta.value)).length;
     if(ta.value.trim()&&!c){yuAlert("⚠️ 時間が読めなかったよ。「🐝 06:20-15:30」みたいな形で貼ってね");return}
-    lsSet(ta.value);a.remove();yuAlert(`🧸 ${c}組の動物をおぼえたよ`);if(after)after()}}
+    lsSet(ta.value);a.remove();yuAlert(`🧸 保存したよ（ぜんぶで${Object.keys(animalMap()).length}組）`);if(after)after()}}
 
 const monthsOf=()=>{if(typeof SHIFTS!=="object")return[];const now=new Date(Date.now()+9*3600e3).toISOString().slice(0,7);
   return[...new Set(Object.keys(SHIFTS).map(d=>d.slice(0,7)))].filter(m=>m>=now).sort()};
@@ -150,17 +153,16 @@ function deliver(text,name){const f=new File([text],name,{type:"text/calendar"})
 
 function ttFlow(){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
   const ms=monthsOf();if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
-  if(!lsGet().trim()){animalSheet(ttFlow);return}
   css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";
   a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">TimeTree用に書き出すよ🌳<br><small>どの月にする？（同じ月を何回も入れると予定がだぶるから、1か月ずつがおすすめ）</small></div></div>
   <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
   <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">📤 書き出す</button></div>
-  <div style="text-align:center;margin-top:8px"><button type="button" class="ed" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🐾 予定の動物たちを貼りなおす</button></div></div>`;
+  <div style="text-align:center;margin-top:8px"><button type="button" class="ed" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🐾 動物の追加・変更</button></div></div>`;
   document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();a.querySelector(".ed").onclick=()=>animalSheet(ttFlow);
   let cur=ms[0];const mo=a.querySelector(".mo");
   const draw=()=>{mo.innerHTML=ms.map(m=>`<button type="button" data-m="${m}" class="${m===cur?"yes":"no"}" style="flex:none;padding:6px 12px;border:0;border-radius:99px;font:inherit;font-weight:800;font-size:13px;cursor:pointer">${+m.slice(5)}月</button>`).join("");
     mo.querySelectorAll("button").forEach(b=>b.onclick=()=>{cur=b.dataset.m;draw()});
-    const map=parseAnimals(lsGet()),ds=Object.keys(SHIFTS).filter(d=>d.startsWith(cur)).sort();
+    const map=animalMap(),ds=Object.keys(SHIFTS).filter(d=>d.startsWith(cur)).sort();
     const rows=ds.map(d=>{const sh=SHIFTS[d],work=!sh.off&&sh.start!=null&&sh.end!=null,k=work?keyOf(sh.start,sh.end):"";return{d,title:sh.title||(sh.off?"お休み":""),work,k,emoji:work?map[k]||"":""}});
     const miss=[...new Set(rows.filter(r=>r.work&&!r.emoji).map(r=>r.k))];
     a.querySelector(".ls").innerHTML=(miss.length?`<div class="nt" style="color:#e0447a;font-weight:700">🧸 この時間の動物がまだ決まってないよ。絵文字を入れてね</div>`+miss.map(k=>`<div class="r warn"><b style="width:104px">${fmtKey(k)}</b><input data-k="${k}" placeholder="🐾 絵文字" maxlength="8"></div>`).join("")+`<div style="height:6px"></div>`:"")

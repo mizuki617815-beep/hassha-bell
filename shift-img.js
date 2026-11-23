@@ -1,5 +1,5 @@
 // ゆめいろ手帳：📷 プラネットのシフト表のスクショ → CSV（このiPhoneの中だけでOCR。画像はどこにも送らない）＆ 📅 iPhoneカレンダーへ書き出し（2026-11-23）
-// いまは試しの段階：読んだ結果は手帳に入れず、CSVにするだけ（本人がClaudeに見せて確かめてから手で取り込む）
+// いまは試しの段階：読んだ結果は手帳に入れず、CSVにするだけ（本人が確かめてから手で取り込む）
 (function(){
 const W="日月火水木金土",pad=n=>String(n).padStart(2,"0");
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -65,7 +65,7 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),msg=t=
     const csv=window.PlanetOCR.toCSV(res.days);
     msg(`${res.days.length}日分のCSVができたよ！<br><small>まだ手帳には入れてないよ。まちがいがないか確かめてね</small>`);
     a.querySelector(".ls").innerHTML=res.days.map(x=>`<div class="r${x.k==="work"?"":" off"}${x.k==="other"?" warn":""}"><b>${md(x.d)}</b><span>${esc(x.title)}</span></div>`).join("");
-    a.querySelector(".nt").textContent="「📋 コピー」か「📤 CSVを保存」で、Claudeに見せて確かめてもらってね";
+    a.querySelector(".nt").textContent="ピンクの行は読みとりがあやしい日だよ。「📋 コピー」か「📤 CSVを保存」で書き出して、プラネットの画面と見くらべてね";
     const b=a.querySelector(".b");b.insertAdjacentHTML("beforeend",`<button type="button" class="yes cp">📋 コピー</button><button type="button" class="yes sv">📤 CSVを保存</button>`);
     b.querySelector(".cp").onclick=async()=>{try{await navigator.clipboard.writeText(csv);yuAlert("🧸 CSVをコピーしたよ")}catch(e){yuAlert("⚠️ コピーできなかったよ。「CSVを保存」を使ってね")}};
     b.querySelector(".sv").onclick=async()=>{const nm=`シフト_${res.days[0].d.slice(0,7)}_スクショ.csv`,f=new File(["﻿"+csv],nm,{type:"text/csv"});

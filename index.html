@@ -1101,7 +1101,7 @@ try{const c=JSON.parse(localStorage.getItem("yumebell_wx4")||"null");if(c&&c.day
 const S={walk:15,buf:0,t3:3,arrive:10,dia:"auto",tab:"go",theme:"auto",sign:"牡羊座",paidMonths:{},otRate:0,otRateHist:[],otMonths:{}}; // 個人の数字は端末内(yumebell)にだけ保存する。公開リポジトリなのでここに本人の値を書かない
 try{Object.assign(S,JSON.parse(localStorage.getItem("yumebell")||"{}"))}catch(e){}
 // スプレッドシートで2台（ファーちゃん・ご主人）と共有する設定。星座・テーマ・ダイヤ手動などは端末ごと
-const CFG_KEYS=["walk","buf","t3","arrive","otRate","paidMonths","otMonths","otRateHist"];
+const CFG_KEYS=["walk","buf","t3","arrive","otRate","paidMonths","otMonths","otRateHist","animals"]; // animals＝TimeTree用の動物の追加・変更（2026-11-23）
 const cfgSig=()=>JSON.stringify(CFG_KEYS.map(k=>S[k]));let cfgLast=null,cfgTimer=null;
 function save(){try{const g=cfgSig();if(cfgLast!==null&&g!==cfgLast){S.cfgAt=Date.now();clearTimeout(cfgTimer);cfgTimer=setTimeout(()=>{try{if(typeof sync==="function")sync(false)}catch(e){}},2000)}cfgLast=g;
   localStorage.setItem("yumebell",JSON.stringify(S))}catch(e){}}
@@ -3652,9 +3652,9 @@ load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidde
 setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
-<script src="fm-help.js?v=20261123o"></script>
-<script src="fm.js?v=20261123o"></script>
-<script src="shift-ocr-parse.js?v=20261123o"></script>
-<script src="shift-img.js?v=20261123o"></script>
+<script src="fm-help.js?v=20261123p"></script>
+<script src="fm.js?v=20261123p"></script>
+<script src="shift-ocr-parse.js?v=20261123p"></script>
+<script src="shift-img.js?v=20261123p"></script>
 </body>
 </html>

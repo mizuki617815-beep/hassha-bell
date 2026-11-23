@@ -111,11 +111,14 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
 // ---- 🌳 TimeTree用に書き出す（2026-11-23）----
 // 出勤の日は「シフト名」と「動物の絵文字」を別々の終日予定に。お休みは「お休み」「お休み(有休)」のまま。お知らせはつけない
 // 動物は出勤-退勤のセットで決まる。基本の一覧（TimeTreeのメモ「予定の動物たち」）はアプリに入れてOKと本人了承（2026-11-23）。
-// 新しい時間・入れ替えはこのiPhoneに追加保存して、基本の一覧より優先する
+// 新しい時間・入れ替えは設定（S.animals）に保存して基本の一覧より優先。勤怠のスプレッドシートで他の端末ともそろう
 const AK="yumebell-animals";
 const BASE_ANIMALS="🐆 06:15-10:15|🦐 06:15-10:30|🐇 06:15-15:15|🦮 06:15-15:30|🐦\u200d🔥 06:15-16:30|🦀 06:15-16:45|🐒 06:20-10:50|🦕 06:20-11:20|🦝 06:20-11:30|🦚 06:20-11:45|🐪 06:20-14:20|🪼 06:20-14:30|🦦 06:20-14:40|🐡 06:20-14:50|🐝 06:20-15:30|🐿 06:20-16:00|🦘 06:20-16:10|🕊 06:20-16:20|🐏 06:20-16:30|🍯 06:20-16:40|🦔 06:20-16:45|🦥 06:20-16:50|🦈 06:20-17:00|🐬 06:30-15:00|🦉 06:30-16:30|🐮 06:40-10:50|🐻\u200d❄️ 06:40-11:45|🐅 06:40-15:10|🐓 06:40-15:30|🐄 06:40-16:20|🦒 06:40-16:30|🧸 06:40-16:40|🐰 06:40-16:45|🐳 06:40-16:50|🐧 06:45-16:30|🦅 06:45-16:45|🐁 06:45-18:00|🐩 06:50-16:30|🦭 06:50-16:45|🦧 06:50-17:00|🐘 07:00-15:30|🐈\u200d⬛ 07:00-16:00|🐍 07:00-16:30|🦑 07:00-17:00|🐢 07:30-16:00|🐷 07:30-17:00|🦩 08:00-16:00|🦜 08:00-16:30|🐙 08:20-16:50|🐣 08:30-16:30|🦌 11:30-16:20|🦁 11:30-16:30|🐌 11:30-16:50|🐈 11:45-16:45|🦋 11:50-16:50".split("|").join("\n");
-const lsGet=()=>{try{return localStorage.getItem(AK)||""}catch(e){return""}};
-const lsSet=v=>{try{localStorage.setItem(AK,v)}catch(e){}};
+// 追加・変更は設定（S.animals）に入れる＝勤怠のスプレッドシートで夫の端末ともそろう
+const hasS=()=>typeof S==="object"&&S&&typeof save==="function";
+try{const old=localStorage.getItem(AK);if(old&&hasS()&&!S.animals){S.animals=old;save()}if(old&&hasS())localStorage.removeItem(AK)}catch(e){}
+const lsGet=()=>{if(hasS())return String(S.animals||"");try{return localStorage.getItem(AK)||""}catch(e){return""}};
+const lsSet=v=>{if(hasS()){S.animals=v;save();return}try{localStorage.setItem(AK,v)}catch(e){}};
 const k4=m=>pad(Math.floor(m/60)%24)+pad(m%60);
 const keyOf=(a,b)=>k4(a)+"-"+k4(b);
 function parseAnimals(text){const map={};
@@ -126,7 +129,7 @@ const fmtKey=k=>k.slice(0,2)+":"+k.slice(2,4)+"-"+k.slice(5,7)+":"+k.slice(7);
 const animalMap=()=>Object.assign(parseAnimals(BASE_ANIMALS),parseAnimals(lsGet()));
 function animalSheet(after){css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";
   const n=Object.keys(animalMap()).length;
-  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-talk.webp" alt=""><div class="msg">動物の追加・変更🐾<br><small>いまは${n}組おぼえてるよ。新しい時間や入れかえた動物だけ「🐧 06:45-16:30」の形で書いてね（基本の一覧より優先するよ）</small></div></div>
+  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-talk.webp" alt=""><div class="msg">動物の追加・変更🐾<br><small>いまは${n}組おぼえてるよ。新しい時間や入れかえた動物だけ「🐧 06:45-16:30」の形で書いてね（基本の一覧より優先して、スプレッドシートでほかの端末ともそろうよ）</small></div></div>
   <textarea class="at" rows="10" style="width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:8px;border:1.5px solid #e3d6ff;border-radius:12px;resize:vertical" placeholder="🐝 06:20-15:30&#10;🐿️ 06:20-16:00"></textarea>
   <div class="nt">TimeTreeのメモをまるごと貼ってもOKだよ</div>
   <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes">💾 保存</button></div></div>`;

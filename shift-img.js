@@ -165,8 +165,8 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
   css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";a.className="full";
   a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">Googleカレンダーに送るよ📅<br><small>どの月にする？ 「ゆめいろシフト」に入れるから、そのあとTimeTreeで取り込んでね</small></div></div>
   <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
-  <button type="button" class="cl" style="display:block;width:100%;margin:2px 0 10px;padding:11px;border:2px dashed #c9a8ff;border-radius:999px;background:none;font:inherit;font-weight:800;font-size:14px;color:#7a55d6;cursor:pointer">🧹 Googleの分を片づける<small style="display:block;font-weight:normal;font-size:11px;color:var(--sub)">TimeTreeに取り込んだあとに押してね</small></button>
-  <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">📅 Googleカレンダーに送る</button></div>
+  <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">📅 Googleに送る</button></div>
+  <button type="button" class="cl" style="display:block;margin:12px auto 0;padding:7px 16px;border:1.5px dashed #c9a8ff;border-radius:999px;background:none;font:inherit;font-weight:700;font-size:13px;color:#7a55d6;cursor:pointer">🧹 Googleの分を片づける（取り込んだあと）</button>
   <div style="text-align:center;margin-top:8px"><button type="button" class="ed" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🐾 動物の追加・変更</button></div></div>`;
   document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();a.querySelector(".ed").onclick=()=>animalSheet(ttFlow);
   const clearMonth=async()=>{const m=+cur.slice(5);
@@ -175,7 +175,7 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
     const hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");
     try{const j=await window.ttClear(cur);if(fc)fc.src="face-yay.webp";
       hd.innerHTML=`${m}月のGoogleの予定を片づけたよ🧹（${j.n}件）<br><small>iPhoneのカレンダーからも少ししたら消えるよ。TimeTreeの予定はそのままだよ</small>`;
-      const go=a.querySelector(".go");if(go){go.disabled=false;go.textContent="📅 Googleカレンダーに送る"}}
+      const go=a.querySelector(".go");if(go){go.disabled=false;go.textContent="📅 Googleに送る"}}
     catch(e){if(fc)fc.src="face-oops.webp";const msg=String(e&&e.message||e);
       hd.innerHTML=msg==="noconn"?"ごめんね、まだGASとつながってないみたい💦<br><small>⚙️設定の「🏠 おうちの温度」のURLとパスワードを入れてね</small>":`ごめんね、片づけられなかったよ…💦<br><small>${esc(msg.slice(0,100))}</small>`}};
   a.querySelector(".cl").onclick=clearMonth;
@@ -199,7 +199,7 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
         if(fc)fc.src="face-yay.webp";
         hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！📅（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろシフト」を選んでね。TimeTreeに入ったら「🧹 Googleの分を片づける」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
         go.textContent="✅ 送ったよ"}
-      catch(e){go.disabled=false;go.textContent="📅 Googleカレンダーに送る";if(fc)fc.src="face-oops.webp";
+      catch(e){go.disabled=false;go.textContent="📅 Googleに送る";if(fc)fc.src="face-oops.webp";
         const m=String(e&&e.message||e);
         hd.innerHTML=m==="noconn"?"ごめんね、まだGASとつながってないみたい💦<br><small>⚙️設定の「🏠 おうちの温度」のURLとパスワードを入れてね</small>"
           :`ごめんね、送れなかったよ…💦<br><small>${esc(m.slice(0,100))}${/許可|権限|authoriz|permission/i.test(m)?"<br>GASをデプロイし直して、カレンダーの許可をしてね":""}</small>`}}};

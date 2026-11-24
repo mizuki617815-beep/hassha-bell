@@ -166,7 +166,7 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
   a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">Googleカレンダーに送るよ📅<br><small>どの月にする？ 「ゆめいろシフト」に入れるから、そのあとTimeTreeで取り込んでね</small></div></div>
   <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
   <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">📅 Googleに送る</button></div>
-  <button type="button" class="cl" style="display:block;margin:12px auto 0;padding:7px 16px;border:1.5px dashed #c9a8ff;border-radius:999px;background:none;font:inherit;font-weight:700;font-size:13px;color:#7a55d6;cursor:pointer">🧹 Googleの分を片づける（取り込んだあと）</button>
+  <button type="button" class="cl" style="display:block;margin:12px auto 0;padding:7px 16px;border:1.5px dashed #c9a8ff;border-radius:999px;background:none;font:inherit;font-weight:700;font-size:13px;color:#7a55d6;cursor:pointer">🧹 取り込み済みのGoogleカレンダーの予定を消す</button>
   <div style="text-align:center;margin-top:8px"><button type="button" class="ed" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🐾 動物の追加・変更</button></div></div>`;
   document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();a.querySelector(".ed").onclick=()=>animalSheet(ttFlow);
   const clearMonth=async()=>{const m=+cur.slice(5);
@@ -197,7 +197,7 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
       go.disabled=true;go.textContent="📡 送ってるよ…";
       try{const j=await window.ttGas(cur,ev);
         if(fc)fc.src="face-yay.webp";
-        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！📅（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろシフト」を選んでね。TimeTreeに入ったら「🧹 Googleの分を片づける」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
+        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！📅（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろシフト」を選んでね。TimeTreeに入ったら「🧹 取り込み済みのGoogleカレンダーの予定を消す」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
         go.textContent="✅ 送ったよ"}
       catch(e){go.disabled=false;go.textContent="📅 Googleに送る";if(fc)fc.src="face-oops.webp";
         const m=String(e&&e.message||e);
@@ -208,7 +208,7 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
 function addBtn(){const ib=document.getElementById("impBtn");if(!ib||document.getElementById("ttOut"))return;
   // 隠れないように「📥 ファイルを読み込む」のすぐ下に、同じ大きさのボタンで置く（2026-11-24）
   const b=document.createElement("button");b.id="ttOut";b.type="button";b.className="impBtn";b.style.marginTop="8px";
-  b.innerHTML="📅 Googleカレンダーに送る<small>TimeTreeに取り込む用（動物つき）・🧹片づけもここから</small>";
+  b.innerHTML="📅 Googleカレンダーに送る<small>TimeTreeに取り込む用（動物つき）・取り込み後の🧹もここから</small>";
   b.onclick=()=>ttFlow();ib.parentNode.insertBefore(b,ib.nextSibling)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addBtn);else addBtn();
 })();

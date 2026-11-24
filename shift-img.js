@@ -113,9 +113,9 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
       saveShifts();
       try{if(typeof renderShiftStatus==="function")renderShiftStatus();if(typeof applyShiftForDate==="function")applyShiftForDate(true);if(typeof renderCheer==="function")renderCheer(true);if(typeof renderPaid==="function")renderPaid();if(typeof render==="function")render()}catch(e){}
       const fc=a.querySelector(".hd img");if(fc)fc.src="face-yay.webp";
-      msg(`${n}日分を手帳に入れたよ！🧸✨<br><small>${skip.length?`読めなかった日（${skip.join("・")}）は入れてないよ。あとで手で直してね<br>`:""}つぎは「🌳 TimeTreeへ送る」だよ</small>`);
+      msg(`${n}日分を手帳に入れたよ！🧸✨<br><small>${skip.length?`読めなかった日（${skip.join("・")}）は入れてないよ。あとで手で直してね<br>`:""}つぎは「📅 Googleカレンダーに送る」だよ</small>`);
       a.querySelector(".nt").textContent="入れる前のシフトは控えに残してあるよ。まちがってたら勤怠ノートの「↩️ 消したシフトを復元」で戻せるよ";
-      b.innerHTML=`<button type="button" class="no">とじる</button><button type="button" class="yes tt">🌳 TimeTreeへ送る</button>`;
+      b.innerHTML=`<button type="button" class="no">とじる</button><button type="button" class="yes tt">📅 Googleカレンダーに送る</button>`;
       b.querySelector(".no").onclick=()=>a.remove();b.querySelector(".tt").onclick=()=>ttFlow(ym)};
     a.querySelector(".sv").onclick=async ev=>{ev.preventDefault();const nm=`シフト_${ym}_スクショ.csv`,f=new File(["\uFEFF"+csv],nm,{type:"text/csv"});
       if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e&&e.name==="AbortError")return}}
@@ -126,7 +126,7 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
     else{msg("ごめんね、うまく読めなかったよ…💦<br><small>"+esc(em.slice(0,100))+"</small>")}}
   finally{busy=false;try{w1&&w1.terminate()}catch(e){}try{w2&&w2.terminate()}catch(e){}}};
 
-// ---- 🌳 TimeTreeへ送る（2026-11-23）：GAS経由でGoogleカレンダー「ゆめいろシフト」に入れる → TimeTreeの「外部カレンダーの予定をインポート」で取り込む ----
+// ---- 📅 Googleカレンダーに送る（旧「TimeTreeへ送る」、2026-11-23）：GAS経由でGoogleカレンダー「ゆめいろシフト」に入れる → TimeTreeの「外部カレンダーの予定をインポート」で取り込む ----
 // 出勤の日は「シフト名」と「動物の絵文字」を別々の終日予定に。お休みは「お休み」「お休み(有休)」のまま。お知らせはつけない
 // 動物は出勤-退勤のセットで決まる。基本の一覧（TimeTreeのメモ「予定の動物たち」）はアプリに入れてOKと本人了承（2026-11-23）。
 // 新しい時間・入れ替えは設定（S.animals）に保存して基本の一覧より優先。勤怠のスプレッドシートで他の端末ともそろう
@@ -163,9 +163,9 @@ const monthsOf=()=>{if(typeof SHIFTS!=="object")return[];const now=new Date(Date
 function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
   const ms=monthsOf();if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
   css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";a.className="full";
-  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">TimeTreeへ送るよ🌳<br><small>どの月にする？ Googleカレンダーの「ゆめいろシフト」に入れるから、そのあとTimeTreeで取り込んでね</small></div></div>
+  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">Googleカレンダーに送るよ📅<br><small>どの月にする？ 「ゆめいろシフト」に入れるから、そのあとTimeTreeで取り込んでね</small></div></div>
   <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
-  <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">🌳 TimeTreeへ送る</button></div>
+  <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">📅 Googleカレンダーに送る</button></div>
   <div style="text-align:center;margin-top:8px"><button type="button" class="ed" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🐾 動物の追加・変更</button><span style="color:var(--sub);font-size:12px">　</span><button type="button" class="cl" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🧹 Googleの分を片づける</button></div></div>`;
   document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();a.querySelector(".ed").onclick=()=>animalSheet(ttFlow);
   const clearMonth=async()=>{const m=+cur.slice(5);
@@ -174,7 +174,7 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
     const hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");
     try{const j=await window.ttClear(cur);if(fc)fc.src="face-yay.webp";
       hd.innerHTML=`${m}月のGoogleの予定を片づけたよ🧹（${j.n}件）<br><small>iPhoneのカレンダーからも少ししたら消えるよ。TimeTreeの予定はそのままだよ</small>`;
-      const go=a.querySelector(".go");if(go){go.disabled=false;go.textContent="🌳 TimeTreeへ送る"}}
+      const go=a.querySelector(".go");if(go){go.disabled=false;go.textContent="📅 Googleカレンダーに送る"}}
     catch(e){if(fc)fc.src="face-oops.webp";const msg=String(e&&e.message||e);
       hd.innerHTML=msg==="noconn"?"ごめんね、まだGASとつながってないみたい💦<br><small>⚙️設定の「🏠 おうちの温度」のURLとパスワードを入れてね</small>":`ごめんね、片づけられなかったよ…💦<br><small>${esc(msg.slice(0,100))}</small>`}};
   a.querySelector(".cl").onclick=clearMonth;
@@ -196,17 +196,18 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
       go.disabled=true;go.textContent="📡 送ってるよ…";
       try{const j=await window.ttGas(cur,ev);
         if(fc)fc.src="face-yay.webp";
-        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！🌳（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろシフト」を選んでね。TimeTreeに入ったら、下の「🧹 Googleの分を片づける」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
+        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！📅（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろシフト」を選んでね。TimeTreeに入ったら、下の「🧹 Googleの分を片づける」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
         go.textContent="✅ 送ったよ"}
-      catch(e){go.disabled=false;go.textContent="🌳 TimeTreeへ送る";if(fc)fc.src="face-oops.webp";
+      catch(e){go.disabled=false;go.textContent="📅 Googleカレンダーに送る";if(fc)fc.src="face-oops.webp";
         const m=String(e&&e.message||e);
         hd.innerHTML=m==="noconn"?"ごめんね、まだGASとつながってないみたい💦<br><small>⚙️設定の「🏠 おうちの温度」のURLとパスワードを入れてね</small>"
           :`ごめんね、送れなかったよ…💦<br><small>${esc(m.slice(0,100))}${/許可|権限|authoriz|permission/i.test(m)?"<br>GASをデプロイし直して、カレンダーの許可をしてね":""}</small>`}}};
   draw()}
 
-function addBtn(){const st=document.getElementById("csvStatus");if(!st||document.getElementById("ttOut"))return;
-  const b=document.createElement("button");b.id="ttOut";b.type="button";b.className="btn2 sub";
-  b.style.cssText="font-family:inherit;cursor:pointer;font-size:12px;margin-top:6px";b.textContent="🌳 TimeTreeへ送る（動物の絵文字つき）";
-  b.onclick=()=>ttFlow();st.parentNode.insertBefore(b,st.nextSibling)}
+function addBtn(){const ib=document.getElementById("impBtn");if(!ib||document.getElementById("ttOut"))return;
+  // 隠れないように「📥 ファイルを読み込む」のすぐ下に、同じ大きさのボタンで置く（2026-11-24）
+  const b=document.createElement("button");b.id="ttOut";b.type="button";b.className="impBtn";b.style.marginTop="8px";
+  b.innerHTML="📅 Googleカレンダーに送る<small>TimeTreeに取り込む用（動物つき）・🧹片づけもここから</small>";
+  b.onclick=()=>ttFlow();ib.parentNode.insertBefore(b,ib.nextSibling)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addBtn);else addBtn();
 })();

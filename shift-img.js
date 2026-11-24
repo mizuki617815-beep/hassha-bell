@@ -149,6 +149,13 @@ function parseAnimals(text){const map={};
 const fmtKey=k=>k.slice(0,2)+":"+k.slice(2,4)+"-"+k.slice(5,7)+":"+k.slice(7);
 
 const animalMap=()=>Object.assign(parseAnimals(BASE_ANIMALS),parseAnimals(lsGet()));
+// 🎨 TimeTreeのラベルの色（2026-11-24）。いまのTimeTreeの色分けを基本に、表にない時間は送るときに選ぶ（S.ttColors に保存＝スプレッドシートで同期）
+const TT_LABELS=[["red","アップル・レッド","#c8313a"],["rose","フレンチ・ローズ","#c84d74"],["coral","コーラル・ピンク","#d0716a"],["violet","ソフト・バイオレット","#8a6fc4"],["sky","ディープ・スカイブルー","#2f86c6"],["brown","パステル・ブラウン","#8a7a72"],["orange","ブライト・オレンジ","#c9971f"],["cyan","モダーン・サイアン","#2a9d9a"],["black","ミッドナイト・ブラック","#555"],["green","エメラルド・グリーン","#2e9e5e"]];
+const LBL=Object.fromEntries(TT_LABELS.map(x=>[x[0],x]));
+const BASE_COLORS={"0615-1630":"red","0615-1645":"red","0615-1515":"rose","0615-1530":"rose","0620-1645":"rose","0650-1645":"rose","0645-1630":"coral","0700-1700":"coral","0645-1800":"violet","0620-1530":"violet","0640-1645":"violet","0630-1630":"sky","0620-1120":"sky","0645-1645":"brown","0615-1015":"orange","1145-1645":"cyan","0700-1600":"black"};
+const colorMap=()=>{let u={};try{u=typeof S==="object"&&S&&S.ttColors&&typeof S.ttColors==="object"?S.ttColors:{}}catch(e){}return Object.assign({},BASE_COLORS,u)};
+const saveColors=add=>{if(typeof S!=="object"||!S||typeof save!=="function")return;S.ttColors=Object.assign({},S.ttColors||{},add);save()};
+const dot=c=>c&&LBL[c]?`<i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${LBL[c][2]};margin-right:5px;vertical-align:1px"></i>`:"";
 function animalSheet(after){css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";
   const n=Object.keys(animalMap()).length;
   a.innerHTML=`<div class="cf"><div class="hd"><img src="face-talk.webp" alt=""><div class="msg">動物の追加・変更🐾<br><small>いまは${n}組おぼえてるよ。新しい時間や入れかえた動物だけ「🐧 06:45-16:30」の形で書いてね（基本の一覧より優先して、スプレッドシートでほかの端末ともそろうよ）</small></div></div>
@@ -167,7 +174,7 @@ const monthsOf=()=>{if(typeof SHIFTS!=="object")return[];const now=new Date(Date
 function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
   const ms=monthsOf();if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
   css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";a.className="full";
-  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">Googleカレンダーに送るよ📅<br><small>どの月にする？ 「ゆめいろシフト」に入れるから、そのあとTimeTreeで取り込んでね</small></div></div>
+  a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">Googleカレンダーに送るよ📅<br><small>どの月にする？ 色ごとの「ゆめいろ ○○」カレンダーに入れるから、そのあとTimeTreeで取り込んでね</small></div></div>
   <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
   <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">📅 Googleに送る</button></div>
   <button type="button" class="cl" style="display:block;margin:12px auto 0;padding:7px 16px;border:1.5px dashed #c9a8ff;border-radius:999px;background:none;font:inherit;font-weight:700;font-size:13px;color:#7a55d6;cursor:pointer">🧹 取り込み済みのGoogleカレンダーの予定を消す</button>
@@ -175,7 +182,7 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
   document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();a.querySelector(".ed").onclick=()=>animalSheet(ttFlow);
   const clearMonth=async()=>{const m=+cur.slice(5);
     if(typeof window.ttClear!=="function"){yuAlert("⚠️ 開きなおしてもう一回やってみてね");return}
-    if(!await yuAsk(`Googleカレンダー「ゆめいろシフト」の${m}月の予定を全部消す？\n（TimeTreeに取り込んだ予定は消えないよ。TimeTreeに入ったのを確かめてからにしてね）`,"消す",true))return;
+    if(!await yuAsk(`Googleカレンダー「ゆめいろ ○○」の${m}月の予定を全部消す？\n（TimeTreeに取り込んだ予定は消えないよ。TimeTreeに入ったのを確かめてからにしてね）`,"消す",true))return;
     const hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");
     try{const j=await window.ttClear(cur);if(fc)fc.src="face-yay.webp";
       hd.innerHTML=`${m}月のGoogleの予定を片づけたよ🧹（${j.n}件）<br><small>iPhoneのカレンダーからも少ししたら消えるよ。TimeTreeの予定はそのままだよ</small>`;
@@ -187,21 +194,24 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
   const draw=()=>{mo.innerHTML=ms.map(m=>`<button type="button" data-m="${m}" class="${m===cur?"yes":"no"}" style="flex:none;padding:6px 12px;border:0;border-radius:99px;font:inherit;font-weight:800;font-size:13px;cursor:pointer">${+m.slice(5)}月</button>`).join("");
     mo.querySelectorAll("button").forEach(b=>b.onclick=()=>{cur=b.dataset.m;draw()});
     const map=animalMap(),ds=Object.keys(SHIFTS).filter(d=>d.startsWith(cur)).sort();
-    const rows=ds.map(d=>{const sh=SHIFTS[d],work=!sh.off&&sh.start!=null&&sh.end!=null,k=work?keyOf(sh.start,sh.end):"";return{d,title:sh.title||(sh.off?"お休み":""),work,k,emoji:work?map[k]||"":""}});
-    const miss=[...new Set(rows.filter(r=>r.work&&!r.emoji).map(r=>r.k))];
-    a.querySelector(".ls").innerHTML=(miss.length?`<div class="nt" style="color:#e0447a;font-weight:700">🧸 この時間の動物がまだ決まってないよ。絵文字を入れてね</div>`+miss.map(k=>`<div class="r warn"><b style="width:104px">${fmtKey(k)}</b><input data-k="${k}" placeholder="🐾 絵文字" maxlength="8"></div>`).join("")+`<div style="height:6px"></div>`:"")
-      +rows.map(r=>`<div class="r${r.work?"":" off"}"><b>${md(r.d)}</b><span>${r.work?(r.emoji||"❓")+" ":""}${esc(r.title)}</span></div>`).join("");
-    a.querySelector(".ft").textContent=miss.length?"":`${rows.length}日分。出勤の日は「シフト」と「動物」が別々の終日予定になるよ`;
+    const cm=colorMap();
+    const rows=ds.map(d=>{const sh=SHIFTS[d],work=!sh.off&&sh.start!=null&&sh.end!=null,k=work?keyOf(sh.start,sh.end):"";return{d,title:sh.title||(sh.off?"お休み":""),work,k,emoji:work?map[k]||"":"",c:work?cm[k]||"":"black"}});
+    const miss=[...new Set(rows.filter(r=>r.work&&(!r.emoji||!r.c)).map(r=>r.k))];
+    const opts=TT_LABELS.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join("");
+    a.querySelector(".ls").innerHTML=(miss.length?`<div class="nt" style="color:#e0447a;font-weight:700">🧸 この時間の動物と色がまだ決まってないよ。入れてね</div>`+miss.map(k=>`<div class="r warn" style="flex-wrap:wrap;gap:6px"><b style="width:104px">${fmtKey(k)}</b>${map[k]?`<span>${map[k]}</span>`:`<input data-k="${k}" placeholder="🐾 絵文字" maxlength="8" style="width:80px">`}${cm[k]?dot(cm[k]):`<select data-ck="${k}" style="font:inherit;font-size:13px"><option value="">色をえらぶ</option>${opts}</select>`}</div>`).join("")+`<div style="height:6px"></div>`:"")
+      +rows.map(r=>`<div class="r${r.work?"":" off"}"><b>${md(r.d)}</b><span>${dot(r.c)}${r.work?(r.emoji||"❓")+" ":""}${esc(r.title)}</span></div>`).join("");
+    a.querySelector(".ft").textContent=miss.length?"":`${rows.length}日分。出勤の日は「シフト」と「動物」が別々の終日予定になって、色ごとのカレンダーに入るよ`;
     a.querySelector(".go").onclick=async()=>{
       const add=[];for(const inp of a.querySelectorAll("input[data-k]")){const v=inp.value.trim();if(!v){yuAlert("⚠️ まだ決まってない動物があるよ");inp.focus();return}add.push(v+" "+fmtKey(inp.dataset.k))}
-      if(add.length){lsSet(lsGet().replace(/\s*$/,"")+"\n"+add.join("\n"));draw();return yuAlert(`🧸 ${add.length}組の動物をおぼえたよ。もう一回「書き出す」を押してね`)}
-      const ev=[];rows.forEach(r=>{ev.push({d:r.d,t:r.title});if(r.emoji)ev.push({d:r.d,t:r.emoji})});
+      const addC={};for(const sel of a.querySelectorAll("select[data-ck]")){if(!sel.value){yuAlert("⚠️ まだ決まってない色があるよ");sel.focus();return}addC[sel.dataset.ck]=sel.value}
+      if(add.length||Object.keys(addC).length){if(add.length)lsSet(lsGet().replace(/\s*$/,"")+"\n"+add.join("\n"));if(Object.keys(addC).length)saveColors(addC);draw();return yuAlert("🧸 おぼえたよ。もう一回「📅 Googleに送る」を押してね")}
+      const ev=[];rows.forEach(r=>{ev.push({d:r.d,t:r.title,c:r.c});if(r.emoji)ev.push({d:r.d,t:r.emoji,c:r.c})});
       const go=a.querySelector(".go"),hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");
       if(typeof window.ttGas!=="function"){yuAlert("⚠️ 開きなおしてもう一回やってみてね");return}
       go.disabled=true;go.textContent="📡 送ってるよ…";
       try{const j=await window.ttGas(cur,ev);
         if(fc)fc.src="face-yay.webp";
-        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！📅（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろシフト」を選んでね。TimeTreeに入ったら「🧹 取り込み済みのGoogleカレンダーの予定を消す」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
+        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！📅（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろ ○○」を全部選んで、左の丸で<b>名前と同じ色</b>を選んでね（${(j.cals||[]).map(x=>esc(x.replace("ゆめいろ ",""))).join("・")}）。TimeTreeに入ったら「🧹 取り込み済みのGoogleカレンダーの予定を消す」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
         go.textContent="✅ 送ったよ"}
       catch(e){go.disabled=false;go.textContent="📅 Googleに送る";if(fc)fc.src="face-oops.webp";
         const m=String(e&&e.message||e);

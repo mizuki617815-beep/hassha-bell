@@ -95,11 +95,15 @@ window.shiftImgFlow=async file=>{if(busy)return;busy=true;const a=sheet(),pg=pro
       let ti=0;for(const it of res.todo){pg.set("again",84+14*(ti++/res.todo.length));const r=await w2.recognize(crop(im.g,im.W,im.H,it.box));const c=window.PlanetOCR.classify(r.data.text,it);if(c)res.days.push(c)}}
     if(!res.days.length){const er=new Error("シフトが読みとれなかったよ");er.notShift=true;throw er}
     res.days.sort((x,y)=>x.d<y.d?-1:1);
+    // スクショには前の月・次の月の端っこも写る → いちばん多い月の分だけを使う（ほかの月の手帳のシフトはさわらない、2026-11-24）
+    const cnt={};res.days.forEach(x=>{const m=x.d.slice(0,7);cnt[m]=(cnt[m]||0)+1});
+    const mainYm=Object.keys(cnt).sort((p,q)=>cnt[q]-cnt[p]||(p<q?1:-1))[0];
+    const others=res.days.filter(x=>x.d.slice(0,7)!==mainYm);res.days=res.days.filter(x=>x.d.slice(0,7)===mainYm);
     const csv=window.PlanetOCR.toCSV(res.days);
     await pg.finish();pg.stop();
     a.classList.add("full");
     const ym=res.days[0].d.slice(0,7);
-    msg(`${+ym.slice(5)}月のシフトを${res.days.length}日分読んだよ！<br><small>プラネットの画面と見くらべて、合ってたら「📒 手帳に入れる」を押してね</small>`);
+    msg(`${+ym.slice(5)}月のシフトを${res.days.length}日分読んだよ！<br><small>プラネットの画面と見くらべて、合ってたら「📒 手帳に入れる」を押してね${others.length?`<br>（写ってた${md(others[0].d)}〜${md(others.at(-1).d)}はほかの月だから入れないよ）`:""}</small>`);
     const am=animalMap(),emo=x=>{if(x.k!=="work"||typeof shiftFromTitle!=="function")return"";const sh=shiftFromTitle(x.title);return sh&&!sh.off&&sh.start!=null?(am[keyOf(sh.start,sh.end)]||"❓")+" ":""};
     a.querySelector(".ls").innerHTML=res.days.map(x=>`<div class="r${x.k==="work"?"":" off"}${x.k==="other"?" warn":""}"><b>${md(x.d)}</b><span>${emo(x)}${esc(x.title)}</span></div>`).join("");
     a.querySelector(".nt").innerHTML=`ピンクの行は読みとりがあやしい日だよ。入れる前に今のシフトの控えを残すから、まちがってても「↩️ 消したシフトを復元」で戻せるよ　<a href="#" class="sv" style="color:var(--sub)">📤 CSVで保存</a>`;

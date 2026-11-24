@@ -16,16 +16,17 @@ function rows(ws){ // 単語を行にまとめる（上下の中心が近いも�
 
 function roleOf(line){const t=line.toUpperCase().replace(/\s+/g," ");
   if(/\bMEAL\b|\bBREAK\b|PRE\s*D-?1/.test(t))return null; // 食事・休憩・前日準備は数えない
-  const f=(t.match(/\b(\d{3})\b/)||[])[1]||"";
-  if(/\bFC\b/.test(t)||/\d{3}\s?F\b/.test(t))return{f,r:"FC"}; // 「543F」みたいにCが欠けても FC
-  if(/\bCK[I1lL|]?\b/.test(t))return{f,r:"CKIN"};
+  const f=(t.match(/(?:^|[^\d])(\d{3})(?!\d)/)||[])[1]||""; // 「CX549G/L」みたいにくっついても便番号をとる
+  if(/(?<![A-Z])FC(?![A-Z])/.test(t)||/\d{3}\s?F\b/.test(t))return{f,r:"FC"}; // 「543F」みたいにCが欠けても FC
+  if(/(?<![A-Z])CK[I1lL|]?(?![A-Z])/.test(t))return{f,r:"CKIN"};
   if(/\bLNG\b/.test(t))return{f,r:"LNG"};
-  if(/\bG\/?L\b|\bPRE\b|\bBGR\b/.test(t))return{f,r:""}; // 業務名には出ないけど「何行あるか」には数える
+  if(/(?<![A-Z])G\/?L(?![A-Z])|(?<![A-Z])PRE(?![A-Z])|\bBGR\b/.test(t))return{f,r:""}; // 業務名には出ないけど「何行あるか」には数える
   return null}
 
 // 業務名：便ごとにまとめて、FC＞CKIN＞LNG。2便目は2行以上あるとき（またはFC）だけ。同じなら1つ
 function label(lines){const fl=[];
-  for(const l of lines){const x=roleOf(l);if(!x)continue;let g=fl.find(g=>g.f===x.f);if(!g){g={f:x.f,n:0,rs:new Set()};fl.push(g)}g.n++;if(x.r)g.rs.add(x.r)}
+  for(const l of lines){const x=roleOf(l);if(!x)continue;if(!x.f&&fl.length)x.f=fl.at(-1).f; // 便番号が読めなかった行は、ひとつ前の便の続きとして数える（2026-11-24 11/1のG/L対策）
+    let g=fl.find(g=>g.f===x.f);if(!g){g={f:x.f,n:0,rs:new Set()};fl.push(g)}g.n++;if(x.r)g.rs.add(x.r)}
   const pick=g=>g.rs.has("FC")?"FC":g.rs.has("CKIN")?"CKIN":g.rs.has("LNG")?"LNG":"";
   const out=[];fl.forEach((g,i)=>{const r=pick(g);if(!r)return;if(i>0&&g.n<2&&r!=="FC")return;if(out[out.length-1]!==r||r==="FC")out.push(r)}); // FC→FCはそのまま、CKINが続くときは1つ（TimeTreeの書き方に合わせる）
   return out.join("→")}

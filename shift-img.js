@@ -166,8 +166,18 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
   a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">TimeTreeへ送るよ🌳<br><small>どの月にする？ Googleカレンダーの「ゆめいろシフト」に入れるから、そのあとTimeTreeで取り込んでね</small></div></div>
   <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
   <div class="b"><button type="button" class="no">とじる</button><button type="button" class="yes go">🌳 TimeTreeへ送る</button></div>
-  <div style="text-align:center;margin-top:8px"><button type="button" class="ed" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🐾 動物の追加・変更</button></div></div>`;
+  <div style="text-align:center;margin-top:8px"><button type="button" class="ed" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🐾 動物の追加・変更</button><span style="color:var(--sub);font-size:12px">　</span><button type="button" class="cl" style="border:0;background:none;font:inherit;font-size:12px;color:var(--sub);text-decoration:underline;cursor:pointer">🧹 Googleの分を片づける</button></div></div>`;
   document.body.appendChild(a);a.querySelector(".no").onclick=()=>a.remove();a.querySelector(".ed").onclick=()=>animalSheet(ttFlow);
+  const clearMonth=async()=>{const m=+cur.slice(5);
+    if(typeof window.ttClear!=="function"){yuAlert("⚠️ 開きなおしてもう一回やってみてね");return}
+    if(!await yuAsk(`Googleカレンダー「ゆめいろシフト」の${m}月の予定を全部消す？\n（TimeTreeに取り込んだ予定は消えないよ。TimeTreeに入ったのを確かめてからにしてね）`,"消す",true))return;
+    const hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");
+    try{const j=await window.ttClear(cur);if(fc)fc.src="face-yay.webp";
+      hd.innerHTML=`${m}月のGoogleの予定を片づけたよ🧹（${j.n}件）<br><small>iPhoneのカレンダーからも少ししたら消えるよ。TimeTreeの予定はそのままだよ</small>`;
+      const go=a.querySelector(".go");if(go){go.disabled=false;go.textContent="🌳 TimeTreeへ送る"}}
+    catch(e){if(fc)fc.src="face-oops.webp";const msg=String(e&&e.message||e);
+      hd.innerHTML=msg==="noconn"?"ごめんね、まだGASとつながってないみたい💦<br><small>⚙️設定の「🏠 おうちの温度」のURLとパスワードを入れてね</small>":`ごめんね、片づけられなかったよ…💦<br><small>${esc(msg.slice(0,100))}</small>`}};
+  a.querySelector(".cl").onclick=clearMonth;
   let cur=typeof pre==="string"&&ms.includes(pre)?pre:ms[0];const mo=a.querySelector(".mo");
   const draw=()=>{mo.innerHTML=ms.map(m=>`<button type="button" data-m="${m}" class="${m===cur?"yes":"no"}" style="flex:none;padding:6px 12px;border:0;border-radius:99px;font:inherit;font-weight:800;font-size:13px;cursor:pointer">${+m.slice(5)}月</button>`).join("");
     mo.querySelectorAll("button").forEach(b=>b.onclick=()=>{cur=b.dataset.m;draw()});
@@ -186,7 +196,7 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
       go.disabled=true;go.textContent="📡 送ってるよ…";
       try{const j=await window.ttGas(cur,ev);
         if(fc)fc.src="face-yay.webp";
-        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！🌳（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろシフト」を選んでね。同じ月を送り直しても、Googleのほうはだぶらないよ</small>`;
+        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！🌳（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろシフト」を選んでね。TimeTreeに入ったら、下の「🧹 Googleの分を片づける」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
         go.textContent="✅ 送ったよ"}
       catch(e){go.disabled=false;go.textContent="🌳 TimeTreeへ送る";if(fc)fc.src="face-oops.webp";
         const m=String(e&&e.message||e);

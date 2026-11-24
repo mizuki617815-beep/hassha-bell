@@ -24,6 +24,7 @@
  *        {"cmd":"tt_cal","ym":"2026-12","ev":[{"d":"2026-12-01","t":"CX FC 0615-1515"},{"d":"2026-12-01","t":"🐇"}],"k":"パスワード"}
  *          → Googleカレンダー「ゆめいろシフト」のその月の予定を入れかえる（TimeTreeが「外部カレンダーの予定をインポート」で取り込む用）
  *          ※はじめてのときは、デプロイし直すときにカレンダーの許可を聞かれるので「許可」してね
+ *        {"cmd":"tt_clear","ym":"2026-12","k":"パスワード"} → 「ゆめいろシフト」のその月の予定を全部消す（TimeTreeに取り込んだあとの片づけ用）
  *        パスワード（SB_KEY）が合わないとき・入ってないときは動かさない
  */
 
@@ -57,6 +58,14 @@ function doPost(e) {
     const key = String(PropertiesService.getScriptProperties().getProperty('SB_KEY') || '').trim();
     if (!key) throw new Error('SB_KEY（パスワード）がGASに入ってないよ');
     if (String(q.k || '').trim() !== key) throw new Error('パスワードがちがうよ');
+    if (q.cmd === 'tt_clear') {
+      const lk = LockService.getScriptLock();
+      lk.waitLock(20000);
+      try {
+        return ContentService.createTextOutput(JSON.stringify(Object.assign({ ok: true }, ttClear_(q))))
+          .setMimeType(ContentService.MimeType.JSON);
+      } finally { lk.releaseLock(); }
+    }
     if (q.cmd === 'tt_cal') {
       const lk = LockService.getScriptLock();
       lk.waitLock(20000);
@@ -281,6 +290,31 @@ const FUR_SYS = [
   'わからないことや最新の情報は、知ったかぶりせずに「わからないな」と正直に言います。'
 ].join('\n');
 
+// 「ゆめいろシフト」カレンダーを返す（ID は TT_CAL に覚える）。make=false でなければ作らない
+function ttCalendar_(make) {
+  const P = PropertiesService.getScriptProperties();
+  const NAME = 'ゆめいろシフト';
+  let cal = null;
+  const id = P.getProperty('TT_CAL');
+  if (id) { try { cal = CalendarApp.getCalendarById(id); } catch (e) { cal = null; } }
+  if (!cal) cal = (CalendarApp.getOwnedCalendarsByName(NAME) || [])[0] || null;
+  if (!cal && make) cal = CalendarApp.createCalendar(NAME, { timeZone: 'Asia/Tokyo' });
+  if (cal) P.setProperty('TT_CAL', cal.getId());
+  return cal;
+}
+
+// 🧹 TimeTreeに取り込んだあとの片づけ：「ゆめいろシフト」のその月の予定を全部消す（TimeTreeの予定は消えない）
+function ttClear_(q) {
+  const ym = String(q.ym || '');
+  if (!/^\d{4}-\d{2}$/.test(ym)) throw new Error('月がわからないよ');
+  const cal = ttCalendar_(false);
+  if (!cal) return { n: 0 };
+  const y = +ym.slice(0, 4), m = +ym.slice(5, 7);
+  const evs = cal.getEvents(new Date(y, m - 1, 1), new Date(y, m, 1));
+  evs.forEach(function (e) { e.deleteEvent(); });
+  return { n: evs.length };
+}
+
 // 🌳 TimeTree用：Googleカレンダー「ゆめいろシフト」に、その月のシフトと動物を終日予定で入れる（2026-11-23）
 // 同じ月を送り直したら、その月の分を消してから入れ直す（だぶらない）。ほかのカレンダーはさわらない
 function ttCal_(q) {
@@ -288,14 +322,7 @@ function ttCal_(q) {
   if (!/^\d{4}-\d{2}$/.test(ym)) throw new Error('月がわからないよ');
   const ev = Array.isArray(q.ev) ? q.ev : [];
   if (!ev.length || ev.length > 200) throw new Error('予定の数がおかしいよ');
-  const P = PropertiesService.getScriptProperties();
-  const NAME = 'ゆめいろシフト';
-  let cal = null;
-  const id = P.getProperty('TT_CAL');
-  if (id) { try { cal = CalendarApp.getCalendarById(id); } catch (e) { cal = null; } }
-  if (!cal) cal = (CalendarApp.getOwnedCalendarsByName(NAME) || [])[0] || null;
-  if (!cal) cal = CalendarApp.createCalendar(NAME, { timeZone: 'Asia/Tokyo' });
-  P.setProperty('TT_CAL', cal.getId());
+  const cal = ttCalendar_(true);
   const y = +ym.slice(0, 4), m = +ym.slice(5, 7);
   const from = new Date(y, m - 1, 1), to = new Date(y, m, 1);
   cal.getEvents(from, to).forEach(function (e) { e.deleteEvent(); });
@@ -306,7 +333,7 @@ function ttCal_(q) {
     cal.createAllDayEvent(t, new Date(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)));
     n++;
   });
-  return { n: n, cal: NAME };
+  return { n: n, cal: 'ゆめいろシフト' };
 }
 
 function chat_(q) {

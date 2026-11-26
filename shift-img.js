@@ -177,11 +177,11 @@ const monthsOf=all=>{if(typeof SHIFTS!=="object")return[];const now=new Date(Dat
   const dn=ttDone();return ms.filter(m=>!dn[m])};
 
 // 送ってるあいだのメーター（GASは進み具合を返さないので、時間で進めて返事が来たら100%に 2026-11-26）
-function sendMeter(a){const box=document.createElement("div");box.className="pg";
+function sendMeter(a,lines){const box=document.createElement("div");box.className="pg";
   box.innerHTML=`<div class="ln">Googleとつながってるよ…</div><div class="tr"><div class="fl"></div><img class="bb" src="face-talk.webp" alt=""></div><div class="pc">0%</div>`;
   a.querySelector(".ls").before(box);a.querySelector(".cf").scrollTop=0;
   const fl=box.querySelector(".fl"),bb=box.querySelector(".bb"),pc=box.querySelector(".pc"),ln=box.querySelector(".ln");
-  const L=["Googleとつながってるよ…","色ごとのカレンダーを準備してるよ…","前に入れた予定を片づけてるよ…","予定を書きこんでるよ…","動物さんも入れてるよ🐾","もうちょっとだよ…"];
+  const L=lines||["Googleとつながってるよ…","色ごとのカレンダーを準備してるよ…","前に入れた予定を片づけてるよ…","予定を書きこんでるよ…","動物さんも入れてるよ🐾","もうちょっとだよ…"];ln.textContent=L[0];
   const t0=performance.now();let v=0,end=false,raf=0;
   const tick=now=>{const t=(now-t0)/1000;const goal=end?100:Math.min(95,95*(1-Math.exp(-t/14)));v+=(goal-v)*(end?0.2:0.08);
     fl.style.width=v+"%";bb.style.left=`calc(${v}% - 18px)`;bb.classList.toggle("hop",Math.floor(now/260)%2===0&&v<99.5);pc.textContent=Math.floor(v)+"%";
@@ -203,10 +203,11 @@ function ttFlow(pre,all){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).lengt
     if(typeof window.ttClear!=="function"){yuAlert("⚠️ 開きなおしてもう一回やってみてね");return}
     if(!await yuAsk(`Googleカレンダー「ゆめいろ ○○」の${m}月の予定を全部消す？\n（TimeTreeに取り込んだ予定は消えないよ。TimeTreeに入ったのを確かめてからにしてね）`,"消す",true))return;
     const hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");
-    try{const j=await window.ttClear(cur);markDone(cur);if(fc)fc.src="face-yay.webp";
+    const mt=sendMeter(a,["Googleとつながってるよ…","色ごとのカレンダーを見てまわってるよ…","予定を片づけてるよ🧹","もうちょっとだよ…"]);
+    try{const j=await window.ttClear(cur);mt.done();markDone(cur);if(fc)fc.src="face-yay.webp";
       hd.innerHTML=`${m}月のGoogleの予定を片づけたよ🧹（${j.n}件）<br><small>iPhoneのカレンダーからも少ししたら消えるよ。TimeTreeの予定はそのままだよ。${m}月はおしまいだから、次からはこの画面に出さないね</small>`;
       const go=a.querySelector(".go");if(go){go.disabled=false;go.textContent="📅 Googleに送る"}}
-    catch(e){if(fc)fc.src="face-oops.webp";const msg=String(e&&e.message||e);
+    catch(e){mt.fail();if(fc)fc.src="face-oops.webp";const msg=String(e&&e.message||e);
       hd.innerHTML=msg==="noconn"?"ごめんね、まだGASとつながってないみたい💦<br><small>⚙️設定の「🏠 おうちの温度」のURLとパスワードを入れてね</small>":`ごめんね、片づけられなかったよ…💦<br><small>${esc(msg.slice(0,100))}</small>`}};
   a.querySelector(".cl").onclick=clearMonth;
   let cur=typeof pre==="string"&&ms.includes(pre)?pre:ms[0];const mo=a.querySelector(".mo");

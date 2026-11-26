@@ -175,10 +175,22 @@ const monthsOf=all=>{if(typeof SHIFTS!=="object")return[];const now=new Date(Dat
   let ms=[...new Set(Object.keys(SHIFTS).map(d=>d.slice(0,7)))].filter(m=>m>=now).sort();if(all)return ms;
   const dn=ttDone();if(ms.some(m=>m>now))ms=ms.filter(m=>m>now);return ms.filter(m=>!dn[m])};
 
+// 送ってるあいだのメーター（GASは進み具合を返さないので、時間で進めて返事が来たら100%に 2026-11-26）
+function sendMeter(a){const box=document.createElement("div");box.className="pg";
+  box.innerHTML=`<div class="ln">Googleとつながってるよ…</div><div class="tr"><div class="fl"></div><img class="bb" src="face-talk.webp" alt=""></div><div class="pc">0%</div>`;
+  a.querySelector(".ls").before(box);a.querySelector(".cf").scrollTop=0;
+  const fl=box.querySelector(".fl"),bb=box.querySelector(".bb"),pc=box.querySelector(".pc"),ln=box.querySelector(".ln");
+  const L=["Googleとつながってるよ…","色ごとのカレンダーを準備してるよ…","前に入れた予定を片づけてるよ…","予定を書きこんでるよ…","動物さんも入れてるよ🐾","もうちょっとだよ…"];
+  const t0=performance.now();let v=0,end=false,raf=0;
+  const tick=now=>{const t=(now-t0)/1000;const goal=end?100:Math.min(95,95*(1-Math.exp(-t/14)));v+=(goal-v)*(end?0.2:0.08);
+    fl.style.width=v+"%";bb.style.left=`calc(${v}% - 18px)`;bb.classList.toggle("hop",Math.floor(now/260)%2===0&&v<99.5);pc.textContent=Math.floor(v)+"%";
+    if(!end)ln.textContent=L[Math.min(L.length-1,Math.floor(t/4))];
+    if(end&&v>99.5){pc.textContent="100%";return}raf=requestAnimationFrame(tick)};
+  raf=requestAnimationFrame(tick);
+  return{done(){end=true;ln.textContent="できたよ！";setTimeout(()=>box.remove(),900)},fail(){cancelAnimationFrame(raf);box.remove()}}}
 function ttFlow(pre,all){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
   let ms=monthsOf(all);if(!ms.length&&monthsOf(true).length){yuAsk("🧸 送る月はもう送って片づけたよ。\nシフトが変わったときだけ、もう一回送れるよ","もう一回送る").then(ok=>{if(ok)ttFlow(pre,true)});return}
   if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
-  if(typeof pre==="string"&&!ms.includes(pre)&&monthsOf(true).includes(pre))ms=[...ms,pre].sort();
   css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";a.className="full";
   a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">Googleカレンダーに送るよ📅<br><small>どの月にする？ 色ごとの「ゆめいろ ○○」カレンダーに入れるから、そのあとTimeTreeで取り込んでね</small></div></div>
   <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
@@ -214,12 +226,12 @@ function ttFlow(pre,all){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).lengt
       const ev=[];rows.forEach(r=>{ev.push({d:r.d,t:r.title,c:r.c});if(r.emoji)ev.push({d:r.d,t:r.emoji,c:r.c})});
       const go=a.querySelector(".go"),hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");
       if(typeof window.ttGas!=="function"){yuAlert("⚠️ 開きなおしてもう一回やってみてね");return}
-      go.disabled=true;go.textContent="📡 送ってるよ…";
-      try{const j=await window.ttGas(cur,ev);
+      go.disabled=true;go.textContent="📡 送ってるよ…";const mt=sendMeter(a);
+      try{const j=await window.ttGas(cur,ev);mt.done();
         if(fc)fc.src="face-yay.webp";
         hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！📅（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろ ○○」を全部選んで、左の丸で<b>名前と同じ色</b>を選んでね（${(j.cals||[]).map(x=>esc(x.replace("ゆめいろ ",""))).join("・")}）。TimeTreeに入ったら「🧹 取り込み済みのGoogleカレンダーの予定を消す」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
         go.textContent="✅ 送ったよ"}
-      catch(e){go.disabled=false;go.textContent="📅 Googleに送る";if(fc)fc.src="face-oops.webp";
+      catch(e){mt.fail();go.disabled=false;go.textContent="📅 Googleに送る";if(fc)fc.src="face-oops.webp";
         const m=String(e&&e.message||e);
         hd.innerHTML=m==="noconn"?"ごめんね、まだGASとつながってないみたい💦<br><small>⚙️設定の「🏠 おうちの温度」のURLとパスワードを入れてね</small>"
           :/load failed|failed to fetch|network|timeout|abort/i.test(m)?`返事が届かなかったよ💦<br><small>でも、Googleカレンダーにはもう入ってることが多いよ（新しい色のカレンダーを作るときは時間がかかるの）。Googleカレンダーを見て入ってなければ、もう一回送ってね（送り直しても二重にはならないよ）</small>`

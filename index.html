@@ -765,6 +765,7 @@ body.dark .ktChips button{color:#e8dff2;background:rgba(255,255,255,.06)}body.da
 @keyframes fSway{50%{transform:rotate(-5deg) translateY(-3px)}}@keyframes fGlow{50%{transform:scale(1.08);opacity:.6}}
 @keyframes fSpark{0%{opacity:0;transform:translateY(6px) scale(.6)}40%{opacity:1;transform:translateY(-4px) scale(1.1)}100%{opacity:0;transform:translateY(-14px) scale(.8)}}
 .fVid{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:16px;background:#2a2140;box-shadow:0 4px 16px rgba(120,90,180,.35)}
+.fGauge{height:8px;border-radius:99px;background:rgba(183,156,255,.22);overflow:hidden;margin:10px 4px 0}.fGauge i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#b79cff,#ff8fc4);transition:width .25s linear}
 .fSkip{font-family:inherit;font-size:12px;color:var(--sub);background:none;border:0;text-decoration:underline;padding:8px 12px;cursor:pointer}
 .fAnimTxt{font-size:14px;font-weight:800;margin-top:8px;color:#9a6fd6;min-height:1.5em}
 #fBody.fShow{animation:fIn .6s ease-out}@keyframes fIn{from{opacity:0;transform:translateY(8px)}}
@@ -854,8 +855,9 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       <button type="button" class="fGo" id="fGo">🔮 ファーちゃんに占ってもらう</button>
     </div>
     <div class="fAnim" id="fAnim" style="display:none">
-      <video class="fVid" id="fVid" src="uranai.mp4?v=20261127" poster="uranai-poster.jpg?v=20261127" playsinline preload="metadata"></video>
+      <video class="fVid" id="fVid" src="uranai.mp4?v=20261127" poster="uranai-poster.jpg?v=20261127" playsinline preload="auto"></video>
       <div class="fBall" id="fBallCss" style="display:none"><img src="fortune-teller.webp?v=20261127" alt=""><i></i><b>✨</b><b>⭐</b><b>✨</b><b>🌙</b></div>
+      <div class="fGauge"><i id="fGaugeBar"></i></div>
       <div class="fAnimTxt" id="fAnimTxt">ふむふむ…</div>
       <button type="button" class="fSkip" id="fSkip">結果を見る ›</button>
     </div>
@@ -2219,20 +2221,23 @@ function fTarotHtml(day,flip){const n=tarotOf(day),c=TAROT[n],f=String(n).padSta
     <div class="fTarotMore">${(()=>{const x=TAROT_EX[c[0]]||[];return`<div><b>📖 カードの意味</b>${x[0]||""}</div><div><b>💌 きょうのメッセージ</b>${c[3]}</div><div><b>🍀 きょうのヒント</b>${x[1]||""}</div><div><b>💼 しごと</b>${x[2]||""}</div><div><b>💗 ふたり</b>${x[3]||""}</div>`})()}</div>`}
 function fGateUpd(day){const today=FOFF===0,open=!today||fOpened(day),busy=document.getElementById("fAnim").style.display!=="none";
   if(busy)return;document.getElementById("fGate").style.display=open?"none":"";document.getElementById("fBody").style.display=open?"":"none"}
-function fPlay(){const n0=jstNow();n0.setDate(n0.getDate()-FOFF);const day=ymd(n0),off=FOFF;const g=document.getElementById("fGate"),a=document.getElementById("fAnim"),t=document.getElementById("fAnimTxt"),v=document.getElementById("fVid"),css=document.getElementById("fBallCss");
-  g.style.display="none";document.getElementById("fBody").style.display="none";a.style.display="";try{document.getElementById("navFortune").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
-  const L=["ふむふむ…","星のうごきを読んでるよ…","カードをまぜまぜ…","見えてきたよ…！"];let i=0,done=false;t.textContent=L[0];
-  const tm=setInterval(()=>{i++;if(i<L.length)t.textContent=L[i]},2300);
-  const fin=()=>{if(done)return;done=true;clearInterval(tm);clearTimeout(cap);try{v.pause()}catch(e){}v.onended=null;
-    if(off===0){try{localStorage.setItem(FOPEN_K,day)}catch(e){}}a.style.display="none";FOFF=off;renderFortune();
+function fPlay(){const n0=jstNow();n0.setDate(n0.getDate()-FOFF);const day=ymd(n0),off=FOFF;const g=document.getElementById("fGate"),a=document.getElementById("fAnim"),t=document.getElementById("fAnimTxt"),v=document.getElementById("fVid"),css=document.getElementById("fBallCss"),bar=document.getElementById("fGaugeBar");
+  g.style.display="none";document.getElementById("fBody").style.display="none";a.style.display="";bar.style.width="0%";try{document.getElementById("navFortune").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
+  const L=["ふむふむ…","星のうごきを読んでるよ…","カードをまぜまぜ…","見えてきたよ…！"];let done=false,cap=0,tk=0;t.textContent=L[0];
+  // ゲージと文字は、動画の再生位置（currentTime）に合わせて進める。読みこみで止まっている間は止まったまま（2026-11-27）
+  const show=r=>{r=Math.max(0,Math.min(1,r));bar.style.width=Math.round(r*100)+"%";t.textContent=r>=.999?"できたよ！":L[Math.min(L.length-1,Math.floor(r*L.length))]};
+  const fin=()=>{if(done)return;done=true;clearTimeout(cap);clearInterval(tk);try{v.pause()}catch(e){}v.onended=v.ontimeupdate=v.onerror=v.onwaiting=v.onplaying=null;show(1);
+    setTimeout(()=>{if(off===0){try{localStorage.setItem(FOPEN_K,day)}catch(e){}}a.style.display="none";FOFF=off;renderFortune();
     const b=document.getElementById("fBody");b.classList.remove("fShow");void b.offsetWidth;b.classList.add("fShow");
-    document.getElementById("fTarot").innerHTML=fTarotHtml(day,true);setTimeout(()=>{const c=document.getElementById("fCard");if(c)c.classList.add("flip")},700)};
-  // 動画（音あり）で占う。読めない・再生できないときは、水晶玉のアニメ（3.3秒）にする（2026-11-27）
-  let cap=setTimeout(fin,15000);
-  const fallback=()=>{v.style.display="none";css.style.display="";clearTimeout(cap);cap=setTimeout(fin,3300)};
-  v.style.display="";css.style.display="none";v.onended=fin;try{v.currentTime=0}catch(e){}
+    document.getElementById("fTarot").innerHTML=fTarotHtml(day,true);setTimeout(()=>{const c=document.getElementById("fCard");if(c)c.classList.add("flip")},700)},350)};
+  // もしものときの保険：動画が動かないまま止まっていたら、最後に動いてから20秒で結果へ
+  const guard=()=>{clearTimeout(cap);cap=setTimeout(fin,20000)};
+  const fallback=()=>{if(done)return;v.style.display="none";css.style.display="";clearTimeout(cap);const t0=Date.now(),D=3300;clearInterval(tk);
+    tk=setInterval(()=>{const r=(Date.now()-t0)/D;show(r);if(r>=1)fin()},100)};
+  v.style.display="";css.style.display="none";show(0);
+  v.ontimeupdate=()=>{if(v.duration)show(v.currentTime/v.duration);guard()};v.onplaying=guard;v.onwaiting=guard;v.onended=fin;v.onerror=fallback;
+  try{v.currentTime=0}catch(e){}guard();
   const p=v.play();if(p&&p.catch)p.catch(()=>{v.muted=true;v.play().catch(fallback)});
-  v.onerror=fallback;
   document.getElementById("fSkip").onclick=fin}
 document.getElementById("fGo").onclick=fPlay;document.getElementById("fAgain").onclick=fPlay;
 function renderFortune(){

@@ -2286,7 +2286,7 @@ function fPlay(){const n0=jstNow();n0.setDate(n0.getDate()-FOFF);const day=ymd(n
   const show=r=>{r=Math.max(0,Math.min(1,r));const pc=Math.round(r*100);bar.style.width=pc+"%";gb.style.left=`calc(${pc}% - 18px)`;gp.textContent=pc+"%";t.textContent=r>=.999?"できたよ！🧸✨":L[Math.min(L.length-1,Math.floor(r*L.length))]};
   const fin=skip=>{if(done)return;done=true;clearTimeout(cap);clearInterval(tk);try{v.pause()}catch(e){}v.onended=v.ontimeupdate=v.onerror=v.onwaiting=v.onplaying=null;show(1);clearInterval(hopT);gb.classList.remove("hop");gb.src="face-yay.webp";
     // 100%になったら、すぐ切りかえずに少し余韻（とばしたときは短め）
-    setTimeout(()=>{if(off===0){try{localStorage.setItem(FOPEN_K,day)}catch(e){}} // タロットはこのあと自分で1枚えらぶa.style.display="none";FOFF=off;renderFortune();
+    setTimeout(()=>{if(off===0){try{localStorage.setItem(FOPEN_K,day)}catch(e){}} /* タロットはこのあと自分で1枚えらぶ */a.style.display="none";FOFF=off;renderFortune();
     const b=document.getElementById("fBody");b.classList.remove("fShow");void b.offsetWidth;b.classList.add("fShow");
     document.getElementById("fTarot").innerHTML=fTarotHtml(day,true);document.getElementById("fTarot").dataset.day=day;setTimeout(()=>{const c=document.getElementById("fCard");if(c)c.classList.add("flip")},700)},skip===true?500:1800)};
   // もしものときの保険：動画が動かないまま止まっていたら、最後に動いてから20秒で結果へ

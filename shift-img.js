@@ -168,11 +168,17 @@ function animalSheet(after){css();let a=document.getElementById("siBox");if(a)a.
     if(ta.value.trim()&&!c){yuAlert("⚠️ 時間が読めなかったよ。「🐝 06:20-15:30」みたいな形で貼ってね");return}
     lsSet(ta.value);a.remove();yuAlert(`🧸 保存したよ（ぜんぶで${Object.keys(animalMap()).length}組）`);if(after)after()}}
 
-const monthsOf=()=>{if(typeof SHIFTS!=="object")return[];const now=new Date(Date.now()+9*3600e3).toISOString().slice(0,7);
-  return[...new Set(Object.keys(SHIFTS).map(d=>d.slice(0,7)))].filter(m=>m>=now).sort()};
+// 送る月：今月から先。ただし🧹で片づけ済みの月（S.ttDone＝同期）と、来月のシフトがあるときの今月は出さない（まちがえて送らないように 2026-11-26）
+const ttDone=()=>{try{return typeof S==="object"&&S&&S.ttDone&&typeof S.ttDone==="object"?S.ttDone:{}}catch(e){return{}}};
+const markDone=ym=>{if(typeof S!=="object"||!S||typeof save!=="function")return;S.ttDone=Object.assign({},S.ttDone||{},{[ym]:Date.now()});save()};
+const monthsOf=all=>{if(typeof SHIFTS!=="object")return[];const now=new Date(Date.now()+9*3600e3).toISOString().slice(0,7);
+  let ms=[...new Set(Object.keys(SHIFTS).map(d=>d.slice(0,7)))].filter(m=>m>=now).sort();if(all)return ms;
+  const dn=ttDone();if(ms.some(m=>m>now))ms=ms.filter(m=>m>now);return ms.filter(m=>!dn[m])};
 
-function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
-  const ms=monthsOf();if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
+function ttFlow(pre,all){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){yuAlert("⚠️ シフトがまだないみたい。先にシフトを読み込んでね");return}
+  let ms=monthsOf(all);if(!ms.length&&monthsOf(true).length){yuAsk("🧸 送る月はもう送って片づけたよ。\nシフトが変わったときだけ、もう一回送れるよ","もう一回送る").then(ok=>{if(ok)ttFlow(pre,true)});return}
+  if(!ms.length){yuAlert("⚠️ 今月から先のシフトがないみたい");return}
+  if(typeof pre==="string"&&!ms.includes(pre)&&monthsOf(true).includes(pre))ms=[...ms,pre].sort();
   css();let a=document.getElementById("siBox");if(a)a.remove();a=document.createElement("div");a.id="siBox";a.className="full";
   a.innerHTML=`<div class="cf"><div class="hd"><img src="face-guide.webp" alt=""><div class="msg">Googleカレンダーに送るよ📅<br><small>どの月にする？ 色ごとの「ゆめいろ ○○」カレンダーに入れるから、そのあとTimeTreeで取り込んでね</small></div></div>
   <div class="mo" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div><div class="ls"></div><div class="nt ft"></div>
@@ -184,8 +190,8 @@ function ttFlow(pre){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).length){y
     if(typeof window.ttClear!=="function"){yuAlert("⚠️ 開きなおしてもう一回やってみてね");return}
     if(!await yuAsk(`Googleカレンダー「ゆめいろ ○○」の${m}月の予定を全部消す？\n（TimeTreeに取り込んだ予定は消えないよ。TimeTreeに入ったのを確かめてからにしてね）`,"消す",true))return;
     const hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");
-    try{const j=await window.ttClear(cur);if(fc)fc.src="face-yay.webp";
-      hd.innerHTML=`${m}月のGoogleの予定を片づけたよ🧹（${j.n}件）<br><small>iPhoneのカレンダーからも少ししたら消えるよ。TimeTreeの予定はそのままだよ</small>`;
+    try{const j=await window.ttClear(cur);markDone(cur);if(fc)fc.src="face-yay.webp";
+      hd.innerHTML=`${m}月のGoogleの予定を片づけたよ🧹（${j.n}件）<br><small>iPhoneのカレンダーからも少ししたら消えるよ。TimeTreeの予定はそのままだよ。${m}月はおしまいだから、次からはこの画面に出さないね</small>`;
       const go=a.querySelector(".go");if(go){go.disabled=false;go.textContent="📅 Googleに送る"}}
     catch(e){if(fc)fc.src="face-oops.webp";const msg=String(e&&e.message||e);
       hd.innerHTML=msg==="noconn"?"ごめんね、まだGASとつながってないみたい💦<br><small>⚙️設定の「🏠 おうちの温度」のURLとパスワードを入れてね</small>":`ごめんね、片づけられなかったよ…💦<br><small>${esc(msg.slice(0,100))}</small>`}};

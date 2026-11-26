@@ -296,20 +296,23 @@ const FUR_SYS = [
 
 // 🎨 TimeTreeのラベルの色ごとにGoogleカレンダーを分ける（2026-11-24）
 // TimeTreeの「外部カレンダーの予定をインポート」でカレンダーごとにラベルの色を選べるので、色の名前をつけておく
+// 3つめの番号＝TimeTreeのラベルリストの並び順（インポートで色を探さなくていいように、カレンダー名の頭に付ける 2026-11-26）
 const TT_LABELS = {
-  red: ['アップル・レッド', '#D50000'], rose: ['フレンチ・ローズ', '#E67C73'], coral: ['コーラル・ピンク', '#F4511E'],
-  violet: ['ソフト・バイオレット', '#8E24AA'], sky: ['ディープ・スカイブルー', '#039BE5'], brown: ['パステル・ブラウン', '#795548'],
-  orange: ['ブライト・オレンジ', '#F6BF26'], cyan: ['モダーン・サイアン', '#009688'], black: ['ミッドナイト・ブラック', '#616161'],
-  green: ['エメラルド・グリーン', '#0B8043']
+  green: ['エメラルド・グリーン', '#0B8043', '①'], cyan: ['モダーン・サイアン', '#009688', '②'], sky: ['ディープ・スカイブルー', '#039BE5', '③'],
+  brown: ['パステル・ブラウン', '#795548', '④'], black: ['ミッドナイト・ブラック', '#616161', '⑤'], red: ['アップル・レッド', '#D50000', '⑥'],
+  rose: ['フレンチ・ローズ', '#E67C73', '⑦'], coral: ['コーラル・ピンク', '#F4511E', '⑧'], orange: ['ブライト・オレンジ', '#F6BF26', '⑨'],
+  violet: ['ソフト・バイオレット', '#8E24AA', '⑩']
 };
+const ttName_ = function (lid) { const L = TT_LABELS[lid]; return 'ゆめいろ ' + L[2] + L[0]; };
 function ttCalOf_(lid, make) {
   const P = PropertiesService.getScriptProperties();
   const L = TT_LABELS[lid]; if (!L) return null;
-  const NAME = 'ゆめいろ ' + L[0], KEY = 'TT_CAL_' + lid;
+  const NAME = ttName_(lid), OLD = 'ゆめいろ ' + L[0], KEY = 'TT_CAL_' + lid;
   let cal = null;
   const id = P.getProperty(KEY);
   if (id) { try { cal = CalendarApp.getCalendarById(id); } catch (e) { cal = null; } }
-  if (!cal) cal = (CalendarApp.getOwnedCalendarsByName(NAME) || [])[0] || null;
+  if (!cal) cal = (CalendarApp.getOwnedCalendarsByName(NAME) || [])[0] || (CalendarApp.getOwnedCalendarsByName(OLD) || [])[0] || null;
+  if (cal && cal.getName() !== NAME) { try { cal.setName(NAME); } catch (e) {} } // 前の名前（番号なし）なら付け直す
   if (!cal && make) {
     cal = CalendarApp.createCalendar(NAME, { timeZone: 'Asia/Tokyo' });
     try { cal.setColor(L[1]); } catch (e) {}
@@ -365,7 +368,7 @@ function ttCal_(q) {
     cal.createAllDayEvent(t, new Date(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)));
     used[lid] = 1; n++;
   });
-  return { n: n, cals: Object.keys(used).map(function (k) { return 'ゆめいろ ' + TT_LABELS[k][0]; }) };
+  return { n: n, cals: Object.keys(used).map(function (k) { return ttName_(k); }) };
 }
 
 function chat_(q) {

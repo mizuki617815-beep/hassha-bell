@@ -150,7 +150,7 @@ const fmtKey=k=>k.slice(0,2)+":"+k.slice(2,4)+"-"+k.slice(5,7)+":"+k.slice(7);
 
 const animalMap=()=>Object.assign(parseAnimals(BASE_ANIMALS),parseAnimals(lsGet()));
 // 🎨 TimeTreeのラベルの色（2026-11-24）。いまのTimeTreeの色分けを基本に、表にない時間は送るときに選ぶ（S.ttColors に保存＝スプレッドシートで同期）
-const TT_LABELS=[["red","アップル・レッド","#c8313a"],["rose","フレンチ・ローズ","#c84d74"],["coral","コーラル・ピンク","#d0716a"],["violet","ソフト・バイオレット","#8a6fc4"],["sky","ディープ・スカイブルー","#2f86c6"],["brown","パステル・ブラウン","#8a7a72"],["orange","ブライト・オレンジ","#c9971f"],["cyan","モダーン・サイアン","#2a9d9a"],["black","ミッドナイト・ブラック","#555"],["green","エメラルド・グリーン","#2e9e5e"]];
+const TT_LABELS=[["green","①エメラルド・グリーン","#2e9e5e"],["cyan","②モダーン・サイアン","#2a9d9a"],["sky","③ディープ・スカイブルー","#2f86c6"],["brown","④パステル・ブラウン","#8a7a72"],["black","⑤ミッドナイト・ブラック","#555"],["red","⑥アップル・レッド","#c8313a"],["rose","⑦フレンチ・ローズ","#c84d74"],["coral","⑧コーラル・ピンク","#d0716a"],["orange","⑨ブライト・オレンジ","#c9971f"],["violet","⑩ソフト・バイオレット","#8a6fc4"]]; // 番号＝TimeTreeのラベルリストの順
 const LBL=Object.fromEntries(TT_LABELS.map(x=>[x[0],x]));
 const BASE_COLORS={"0615-1630":"red","0615-1645":"red","0615-1515":"green","0615-1530":"rose","0620-1645":"rose","0650-1645":"rose","0645-1630":"sky","0700-1700":"coral","0645-1800":"violet","0620-1530":"violet","0640-1645":"violet","0630-1630":"sky","0620-1120":"sky","0645-1645":"brown","0615-1015":"orange","1145-1645":"cyan","0700-1600":"black","0615-1030":"red","0620-1130":"red","0650-1630":"rose","0650-1700":"brown","0620-1700":"brown","0620-1630":"sky","0620-1050":"green","0640-1510":"orange","0615-1400":"cyan"};
 const colorMap=()=>{let u={};try{u=typeof S==="object"&&S&&S.ttColors&&typeof S.ttColors==="object"?S.ttColors:{}}catch(e){}return Object.assign({},BASE_COLORS,u)};
@@ -232,7 +232,7 @@ function ttFlow(pre,all){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).lengt
       go.disabled=true;go.textContent="📡 送ってるよ…";const mt=sendMeter(a);
       try{const j=await window.ttGas(cur,ev);mt.done();
         if(fc)fc.src="face-yay.webp";
-        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！📅（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろ ○○」を全部選んで、左の丸で<b>名前と同じ色</b>を選んでね（${(j.cals||[]).map(x=>esc(x.replace("ゆめいろ ",""))).join("・")}）。TimeTreeに入ったら「🧹 取り込み済みのGoogleカレンダーの予定を消す」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
+        hd.innerHTML=`${+cur.slice(5)}月の予定をGoogleカレンダーに入れたよ！📅（${j.n}件）<br><small>つぎはTimeTreeで「外部カレンダーの予定をインポート」→「ゆめいろ ○○」を全部選んで、左の丸をタップして、<b>名前の番号の順番の色</b>を選んでね（③なら上から3番目。${(j.cals||[]).map(x=>esc(x.replace("ゆめいろ ",""))).join("・")}）。TimeTreeに入ったら「🧹 取り込み済みのGoogleカレンダーの予定を消す」でiPhoneのカレンダーに残った予定を消せるよ</small>`;
         go.textContent="✅ 送ったよ"}
       catch(e){mt.fail();go.disabled=false;go.textContent="📅 Googleに送る";if(fc)fc.src="face-oops.webp";
         const m=String(e&&e.message||e);

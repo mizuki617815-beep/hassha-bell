@@ -788,6 +788,22 @@ body.dark .fTarotMore b{color:#c9b3ff}
 .fAgain{display:block;margin:10px auto 2px;font-family:inherit;font-size:13px;font-weight:800;color:#9a6fd6;background:rgba(255,255,255,.7);border:2px solid #e3d4ff;border-radius:999px;padding:9px 18px;min-height:42px;cursor:pointer}
 body.dark .fAgain{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:#c9b3ff}.fTarotTxt .tt{font-size:11px;color:var(--sub)}.fTarotTxt b{font-size:14.5px;color:#7a5cc8}
 body.dark .fTarot{background:rgba(255,255,255,.06)}body.dark .fTarotTxt b,body.dark .fFront .nm{color:#c9b3ff}body.dark .fFront{background:#2e2645;border-color:#5a4a86}
+/* 🃏 タロットのコーナー（2026-11-27 デザイン強化） */
+.fTarot{display:block!important;margin:14px 0 4px!important;padding:0 0 12px!important;border-radius:20px!important;overflow:hidden;background:linear-gradient(180deg,#fbf7ff,#fff4fa)!important;border:2px solid #eadcff;box-shadow:0 6px 18px rgba(150,110,210,.15)}
+.tHead{position:relative;text-align:center;padding:14px 10px 12px;background:radial-gradient(circle at 20% 20%,rgba(255,255,255,.25) 0 2px,transparent 3px),radial-gradient(circle at 80% 35%,rgba(255,255,255,.3) 0 1.5px,transparent 2.5px),radial-gradient(circle at 60% 15%,rgba(255,255,255,.25) 0 1px,transparent 2px),linear-gradient(135deg,#4b3585,#8a62c9 60%,#d77fb8);color:#fff}
+.tStars{display:block;font-size:11px;letter-spacing:6px;opacity:.8}.tTtl{font-size:17px;font-weight:900;letter-spacing:.5px}.tSub{font-size:12px;opacity:.85;margin-top:2px}
+.tNone{text-align:center;font-size:14px;color:var(--sub);padding:18px 10px}
+.tStage{display:flex;justify-content:center;padding:18px 0 6px;background:radial-gradient(ellipse at center,rgba(214,190,255,.55),transparent 65%)}
+.tStage .fCard{flex:0 0 150px;width:150px;height:158px;filter:drop-shadow(0 6px 14px rgba(120,80,200,.35))}
+.tName{text-align:center;font-size:22px;font-weight:900;color:#6f4fc2;margin-top:4px}.tName .pos{display:inline-block;margin-left:8px;font-size:12.5px;font-weight:800;padding:2px 10px;border-radius:99px;background:#efe6ff;color:#7a5cc8;vertical-align:4px}.tName .pos.r{background:#ffe6f0;color:#c2508a}
+.tKw{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:6px 12px 4px}.tKw i{font-style:normal;font-size:13px;font-weight:700;color:#8a68c9;background:#fff;border:1.5px solid #e6d8ff;border-radius:99px;padding:3px 11px}
+.tTalk{margin:12px 12px 0!important}.tTalk img{width:62px!important;height:62px!important}
+.tGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 12px 0}.tTile{background:#fff;border-radius:14px;padding:9px 10px;border:1.5px solid #f0e6ff;font-size:13.5px;line-height:1.6}.tTile:last-child:nth-child(odd){grid-column:1/-1}
+.tTk{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:900;color:#7a5cc8;margin-bottom:3px}.tTk span{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#f3eaff,#ffe9f3);font-size:13px}
+.tAdvice{margin:10px 12px 0;padding:11px 12px;border-radius:14px;background:linear-gradient(135deg,#fff3c9,#ffe6f1);font-size:14px;line-height:1.7;border:1.5px solid #ffe0a8}.tAdvice .tTk{color:#c9840a}
+.tMean{margin:10px 12px 0;background:#fff;border-radius:14px;border:1.5px solid #f0e6ff;padding:9px 12px;font-size:14px;line-height:1.7}.tMean summary{cursor:pointer;font-weight:900;color:#7a5cc8;font-size:13.5px;list-style:none}.tMean summary::-webkit-details-marker{display:none}.tMean summary::after{content:" ▾";color:var(--sub)}.tMean[open] summary::after{content:" ▴"}.tMean div{margin-top:6px}
+.fTarot .fAdv{margin:12px 12px 0!important}
+body.dark .fTarot{background:linear-gradient(180deg,#2c2444,#2a2140)!important;border-color:#4d3f74}body.dark .tTile,body.dark .tMean,body.dark .tKw i{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}body.dark .tName,body.dark .tTk,body.dark .tMean summary{color:#d2c0ff}body.dark .tKw i{color:#d2c0ff}body.dark .tAdvice{background:rgba(255,214,120,.12);border-color:rgba(255,214,120,.3)}body.dark .tAdvice .tTk{color:#ffcf6b}
 </style>
 <script>
 // 🧸 お知らせ（下から出て消える。うまくいかなかったときはタップするまで残す）と確認（はい/いいえを Promise で返す）
@@ -2213,13 +2229,18 @@ const tSave=o=>{const ks=Object.keys(o).sort();while(ks.length>14)delete o[ks.sh
 const tDrawAdv=day=>{const o=tGet(),rc=o[day];if(!rc)return null;if(rc.a)return rc.a;const a=new Uint32Array(2);crypto.getRandomValues(a);let n=a[0]%21;if(n>=rc.n)n++;rc.a={n,r:a[1]%2};tSave(o);return rc.a};
 const tDraw=day=>{const o=tGet();if(o[day])return o[day];const a=new Uint32Array(2);crypto.getRandomValues(a);o[day]={n:a[0]%22,r:a[1]%2};tSave(o);return o[day]};
 const fOpened=day=>{try{return localStorage.getItem(FOPEN_K)===day}catch(e){return true}};
-function fTarotHtml(day,flip){const rc=tRec(day);
-  if(!rc)return`<div class="fTarotTxt"><div class="tt">🃏 タロット</div><div class="kw">この日はタロットを引いてないよ🧸</div></div>`;
+function fTarotHtml(day,flip){const rc=tRec(day),today=day===ymd(jstNow()),dd=new Date(day+"T00:00:00");
+  const head=`<div class="tHead"><span class="tStars">✦ ✧ ✦</span><div class="tTtl">🔮 ${today?"きょう":"この日"}のタロット占い</div><div class="tSub">${dd.getMonth()+1}/${dd.getDate()}・大アルカナ22枚から1枚</div></div>`;
+  if(!rc)return head+`<div class="tNone">この日はタロットを引いてないよ🧸</div>`;
   const n=rc.n,rev=!!rc.r,c=TAROT[n],nm=c[0],f=String(n).padStart(2,"0"),x=rev?TAROT_REV[nm]:TAROT_UP[nm];
-  const L=[["💌","きょうのメッセージ",1],["💗","夫婦運",2],["💼","仕事運",3],["💰","金運",4],["🤝","人間関係",5],["🌙","体調",6],["🍀","今日のアドバイス",7]];
-  return`<div class="fCard${flip?"":" flip"}${rev?" rev":""}" id="fCard"><div class="fCardIn"><div class="fBack">🔮</div><div class="fFront"><img src="tarot/${f}.webp" alt="${nm}" onerror="this.outerHTML='<span class=&quot;em&quot;>${c[1]}</span><span class=&quot;nm&quot;>${nm}</span>'"></div></div></div>
-    <div class="fTarotTxt"><div class="tt">🃏 ${day===ymd(jstNow())?"きょう":"この日"}のタロット</div><b>${nm}</b><span class="pos${rev?" r":""}">${rev?"逆位置":"正位置"}</span><div class="kw">${x[0]}</div></div>
-    <div class="fTarotMore"><div><b>📖 カードの意味</b>${TAROT_MEAN[nm]}${rev?"<br>逆さまに出た「逆位置」は、カードの力が弱まったり、うまく出しきれていなかったりするサインだよ。":""}</div>${L.map(([e,t,i])=>`<div><b>${e} ${t}</b>${x[i]}</div>`).join("")}</div>${fAdvHtml(day,rc,false)}`}
+  const T=[["💗","夫婦運",2],["💼","仕事運",3],["💰","金運",4],["🤝","人間関係",5],["🌙","体調",6]];
+  return head+`<div class="tStage"><div class="fCard${flip?"":" flip"}${rev?" rev":""}" id="fCard"><div class="fCardIn"><div class="fBack">🔮</div><div class="fFront"><img src="tarot/${f}.webp" alt="${nm}" onerror="this.outerHTML='<span class=&quot;em&quot;>${c[1]}</span><span class=&quot;nm&quot;>${nm}</span>'"></div></div></div></div>
+    <div class="tName">${nm}<span class="pos${rev?" r":""}">${rev?"逆位置":"正位置"}</span></div><div class="tKw">${x[0].split("・").map(k=>`<i>${k}</i>`).join("")}</div>
+    <div class="talk tTalk"><img src="fortune-teller.webp?v=20261127" alt="占い師のクマちゃん"><div class="bubble">${x[1]}</div></div>
+    <div class="tGrid">${T.map(([e,t,i])=>`<div class="tTile"><div class="tTk"><span>${e}</span>${t}</div><div class="tTv">${x[i]}</div></div>`).join("")}</div>
+    <div class="tAdvice"><div class="tTk">🍀 今日のアドバイス</div>${x[7]}</div>
+    <details class="tMean"><summary>📖 「${nm}」ってどんなカード？</summary><div>${TAROT_MEAN[nm]}${rev?"<br>逆さまに出た「逆位置」は、カードの力が弱まったり、うまく出しきれていなかったりするサインだよ。":""}</div></details>
+    ${fAdvHtml(day,rc,false)}`}
 function fAdvHtml(day,rc,anim){const today=day===ymd(jstNow());
   if(!rc.a){if(!today)return"";return`<div class="fAdv"><div class="fAdvHead">🃏 アドバイスカード</div><div class="fAdvNote">1枚目の意味をもっと知りたいときに、残りのカードからもう1枚引くよ。「どうしたらいい？」のヒントになるカードだよ（1日1回）</div><button type="button" class="fAdvGo" id="fAdvGo">🃏 アドバイスカードを引く</button></div>`}
   const m=TAROT[rc.n][0],mk=(rc.r?TAROT_REV:TAROT_UP)[m][0],a=rc.a,nm=TAROT[a.n][0],x=(a.r?TAROT_REV:TAROT_UP)[nm],f=String(a.n).padStart(2,"0");

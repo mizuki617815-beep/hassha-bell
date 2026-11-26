@@ -17,6 +17,7 @@
  *
  * GET  … 温度・湿度・明るさ（lightLevel 1〜20）・時刻を返す（見るだけ）
  * POST … {"cmd":"cool"|"heat"|"off","temp":27,"k":"パスワード"} でエアコンを動かす
+ *        {"cmd":"set","temp":25,"mode":1〜5,"fan":1〜4,"k":"パスワード"} でモード・風量もえらんでつける
  *        {"cmd":"light_on"|"light_off","k":"パスワード"} でライト（ハブ2の赤外線。リモコンを覚えさせたもの）
  *        {"cmd":"light_night","k":"パスワード"} でライトを保安球に（SwitchBotアプリのシーン「保安球」を実行）
  *        {"cmd":"kotatsu_off","k":"パスワード"} でこたつをけす（hapicom → Alexa定型アクション）
@@ -100,6 +101,13 @@ function doPost(e) {
         if (!(t >= 16 && t <= 30)) throw new Error('温度は16〜30℃にしてね');
         // setAll = "温度,モード,風量,電源"  モード 2=冷房 5=暖房 ／ 風量 1=自動
         sbCmd_(id, 'setAll', t + ',' + (q.cmd === 'cool' ? 2 : 5) + ',1,on');
+      } else if (q.cmd === 'set') {
+        // モード 1=自動 2=冷房 3=除湿 4=送風 5=暖房 ／ 風量 1=自動 2=弱 3=中 4=強
+        const m = Math.round(Number(q.mode)), f = Math.round(Number(q.fan));
+        if (!(t >= 16 && t <= 30)) throw new Error('温度は16〜30℃にしてね');
+        if (!(m >= 1 && m <= 5)) throw new Error('モードがわからないよ');
+        if (!(f >= 1 && f <= 4)) throw new Error('風量がわからないよ');
+        sbCmd_(id, 'setAll', t + ',' + m + ',' + f + ',on');
       } else {
         throw new Error('わからない操作だよ');
       }

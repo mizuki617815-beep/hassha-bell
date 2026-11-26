@@ -78,6 +78,12 @@ body.dark .homeEnv{background:rgba(127,220,197,.14)}
 .rcFold .rcEnv{font-size:12.5px;margin:8px 0 10px}.rcFold .rcEnv:empty{display:none}.rcFold .acBtns{margin:0 0 8px}.rcFold .acMsg{margin:0 2px 4px}
 body.dark .rcFold{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15)}
 body.dark .acBtns button{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15)}
+.acMore{margin:0 0 8px;border:2px dashed var(--line);border-radius:12px;padding:6px 8px}.acMore summary{cursor:pointer;font-size:12.5px;font-weight:900;list-style:none;color:var(--sub)}.acMore summary::-webkit-details-marker{display:none}
+.acRow{display:flex;gap:5px;align-items:center;margin-top:7px}.acRow b{font-size:11px;color:var(--sub);width:38px;flex:none;white-space:nowrap}#acModes button{line-height:1.25;padding:4px 0}.acRow button{flex:1;font-family:inherit;border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 2px;font-size:12px;font-weight:bold;color:var(--ink);cursor:pointer}
+.acRow button.on{border-color:#f2a7c8;background:#ffe8f3;color:#d0457f}.acRow .acT{flex:1.4;text-align:center;font-size:17px;font-weight:900}.acRow.off{opacity:.4}
+.acMore .acGo{width:100%;margin-top:8px;font-family:inherit;border:2px solid #f2a7c8;background:#fff;border-radius:12px;padding:8px;font-size:13px;font-weight:900;color:#d0457f;cursor:pointer}.acMore button:disabled{opacity:.5}
+.acLast{font-size:11.5px;color:var(--sub);margin:6px 2px 0}.acLast:empty{display:none}
+body.dark .acMore{border-color:rgba(255,255,255,.15)}body.dark .acRow button,body.dark .acMore .acGo{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15)}body.dark .acRow button.on{background:rgba(242,167,200,.25);border-color:#f2a7c8;color:#ffb3d4}
 .acTemps{display:flex;gap:10px;align-items:center;font-size:12.5px;margin-top:6px}.acTemps select{width:70px;flex:none}
 .morning{display:flex;gap:10px;align-items:stretch}
 .mbox{flex:1;border-radius:18px;padding:10px;text-align:center;background:linear-gradient(160deg,#fff3fa,#f1ebff)}
@@ -926,6 +932,13 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details class="rcFold" id="rcFold" style="display:none"><summary>🎛 おうちのリモコン<small>旅行中・おでかけ中に</small></summary>
       <div class="homeEnv rcEnv" id="rcEnv"></div>
       <div class="acBtns" id="acBtns" style="display:none"><button type="button" class="c" data-ac="cool">❄️ 冷房</button><button type="button" class="h" data-ac="heat">🔥 暖房</button><button type="button" data-ac="off">⏹ けす</button></div>
+      <details class="acMore" id="acMore" style="display:none"><summary>🎚 モード・温度・風量をえらんで送る</summary>
+        <div class="acRow" id="acModes"><b>モード</b><button type="button" data-m="1">🔄<br>自動</button><button type="button" data-m="2">❄️<br>冷房</button><button type="button" data-m="3">💧<br>除湿</button><button type="button" data-m="4">🍃<br>送風</button><button type="button" data-m="5">🔥<br>暖房</button></div>
+        <div class="acRow" id="acTRow"><b>温度</b><button type="button" data-t="-1">－</button><span class="acT" id="acT">25℃</span><button type="button" data-t="1">＋</button></div>
+        <div class="acRow" id="acFans"><b>風量</b><button type="button" data-f="1">自動</button><button type="button" data-f="2">弱</button><button type="button" data-f="3">中</button><button type="button" data-f="4">強</button></div>
+        <button type="button" class="acGo" data-ac="set" id="acGo">📡 この設定でつける</button>
+        <div class="acLast" id="acLast"></div>
+      </details>
       <div class="acBtns" id="ltBtns" style="display:none"><button type="button" class="l" data-ac="light_on">💡 ライトつける</button><button type="button" class="n" data-ac="light_night">🔅 保安球</button><button type="button" data-ac="light_off">🌙 ライトけす</button></div>
       <div class="acBtns" id="ktBtns" style="display:none"><button type="button" data-ac="kotatsu_off">♨️ こたつけす</button></div>
       <div class="acMsg" id="acMsg" style="display:none"></div>
@@ -1021,6 +1034,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge" id="verHistBadge">ver4.2</span></summary>
       <ul class="verList">
+        <li data-go="おうちのリモコン" data-short="🎚 エアコンのモードと風量がえらべるようになったよ！"><span class="vNo">ver4.6</span><span class="vDate">11/26</span><span class="vTxt">🎚 おうちのリモコンに「モード・温度・風量をえらんで送る」：モード（自動・冷房・除湿・送風・暖房）、温度（16〜30℃）、風量（自動・弱・中・強）をえらんで、エアコンをつけられるよ。赤外線は送りっぱなしでエアコンから返事がないから、最後に送った設定をこのiPhoneに覚えておいて表示するよ。スイングはSwitchBotのしくみで外から動かせないよ（GASの更新がいるよ）</span></li>
         <li data-go="Googleカレンダーに送る" data-short="📅 シフトをGoogleカレンダー経由でTimeTreeに入れられるようになったよ！"><span class="vNo">ver4.5</span><span class="vDate">11/23</span><span class="vTxt">📅「Googleカレンダーに送る」で、手帳のシフトを月ごとにGoogleカレンダーの「ゆめいろシフト」に入れて、TimeTreeの「外部カレンダーの予定をインポート」で取り込めるよ。出勤の日は「シフト」と「動物の絵文字」が別々の終日予定、お休みは「お休み」「お休み(有休)」のまま。動物は「予定の動物たち」の一覧から、出勤〜退勤の時間で自動で選ぶよ。一覧にない時間はその場で入れたら覚えるよ。TimeTreeに取り込んだら「🧹 取り込み済みのGoogleカレンダーの予定を消す」で、iPhoneのカレンダーに残った予定を月ごとまとめて消せるよ。（11/24：🧹ボタンを大きくして、確認が裏に隠れてたのを直したよ）（11/24：スクショに写った前後の月の日は手帳に入れないようにしたよ。便番号がくっついて読めた日の業務名も直したよ）<br>🎨 Googleカレンダーへは、TimeTreeのラベルの色ごとのカレンダー（「ゆめいろ アップル・レッド」など）に分けて入れるようになったよ。インポートのときに名前と同じ色を選ぶと、いつもの色分けで入るよ前の晩21時のお知らせはなくしたよ<br>📒 スクショで読んだシフトは、一覧で確かめて「手帳に入れる」を押すとそのまま手帳に入るようになったよ（CSVはいらなくなったよ）。そのまま「Googleカレンダーに送る」に進めるよ<br>スクショ読みとりの結果とGoogleカレンダーに送る画面を全画面にして（読みとり中は小さい画面のまま）、裏の画面がスクロールしないようにしたよ<br>・🎍 年末年始手当（12/30〜1/3に出勤した日、1日6,000円・4時間未満は3,000円）を勤怠ノートの見込みと次の給料の予想に入れて、明細が来たら記録室で照らし合わせるように（手当が出る日は、逆算の画面と📅今月の勤務記録に🎍マーク）<br>・有休カウンター：シフトに入った有休は、まだ先の日でも確定なので「残り」から引くように<br>・Googleカレンダーに送る画面：来月のシフトがあるときは今月を出さない、🧹で片づけた月も出さないように（まちがえて送らないように）</span></li>
         <li data-go="シフトのスクショからCSVを作る" data-short="📷 シフトのスクショからCSVが作れるようになったよ！"><span class="vNo">ver4.4</span><span class="vDate">11/23</span><span class="vTxt">📷 プラネットのシフト表のスクショを「📥 ファイルを読み込む」で選ぶと、このiPhoneの中だけで文字を読んで、TimeTreeと同じ書き方のシフトのCSVを作るよ（画像はどこにも送らないよ。はじめての1回だけ読み取りの部品をダウンロードするよ）。いまは試しの段階なので、手帳にはまだ入れずにCSVを作るだけ。<br>シフト表じゃない画像を選んだときは、ファーちゃんがやさしく教えてくれるようになったよ</span></li>
         <li data-quiet="1" data-go="@案内所" data-short="🧸 案内所のファーちゃんが答えてくれるようになったよ！"><span class="vNo">ver4.3</span><span class="vDate">11/23</span><span class="vTxt">🧸 案内所がファーちゃんとのおしゃべりに：「でんき消えてる？」「明細の入れ方」みたいに聞くと、使い方や今のようすを答えてくれるよ。ひらがなでも、言い方がちがっても、ちょっと打ちまちがえてもだいじょうぶ。答えの「📍 そこへ連れていって」でその場所へ飛ぶよ（「そこに連れてって」「それの使い方は？」でもOK）。「でんき消して」「暖房つけて」でリモコンのボタンも押せるよ（いつもの確認が出るよ）。わからなかった質問は「わからなかった質問」で見られるよ。案内所は全画面になったよ。おしゃべりのファーちゃんは、答えに合わせて6つの顔に変わるよ。上のボタンで「📋 秘書モード」と「🧸 ファーちゃんモード」（もっと自由におしゃべり）を切り替えられるよ。打っているあいだも会話が見えたままになったよ。「おはよう」「おやすみ」「つかれた」「雑談しよ」みたいなおしゃべりにも、時間に合わせてこたえてくれるよ</span></li>
@@ -3639,7 +3653,7 @@ let acUnl=false;
 const acUI=()=>{const o=acGet(),has=!!o.k,lk=has&&!acUnl;
   ak.readOnly=lk;ak.classList.toggle("ktLocked",lk);$("acLockTag").classList.toggle("on",lk);ak.value=lk?"••••••":"";
   $("acUnlock").style.display=lk?"":"none";$("acOff").style.display=has?"":"none";$("acSave").style.display=lk?"none":"";
-  ab.style.display=has&&getU()?"":"none";$("ltBtns").style.display=ab.style.display;$("ktBtns").style.display=ab.style.display;$("rcFold").style.display=ab.style.display;
+  ab.style.display=has&&getU()?"":"none";$("ltBtns").style.display=ab.style.display;$("ktBtns").style.display=ab.style.display;$("rcFold").style.display=ab.style.display;$("acMore").style.display=ab.style.display;acStUI();
   ab.querySelector(".c").textContent="❄️ 冷房"+(o.acCool||27)+"℃";ab.querySelector(".h").textContent="🔥 暖房"+(o.acHeat||25)+"℃"};
 $("acSave").onclick=()=>{const v=ak.value.trim();if(!v){ak.focus();return}const o=acGet();o.k=v;acPut(o);hTouch();acUnl=false;acUI()};
 $("acUnlock").onclick=async()=>{if(!await yuAsk("エアコンのパスワードを変える？\n（GASの SB_KEY も同じにしてね）","変える",true))return;acUnl=true;acUI();ak.focus()};
@@ -3658,17 +3672,32 @@ window.ttClear=async ym=>{const u=getU(),o=acGet();if(!u||!o.k)throw new Error("
   const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),60000);
   try{const r=await fetch(u,{method:"POST",body:JSON.stringify({cmd:"tt_clear",ym,k:o.k}),signal:ctl.signal});const j=await r.json();if(!j.ok)throw new Error(j.err||"消せなかったよ");return j}
   catch(e){throw new Error(e&&e.name==="AbortError"?"時間がかかりすぎたよ":(e&&e.message)||"消せなかったよ")}finally{clearTimeout(tm)}};
+/* 🎚 モード・温度・風量（赤外線は送りっぱなしなので、最後に送った設定をこの端末に覚える 2026-11-26） */
+const ACM={1:"🔄自動",2:"❄️冷房",3:"💧除湿",4:"🍃送風",5:"🔥暖房"},ACF={1:"自動",2:"弱",3:"中",4:"強"};
+const acSt=()=>{const o=acGet(),s=o.st||{};return{m:s.m||5,f:s.f||1,t:s.t||o.acHeat||25,on:s.on,at:s.at}};
+const acStPut=x=>{const o=acGet();o.st=Object.assign(acSt(),x);acPut(o);acStUI()};
+const acDesc=s=>ACM[s.m]+(s.m===4?"":s.t+"℃")+"・風量"+ACF[s.f];
+const acStUI=()=>{const s=acSt();
+  document.querySelectorAll("#acModes [data-m]").forEach(b=>b.classList.toggle("on",+b.dataset.m===s.m));
+  document.querySelectorAll("#acFans [data-f]").forEach(b=>b.classList.toggle("on",+b.dataset.f===s.f));
+  $("acT").textContent=s.t+"℃";$("acTRow").classList.toggle("off",s.m===4);
+  $("acLast").textContent=s.at?"🧸 最後に送ったの："+(s.on===false?"けす":acDesc(s))+"（"+new Date(s.at).toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})+"）":""};
+$("acMore").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.dataset.ac)return;
+  if(b.dataset.m)acStPut({m:+b.dataset.m});
+  else if(b.dataset.f)acStPut({f:+b.dataset.f});
+  else if(b.dataset.t){const t=acSt().t+(+b.dataset.t);if(t>=16&&t<=30)acStPut({t})}});
 const acClick=async e=>{const b=e.target.closest("button[data-ac]");if(!b)return;
-  const cmd=b.dataset.ac,o=acGet(),temp=cmd==="cool"?(o.acCool||27):cmd==="heat"?(o.acHeat||25):0,DV={light_on:"ライトをつける",light_night:"ライトを保安球にする",light_off:"ライトをけす",kotatsu_off:"こたつをけす"},lt=!!DV[cmd];
-  const lbl=lt?DV[cmd]:cmd==="off"?"エアコンをけす":(cmd==="cool"?"冷房":"暖房")+temp+"℃でつける";
+  const cmd=b.dataset.ac,o=acGet(),st=acSt(),temp=cmd==="cool"?(o.acCool||27):cmd==="heat"?(o.acHeat||25):cmd==="set"?st.t:0,DV={light_on:"ライトをつける",light_night:"ライトを保安球にする",light_off:"ライトをけす",kotatsu_off:"こたつをけす"},lt=!!DV[cmd];
+  const lbl=lt?DV[cmd]:cmd==="off"?"エアコンをけす":cmd==="set"?acDesc(st)+"でつける":(cmd==="cool"?"冷房":"暖房")+temp+"℃でつける";
   if(!await yuAsk(lbl+"？","送る"))return;
-  const allB=document.querySelectorAll("#acBtns button,#ltBtns button,#ktBtns button");allB.forEach(x=>x.disabled=true);am.style.display="";am.textContent=cmd.startsWith("light")?"📡 送ってるよ…（ライトは消えたか・ついたか確かめるから10秒くらいかかるよ）":"📡 送ってるよ…";
-  try{const r=await fetch(getU(),{method:"POST",body:JSON.stringify({cmd,temp,k:o.k})});const j=await r.json();
+  const allB=document.querySelectorAll("#acBtns button,#ltBtns button,#ktBtns button,#acMore button");allB.forEach(x=>x.disabled=true);am.style.display="";am.textContent=cmd.startsWith("light")?"📡 送ってるよ…（ライトは消えたか・ついたか確かめるから10秒くらいかかるよ）":"📡 送ってるよ…";
+  try{const r=await fetch(getU(),{method:"POST",body:JSON.stringify({cmd,temp,mode:st.m,fan:st.f,k:o.k})});const j=await r.json();
     if(!j.ok)throw new Error(j.err||"送れなかったよ");
+    if(!lt){const now=Date.now();acStPut(cmd==="off"?{on:false,at:now}:cmd==="set"?{on:true,at:now}:{m:cmd==="cool"?2:5,f:1,t:temp,on:true,at:now})}
     if(j.skip){const on=cmd==="light_on";am.textContent=(on?"💡 ":"🌙 ")+hm(Date.now())+(on?" もうついてたから":" もう消えてたから")+"、なにも送らなかったよ";yuAlert(on?"🧸 ライトはもうついてたよ":"🧸 ライトはもう消えてたよ")}else{am.textContent="✅ "+hm(Date.now())+" に「"+lbl+"」を送ったよ"+(lt?"":"（ついたかは部屋の温度で見てね）");yuAlert("🧸 「"+lbl+"」を送ったよ！")}if(j.room&&typeof j.room.t==="number"){try{localStorage.setItem(KC,JSON.stringify(j.room))}catch(e){}show(j.room)}}
   catch(err){am.textContent="⚠️ 送れなかったよ："+String(err.message||err).replace(/合言葉/g,"パスワード")}
   finally{allB.forEach(x=>x.disabled=false)}};
-ab.addEventListener("click",acClick);$("ltBtns").addEventListener("click",acClick);$("ktBtns").addEventListener("click",acClick);
+ab.addEventListener("click",acClick);$("acGo").addEventListener("click",acClick);$("ltBtns").addEventListener("click",acClick);$("ktBtns").addEventListener("click",acClick);
 acUI();
 if(!hAt()&&(getU()||acGet().k)){try{localStorage.setItem(KH,"1")}catch(e){}} // 前からつないでいた端末：最初の1回はこの端末の内容をシートへ
 window.homeForSync=()=>({u:getU(),k:acGet().k||"",at:hAt()});
@@ -3680,9 +3709,9 @@ load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidde
 setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
-<script src="fm-help.js?v=20261126n"></script>
-<script src="fm.js?v=20261126n"></script>
-<script src="shift-ocr-parse.js?v=20261126n"></script>
-<script src="shift-img.js?v=20261126n"></script>
+<script src="fm-help.js?v=20261126o"></script>
+<script src="fm.js?v=20261126o"></script>
+<script src="shift-ocr-parse.js?v=20261126o"></script>
+<script src="shift-img.js?v=20261126o"></script>
 </body>
 </html>

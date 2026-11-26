@@ -2201,6 +2201,8 @@ const tRec=day=>{const o=tGet();if(o[day])return o[day];
   if(day===ymd(jstNow())&&fOpened(day)){o[day]={n:tarotOf(day),r:0};tSave(o);return o[day]} // 引く仕組みに変わる前に占った今日の分は、そのときのカードのまま
   return null};
 const tSave=o=>{const ks=Object.keys(o).sort();while(ks.length>14)delete o[ks.shift()];try{localStorage.setItem(TAROT_K,JSON.stringify(o))}catch(e){}};
+// 11/27だけ：新しい「引く」タロットを今日から試せるように、今日の占い済みを1回だけリセット（本人の希望、2026-11-27）
+(()=>{try{const d="2026-11-27",k="yumebell_treset_"+d;if(ymd(jstNow())===d&&!localStorage.getItem(k)){localStorage.setItem(k,"1");if(localStorage.getItem(FOPEN_K)===d)localStorage.removeItem(FOPEN_K);const o=tGet();if(o[d]){delete o[d];localStorage.setItem(TAROT_K,JSON.stringify(o))}}}catch(e){}})();
 const tDraw=day=>{const o=tGet();if(o[day])return o[day];const a=new Uint32Array(2);crypto.getRandomValues(a);o[day]={n:a[0]%22,r:a[1]%2};tSave(o);return o[day]};
 const fOpened=day=>{try{return localStorage.getItem(FOPEN_K)===day}catch(e){return true}};
 function fTarotHtml(day,flip){const rc=tRec(day);

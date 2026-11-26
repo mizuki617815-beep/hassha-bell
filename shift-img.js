@@ -172,8 +172,9 @@ function animalSheet(after){css();let a=document.getElementById("siBox");if(a)a.
 const ttDone=()=>{try{return typeof S==="object"&&S&&S.ttDone&&typeof S.ttDone==="object"?S.ttDone:{}}catch(e){return{}}};
 const markDone=ym=>{if(typeof S!=="object"||!S||typeof save!=="function")return;S.ttDone=Object.assign({},S.ttDone||{},{[ym]:Date.now()});save()};
 const monthsOf=all=>{if(typeof SHIFTS!=="object")return[];const now=new Date(Date.now()+9*3600e3).toISOString().slice(0,7);
-  let ms=[...new Set(Object.keys(SHIFTS).map(d=>d.slice(0,7)))].filter(m=>m>=now).sort();if(all)return ms;
-  const dn=ttDone();if(ms.some(m=>m>now))ms=ms.filter(m=>m>now);return ms.filter(m=>!dn[m])};
+  let ms=[...new Set(Object.keys(SHIFTS).map(d=>d.slice(0,7)))].filter(m=>m>=now).sort();
+  if(ms.some(m=>m>now))ms=ms.filter(m=>m>now);if(all)return ms; // 「もう一回送る」でも今月は出さない（片づけ済みの月だけ出す）
+  const dn=ttDone();return ms.filter(m=>!dn[m])};
 
 // 送ってるあいだのメーター（GASは進み具合を返さないので、時間で進めて返事が来たら100%に 2026-11-26）
 function sendMeter(a){const box=document.createElement("div");box.className="pg";

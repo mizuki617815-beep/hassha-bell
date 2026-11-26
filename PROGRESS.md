@@ -551,4 +551,4 @@
 - （追記 2026-11-27 Claude）ver4.7：💾 まるごと書き出し（#allExp/#allImp、localStorage の yumebell* を {app:"yumebell-all",v:1,d} のJSONに。読み込みは確認ののち置きかえ→reload）。sw.js は HTML/JS を「ネット優先・3秒で保存分」に（裏で更新）。jpg 5枚を表示サイズに合わせた webp に。ボタンの押せる範囲（.ktBtn/.seg/.ktChips/.ocChips/.fDay は min-height 42px、リンク風ボタンは ::after で当たり判定だけ広げる）。境目ゲージは今月以降だけ
 - （追記 2026-11-27 Claude）まるごと書き出しは本人の判断で削除（シートに全部そろうので不要）。ver4.7 はなしにして、高速化・押しやすさ・画像は ver4.6 の説明に追記
 - （追記 2026-11-27 Claude）ver4.7：占いに #fGate（その日はじめては「🔮 ファーちゃんに占ってもらう」）→ #fAnim（水晶玉のCSSアニメ3.3秒）→ #fBody。占った日は localStorage yumebell_fopen に日付。おととい・きのうはボタンなし。🃏 タロット：TAROT（大アルカナ22枚・正位置のみ・文はオリジナル）、tarotOf(日付) で1日1枚固定。絵は tarot/00.webp〜21.webp（なければ絵文字）
-- （追記 2026-11-27 Claude）クマちゃんタロット22枚（Geminiで2×2の6枚→切り分け、300×434のwebp、tarot/00〜21）。カード名の文字はそろえるため Noto Serif CJK で入れ直し（塔が「塔 塔」になっていた）。.fCard は 90×130
+- （追記 2026-11-27 Claude）クマちゃんタロット22枚（Geminiで2×2の6枚→切り分け、360×380のwebp。ぬいぐるみ体型で描き直した版、tarot/00〜21）。カード名の文字はそろえるため Noto Serif CJK で入れ直し（塔が「塔 塔」になっていた）。.fCard は 104×110

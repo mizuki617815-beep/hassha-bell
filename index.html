@@ -1005,8 +1005,6 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
         <button class="ktBtn main" id="ktGSave" type="button">🔄 今すぐそろえる</button>
       </div>
       <div class="ktNote" id="ktGNote"></div>
-      <div class="ktNote" style="margin-top:10px"><b>💾 まるごと書き出し（機種変・もしものとき用）</b><br>この手帳に入っているもの（シフト・勤怠・記録室・設定・パスワードも）を、1つのファイルにまとめて保存するよ。新しいiPhoneでは「読み込む」でそのまま戻せるよ。パスワードも入るから、ファイルは人に送らないでね</div>
-      <div class="ktRow"><button class="ktBtn" id="allExp" type="button">💾 まるごと書き出す</button> <button class="ktBtn" id="allImp" type="button">📂 ファイルから読み込む</button><input type="file" id="allFile" accept="application/json,.json" style="display:none"></div>
       <label>このiPhoneで記録する人の名前（例：ファーちゃん、パパ）</label>
       <input type="text" id="ktWho" placeholder="だれが記録したか、シートと一覧に出るよ">
       <div class="ktNote">同じURLをつないだiPhoneどうしは、上の「☁️ シートに保存・共有されるもの」が自動でそろうよ（開いたとき・記録したとき）。同じ日を2人が直したら、あとから直したほうが残るよ。URLは2人だけの秘密にしてね。</div>
@@ -1044,8 +1042,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge" id="verHistBadge">ver4.2</span></summary>
       <ul class="verList">
-        <li data-go="スプレッドシート" data-short="💾 手帳をまるごと書き出せるようになったよ！"><span class="vNo">ver4.7</span><span class="vDate">11/27</span><span class="vTxt">💾 ⚙️設定の「☁️ スプレッドシート」に「まるごと書き出す」と「ファイルから読み込む」：シフト・勤怠・記録室・設定を1つのファイルに保存して、機種変のときもそのまま戻せるよ（パスワードも入るから、ファイルは人に送らないでね）<br>⚡ 電波が弱いときも、3秒待って来なければ保存してある手帳ですぐ開くように（新しいのは裏で取ってきて、次に開いたときに新しくなるよ）。絵も軽くしたよ<br>👆 小さかったボタンを押しやすく<br>⏱ 残業の境目ゲージは、今月とこれからの月だけに出るように</span></li>
-        <li data-go="おうちのリモコン" data-short="🎚 エアコンのモードと風量がえらべるようになったよ！"><span class="vNo">ver4.6</span><span class="vDate">11/26</span><span class="vTxt">🎚 おうちのリモコンに「モード・温度・風量をえらんで送る」：モード（自動・冷房・除湿・送風・暖房）、温度（16〜30℃）、風量（自動・弱・中・強）をえらんで、エアコンをつけられるよ。赤外線は送りっぱなしでエアコンから返事がないから、最後に送った設定をこのiPhoneに覚えておいて表示するよ。スイングはSwitchBotのしくみで外から動かせないよ（GASの更新がいるよ）<br>⏱ 勤怠ノートの「残業 見込み」に、丸めの境目ゲージ：あと何分で1時間に繰り上がるか、あと何分は残業しても残業代が増えないかを、バーで見られるよ（11/26）</span></li>
+        <li data-go="おうちのリモコン" data-short="🎚 エアコンのモードと風量がえらべるようになったよ！"><span class="vNo">ver4.6</span><span class="vDate">11/26</span><span class="vTxt">🎚 おうちのリモコンに「モード・温度・風量をえらんで送る」：モード（自動・冷房・除湿・送風・暖房）、温度（16〜30℃）、風量（自動・弱・中・強）をえらんで、エアコンをつけられるよ。赤外線は送りっぱなしでエアコンから返事がないから、最後に送った設定をこのiPhoneに覚えておいて表示するよ。スイングはSwitchBotのしくみで外から動かせないよ（GASの更新がいるよ）<br>⏱ 勤怠ノートの「残業 見込み」に、丸めの境目ゲージ：あと何分で1時間に繰り上がるか、あと何分は残業しても残業代が増えないかを、バーで見られるよ（11/26、今月とこれからの月だけ）<br>⚡ 電波が弱いときも、3秒待って来なければ保存してある手帳ですぐ開くように（新しいのは裏で取ってきて、次に開いたときに新しくなるよ）。絵も軽くしたよ。小さかったボタンを押しやすく（11/27）</span></li>
         <li data-go="Googleカレンダーに送る" data-short="📅 シフトをGoogleカレンダー経由でTimeTreeに入れられるようになったよ！"><span class="vNo">ver4.5</span><span class="vDate">11/23</span><span class="vTxt">📅「Googleカレンダーに送る」で、手帳のシフトを月ごとにGoogleカレンダーの「ゆめいろシフト」に入れて、TimeTreeの「外部カレンダーの予定をインポート」で取り込めるよ。出勤の日は「シフト」と「動物の絵文字」が別々の終日予定、お休みは「お休み」「お休み(有休)」のまま。動物は「予定の動物たち」の一覧から、出勤〜退勤の時間で自動で選ぶよ。一覧にない時間はその場で入れたら覚えるよ。TimeTreeに取り込んだら「🧹 取り込み済みのGoogleカレンダーの予定を消す」で、iPhoneのカレンダーに残った予定を月ごとまとめて消せるよ。（11/24：🧹ボタンを大きくして、確認が裏に隠れてたのを直したよ）（11/24：スクショに写った前後の月の日は手帳に入れないようにしたよ。便番号がくっついて読めた日の業務名も直したよ）<br>🎨 Googleカレンダーへは、TimeTreeのラベルの色ごとのカレンダー（「ゆめいろ アップル・レッド」など）に分けて入れるようになったよ。インポートのときに名前と同じ色を選ぶと、いつもの色分けで入るよ前の晩21時のお知らせはなくしたよ<br>📒 スクショで読んだシフトは、一覧で確かめて「手帳に入れる」を押すとそのまま手帳に入るようになったよ（CSVはいらなくなったよ）。そのまま「Googleカレンダーに送る」に進めるよ<br>スクショ読みとりの結果とGoogleカレンダーに送る画面を全画面にして（読みとり中は小さい画面のまま）、裏の画面がスクロールしないようにしたよ<br>・🎍 年末年始手当（12/30〜1/3に出勤した日、1日6,000円・4時間未満は3,000円）を勤怠ノートの見込みと次の給料の予想に入れて、明細が来たら記録室で照らし合わせるように（手当が出る日は、逆算の画面と📅今月の勤務記録に🎍マーク）<br>・有休カウンター：シフトに入った有休は、まだ先の日でも確定なので「残り」から引くように<br>・Googleカレンダーに送る画面：来月のシフトがあるときは今月を出さない、🧹で片づけた月も出さないように（まちがえて送らないように）</span></li>
         <li data-go="シフトのスクショからCSVを作る" data-short="📷 シフトのスクショからCSVが作れるようになったよ！"><span class="vNo">ver4.4</span><span class="vDate">11/23</span><span class="vTxt">📷 プラネットのシフト表のスクショを「📥 ファイルを読み込む」で選ぶと、このiPhoneの中だけで文字を読んで、TimeTreeと同じ書き方のシフトのCSVを作るよ（画像はどこにも送らないよ。はじめての1回だけ読み取りの部品をダウンロードするよ）。いまは試しの段階なので、手帳にはまだ入れずにCSVを作るだけ。<br>シフト表じゃない画像を選んだときは、ファーちゃんがやさしく教えてくれるようになったよ</span></li>
         <li data-quiet="1" data-go="@案内所" data-short="🧸 案内所のファーちゃんが答えてくれるようになったよ！"><span class="vNo">ver4.3</span><span class="vDate">11/23</span><span class="vTxt">🧸 案内所がファーちゃんとのおしゃべりに：「でんき消えてる？」「明細の入れ方」みたいに聞くと、使い方や今のようすを答えてくれるよ。ひらがなでも、言い方がちがっても、ちょっと打ちまちがえてもだいじょうぶ。答えの「📍 そこへ連れていって」でその場所へ飛ぶよ（「そこに連れてって」「それの使い方は？」でもOK）。「でんき消して」「暖房つけて」でリモコンのボタンも押せるよ（いつもの確認が出るよ）。わからなかった質問は「わからなかった質問」で見られるよ。案内所は全画面になったよ。おしゃべりのファーちゃんは、答えに合わせて6つの顔に変わるよ。上のボタンで「📋 秘書モード」と「🧸 ファーちゃんモード」（もっと自由におしゃべり）を切り替えられるよ。打っているあいだも会話が見えたままになったよ。「おはよう」「おやすみ」「つかれた」「雑談しよ」みたいなおしゃべりにも、時間に合わせてこたえてくれるよ</span></li>
@@ -3725,22 +3722,6 @@ window.homeMerge=rh=>{const la=hAt();if(!rh||typeof rh!=="object")return{changed
   return{changed:false,remoteOld:la>ra}};
 load(false);document.addEventListener("visibilitychange",()=>{if(!document.hidden)load(false)});
 setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
-})();
-
-/* 💾 まるごと書き出し・読み込み（この端末の yumebell の保存データ全部。2026-11-27） */
-(()=>{const ok=k=>/^yumebell[_-]?/.test(k);
-  const g=id=>document.getElementById(id),ex=g("allExp"),im=g("allImp"),fi=g("allFile");if(!ex)return;
-  ex.onclick=()=>{const d={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(ok(k))d[k]=localStorage.getItem(k)}
-    const n=new Date(Date.now()+(new Date().getTimezoneOffset()+540)*60000),p=x=>String(x).padStart(2,"0"),blob=new Blob([JSON.stringify({app:"yumebell-all",v:1,at:new Date().toISOString(),d})],{type:"application/json"});
-    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`yumeiro-backup-${n.getFullYear()}${p(n.getMonth()+1)}${p(n.getDate())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)};
-  im.onclick=()=>fi.click();
-  fi.onchange=async()=>{const f=fi.files[0];fi.value="";if(!f)return;let j;
-    try{j=JSON.parse(await f.text());if(j.app!=="yumebell-all"||!j.d)throw 0}catch(e){yuAlert("まるごと書き出しのファイルじゃないみたい🧸");return}
-    const ks=Object.keys(j.d).filter(ok);
-    if(!await yuAsk(`このファイル（${String(j.at||"").slice(0,10)}に書き出したもの）で、この手帳の中身を置きかえる？\n今の中身は消えて、ファイルの内容になるよ`,"置きかえる",true))return;
-    try{const old=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(ok(k))old.push(k)}old.forEach(k=>localStorage.removeItem(k));
-      ks.forEach(k=>localStorage.setItem(k,j.d[k]));yuAlert(`読み込んだよ（${ks.length}こ）。開きなおすね🧸`);setTimeout(()=>location.reload(),1200)}
-    catch(e){yuAlert("読み込めなかったよ…（容量がいっぱいかも）")}};
 })();
 </script>
 <script src="fm-help.js?v=20261126o"></script>

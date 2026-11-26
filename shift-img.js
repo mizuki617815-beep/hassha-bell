@@ -222,6 +222,7 @@ function ttFlow(pre,all){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).lengt
       catch(e){go.disabled=false;go.textContent="📅 Googleに送る";if(fc)fc.src="face-oops.webp";
         const m=String(e&&e.message||e);
         hd.innerHTML=m==="noconn"?"ごめんね、まだGASとつながってないみたい💦<br><small>⚙️設定の「🏠 おうちの温度」のURLとパスワードを入れてね</small>"
+          :/load failed|failed to fetch|network|timeout|abort/i.test(m)?`返事が届かなかったよ💦<br><small>でも、Googleカレンダーにはもう入ってることが多いよ（新しい色のカレンダーを作るときは時間がかかるの）。Googleカレンダーを見て入ってなければ、もう一回送ってね（送り直しても二重にはならないよ）</small>`
           :`ごめんね、送れなかったよ…💦<br><small>${esc(m.slice(0,100))}${/許可|権限|authoriz|permission/i.test(m)?"<br>GASをデプロイし直して、カレンダーの許可をしてね":""}</small>`}}};
   draw()}
 

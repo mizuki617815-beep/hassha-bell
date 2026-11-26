@@ -296,23 +296,23 @@ const FUR_SYS = [
 
 // 🎨 TimeTreeのラベルの色ごとにGoogleカレンダーを分ける（2026-11-24）
 // TimeTreeの「外部カレンダーの予定をインポート」でカレンダーごとにラベルの色を選べるので、色の名前をつけておく
-// 3つめの番号＝TimeTreeのラベルリストの並び順（インポートで色を探さなくていいように、カレンダー名の頭に付ける 2026-11-26）
+// 3つめの番号＝TimeTreeのラベルリストの並び順。カレンダー名に付けたが、iPhoneの並びがバラバラで番号が逆に見にくいので名前には付けない（色はTimeTreeが覚えるので選ぶのは初回だけ 2026-11-26）
 const TT_LABELS = {
   green: ['エメラルド・グリーン', '#0B8043', '①'], cyan: ['モダーン・サイアン', '#009688', '②'], sky: ['ディープ・スカイブルー', '#039BE5', '③'],
   brown: ['パステル・ブラウン', '#795548', '④'], black: ['ミッドナイト・ブラック', '#616161', '⑤'], red: ['アップル・レッド', '#D50000', '⑥'],
   rose: ['フレンチ・ローズ', '#E67C73', '⑦'], coral: ['コーラル・ピンク', '#F4511E', '⑧'], orange: ['ブライト・オレンジ', '#F6BF26', '⑨'],
   violet: ['ソフト・バイオレット', '#8E24AA', '⑩']
 };
-const ttName_ = function (lid) { const L = TT_LABELS[lid]; return 'ゆめいろ ' + L[2] + L[0]; };
+const ttName_ = function (lid) { return 'ゆめいろ ' + TT_LABELS[lid][0]; };
 function ttCalOf_(lid, make) {
   const P = PropertiesService.getScriptProperties();
   const L = TT_LABELS[lid]; if (!L) return null;
-  const NAME = ttName_(lid), OLD = 'ゆめいろ ' + L[0], KEY = 'TT_CAL_' + lid;
+  const NAME = ttName_(lid), OLD = 'ゆめいろ ' + L[2] + L[0], KEY = 'TT_CAL_' + lid;
   let cal = null;
   const id = P.getProperty(KEY);
   if (id) { try { cal = CalendarApp.getCalendarById(id); } catch (e) { cal = null; } }
   if (!cal) cal = (CalendarApp.getOwnedCalendarsByName(NAME) || [])[0] || (CalendarApp.getOwnedCalendarsByName(OLD) || [])[0] || null;
-  if (cal && cal.getName() !== NAME) { try { cal.setName(NAME); } catch (e) {} } // 前の名前（番号なし）なら付け直す
+  if (cal && cal.getName() !== NAME) { try { cal.setName(NAME); } catch (e) {} } // 前の名前（番号つき）なら付け直す
   if (!cal && make) {
     cal = CalendarApp.createCalendar(NAME, { timeZone: 'Asia/Tokyo' });
     try { cal.setColor(L[1]); } catch (e) {}

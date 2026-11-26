@@ -817,7 +817,8 @@ body.dark .fTarot{background:linear-gradient(180deg,#2c2444,#2a2140)!important;b
 .tPc::after{content:"✦";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ffe7a3;font-size:20px;text-shadow:0 0 6px rgba(255,220,140,.8)}.tFan.sm .tPc::after{font-size:16px}
 @keyframes tDeal{from{transform:rotate(0deg) translateY(14px);opacity:0}}
 .tFan.picked .tPc{opacity:.12;pointer-events:none}
-.tFan .tPc.on{opacity:1;z-index:30;transform:rotate(0deg) translateY(-6px) scale(1.15);box-shadow:0 0 0 3px #fff,0 0 24px 8px rgba(255,214,120,.85)}
+.tFan .tPc.on{opacity:1;z-index:30;transform:rotate(var(--a)) translateY(-34px);box-shadow:0 0 0 3px #fff,0 0 24px 8px rgba(255,214,120,.85)}
+.tFan .tPc.on.go{transition:transform .7s cubic-bezier(.4,0,.2,1);transform:rotate(0deg) translateY(-6px) scale(1.15)}
 .tStage .fCard.rise{animation:tRise .7s ease-out backwards}@keyframes tRise{from{transform:translateY(40px) scale(.7);opacity:0}}
 body.dark .tPickMsg{color:#d2c0ff}
 </style>
@@ -2242,6 +2243,8 @@ const tFanHtml=(n,id,sm)=>`<div class="tFan${sm?" sm":""}" id="${id}">`+Array.fr
 const tSave=o=>{const ks=Object.keys(o).sort();while(ks.length>14)delete o[ks.shift()];try{localStorage.setItem(TAROT_K,JSON.stringify(o))}catch(e){}};
 // 11/27だけ：新しい「引く」タロットを今日から試せるように、今日の占い済みを1回だけリセット（本人の希望、2026-11-27）
 (()=>{try{const d="2026-11-27",k="yumebell_treset_"+d;if(ymd(jstNow())===d&&!localStorage.getItem(k)){localStorage.setItem(k,"1");if(localStorage.getItem(FOPEN_K)===d)localStorage.removeItem(FOPEN_K);const o=tGet();if(o[d]){delete o[d];localStorage.setItem(TAROT_K,JSON.stringify(o))}}}catch(e){}})();
+// 11/27だけ（3回目・演出の直しをためす用）
+(()=>{try{const d="2026-11-27",k="yumebell_treset3_"+d;if(ymd(jstNow())===d&&!localStorage.getItem(k)){localStorage.setItem(k,"1");const o=tGet();if(o[d]){delete o[d];localStorage.setItem(TAROT_K,JSON.stringify(o))}}}catch(e){}})();
 // 11/27だけ（2回目）：新しい「自分で引く」演出を今日ためせるように、今日引いたタロットを1回だけ消す。星占いはそのまま（本人の希望、2026-11-27）
 (()=>{try{const d="2026-11-27",k="yumebell_treset2_"+d;if(ymd(jstNow())===d&&!localStorage.getItem(k)){localStorage.setItem(k,"1");const o=tGet();if(o[d]){delete o[d];localStorage.setItem(TAROT_K,JSON.stringify(o))}}}catch(e){}})();
 // 🃏 アドバイスカード（補足カード）：本物と同じく、残りの21枚をまぜてもう1枚引く。正位置・逆位置もそのまま。1日1回、1枚目はそのまま（2026-11-27）
@@ -2269,9 +2272,9 @@ function fAdvHtml(day,rc,anim){const today=day===ymd(jstNow());
     <div class="fTarotTxt"><b>${nm}</b><span class="pos${a.r?" r":""}">${a.r?"逆位置":"正位置"}</span><div class="kw">${x[0]}</div></div></div>
     <div class="fAdvSum">💡 ${sum}</div><div class="fAdvTip"><b>🍀 このカードからのヒント</b>${tPick(x,7,day,"adv")}</div></div>`}
 document.getElementById("fTarot").addEventListener("click",e=>{const pc=e.target.closest(".tPc");if(!pc)return;const fan=pc.parentElement,ft=document.getElementById("fTarot"),day=ft.dataset.day;
-  if(fan.classList.contains("picked")||day!==ymd(jstNow()))return;fan.classList.add("picked");pc.classList.add("on");
-  if(fan.id==="tFan")setTimeout(()=>{tDraw(day);ft.innerHTML=fTarotHtml(day,true);setTimeout(()=>{const c=document.getElementById("fCard");if(c)c.classList.add("flip")},750)},900);
-  else{if(!tRec(day))return;setTimeout(()=>{tDrawAdv(day);const box=document.querySelector("#fTarot .fAdv");if(box){box.outerHTML=fAdvHtml(day,tRec(day),true);setTimeout(()=>{const c=document.getElementById("fAdvCard");if(c)c.classList.add("flip")},300)}},900)}});
+  if(fan.classList.contains("picked")||day!==ymd(jstNow()))return;fan.classList.add("picked");pc.classList.add("on");setTimeout(()=>pc.classList.add("go"),700); // えらんだ場所でまず浮いて、それから真ん中へ
+  if(fan.id==="tFan")setTimeout(()=>{tDraw(day);ft.innerHTML=fTarotHtml(day,true);setTimeout(()=>{const c=document.getElementById("fCard");if(c)c.classList.add("flip")},750)},1600);
+  else{if(!tRec(day))return;setTimeout(()=>{tDrawAdv(day);const box=document.querySelector("#fTarot .fAdv");if(box){box.outerHTML=fAdvHtml(day,tRec(day),true);setTimeout(()=>{const c=document.getElementById("fAdvCard");if(c)c.classList.add("flip")},300)}},1600)}});
 function fGateUpd(day){const today=FOFF===0,open=!today||fOpened(day),busy=document.getElementById("fAnim").style.display!=="none";
   if(busy)return;document.getElementById("fGate").style.display=open?"none":"";document.getElementById("fBody").style.display=open?"":"none"}
 function fPlay(){const n0=jstNow();n0.setDate(n0.getDate()-FOFF);const day=ymd(n0),off=FOFF;const g=document.getElementById("fGate"),a=document.getElementById("fAnim"),t=document.getElementById("fAnimTxt"),v=document.getElementById("fVid"),css=document.getElementById("fBallCss"),bar=document.getElementById("fGaugeBar");

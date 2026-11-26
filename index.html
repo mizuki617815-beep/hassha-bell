@@ -765,11 +765,12 @@ body.dark .ktChips button{color:#e8dff2;background:rgba(255,255,255,.06)}body.da
 @keyframes fSway{50%{transform:rotate(-5deg) translateY(-3px)}}@keyframes fGlow{50%{transform:scale(1.08);opacity:.6}}
 @keyframes fSpark{0%{opacity:0;transform:translateY(6px) scale(.6)}40%{opacity:1;transform:translateY(-4px) scale(1.1)}100%{opacity:0;transform:translateY(-14px) scale(.8)}}
 .fVid{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:16px;background:#2a2140;box-shadow:0 4px 16px rgba(120,90,180,.35)}
-.fGWrap{position:relative;margin:30px 40px 0 18px}.fGPct{position:absolute;right:-38px;top:-6px;font-size:13px;font-weight:900;color:#9a6fd6;font-variant-numeric:tabular-nums}
-.fGBear{position:absolute;top:-30px;left:0;width:30px;height:30px;margin-left:-15px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(150,110,210,.4);transition:left .25s linear;animation:fGHop .55s ease-in-out infinite}
-@keyframes fGHop{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-7px) rotate(4deg)}}
-.fGWrap.done .fGBear{animation:fGYay .5s ease-in-out 3}@keyframes fGYay{50%{transform:translateY(-12px) scale(1.15)}}
-.fGauge{height:10px;border-radius:99px;background:rgba(183,156,255,.22);overflow:hidden;margin:0}.fGauge i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#b79cff,#ff8fc4);transition:width .25s linear}
+/* 占い中のゲージ：シフトの読みとり・Googleに送るのゲージと同じ見た目（顔アイコン face-talk → できたら face-yay）（2026-11-27） */
+.fGWrap{position:relative;height:14px;border-radius:99px;background:var(--lav2);margin:34px 18px 0}
+.fGauge{height:100%;border-radius:99px;overflow:hidden}.fGauge i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--lav),var(--pink));transition:width .25s linear}
+.fGBear{position:absolute;top:-30px;left:-18px;width:40px;height:40px;border-radius:50%;border:3px solid var(--pink);object-fit:cover;background:#fff;transition:transform .2s,left .25s linear}
+.fGBear.hop{transform:translateY(-5px)}
+.fGPct{text-align:center;font-size:12.5px;color:var(--sub);margin-top:10px;font-weight:700}
 .fSkip{font-family:inherit;font-size:12px;color:var(--sub);background:none;border:0;text-decoration:underline;padding:8px 12px;cursor:pointer}
 .fAnimTxt{font-size:14px;font-weight:800;margin-top:8px;color:#9a6fd6;min-height:1.5em}
 #fBody.fShow{animation:fIn .6s ease-out}@keyframes fIn{from{opacity:0;transform:translateY(8px)}}
@@ -883,7 +884,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <div class="fAnim" id="fAnim" style="display:none">
       <video class="fVid" id="fVid" src="uranai.mp4?v=20261127" poster="uranai-poster.jpg?v=20261127" playsinline preload="auto"></video>
       <div class="fBall" id="fBallCss" style="display:none"><img src="fortune-teller.webp?v=20261127" alt=""><i></i><b>✨</b><b>⭐</b><b>✨</b><b>🌙</b></div>
-      <div class="fGWrap"><div class="fGauge"><i id="fGaugeBar"></i></div><img class="fGBear" id="fGBear" src="avatar.webp?v=20261127" alt=""><span class="fGPct" id="fGPct">0%</span></div>
+      <div class="fGWrap"><div class="fGauge"><i id="fGaugeBar"></i></div><img class="fGBear" id="fGBear" src="face-talk.webp" alt=""></div><div class="fGPct" id="fGPct">0%</div>
       <div class="fAnimTxt" id="fAnimTxt">ふむふむ…</div>
       <button type="button" class="fSkip" id="fSkip">結果を見る ›</button>
     </div>
@@ -2261,9 +2262,10 @@ function fPlay(){const n0=jstNow();n0.setDate(n0.getDate()-FOFF);const day=ymd(n
   g.style.display="none";document.getElementById("fBody").style.display="none";a.style.display="";bar.style.width="0%";try{document.getElementById("navFortune").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
   const L=["ふむふむ…","星のうごきを読んでるよ…","カードをまぜまぜ…","見えてきたよ…！"];let done=false,cap=0,tk=0;t.textContent=L[0];
   // ゲージと文字は、動画の再生位置（currentTime）に合わせて進める。読みこみで止まっている間は止まったまま（2026-11-27）
-  const gb=document.getElementById("fGBear"),gp=document.getElementById("fGPct"),gw=gb.parentElement;gw.classList.remove("done");
-  const show=r=>{r=Math.max(0,Math.min(1,r));const pc=Math.round(r*100);bar.style.width=pc+"%";gb.style.left=pc+"%";gp.textContent=pc+"%";t.textContent=r>=.999?"できたよ！✨":L[Math.min(L.length-1,Math.floor(r*L.length))]};
-  const fin=skip=>{if(done)return;done=true;clearTimeout(cap);clearInterval(tk);try{v.pause()}catch(e){}v.onended=v.ontimeupdate=v.onerror=v.onwaiting=v.onplaying=null;show(1);gw.classList.add("done");
+  const gb=document.getElementById("fGBear"),gp=document.getElementById("fGPct");gb.src="face-talk.webp";
+  const hopT=setInterval(()=>{if(!done)gb.classList.toggle("hop")},260);
+  const show=r=>{r=Math.max(0,Math.min(1,r));const pc=Math.round(r*100);bar.style.width=pc+"%";gb.style.left=`calc(${pc}% - 18px)`;gp.textContent=pc+"%";t.textContent=r>=.999?"できたよ！🧸✨":L[Math.min(L.length-1,Math.floor(r*L.length))]};
+  const fin=skip=>{if(done)return;done=true;clearTimeout(cap);clearInterval(tk);try{v.pause()}catch(e){}v.onended=v.ontimeupdate=v.onerror=v.onwaiting=v.onplaying=null;show(1);clearInterval(hopT);gb.classList.remove("hop");gb.src="face-yay.webp";
     // 100%になったら、すぐ切りかえずに少し余韻（とばしたときは短め）
     setTimeout(()=>{if(off===0){tDraw(day);try{localStorage.setItem(FOPEN_K,day)}catch(e){}}a.style.display="none";FOFF=off;renderFortune();
     const b=document.getElementById("fBody");b.classList.remove("fShow");void b.offsetWidth;b.classList.add("fShow");

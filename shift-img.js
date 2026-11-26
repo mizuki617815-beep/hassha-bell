@@ -223,7 +223,8 @@ function ttFlow(pre,all){if(typeof SHIFTS!=="object"||!Object.keys(SHIFTS).lengt
       const add=[];for(const inp of a.querySelectorAll("input[data-k]")){const v=inp.value.trim();if(!v){yuAlert("⚠️ まだ決まってない動物があるよ");inp.focus();return}add.push(v+" "+fmtKey(inp.dataset.k))}
       const addC={};for(const sel of a.querySelectorAll("select[data-ck]")){if(!sel.value){yuAlert("⚠️ まだ決まってない色があるよ");sel.focus();return}addC[sel.dataset.ck]=sel.value}
       if(add.length||Object.keys(addC).length){if(add.length)lsSet(lsGet().replace(/\s*$/,"")+"\n"+add.join("\n"));if(Object.keys(addC).length)saveColors(addC);draw();return yuAlert("🧸 おぼえたよ。もう一回「📅 Googleに送る」を押してね")}
-      const ev=[];rows.forEach(r=>{ev.push({d:r.d,t:r.title,c:r.c});if(r.emoji)ev.push({d:r.d,t:r.emoji,c:r.c})});
+      // TimeTreeは同じ日の終日予定を作った順で並べるみたいなので、先に1か月分のシフト、そのあと動物を作る（上下をそろえる 2026-11-26）
+      const ev=rows.map(r=>({d:r.d,t:r.title,c:r.c})).concat(rows.filter(r=>r.emoji).map(r=>({d:r.d,t:r.emoji,c:r.c})));
       const go=a.querySelector(".go"),hd=a.querySelector(".msg"),fc=a.querySelector(".hd img");
       if(typeof window.ttGas!=="function"){yuAlert("⚠️ 開きなおしてもう一回やってみてね");return}
       go.disabled=true;go.textContent="📡 送ってるよ…";const mt=sendMeter(a);

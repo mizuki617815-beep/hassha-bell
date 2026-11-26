@@ -2476,7 +2476,7 @@ function render(){
   const otGauge=(ot,rate)=>{if(!(ot>=0))return"";const r=ot%60,H=Math.floor(ot/60),up=r>=30,next=(up?H+1:H)*60+30,left=next-ot,pct=Math.round((60-left)/60*100),
     nh=up?H+2:H+1,fm=t=>`${Math.floor(t/60)}時間${t%60?t%60+"分":""}`;
     const msg=up?`${H+1}時間に切り上がり済みだよ🧸あと<b>${left}分</b>は残業しても残業代は増えないよ🧸早く帰ろ！`
-      :`あと<b>${left}分</b>残業すると、残業代が1時間ぶん増えるよ🧸（いまの${r}分は切り捨て中）`;
+      :`あと<b>${left}分</b>残業すると、残業代が1時間ぶん増えるよ🧸（いまは${H}時間${r}分だから、${H}時間で計算されてるよ）`;
     return`<div class="otGauge"><div class="otMsg">${msg}</div><div class="otBar${up?" wait":""}"><i style="width:${pct}%"></i></div>
       <div class="otEnds"><span>${fm(next-60)}</span><span>${fm(next)}で${nh}時間${rate>0?`（+¥${rate.toLocaleString()}）`:""}</span></div></div>`};
   const y=cur.y,m=cur.m,c=monthCalc(y,m),key=mk(y,m);

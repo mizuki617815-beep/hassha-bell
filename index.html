@@ -839,7 +839,7 @@ body.dark .tPickMsg{color:#d2c0ff}
 .fSignPanel button.mine{border-color:#ffd968}
 .fViewBar{position:relative;display:flex;align-items:center;gap:8px;margin-top:10px;background:rgba(255,217,104,.16);border:1px solid rgba(255,217,104,.45);border-radius:12px;padding:7px 10px;font-size:12px;color:#ffeec2}
 .fViewBar button{margin-left:auto;font-family:inherit;font-size:12px;font-weight:800;color:#4a3577;background:#ffd968;border:none;border-radius:999px;padding:6px 13px;min-height:32px;cursor:pointer;flex:none}
-.fTopRow{display:flex;gap:13px;align-items:center;margin:12px 0 2px}
+.fTopRow{display:flex;gap:13px;align-items:center;justify-content:center;margin:12px 0 2px}
 .fBadge{width:104px;height:104px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff8e1,#ffe9a8 60%,#f7cf5f);border:3px solid #e9b949;box-shadow:0 4px 14px rgba(233,185,73,.4),inset 0 0 0 5px #fff6d8;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#6b4e12;text-align:center}
 .fBadge .fbCap{font-size:9.5px;letter-spacing:.14em;font-weight:700}
 .fBadge .fbNum{font-size:40px;line-height:1.05;font-weight:800}
@@ -1028,8 +1028,8 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     </div>
     <div id="fBody">
     <div class="talk" style="margin-top:0"><img src="fortune-teller.webp?v=20261127" alt="占い師のクマちゃん"><div class="bubble" id="fMsg"></div></div>
+    <div class="fTopRow"><div class="fBadge" id="fBadge"></div></div>
     <div class="fBearRow"><img id="fRankBear" src="fortune-happy.webp" alt="順位のファーちゃん"><div class="cap" id="fBearCap"></div></div>
-    <div class="fTopRow"><div class="fBadge" id="fBadge"></div><div class="fort fBars" id="fStars"></div></div>
     <div class="lucky" id="fLucky"></div>
     <div class="fTarot" id="fTarot"></div>
     <div class="fTarotHist" id="fTarotHist"></div>
@@ -1257,7 +1257,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge" id="verHistBadge">ver4.2</span></summary>
       <ul class="verList">
-        <li data-go="ファーちゃんの占いの館" data-short="🔮 占いが「ファーちゃんの占いの館」になったよ！"><span class="vNo">ver4.9</span><span class="vDate">11/28</span><span class="vTxt">🔮 占いが「ファーちゃんの占いの館」に生まれ変わったよ。夜空のヘッダーに今夜の月（月齢つき）、順位は金のバッジ、4つの運勢はバーで見やすくなったよ。他の星座の運勢も、設定を変えずにその場で見れるよ。タロットはシャッフルの演出がついて、なぞると近い1枚が大きくなるから選びやすく。引いたカードが集まる「タロット図鑑」と、今月の順位の「運気の波」もできたよ。今日の占いを画像にして残すこともできるよ🧸</span></li>
+        <li data-go="ファーちゃんの占いの館" data-short="🔮 占いが「ファーちゃんの占いの館」になったよ！"><span class="vNo">ver4.9</span><span class="vDate">11/28</span><span class="vTxt">🔮 占いが「ファーちゃんの占いの館」に生まれ変わったよ。夜空のヘッダーに今夜の月（月齢つき）、順位は金のバッジ、4つの運勢はバーで見やすくなったよ。他の星座の運勢も、設定を変えずにその場で見れるよ。タロットはシャッフルの演出がついて、なぞると近い1枚が大きくなるから選びやすく。引いたカードが集まる「タロット図鑑」と、今月の順位の「運気の波」もできたよ。今日の占いを画像にして残すこともできるよ🧸（追記：バッジ横の4つの運勢バーは取りやめて、金のバッジだけにしたよ。順位でじゅうぶん分かるからね）</span></li>
         <li data-go="これまでの占い" data-short="📖 占いの履歴ができたよ！"><span class="vNo">ver4.8</span><span class="vDate">11/27</span><span class="vTxt">📖 占いのカードの下に「これまでの占い」ができたよ。その日の星占いの順位と、引いたタロットがカレンダーにたまって、日をタップすると見返せるよ（タロットは端末に約3か月分）🧸</span></li>
         <li data-go="きょうのファーちゃん占い" data-short="🔮 ファーちゃんが占ってくれるようになったよ！"><span class="vNo">ver4.7</span><span class="vDate">11/27</span><span class="vTxt">🔮 占いは、その日はじめて見るときに「ファーちゃんに占ってもらう」ボタンを押すと、水晶玉がキラキラして占ってくれるよ。占ったあとは、その日はずっと結果が出たまま（日付が変わるとまたボタンに）<br>🃏 タロットを追加：大アルカナ22枚から、その日の1枚をめくるよ（1日1枚で固定）。カードは、ファーちゃんが役になりきったクマちゃんタロットだよ。タロットは本物と同じように、ボタンを押したときに22枚から1枚を引くよ（逆さまに出たら「逆位置」）。1日1枚で、引き直しはなし。1枚目の意味をもっと知りたいときは、1日1回「アドバイスカード」をもう1枚引けるよ。カードの意味・メッセージ・夫婦運・仕事運・金運・人間関係・体調・今日のアドバイスで説明するよ。占うときは、ファーちゃんが水晶玉をのぞく動画が流れるよ（音が出るよ。「結果を見る ›」でとばせるよ）。占ったあとは「🔮 占いのようすをもう一回見る」で、もう一回見られるよ（結果は同じ。タロットは1日1枚だよ）<br>🃏 タロットは、裏むきにならんだ22枚から自分で1枚えらんで引くようになったよ。アドバイスカードも残りの21枚からえらぶよ<br>📖「どんなカード？」に、ひらく／とじるボタンをつけたよ<br>🍀 タロットの「今日のアドバイス」を、カードの意味と今日やってみることがわかる文にくわしくしたよ<br>💬 ファーちゃんのひとことや占いの「好きなこと」「ごほうび」の言い方を、カラオケや甘いものなどに変えたよ</span></li>
         <li data-go="おうちのリモコン" data-short="🎚 エアコンのモードと風量がえらべるようになったよ！"><span class="vNo">ver4.6</span><span class="vDate">11/26</span><span class="vTxt">🎚 おうちのリモコンに「モード・温度・風量をえらんで送る」：モード（自動・冷房・除湿・送風・暖房）、温度（16〜30℃）、風量（自動・弱・中・強）をえらんで、エアコンをつけられるよ。赤外線は送りっぱなしでエアコンから返事がないから、最後に送った設定をこのiPhoneに覚えておいて表示するよ。スイングはSwitchBotのしくみで外から動かせないよ（GASの更新がいるよ）<br>⏱ 勤怠ノートの「残業 見込み」に、丸めの境目ゲージ：あと何分で1時間に繰り上がるか、あと何分は残業しても残業代が増えないかを、バーで見られるよ（11/26、今月とこれからの月だけ）<br>⚡ 電波が弱いときも、3秒待って来なければ保存してある手帳ですぐ開くように（新しいのは裏で取ってきて、次に開いたときに新しくなるよ）。絵も軽くしたよ。小さかったボタンを押しやすく（11/27）</span></li>
@@ -2493,19 +2493,14 @@ async function fShare(){const btn=document.getElementById("fShareBtn");if(!btn||
     g.fillText("🔮 ファーちゃんの占いの館",320,74);
     g.font="600 21px sans-serif";g.fillStyle="#d9cdf8";
     g.fillText(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}（${"日月火水木金土"[now.getDay()]}）・${S.sign}`,320,112);
-    g.beginPath();g.arc(150,238,84,0,7);const bg2=g.createRadialGradient(118,206,10,150,238,90);bg2.addColorStop(0,"#fff8e1");bg2.addColorStop(.6,"#ffe9a8");bg2.addColorStop(1,"#f7cf5f");g.fillStyle=bg2;g.fill();g.lineWidth=5;g.strokeStyle="#e9b949";g.stroke();
-    g.fillStyle="#97792c";g.font="700 15px sans-serif";g.fillText("12星座中",150,196);
-    g.fillStyle="#6b4e12";g.font="800 74px sans-serif";g.fillText(fo.rank+"",150,270);
-    g.font="800 24px sans-serif";g.fillText("位",150,302);
-    const rows=[["総合運",fo.stars[0]],["夫婦運",fo.stars[1]],["仕事運",fo.stars[2]],["金運",fo.stars[3]]];
-    g.textAlign="left";rows.forEach((r,i)=>{const y=176+i*46;g.fillStyle="#efe9ff";g.font="700 19px sans-serif";g.fillText(r[0],276,y);
-      g.fillStyle="rgba(255,255,255,.18)";rr(276,y+10,300,13,7);g.fill();
-      g.fillStyle="#ffd968";rr(276,y+10,Math.max(13,300*r[1]/5),13,7);g.fill();
-      g.fillStyle="#ffd968";g.font="15px sans-serif";g.fillText("★".repeat(r[1])+"☆".repeat(5-r[1]),478,y)});
+    g.beginPath();g.arc(320,252,96,0,7);const bg2=g.createRadialGradient(282,214,12,320,252,102);bg2.addColorStop(0,"#fff8e1");bg2.addColorStop(.6,"#ffe9a8");bg2.addColorStop(1,"#f7cf5f");g.fillStyle=bg2;g.fill();g.lineWidth=5;g.strokeStyle="#e9b949";g.stroke();
+    g.fillStyle="#97792c";g.font="700 16px sans-serif";g.fillText("12星座中",320,206);
+    g.fillStyle="#6b4e12";g.font="800 84px sans-serif";g.fillText(fo.rank+"",320,292);
+    g.font="800 26px sans-serif";g.fillText("位",320,328);
     g.textAlign="center";g.fillStyle="#fff";g.font="800 25px sans-serif";
     let lines=[],cur="";for(const ch of fo.head){if(g.measureText(cur+ch).width>540){lines.push(cur);cur=ch}else cur+=ch}if(cur)lines.push(cur);
-    lines=lines.slice(0,3);lines.forEach((l,i)=>g.fillText(l,320,398+i*36));
-    const ly=398+lines.length*36+14;
+    lines=lines.slice(0,3);lines.forEach((l,i)=>g.fillText(l,320,404+i*36));
+    const ly=404+lines.length*36+14;
     g.font="600 20px sans-serif";g.fillStyle="#e8dffc";
     g.fillText(`🎨 ラッキーカラー：${fo.col}`,320,ly);
     g.fillText(`🎀 ラッキーアイテム：${fo.item}`,320,ly+34);
@@ -2576,9 +2571,6 @@ function moonSvg(el){const r=15,cx=17,cy=17,rx=Math.max(.6,r*Math.abs(Math.cos(e
   return `<svg width="34" height="34" viewBox="0 0 34 34"><circle cx="${cx}" cy="${cy}" r="${r}" fill="#3a3468"/><path d="M ${cx} ${cy-r} A ${r} ${r} 0 0 ${outer} ${cx} ${cy+r} A ${rx} ${r} 0 0 ${sw} ${cx} ${cy-r} Z" fill="#f7ead0"/></svg>`}
 function fSetMoon(day){try{const {L}=fRank(day),el=((L.moon-L.sun)%360+360)%360;document.getElementById("fMoon").innerHTML=moonSvg(el);document.getElementById("fMoonAge").textContent=`今夜の月・月齢${(el*.08203).toFixed(1)}`}catch(e){}}
 function fBadgeSet(rank){const b=document.getElementById("fBadge");if(!b)return;b.className="fBadge"+(rank===1?" rank1":"");b.innerHTML=`<div class="fbCap">12星座中</div><div class="fbNum">${rank}<small>位</small></div><div class="fbSub">${rank===1?"✦ さいこうの日 ✦":"今日の運勢"}</div>`}
-function fStarsSet(rows){const mx=Math.max(...rows.map(r=>r[1]));let done=false;
-  document.getElementById("fStars").innerHTML=rows.map(([k,v])=>{const vv=Math.max(0,Math.min(5,v)),best=vv===mx&&!done?(done=true,true):false;
-  return `<div class="fbRow${best?" best":""}"><div class="fbLab"><span>${k}${best?'<span class="fbBest">今日いちばん</span>':""}</span><span class="fbSt">${star(vv)}</span></div><div class="fbTrack"><i style="width:${vv*20}%"></i></div></div>`}).join("")}
 function renderFortune(){
   const _sv=S.sign;if(FV_SIGN&&FV_SIGN!==S.sign)S.sign=FV_SIGN;
   fTarotHist();fWave();fZukan();
@@ -2595,7 +2587,7 @@ function renderFortune(){
   const zt=FORT&&FORT.zt&&FORT.zt[day]&&FORT.zt[day][S.sign];
   if(jg){ // 原宿占い館 塔里木 監修の占いが取れている日はそれを表示
     fBadgeSet(+jg.rank);fBearSet(+jg.rank,day);document.getElementById("fMsg").innerHTML=`${esc(jg.content)}`;
-    fStarsSet([["総合運",+jg.total||0],["夫婦運",+jg.love||0],["仕事運",+jg.job||0],["金運",+jg.money||0]]);
+
     document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b>🎨 ${esc(jg.color)}</span><span><b>ラッキーアイテム</b>🎀 ${esc(jg.item)}</span>${honeyHtml(+jg.rank)}`;
     document.getElementById("fSky").innerHTML="";
     document.getElementById("fCredit").innerHTML=`占い：powered by <a href="https://jugemkey.jp/api/" target="_blank" rel="noopener">JugemKey</a>・【PR】<a href="https://uranai-tarim.jp/" target="_blank" rel="noopener">原宿占い館 塔里木</a>`;
@@ -2620,7 +2612,7 @@ function renderFortune(){
   const mo=FMONEY[tierOf(stM)][aspIdx(L.moon,L.jupiter)][(dn+5)%8];const moonMsg=FMOON[lday][Math.floor(L.sun/30)%4];const item2=FITEM2[Math.floor(L.moon/3)%120];
   const col=SIGN_COL[Math.floor(L.moon/30)];
   fBadgeSet(rank);fBearSet(rank,day);document.getElementById("fMsg").innerHTML=`<b>${FHEAD[me.hM-1][tierOf(stT)][lday%4]}</b>${tone?`<div class="fTone">${tone}</div>`:""}<div class="fBody">${msg}</div><div class="fRows"><div class="fR"><span class="fK">💗 夫婦運</span><span class="fV">${lv}</span></div><div class="fR"><span class="fK">💼 仕事運</span><span class="fV">${wk}</span></div><div class="fR"><span class="fK">💰 金運</span><span class="fV">${mo}</span></div><div class="fR"><span class="fK">${ph[0]} 今夜の月</span><span class="fV">${moonMsg}<small>（${ph[1]}）</small></span></div></div>`+(retro.mercury?`<div class="fTone" style="margin-top:6px">📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね</div>`:"");
-  fStarsSet([["総合運",starsByRank(all.map(x=>x.total),s)],["夫婦運",starsByRank(all.map(x=>x.love),s)],["仕事運",starsByRank(all.map(x=>x.work),s)],["金運",starsByRank(all.map(x=>x.money),s)]]);
+
   document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b><i class="dot" style="background:${col[1]}"></i>${col[0]}</span><span><b>ラッキーアイテム</b>🎀 ${item2}</span>${honeyHtml(rank)}`;
   const sn=x=>SIGNS[Math.floor(x/30)];
   document.getElementById("fSky").innerHTML=`🌙 今日の星の動き：月は${sn(L.moon)}(あなたの第${me.hM}ハウス)・太陽は${sn(L.sun)}・金星は${sn(L.venus)}${retro.venus?"(逆行中)":""}・水星は${sn(L.mercury)}${retro.mercury?"(逆行中)":""}`;

@@ -1,6 +1,6 @@
 // ゆめいろ手帳（旧ゆめいろ発車ベル）:電波がなくても開けるようにするための仕組み
 // オンラインのときは毎回最新のページを取りに行き、取れなかったときだけ保存しておいたページを使う
-const CACHE="yumebell-v68";
+const CACHE="yumebell-v69";
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./","./index.html","./fm-help.js?v=20261127a","./fm.js?v=20261127a","./shift-ocr-parse.js?v=20261127a","./shift-img.js?v=20261127a"])).then(()=>self.skipWaiting()))});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener("fetch",e=>{

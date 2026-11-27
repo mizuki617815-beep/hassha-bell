@@ -821,6 +821,93 @@ body.dark .fTarot{background:linear-gradient(180deg,#2c2444,#2a2140)!important;b
 .tFan .tPc.on.go{transition:transform .7s cubic-bezier(.4,0,.2,1);transform:rotate(0deg) translateY(-6px) scale(1.15)}
 .tStage .fCard.rise{animation:tRise .7s ease-out backwards}@keyframes tRise{from{transform:translateY(40px) scale(.7);opacity:0}}
 body.dark .tPickMsg{color:#d2c0ff}
+/* ===== ファーちゃんの占いの館（ver4.9） ===== */
+.fHall{position:relative;overflow:hidden;border-radius:18px;padding:13px 14px 11px;margin:-4px -4px 10px;background:linear-gradient(155deg,#241d4d 0%,#463a7d 58%,#7767b5 100%);color:#f2edff;box-shadow:0 4px 16px rgba(60,40,130,.25)}
+.fHallStars{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(1.6px 1.6px at 12% 30%,#fff,transparent),radial-gradient(1.2px 1.2px at 32% 68%,#ffeec2,transparent),radial-gradient(1.4px 1.4px at 55% 18%,#fff,transparent),radial-gradient(1.1px 1.1px at 71% 55%,#fff,transparent),radial-gradient(1.5px 1.5px at 86% 26%,#ffeec2,transparent),radial-gradient(1.1px 1.1px at 44% 84%,#fff,transparent),radial-gradient(1.3px 1.3px at 8% 78%,#fff,transparent),radial-gradient(1.2px 1.2px at 93% 72%,#fff,transparent);animation:fTwinkle 5.5s ease-in-out infinite alternate}
+@keyframes fTwinkle{from{opacity:.55}to{opacity:1}}
+.fHallTop{position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.fHallTop .ttl{font-size:17px;font-weight:800;letter-spacing:.03em;color:#fff;padding-top:3px}
+.fMoonBox{display:flex;flex-direction:column;align-items:center;flex:none}
+.fMoonAge{font-size:9px;color:#d9cdf8;margin-top:1px;white-space:nowrap}
+.fHallSub{position:relative;display:flex;align-items:center;gap:7px;margin-top:9px;flex-wrap:wrap}
+.fSignChip{background:#ffd968;color:#4a3577;font-weight:800;font-size:12px;border-radius:999px;padding:4px 11px}
+.fDate{font-size:11.5px;color:#cfc4f2}
+.fSignBtn{margin-left:auto;font-family:inherit;font-size:11.5px;font-weight:700;color:#efe9ff;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 11px;min-height:32px;cursor:pointer}
+.fSignPanel{position:relative;display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.fSignPanel button{font-family:inherit;font-size:12px;font-weight:700;color:#efe9ff;background:rgba(255,255,255,.13);border:1.5px solid rgba(255,255,255,.3);border-radius:999px;padding:6px 11px;min-height:34px;cursor:pointer}
+.fSignPanel button.on{background:#ffd968;color:#4a3577;border-color:#ffd968}
+.fSignPanel button.mine{border-color:#ffd968}
+.fViewBar{position:relative;display:flex;align-items:center;gap:8px;margin-top:10px;background:rgba(255,217,104,.16);border:1px solid rgba(255,217,104,.45);border-radius:12px;padding:7px 10px;font-size:12px;color:#ffeec2}
+.fViewBar button{margin-left:auto;font-family:inherit;font-size:12px;font-weight:800;color:#4a3577;background:#ffd968;border:none;border-radius:999px;padding:6px 13px;min-height:32px;cursor:pointer;flex:none}
+.fTopRow{display:flex;gap:13px;align-items:center;margin:12px 0 2px}
+.fBadge{width:104px;height:104px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff8e1,#ffe9a8 60%,#f7cf5f);border:3px solid #e9b949;box-shadow:0 4px 14px rgba(233,185,73,.4),inset 0 0 0 5px #fff6d8;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#6b4e12;text-align:center}
+.fBadge .fbCap{font-size:9.5px;letter-spacing:.14em;font-weight:700}
+.fBadge .fbNum{font-size:40px;line-height:1.05;font-weight:800}
+.fBadge .fbNum small{font-size:17px}
+.fBadge .fbSub{font-size:9px;color:#97792c}
+.fBadge.rank1{animation:fHalo 3s ease-in-out infinite alternate}
+@keyframes fHalo{from{box-shadow:0 4px 14px rgba(233,185,73,.4),inset 0 0 0 5px #fff6d8,0 0 10px 2px rgba(255,214,100,.35)}to{box-shadow:0 4px 14px rgba(233,185,73,.4),inset 0 0 0 5px #fff6d8,0 0 26px 9px rgba(255,214,100,.65)}}
+.fort.fBars{display:block;flex:1;margin:0}
+.fort.fBars div{flex:none;text-align:left;background:none;padding:0;border-radius:0}
+.fbRow{margin-bottom:8px}
+.fbRow:last-child{margin-bottom:0}
+.fbLab{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;color:var(--ink,#3d3358);margin-bottom:3px}
+.fbLab .fbSt{color:#f0a832;font-size:11px;letter-spacing:1px}
+.fbBest{display:inline-block;font-size:9px;background:#ff8fab;color:#fff;border-radius:6px;padding:1.5px 6px;margin-left:6px;vertical-align:2px;font-weight:800}
+.fbTrack{height:8px;border-radius:99px;background:#ece6f8;overflow:hidden}
+.fbTrack i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#b7a6ec,#8f7ad8);transition:width .8s ease}
+.fbRow.best .fbTrack i{background:linear-gradient(90deg,#ffc95e,#ff9d5c)}
+body.dark .fbTrack{background:rgba(255,255,255,.14)}
+body.dark .fbLab{color:#e8dff2}
+.fShare{display:block;margin:12px auto 0;font-family:inherit;font-size:13px;font-weight:800;color:#9a6fd6;background:rgba(255,255,255,.7);border:2px solid #e3d4ff;border-radius:999px;padding:9px 18px;min-height:42px;cursor:pointer}
+body.dark .fShare{background:rgba(255,255,255,.08);color:#d9c6ff}
+#navFortune.viewing #fTarotHist,#navFortune.viewing #fWave,#navFortune.viewing #fZukan,#navFortune.viewing #fShareBtn{display:none}
+.fWave{margin:14px 0 4px;padding:12px;border-radius:20px;background:linear-gradient(180deg,#fbf7ff,#fff4fa);border:2px solid #eadcff}
+body.dark .fWave{background:linear-gradient(180deg,#2c2444,#2a2140);border-color:#4d3f74}
+.fwTtl{font-weight:bold;color:#4b3585;font-size:14px}
+body.dark .fwTtl{color:#d2c0ff}
+.fwTtl span{font-size:11px;color:var(--sub);font-weight:normal;margin-left:6px}
+.fwSvg{width:100%;height:auto;display:block;margin-top:4px}
+.fZukan{margin:14px 0 4px;padding:12px;border-radius:20px;background:linear-gradient(180deg,#fbf7ff,#fff4fa);border:2px solid #eadcff}
+body.dark .fZukan{background:linear-gradient(180deg,#2c2444,#2a2140);border-color:#4d3f74}
+.fzTtl{font-weight:bold;color:#4b3585;font-size:14px}
+body.dark .fzTtl{color:#d2c0ff}
+.fzTtl span{font-size:11px;color:var(--sub);font-weight:normal;margin-left:6px}
+.fzGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:9px}
+.fzC{position:relative;border:none;background:none;padding:0;cursor:pointer;font-family:inherit}
+.fzC img{width:100%;border-radius:7px;display:block;box-shadow:0 2px 6px rgba(70,58,125,.25)}
+.fzC .fzN{font-size:9.5px;color:var(--sub);margin-top:2px;line-height:1.25}
+.fzC .fzCnt{position:absolute;top:-5px;right:-4px;background:#6a55b8;color:#fff;font-size:9.5px;font-weight:800;border-radius:999px;padding:1px 6px;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.fzC.off{cursor:default}
+.fzC.off img{filter:brightness(0);opacity:.16;box-shadow:none}
+.fzDet{margin-top:10px;background:rgba(255,255,255,.65);border:1.5px solid #e3d9f8;border-radius:14px;padding:9px 11px;font-size:12.5px;line-height:1.65;color:#554a78}
+body.dark .fzDet{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:#e8dff2}
+.fzDet b{color:#4b3585}
+body.dark .fzDet b{color:#d2c0ff}
+/* タロット扇 v2（シャッフル＋拡大＋2タップ確定） */
+.tStage2{position:relative;height:204px;margin-top:2px;overflow:visible}
+.tStage2.sm{height:172px}
+.tCircle{position:absolute;left:50%;top:44%;width:218px;height:218px;transform:translate(-50%,-50%);opacity:.4;pointer-events:none;animation:tRot 70s linear infinite}
+.tStage2.sm .tCircle{width:180px;height:180px}
+@keyframes tRot{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+.tC2{position:absolute;left:50%;bottom:36px;width:58px;height:92px;margin-left:-29px;padding:0;border:2px solid #e8c873;border-radius:8px;cursor:pointer;background:repeating-linear-gradient(45deg,rgba(255,230,160,.2) 0 1.5px,transparent 1.5px 9px),repeating-linear-gradient(-45deg,rgba(255,230,160,.2) 0 1.5px,transparent 1.5px 9px),linear-gradient(160deg,#4b3585,#7a55c8 60%,#b56fb0);box-shadow:0 2px 6px rgba(60,30,120,.35),inset 0 0 0 3px rgba(255,255,255,.18);transform-origin:50% 300%;-webkit-tap-highlight-color:transparent;will-change:transform,opacity}
+.tStage2.sm .tC2{bottom:30px;width:46px;height:72px;margin-left:-23px}
+.tC2::after{content:"✦";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ffe7a3;font-size:20px;text-shadow:0 0 6px rgba(255,220,140,.8)}
+.tStage2.sm .tC2::after{font-size:16px}
+.tStage2.lift .tC2{opacity:.28}
+.tStage2.lift .tC2.pick{opacity:1;box-shadow:0 0 0 3px #fff,0 0 26px 9px rgba(255,214,120,.8);z-index:40}
+.tBar2{min-height:46px;display:flex;gap:9px;justify-content:center;align-items:center;padding:2px 0 0}
+.tBar2 .tMsg2{font-size:12.5px;color:var(--sub);font-weight:700}
+.tGo2{font-family:inherit;font-size:14px;font-weight:800;color:#4a3577;background:linear-gradient(180deg,#ffe9a8,#ffd968);border:2px solid #e9b949;border-radius:999px;padding:9px 20px;min-height:44px;cursor:pointer;box-shadow:0 3px 10px rgba(233,185,73,.35)}
+.tBack2{font-family:inherit;font-size:13px;font-weight:700;color:#7a55c8;background:rgba(255,255,255,.75);border:2px solid #d9c8ff;border-radius:999px;padding:9px 16px;min-height:44px;cursor:pointer}
+body.dark .tBack2{background:rgba(255,255,255,.08);color:#d2c0ff}
+.tMote{position:absolute;border-radius:50%;background:radial-gradient(circle,#fff3c4,#ffd968 60%,transparent 75%);pointer-events:none;z-index:50;animation:tMoteUp 2s ease-out forwards}
+@keyframes tMoteUp{0%{transform:translateY(0) scale(1);opacity:0}18%{opacity:.95}100%{transform:translateY(-56px) scale(.35);opacity:0}}
+.tStage.bloom .fCard,.fAdv.bloom .fCard{animation:fBloom 1.8s ease-out}
+.tStage,.fAdv{position:relative}
+.tC2{touch-action:pan-y}
+@keyframes fBloom{0%{filter:drop-shadow(0 0 0 rgba(255,214,100,0))}35%{filter:drop-shadow(0 0 22px rgba(255,214,100,.75))}100%{filter:drop-shadow(0 0 0 rgba(255,214,100,0))}}
+
 .fTarotHist{margin:14px 0 4px;padding:12px;border-radius:20px;background:linear-gradient(180deg,#fbf7ff,#fff4fa);border:2px solid #eadcff}
 .thHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .thTtl{font-weight:bold;color:#4b3585;text-align:center}.thTtl span{display:block;font-size:11px;color:var(--sub);font-weight:normal}
@@ -920,7 +1007,12 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
   </div>
 
   <div class="card" id="navFortune">
-    <div class="wxHead"><span class="ttl" id="fTitle">きょうのファーちゃん占い🧸🔮</span><span class="mini" id="fWho"></span></div>
+    <div class="fHall"><div class="fHallStars"></div>
+    <div class="fHallTop"><span class="ttl" id="fTitle">🔮 ファーちゃんの占いの館</span><span class="fMoonBox"><span id="fMoon"></span><span class="fMoonAge" id="fMoonAge"></span></span></div>
+    <div class="fHallSub"><span class="fSignChip" id="fWho"></span><span class="fDate" id="fDate"></span><button type="button" class="fSignBtn" id="fSignBtn">他の星座も見る ▾</button></div>
+    <div class="fSignPanel" id="fSignPanel" style="display:none"></div>
+    <div class="fViewBar" id="fViewBar" style="display:none"></div>
+    </div>
     <div class="seg" id="fDay" style="margin:6px 0 10px"><button data-v="2">おととい</button><button data-v="1">きのう</button><button data-v="0" class="on">きょう</button></div>
     <div class="fGate" id="fGate" style="display:none">
       <img src="fortune-teller.webp?v=20261127" alt="占い師のクマちゃん">
@@ -937,10 +1029,13 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <div id="fBody">
     <div class="talk" style="margin-top:0"><img src="fortune-teller.webp?v=20261127" alt="占い師のクマちゃん"><div class="bubble" id="fMsg"></div></div>
     <div class="fBearRow"><img id="fRankBear" src="fortune-happy.webp" alt="順位のファーちゃん"><div class="cap" id="fBearCap"></div></div>
-    <div class="fort" id="fStars"></div>
+    <div class="fTopRow"><div class="fBadge" id="fBadge"></div><div class="fort fBars" id="fStars"></div></div>
     <div class="lucky" id="fLucky"></div>
     <div class="fTarot" id="fTarot"></div>
     <div class="fTarotHist" id="fTarotHist"></div>
+    <div class="fWave" id="fWave"></div>
+    <div class="fZukan" id="fZukan"></div>
+    <button type="button" class="fShare" id="fShareBtn">🖼️ 今日の占いを画像にする</button>
     <button type="button" class="fAgain" id="fAgain">🔮 占いのようすをもう一回見る</button>
     <details class="infoFold"><summary>ℹ️ 今日の星の動き・占いのしくみ</summary><div class="note" id="fSky"></div><div class="note" id="fCredit"></div></details>
     </div>
@@ -1162,6 +1257,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge" id="verHistBadge">ver4.2</span></summary>
       <ul class="verList">
+        <li data-go="ファーちゃんの占いの館" data-short="🔮 占いが「ファーちゃんの占いの館」になったよ！"><span class="vNo">ver4.9</span><span class="vDate">11/28</span><span class="vTxt">🔮 占いが「ファーちゃんの占いの館」に生まれ変わったよ。夜空のヘッダーに今夜の月（月齢つき）、順位は金のバッジ、4つの運勢はバーで見やすくなったよ。他の星座の運勢も、設定を変えずにその場で見れるよ。タロットはシャッフルの演出がついて、なぞると近い1枚が大きくなるから選びやすく。引いたカードが集まる「タロット図鑑」と、今月の順位の「運気の波」もできたよ。今日の占いを画像にして残すこともできるよ🧸</span></li>
         <li data-go="これまでの占い" data-short="📖 占いの履歴ができたよ！"><span class="vNo">ver4.8</span><span class="vDate">11/27</span><span class="vTxt">📖 占いのカードの下に「これまでの占い」ができたよ。その日の星占いの順位と、引いたタロットがカレンダーにたまって、日をタップすると見返せるよ（タロットは端末に約3か月分）🧸</span></li>
         <li data-go="きょうのファーちゃん占い" data-short="🔮 ファーちゃんが占ってくれるようになったよ！"><span class="vNo">ver4.7</span><span class="vDate">11/27</span><span class="vTxt">🔮 占いは、その日はじめて見るときに「ファーちゃんに占ってもらう」ボタンを押すと、水晶玉がキラキラして占ってくれるよ。占ったあとは、その日はずっと結果が出たまま（日付が変わるとまたボタンに）<br>🃏 タロットを追加：大アルカナ22枚から、その日の1枚をめくるよ（1日1枚で固定）。カードは、ファーちゃんが役になりきったクマちゃんタロットだよ。タロットは本物と同じように、ボタンを押したときに22枚から1枚を引くよ（逆さまに出たら「逆位置」）。1日1枚で、引き直しはなし。1枚目の意味をもっと知りたいときは、1日1回「アドバイスカード」をもう1枚引けるよ。カードの意味・メッセージ・夫婦運・仕事運・金運・人間関係・体調・今日のアドバイスで説明するよ。占うときは、ファーちゃんが水晶玉をのぞく動画が流れるよ（音が出るよ。「結果を見る ›」でとばせるよ）。占ったあとは「🔮 占いのようすをもう一回見る」で、もう一回見られるよ（結果は同じ。タロットは1日1枚だよ）<br>🃏 タロットは、裏むきにならんだ22枚から自分で1枚えらんで引くようになったよ。アドバイスカードも残りの21枚からえらぶよ<br>📖「どんなカード？」に、ひらく／とじるボタンをつけたよ<br>🍀 タロットの「今日のアドバイス」を、カードの意味と今日やってみることがわかる文にくわしくしたよ<br>💬 ファーちゃんのひとことや占いの「好きなこと」「ごほうび」の言い方を、カラオケや甘いものなどに変えたよ</span></li>
         <li data-go="おうちのリモコン" data-short="🎚 エアコンのモードと風量がえらべるようになったよ！"><span class="vNo">ver4.6</span><span class="vDate">11/26</span><span class="vTxt">🎚 おうちのリモコンに「モード・温度・風量をえらんで送る」：モード（自動・冷房・除湿・送風・暖房）、温度（16〜30℃）、風量（自動・弱・中・強）をえらんで、エアコンをつけられるよ。赤外線は送りっぱなしでエアコンから返事がないから、最後に送った設定をこのiPhoneに覚えておいて表示するよ。スイングはSwitchBotのしくみで外から動かせないよ（GASの更新がいるよ）<br>⏱ 勤怠ノートの「残業 見込み」に、丸めの境目ゲージ：あと何分で1時間に繰り上がるか、あと何分は残業しても残業代が増えないかを、バーで見られるよ（11/26、今月とこれからの月だけ）<br>⚡ 電波が弱いときも、3秒待って来なければ保存してある手帳ですぐ開くように（新しいのは裏で取ってきて、次に開いたときに新しくなるよ）。絵も軽くしたよ。小さかったボタンを押しやすく（11/27）</span></li>
@@ -2268,6 +2364,11 @@ async function loadFortuneData(){try{const r=await fetch("fortune.json",{cache:"
 function star(n){return "★".repeat(n)+"<i>"+"★".repeat(5-n)+"</i>"}
 let FOFF=0; // 0=きょう 1=きのう 2=おととい
 document.querySelectorAll("#fDay button").forEach(b=>b.onclick=()=>{FOFF=+b.dataset.v;document.querySelectorAll("#fDay button").forEach(x=>x.classList.toggle("on",x===b));renderFortune()});
+(()=>{const p=document.getElementById("fSignPanel"),b=document.getElementById("fSignBtn");if(!p||!b)return;
+  p.innerHTML=SIGNS.map(x=>`<button type="button" data-sg="${x}">${x}</button>`).join("");
+  const sync=()=>p.querySelectorAll("button").forEach(x=>{x.classList.toggle("on",(FV_SIGN||S.sign)===x.dataset.sg);x.classList.toggle("mine",S.sign===x.dataset.sg)});
+  b.onclick=()=>{const open=p.style.display!=="none";p.style.display=open?"none":"";b.textContent=open?"他の星座も見る ▾":"とじる ▴";if(!open)sync()};
+  p.addEventListener("click",e=>{const c=e.target.closest("[data-sg]");if(!c)return;FV_SIGN=c.dataset.sg===S.sign?null:c.dataset.sg;p.style.display="none";b.textContent="他の星座も見る ▾";renderFortune()})})();
 function fBearSet(rank,day){const el=document.getElementById("fRankBear");if(el)el.src=rank<=6?"fortune-happy.webp":"fortune-cheer.webp";const cap=document.getElementById("fBearCap");if(cap)cap.innerHTML="🧸 <b>ファーちゃん</b>：「"+bearComment(rank,day)+"」"} // 順位ファーちゃん(バンザイ/マグ)がコメントを喋る。占い師ファーちゃんは別枠で不変
 // 🔮 タロット（大アルカナ22枚・正位置だけ）：その日の日付で1枚に決まるよ（1日1枚で固定）。絵は tarot/00.webp〜21.webp、まだないカードは絵文字で出すよ（2026-11-27）
 const TAROT=[["愚者", "🎈"], ["魔術師", "🪄"], ["女教皇", "📖"], ["女帝", "🌸"], ["皇帝", "👑"], ["教皇", "🔔"], ["恋人", "💞"], ["戦車", "🏇"], ["力", "🦁"], ["隠者", "🏮"], ["運命の輪", "🎡"], ["正義", "⚖️"], ["吊るされた男", "🌀"], ["死神", "🦋"], ["節制", "🫖"], ["悪魔", "🍰"], ["塔", "⚡"], ["星", "⭐"], ["月", "🌙"], ["太陽", "☀️"], ["審判", "🎺"], ["世界", "🌍"]];
@@ -2282,8 +2383,13 @@ const FOPEN_K="yumebell_fopen",TAROT_K="yumebell_tarot";
 const tGet=()=>{try{return JSON.parse(localStorage.getItem(TAROT_K)||"{}")}catch(e){return{}}};
 const tRec=day=>{const o=tGet();return o[day]||null};
 // 🃏 自分で引く演出：裏むきのカードを扇形にならべて、タップした1枚を引く（中身は tDraw/tDrawAdv のまま。2026-11-27）
-const tFanHtml=(n,id,sm)=>`<div class="tFan${sm?" sm":""}" id="${id}">`+Array.from({length:n},(_,i)=>`<button type="button" class="tPc" style="--a:${(-28+56*i/(n-1)).toFixed(2)}deg;--d:${i*28}ms" aria-label="${i+1}枚目のカード"></button>`).join("")+`</div>`;
+const tFanHtml=(n,id,sm)=>`<div class="tStage2${sm?" sm":""}" id="${id}" data-n="${n}"><svg class="tCircle" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="94" fill="none" stroke="#c9b3f2" stroke-width="1.4" stroke-dasharray="5 7"/><circle cx="100" cy="100" r="76" fill="none" stroke="#c9b3f2" stroke-width="1"/><polygon points="100,32 117,83 171,83 128,114 144,166 100,135 56,166 72,114 29,83 83,83" fill="none" stroke="#c9b3f2" stroke-width="1.1"/></svg>`+Array.from({length:n},(_,i)=>`<button type="button" class="tC2" data-i="${i}" aria-label="${i+1}枚目のカード"></button>`).join("")+`</div><div class="tBar2" data-bar="${id}"><span class="tMsg2">シャッフル中…✦</span></div>`;
 const tSave=o=>{const ks=Object.keys(o).sort();while(ks.length>92)delete o[ks.shift()];try{localStorage.setItem(TAROT_K,JSON.stringify(o))}catch(e){}};
+const ZUKAN_K="yumebell_tarot_zukan";
+const zGet=()=>{try{const z=JSON.parse(localStorage.getItem(ZUKAN_K)||"null");if(z&&z.c)return z}catch(e){}
+  const c={};Object.values(tGet()).forEach(rc=>{if(!rc)return;c[rc.n]=(c[rc.n]||0)+1;if(rc.a)c[rc.a.n]=(c[rc.a.n]||0)+1});
+  const z={c};try{localStorage.setItem(ZUKAN_K,JSON.stringify(z))}catch(e){}return z};
+const zBump=n=>{try{const z=zGet();z.c[n]=(z.c[n]||0)+1;localStorage.setItem(ZUKAN_K,JSON.stringify(z))}catch(e){}};
 // 11/27だけ：新しい「引く」タロットを今日から試せるように、今日の占い済みを1回だけリセット（本人の希望、2026-11-27）
 (()=>{try{const d="2026-11-27",k="yumebell_treset_"+d;if(ymd(jstNow())===d&&!localStorage.getItem(k)){localStorage.setItem(k,"1");if(localStorage.getItem(FOPEN_K)===d)localStorage.removeItem(FOPEN_K);const o=tGet();if(o[d]){delete o[d];localStorage.setItem(TAROT_K,JSON.stringify(o))}}}catch(e){}})();
 // 11/27だけ（3回目・演出の直しをためす用）
@@ -2291,8 +2397,8 @@ const tSave=o=>{const ks=Object.keys(o).sort();while(ks.length>92)delete o[ks.sh
 // 11/27だけ（2回目）：新しい「自分で引く」演出を今日ためせるように、今日引いたタロットを1回だけ消す。星占いはそのまま（本人の希望、2026-11-27）
 (()=>{try{const d="2026-11-27",k="yumebell_treset2_"+d;if(ymd(jstNow())===d&&!localStorage.getItem(k)){localStorage.setItem(k,"1");const o=tGet();if(o[d]){delete o[d];localStorage.setItem(TAROT_K,JSON.stringify(o))}}}catch(e){}})();
 // 🃏 アドバイスカード（補足カード）：本物と同じく、残りの21枚をまぜてもう1枚引く。正位置・逆位置もそのまま。1日1回、1枚目はそのまま（2026-11-27）
-const tDrawAdv=day=>{const o=tGet(),rc=o[day];if(!rc)return null;if(rc.a)return rc.a;const a=new Uint32Array(2);crypto.getRandomValues(a);let n=a[0]%21;if(n>=rc.n)n++;rc.a={n,r:a[1]%2};tSave(o);return rc.a};
-const tDraw=day=>{const o=tGet();if(o[day])return o[day];const a=new Uint32Array(2);crypto.getRandomValues(a);o[day]={n:a[0]%22,r:a[1]%2};tSave(o);return o[day]};
+const tDrawAdv=day=>{const o=tGet(),rc=o[day];if(!rc)return null;if(rc.a)return rc.a;const a=new Uint32Array(2);crypto.getRandomValues(a);let n=a[0]%21;if(n>=rc.n)n++;rc.a={n,r:a[1]%2};tSave(o);zBump(n);return rc.a};
+const tDraw=day=>{const o=tGet();if(o[day])return o[day];const a=new Uint32Array(2);crypto.getRandomValues(a);o[day]={n:a[0]%22,r:a[1]%2};tSave(o);zBump(o[day].n);return o[day]};
 const fOpened=day=>{try{return localStorage.getItem(FOPEN_K)===day}catch(e){return true}};
 function fTarotHtml(day,flip){const rc=tRec(day),today=day===ymd(jstNow()),dd=new Date(day+"T00:00:00");
   const head=`<div class="tHead"><span class="tStars">✦ ✧ ✦</span><div class="tTtl">🔮 ${today?"きょう":"この日"}のタロット占い</div><div class="tSub">${dd.getMonth()+1}/${dd.getDate()}・大アルカナ22枚から1枚</div></div>`;
@@ -2314,10 +2420,109 @@ function fAdvHtml(day,rc,anim){const today=day===ymd(jstNow());
   return`<div class="fAdv"><div class="fAdvHead">🃏 アドバイスカード</div><div class="fAdvRow"><div class="fCard sm${anim?"":" flip"}${a.r?" rev":""}" id="fAdvCard"><div class="fCardIn"><div class="fBack">🔮</div><div class="fFront"><img src="tarot/${f}.webp" alt="${nm}"></div></div></div>
     <div class="fTarotTxt"><b>${nm}</b><span class="pos${a.r?" r":""}">${a.r?"逆位置":"正位置"}</span><div class="kw">${x[0]}</div></div></div>
     <div class="fAdvSum">💡 ${sum}</div><div class="fAdvTip"><b>🍀 このカードからのヒント</b>${tPick(x,7,day,"adv")}</div></div>`}
-document.getElementById("fTarot").addEventListener("click",e=>{const pc=e.target.closest(".tPc");if(!pc)return;const fan=pc.parentElement,ft=document.getElementById("fTarot"),day=ft.dataset.day;
-  if(fan.classList.contains("picked")||day!==ymd(jstNow()))return;fan.classList.add("picked");pc.classList.add("on");setTimeout(()=>pc.classList.add("go"),700); // えらんだ場所でまず浮いて、それから真ん中へ
-  if(fan.id==="tFan")setTimeout(()=>{tDraw(day);fTarotHist();ft.innerHTML=fTarotHtml(day,true);setTimeout(()=>{const c=document.getElementById("fCard");if(c)c.classList.add("flip")},750)},1600);
-  else{if(!tRec(day))return;setTimeout(()=>{tDrawAdv(day);fTarotHist();const box=document.querySelector("#fTarot .fAdv");if(box){box.outerHTML=fAdvHtml(day,tRec(day),true);setTimeout(()=>{const c=document.getElementById("fAdvCard");if(c)c.classList.add("flip")},300)}},1600)}});
+function tMotes(host){if(!host)return;for(let j=0;j<10;j++){const s=document.createElement("span");s.className="tMote";const sz=4+Math.random()*5;s.style.width=s.style.height=sz+"px";s.style.left=(38+Math.random()*24)+"%";s.style.top="44%";s.style.animationDelay=(Math.random()*.5)+"s";host.appendChild(s);setTimeout(()=>s.remove(),2900)}}
+function tConfirmDraw(id,day){const ft=document.getElementById("fTarot");
+  if(id==="tFan"){tDraw(day);fTarotHist();fZukan();
+    setTimeout(()=>{ft.innerHTML=fTarotHtml(day,true);const stg=ft.querySelector(".tStage");if(stg){stg.classList.add("bloom");tMotes(stg)}setTimeout(()=>{const c=document.getElementById("fCard");if(c)c.classList.add("flip")},520)},420)}
+  else{if(!tRec(day))return;tDrawAdv(day);fTarotHist();fZukan();
+    setTimeout(()=>{const box=document.querySelector("#fTarot .fAdv");if(box){box.outerHTML=fAdvHtml(day,tRec(day),true);box.classList.add("bloom");tMotes(box);setTimeout(()=>{const c=document.getElementById("fAdvCard");if(c)c.classList.add("flip")},300)}},420)}}
+function tStageInit(st){if(!st||st.dataset.init)return;st.dataset.init="1";
+  const id=st.id,n=+st.dataset.n,cards=[...st.querySelectorAll(".tC2")],bar=document.querySelector(`[data-bar="${id}"]`),ft=document.getElementById("fTarot");
+  const S2={mode:"shuffle",pick:-1,mag:-1};
+  const fanT=(i,magI)=>{const a=-30+60*i/(n-1);let lift=0,sc=1;
+    if(magI>=0){const ma=-30+60*magI/(n-1),df=Math.abs(a-ma),k=Math.max(0,1-df/7.5);lift=-14*k;sc=1+.5*k*k}
+    return `rotate(${a}deg) translateY(${lift.toFixed(1)}px) scale(${sc.toFixed(3)})`};
+  const stackT=()=>`rotate(0deg) translateY(12px) scale(.96)`;
+  cards.forEach(c=>{c.style.transform=stackT();c.style.opacity="0"});
+  const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const anim=(c,to,dur,delay)=>c.animate([{transform:to}],{duration:dur,delay:delay||0,easing:"cubic-bezier(.4,0,.3,1)",fill:"forwards"}).finished.catch(()=>{});
+  const finishShuffle=()=>{cards.forEach((c,i)=>{c.style.transform=fanT(i,-1);c.style.opacity="1";c.getAnimations().forEach(a=>a.cancel())});S2.mode="idle";if(bar)bar.innerHTML=`<span class="tMsg2">なぞって、ピンときた1枚をタップしてね</span>`};
+  if(RM){finishShuffle()}
+  else{
+    cards.forEach((c,i)=>{c.animate([{opacity:"0",transform:stackT()},{opacity:"1",transform:`rotate(${(Math.random()*16-8).toFixed(1)}deg) translateY(6px) scale(.98)`}],{duration:420,delay:i*12,fill:"forwards"})});
+    setTimeout(()=>{cards.forEach((c,i)=>{const side=i%2?1:-1;anim(c,`rotate(${side*6}deg) translate(${side*36}px,-4px) scale(.98)`,430,i*8)})},520);
+    setTimeout(()=>{cards.forEach((c,i)=>{anim(c,`rotate(${(Math.random()*8-4).toFixed(1)}deg) translate(0px,4px) scale(.99)`,380,i*30)})},1140);
+    setTimeout(()=>{cards.forEach(c=>{anim(c,`rotate(${(Math.random()*70-35).toFixed(0)}deg) translate(${(Math.random()*130-65).toFixed(0)}px,${(Math.random()*22-14).toFixed(0)}px) scale(1)`,520,Math.random()*90)})},1770);
+    setTimeout(()=>{cards.forEach((c,i)=>{anim(c,`rotate(${(Math.random()*10-5).toFixed(1)}deg) translateY(6px) scale(.98)`,460,i*10)})},2570);
+    setTimeout(()=>{cards.forEach((c,i)=>{c.animate([{transform:fanT(i,-1)}],{duration:560,delay:i*42,easing:"cubic-bezier(.3,1.25,.5,1)",fill:"forwards"})});setTimeout(finishShuffle,n*42+580)},3170);
+  }
+  let raf=0,pendX=null;
+  const applyMag=x=>{const r=st.getBoundingClientRect(),f=Math.max(0,Math.min(1,(x-r.left)/r.width)),mi=Math.round(f*(n-1));
+    if(mi===S2.mag)return;S2.mag=mi;
+    cards.forEach((c,i)=>{c.style.transform=fanT(i,mi);c.style.zIndex=i===mi?"30":""})};
+  st.addEventListener("pointermove",e=>{if(S2.mode!=="idle")return;pendX=e.clientX;if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(pendX!=null&&S2.mode==="idle")applyMag(pendX)})});
+  st.addEventListener("pointerleave",()=>{if(S2.mode!=="idle")return;S2.mag=-1;cards.forEach((c,i)=>{c.style.transform=fanT(i,-1);c.style.zIndex=""})});
+  st.addEventListener("click",e=>{const c=e.target.closest(".tC2");if(!c||S2.mode!=="idle")return;
+    const day=ft.dataset.day;if(day!==ymd(jstNow()))return;
+    S2.mode="lift";S2.pick=+c.dataset.i;st.classList.add("lift");c.classList.add("pick");
+    cards.forEach(x=>{x.style.zIndex=""});
+    c.style.transform=`rotate(0deg) translateY(-30px) scale(${id==="tAdvFan"?1.28:1.34})`;
+    if(!bar)return;
+    bar.innerHTML=`<span class="tMsg2">このカードにする？</span><button type="button" class="tGo2">このカードにする</button><button type="button" class="tBack2">もどす</button>`;
+    bar.querySelector(".tBack2").onclick=()=>{S2.mode="idle";S2.pick=-1;st.classList.remove("lift");c.classList.remove("pick");cards.forEach((x,i)=>x.style.transform=fanT(i,-1));bar.innerHTML=`<span class="tMsg2">なぞって、ピンときた1枚をタップしてね</span>`};
+    bar.querySelector(".tGo2").onclick=()=>{S2.mode="done";tConfirmDraw(id,day)}});
+}
+new MutationObserver(()=>{document.querySelectorAll(".tStage2:not([data-init])").forEach(tStageInit)}).observe(document.getElementById("fTarot"),{childList:true,subtree:true});
+document.querySelectorAll(".tStage2").forEach(tStageInit);
+function fWave(){const box=document.getElementById("fWave");if(!box)return;const today=ymd(jstNow()),ym=today.slice(0,7),lastDay=+today.slice(8,10);
+  const pts=[];for(let d=1;d<=lastDay;d++)pts.push([d,fFortOf(ym+"-"+String(d).padStart(2,"0")).rank]);
+  const W=320,H=96,px=d=>16+(d-1)/Math.max(1,lastDay-1)*(W-32),py=r=>12+(r-1)/11*(H-36);
+  const line=pts.map(p=>`${px(p[0]).toFixed(1)},${py(p[1]).toFixed(1)}`).join(" ");
+  const dots=pts.map(p=>`<circle cx="${px(p[0]).toFixed(1)}" cy="${py(p[1]).toFixed(1)}" r="${p[0]===lastDay?4:2.2}" fill="${p[0]===lastDay?"#e9a13b":"#8f7ad8"}"/>`).join("");
+  box.innerHTML=`<div class="fwTtl">📈 運気の波<span>${+ym.slice(5,7)}月の順位のうつりかわり・今日は${pts[pts.length-1][1]}位</span></div><svg class="fwSvg" viewBox="0 0 ${W} ${H}"><line x1="16" y1="${py(1)}" x2="${W-16}" y2="${py(1)}" stroke="#e3d9f8" stroke-dasharray="3 4"/><line x1="16" y1="${py(12)}" x2="${W-16}" y2="${py(12)}" stroke="#e3d9f8" stroke-dasharray="3 4"/><text x="1" y="${py(1)+3}" font-size="8" fill="#a493d8">1位</text><text x="1" y="${py(12)+3}" font-size="8" fill="#a493d8">12位</text><polyline points="${line}" fill="none" stroke="#8f7ad8" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`}
+let FZ_SEL=null;
+function fZukan(){const box=document.getElementById("fZukan");if(!box)return;const z=zGet(),owned=Object.keys(z.c).length;
+  const cells=TAROT.map((c,i)=>{const cnt=z.c[i]||0,f=String(i).padStart(2,"0");
+    return cnt?`<button type="button" class="fzC" data-fz="${i}"><img src="tarot/${f}.webp" alt="${c[0]}" loading="lazy">${cnt>1?`<span class="fzCnt">×${cnt}</span>`:""}<div class="fzN">${c[0]}</div></button>`
+    :`<span class="fzC off"><img src="tarot/${f}.webp" alt="" loading="lazy"><div class="fzN">？？？</div></span>`}).join("");
+  let det="";
+  if(FZ_SEL!=null&&z.c[FZ_SEL]){const nm=TAROT[FZ_SEL][0];
+    det=`<div class="fzDet"><b>${nm}</b>（これまでに${z.c[FZ_SEL]}回出たよ）<br>正位置：${TAROT_UP[nm][0]}／逆位置：${TAROT_REV[nm][0]}<br>${TAROT_MEAN[nm]}</div>`}
+  box.innerHTML=`<div class="fzTtl">📖 タロット図鑑<span>集まったカード ${owned} / 22</span></div><div class="fzGrid">${cells}</div>${det}<div class="thNote">引いたカードがここに集まるよ。まだ出ていないカードは影だけ見えるよ🧸</div>`}
+document.getElementById("fZukan").addEventListener("click",e=>{const c=e.target.closest("[data-fz]");if(!c)return;const i=+c.dataset.fz;FZ_SEL=FZ_SEL===i?null:i;fZukan()});
+async function fShare(){const btn=document.getElementById("fShareBtn");if(!btn||btn.dataset.busy)return;btn.dataset.busy="1";const old=btn.textContent;btn.textContent="作ってるよ…✦";
+  try{
+    const now=jstNow();now.setDate(now.getDate()-FOFF);const day=ymd(now),fo=fFortOf(day),rc=tRec(day);
+    const cv=document.createElement("canvas");cv.width=640;cv.height=880;const g=cv.getContext("2d");
+    const rr=(x,y,w,h,r)=>{g.beginPath();if(g.roundRect)g.roundRect(x,y,w,h,r);else g.rect(x,y,w,h)};
+    const gr=g.createLinearGradient(0,0,0,880);gr.addColorStop(0,"#241d4d");gr.addColorStop(.6,"#463a7d");gr.addColorStop(1,"#7767b5");g.fillStyle=gr;g.fillRect(0,0,640,880);
+    let sd=42;const rnd=()=>{sd=(sd*1103515245+12345)%2147483648;return sd/2147483648};
+    g.fillStyle="#ffffff";for(let i=0;i<70;i++){g.globalAlpha=.25+rnd()*.6;g.beginPath();g.arc(rnd()*640,rnd()*880,rnd()*1.6+.6,0,7);g.fill()}g.globalAlpha=1;
+    const load=src2=>new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=src2});
+    g.textAlign="center";g.fillStyle="#fff";g.font="800 34px 'Hiragino Maru Gothic ProN',sans-serif";
+    g.fillText("🔮 ファーちゃんの占いの館",320,74);
+    g.font="600 21px sans-serif";g.fillStyle="#d9cdf8";
+    g.fillText(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}（${"日月火水木金土"[now.getDay()]}）・${S.sign}`,320,112);
+    g.beginPath();g.arc(150,238,84,0,7);const bg2=g.createRadialGradient(118,206,10,150,238,90);bg2.addColorStop(0,"#fff8e1");bg2.addColorStop(.6,"#ffe9a8");bg2.addColorStop(1,"#f7cf5f");g.fillStyle=bg2;g.fill();g.lineWidth=5;g.strokeStyle="#e9b949";g.stroke();
+    g.fillStyle="#97792c";g.font="700 15px sans-serif";g.fillText("12星座中",150,196);
+    g.fillStyle="#6b4e12";g.font="800 74px sans-serif";g.fillText(fo.rank+"",150,270);
+    g.font="800 24px sans-serif";g.fillText("位",150,302);
+    const rows=[["総合運",fo.stars[0]],["夫婦運",fo.stars[1]],["仕事運",fo.stars[2]],["金運",fo.stars[3]]];
+    g.textAlign="left";rows.forEach((r,i)=>{const y=176+i*46;g.fillStyle="#efe9ff";g.font="700 19px sans-serif";g.fillText(r[0],276,y);
+      g.fillStyle="rgba(255,255,255,.18)";rr(276,y+10,300,13,7);g.fill();
+      g.fillStyle="#ffd968";rr(276,y+10,Math.max(13,300*r[1]/5),13,7);g.fill();
+      g.fillStyle="#ffd968";g.font="15px sans-serif";g.fillText("★".repeat(r[1])+"☆".repeat(5-r[1]),478,y)});
+    g.textAlign="center";g.fillStyle="#fff";g.font="800 25px sans-serif";
+    let lines=[],cur="";for(const ch of fo.head){if(g.measureText(cur+ch).width>540){lines.push(cur);cur=ch}else cur+=ch}if(cur)lines.push(cur);
+    lines=lines.slice(0,3);lines.forEach((l,i)=>g.fillText(l,320,398+i*36));
+    const ly=398+lines.length*36+14;
+    g.font="600 20px sans-serif";g.fillStyle="#e8dffc";
+    g.fillText(`🎨 ラッキーカラー：${fo.col}`,320,ly);
+    g.fillText(`🎀 ラッキーアイテム：${fo.item}`,320,ly+34);
+    if(rc){const f=String(rc.n).padStart(2,"0");try{const im=await load(`tarot/${f}.webp`);const w=168,h=252,x=236,y=566;
+      g.save();if(rc.r){g.translate(x+w/2,y+h/2);g.rotate(Math.PI);g.translate(-(x+w/2),-(y+h/2))}
+      g.drawImage(im,x,y,w,h);g.restore();
+      g.fillStyle="#fff";g.font="800 22px sans-serif";g.fillText(`${TAROT[rc.n][0]}（${rc.r?"逆位置":"正位置"}）`,320,852)}catch(e){}}
+    else{g.font="600 20px sans-serif";g.fillStyle="#d9cdf8";g.fillText("タロットはまだ引いてない日",320,660)}
+    try{const im=await load("fortune-teller.webp?v=20261127");g.drawImage(im,24,748,100,100)}catch(e){}
+    g.textAlign="right";g.fillStyle="rgba(255,255,255,.65)";g.font="600 15px sans-serif";g.fillText("ゆめいろ手帳",616,868);g.textAlign="left";
+    const blob=await new Promise(r=>cv.toBlob(r,"image/png"));
+    const file=new File([blob],`uranai-${day}.png`,{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file]})}catch(e){}}
+    else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+  }catch(e){}
+  delete btn.dataset.busy;btn.textContent=old}
+document.getElementById("fShareBtn").addEventListener("click",fShare);
 let TH_M=null,TH_SEL=null;
 function fFortOf(day){const jg=FORT&&FORT.jugem&&FORT.jugem[day]&&FORT.jugem[day][S.sign];
   if(jg)return{rank:+jg.rank,stars:[+jg.total||0,+jg.love||0,+jg.job||0,+jg.money||0],head:esc(jg.content),col:esc(jg.color),item:esc(jg.item)};
@@ -2366,21 +2571,35 @@ function fPlay(){const n0=jstNow();n0.setDate(n0.getDate()-FOFF);const day=ymd(n
   const p=v.play();if(p&&p.catch)p.catch(()=>{v.muted=true;v.play().catch(fallback)});
   document.getElementById("fSkip").onclick=()=>fin(true)}
 document.getElementById("fGo").onclick=fPlay;document.getElementById("fAgain").onclick=fPlay;
+let FV_SIGN=null;
+function moonSvg(el){const r=15,cx=17,cy=17,rx=Math.max(.6,r*Math.abs(Math.cos(el*Math.PI/180))),wax=el<180,cs=Math.cos(el*Math.PI/180)>0,sw=(wax!==cs)?1:0,outer=wax?1:0;
+  return `<svg width="34" height="34" viewBox="0 0 34 34"><circle cx="${cx}" cy="${cy}" r="${r}" fill="#3a3468"/><path d="M ${cx} ${cy-r} A ${r} ${r} 0 0 ${outer} ${cx} ${cy+r} A ${rx} ${r} 0 0 ${sw} ${cx} ${cy-r} Z" fill="#f7ead0"/></svg>`}
+function fSetMoon(day){try{const {L}=fRank(day),el=((L.moon-L.sun)%360+360)%360;document.getElementById("fMoon").innerHTML=moonSvg(el);document.getElementById("fMoonAge").textContent=`今夜の月・月齢${(el*.08203).toFixed(1)}`}catch(e){}}
+function fBadgeSet(rank){const b=document.getElementById("fBadge");if(!b)return;b.className="fBadge"+(rank===1?" rank1":"");b.innerHTML=`<div class="fbCap">12星座中</div><div class="fbNum">${rank}<small>位</small></div><div class="fbSub">${rank===1?"✦ さいこうの日 ✦":"今日の運勢"}</div>`}
+function fStarsSet(rows){const mx=Math.max(...rows.map(r=>r[1]));let done=false;
+  document.getElementById("fStars").innerHTML=rows.map(([k,v])=>{const vv=Math.max(0,Math.min(5,v)),best=vv===mx&&!done?(done=true,true):false;
+  return `<div class="fbRow${best?" best":""}"><div class="fbLab"><span>${k}${best?'<span class="fbBest">今日いちばん</span>':""}</span><span class="fbSt">${star(vv)}</span></div><div class="fbTrack"><i style="width:${vv*20}%"></i></div></div>`}).join("")}
 function renderFortune(){
-  fTarotHist();
+  const _sv=S.sign;if(FV_SIGN&&FV_SIGN!==S.sign)S.sign=FV_SIGN;
+  fTarotHist();fWave();fZukan();
   const now=jstNow();now.setDate(now.getDate()-FOFF);const day=ymd(now);fGateUpd(day);
-  if(!document.querySelector("#fTarot .fCard,#fTarot .tFan")||document.getElementById("fTarot").dataset.day!==day){document.getElementById("fTarot").innerHTML=fTarotHtml(day,false);document.getElementById("fTarot").dataset.day=day}const s=Math.max(0,SIGNS.indexOf(S.sign));
-  document.getElementById("fTitle").textContent=`🔮 ${["きょう","きのう","おととい"][FOFF]}のファーちゃん占い 🧸（${now.getMonth()+1}/${now.getDate()}）`;
-  document.getElementById("fWho").textContent=S.sign;
+  if(!document.querySelector("#fTarot .fCard,#fTarot .tStage2")||document.getElementById("fTarot").dataset.day!==day){document.getElementById("fTarot").innerHTML=fTarotHtml(day,false);document.getElementById("fTarot").dataset.day=day}const s=Math.max(0,SIGNS.indexOf(S.sign));
+  document.getElementById("fTitle").textContent="🔮 ファーちゃんの占いの館";
+  document.getElementById("fDate").textContent=`${["きょう","きのう","おととい"][FOFF]}・${now.getMonth()+1}/${now.getDate()}（${"日月火水木金土"[now.getDay()]}）`;
+  document.getElementById("fWho").textContent=S.sign+(FV_SIGN&&FV_SIGN!==_sv?"":"（あなた）");
+  fSetMoon(day);
+  const _vb=document.getElementById("fViewBar");
+  if(FV_SIGN&&FV_SIGN!==_sv){_vb.style.display="";_vb.innerHTML=`${FV_SIGN}の運勢を表示中（あなたの星座は${_sv}のまま）<button type="button" id="fViewBack">もどす</button>`;document.getElementById("fViewBack").onclick=()=>{FV_SIGN=null;renderFortune()};document.getElementById("navFortune").classList.add("viewing")}
+  else{_vb.style.display="none";document.getElementById("navFortune").classList.remove("viewing")}
   const jg=FORT&&FORT.jugem&&FORT.jugem[day]&&FORT.jugem[day][S.sign];
   const zt=FORT&&FORT.zt&&FORT.zt[day]&&FORT.zt[day][S.sign];
   if(jg){ // 原宿占い館 塔里木 監修の占いが取れている日はそれを表示
-    fBearSet(+jg.rank,day);document.getElementById("fMsg").innerHTML=`<span class="rank">${jg.rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br>${esc(jg.content)}`;
-    document.getElementById("fStars").innerHTML=[["総合運",jg.total],["夫婦運",jg.love],["仕事運",jg.job],["金運",jg.money]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(Math.max(0,Math.min(5,+v||0)))}</div></div>`).join("");
+    fBadgeSet(+jg.rank);fBearSet(+jg.rank,day);document.getElementById("fMsg").innerHTML=`${esc(jg.content)}`;
+    fStarsSet([["総合運",+jg.total||0],["夫婦運",+jg.love||0],["仕事運",+jg.job||0],["金運",+jg.money||0]]);
     document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b>🎨 ${esc(jg.color)}</span><span><b>ラッキーアイテム</b>🎀 ${esc(jg.item)}</span>${honeyHtml(+jg.rank)}`;
     document.getElementById("fSky").innerHTML="";
     document.getElementById("fCredit").innerHTML=`占い：powered by <a href="https://jugemkey.jp/api/" target="_blank" rel="noopener">JugemKey</a>・【PR】<a href="https://uranai-tarim.jp/" target="_blank" rel="noopener">原宿占い館 塔里木</a>`;
-    return;
+    S.sign=_sv;return;
   }
   // 天体計算(その日の正午の星の位置)
   const {L,retro,all,rank}=fRank(day);
@@ -2400,12 +2619,13 @@ function renderFortune(){
   const lv=FLOVE2[tierOf(stL)][aspIdx(L.moon,L.venus)][dn%8],wk=FWORK2[tierOf(stW)][aspIdx(L.moon,L.mars)][(dn+3)%8];
   const mo=FMONEY[tierOf(stM)][aspIdx(L.moon,L.jupiter)][(dn+5)%8];const moonMsg=FMOON[lday][Math.floor(L.sun/30)%4];const item2=FITEM2[Math.floor(L.moon/3)%120];
   const col=SIGN_COL[Math.floor(L.moon/30)];
-  fBearSet(rank,day);document.getElementById("fMsg").innerHTML=`<span class="rank">${rank}位</span> <span style="font-size:12px;color:var(--sub)">/ 12星座</span><br><b>${FHEAD[me.hM-1][tierOf(stT)][lday%4]}</b>${tone?`<div class="fTone">${tone}</div>`:""}<div class="fBody">${msg}</div><div class="fRows"><div class="fR"><span class="fK">💗 夫婦運</span><span class="fV">${lv}</span></div><div class="fR"><span class="fK">💼 仕事運</span><span class="fV">${wk}</span></div><div class="fR"><span class="fK">💰 金運</span><span class="fV">${mo}</span></div><div class="fR"><span class="fK">${ph[0]} 今夜の月</span><span class="fV">${moonMsg}<small>（${ph[1]}）</small></span></div></div>`+(retro.mercury?`<div class="fTone" style="margin-top:6px">📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね</div>`:"");
-  document.getElementById("fStars").innerHTML=[["総合運",starsByRank(all.map(x=>x.total),s)],["夫婦運",starsByRank(all.map(x=>x.love),s)],["仕事運",starsByRank(all.map(x=>x.work),s)],["金運",starsByRank(all.map(x=>x.money),s)]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(v)}</div></div>`).join("");
+  fBadgeSet(rank);fBearSet(rank,day);document.getElementById("fMsg").innerHTML=`<b>${FHEAD[me.hM-1][tierOf(stT)][lday%4]}</b>${tone?`<div class="fTone">${tone}</div>`:""}<div class="fBody">${msg}</div><div class="fRows"><div class="fR"><span class="fK">💗 夫婦運</span><span class="fV">${lv}</span></div><div class="fR"><span class="fK">💼 仕事運</span><span class="fV">${wk}</span></div><div class="fR"><span class="fK">💰 金運</span><span class="fV">${mo}</span></div><div class="fR"><span class="fK">${ph[0]} 今夜の月</span><span class="fV">${moonMsg}<small>（${ph[1]}）</small></span></div></div>`+(retro.mercury?`<div class="fTone" style="margin-top:6px">📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね</div>`:"");
+  fStarsSet([["総合運",starsByRank(all.map(x=>x.total),s)],["夫婦運",starsByRank(all.map(x=>x.love),s)],["仕事運",starsByRank(all.map(x=>x.work),s)],["金運",starsByRank(all.map(x=>x.money),s)]]);
   document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b><i class="dot" style="background:${col[1]}"></i>${col[0]}</span><span><b>ラッキーアイテム</b>🎀 ${item2}</span>${honeyHtml(rank)}`;
   const sn=x=>SIGNS[Math.floor(x/30)];
   document.getElementById("fSky").innerHTML=`🌙 今日の星の動き：月は${sn(L.moon)}(あなたの第${me.hM}ハウス)・太陽は${sn(L.sun)}・金星は${sn(L.venus)}${retro.venus?"(逆行中)":""}・水星は${sn(L.mercury)}${retro.mercury?"(逆行中)":""}`;
   document.getElementById("fCredit").innerHTML=`順位・運勢は、その日の月や惑星の実際の位置とあなたの星座との角度に、その日のめぐりを合わせて計算した西洋占星術の占いだよ`;
+  S.sign=_sv;
 }
 function esc(x){return String(x??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c])}
 (function(){const sel=document.getElementById("sSign");sel.innerHTML=SIGNS.map(x=>`<option>${x}</option>`).join("");sel.value=S.sign;sel.onchange=()=>{S.sign=sel.value;save();renderFortune()};
@@ -3950,7 +4170,7 @@ setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
 <script src="fm-help.js?v=20261127a"></script>
-<script src="fm.js?v=20261127b"></script>
+<script src="fm.js?v=20261128a"></script>
 <script src="shift-ocr-parse.js?v=20261127a"></script>
 <script src="shift-img.js?v=20261127a"></script>
 </body>

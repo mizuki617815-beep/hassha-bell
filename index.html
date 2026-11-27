@@ -821,6 +821,40 @@ body.dark .fTarot{background:linear-gradient(180deg,#2c2444,#2a2140)!important;b
 .tFan .tPc.on.go{transition:transform .7s cubic-bezier(.4,0,.2,1);transform:rotate(0deg) translateY(-6px) scale(1.15)}
 .tStage .fCard.rise{animation:tRise .7s ease-out backwards}@keyframes tRise{from{transform:translateY(40px) scale(.7);opacity:0}}
 body.dark .tPickMsg{color:#d2c0ff}
+.fTarotHist{margin:14px 0 4px;padding:12px;border-radius:20px;background:linear-gradient(180deg,#fbf7ff,#fff4fa);border:2px solid #eadcff}
+.thHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.thTtl{font-weight:bold;color:#4b3585;text-align:center}.thTtl span{display:block;font-size:11px;color:var(--sub);font-weight:normal}
+.thNav{width:34px;height:34px;border-radius:50%;border:2px solid #d9c8ff;background:#fff;color:#7a55c8;font-size:18px;font-weight:bold;cursor:pointer}.thNav:disabled{opacity:.3;cursor:default}
+.thDow,.thGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.thDow span{text-align:center;font-size:11px;color:var(--sub);padding:2px 0}.thDow .sun{color:#e0669f}.thDow .sat{color:#5b8dd9}
+.thC{min-height:44px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:rgba(255,255,255,.55);border:2px solid transparent;font-family:inherit;padding:2px 0}
+.thC small{font-size:10px;color:var(--sub)}
+.thC.today{border-color:#f2b8d0}
+button.thC.has{cursor:pointer;background:#fff;box-shadow:0 1px 4px rgba(150,110,210,.18)}
+button.thC.has.sel{border-color:#8a62c9;background:#f3ecff}
+.thE{font-size:17px;line-height:1;display:inline-block}.thE.rev{transform:rotate(180deg)}
+.thDet{display:flex;gap:10px;margin-top:10px;padding:10px;border-radius:14px;background:#fff;border:1.5px dashed #d9c8ff;align-items:flex-start}
+.thDet img{width:52px;height:82px;object-fit:cover;border-radius:6px;border:2px solid #e8c873}
+.thDetE{font-size:34px}
+.thDetT{flex:1;font-size:12.5px}.thDetD{font-size:11px;color:var(--sub)}
+.thDetT b{font-size:15px;color:#4b3585}.thDetKw{color:#7a55c8;font-size:12px}
+.thDetAdv{margin-top:4px;background:rgba(255,214,120,.18);border-radius:8px;padding:5px 7px}
+.thDetA{margin-top:4px;color:var(--sub)}
+.thNote{margin-top:8px;font-size:11px;color:var(--sub);text-align:center}
+.thR{font-size:9px;color:#8a62c9;font-weight:bold;line-height:1}
+.thE.no{color:var(--sub);font-size:11px;opacity:.5}
+.thDet{display:block}
+.thF{padding:2px 2px 8px;border-bottom:1.5px dashed #d9c8ff;margin-bottom:8px}
+.thRk{font-size:20px;font-weight:bold;color:#4b3585}.thOf{font-size:11px;color:var(--sub)}
+.thFort{margin:6px 0 4px}
+.thHead2{font-weight:bold;font-size:13px;margin-top:2px}
+.thLuck{font-size:11.5px;color:var(--sub);margin-top:3px}
+.thTRow{display:flex;gap:10px;align-items:flex-start}
+.thNone{font-size:12.5px;color:var(--sub);padding:4px 2px}
+body.dark .thRk{color:#d2c0ff}
+body.dark .fTarotHist{background:linear-gradient(180deg,#2c2444,#2a2140);border-color:#4d3f74}
+body.dark .thC{background:rgba(255,255,255,.05)}body.dark button.thC.has{background:rgba(255,255,255,.1)}
+body.dark .thDet{background:rgba(255,255,255,.06)}body.dark .thTtl,body.dark .thDetT b{color:#d2c0ff}
 </style>
 <script>
 // 🧸 お知らせ（下から出て消える。うまくいかなかったときはタップするまで残す）と確認（はい/いいえを Promise で返す）
@@ -906,6 +940,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <div class="fort" id="fStars"></div>
     <div class="lucky" id="fLucky"></div>
     <div class="fTarot" id="fTarot"></div>
+    <div class="fTarotHist" id="fTarotHist"></div>
     <button type="button" class="fAgain" id="fAgain">🔮 占いのようすをもう一回見る</button>
     <details class="infoFold"><summary>ℹ️ 今日の星の動き・占いのしくみ</summary><div class="note" id="fSky"></div><div class="note" id="fCredit"></div></details>
     </div>
@@ -1127,6 +1162,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge" id="verHistBadge">ver4.2</span></summary>
       <ul class="verList">
+        <li data-go="これまでの占い" data-short="📖 占いの履歴ができたよ！"><span class="vNo">ver4.8</span><span class="vDate">11/27</span><span class="vTxt">📖 占いのカードの下に「これまでの占い」ができたよ。その日の星占いの順位と、引いたタロットがカレンダーにたまって、日をタップすると見返せるよ（タロットは端末に約3か月分）🧸</span></li>
         <li data-go="きょうのファーちゃん占い" data-short="🔮 ファーちゃんが占ってくれるようになったよ！"><span class="vNo">ver4.7</span><span class="vDate">11/27</span><span class="vTxt">🔮 占いは、その日はじめて見るときに「ファーちゃんに占ってもらう」ボタンを押すと、水晶玉がキラキラして占ってくれるよ。占ったあとは、その日はずっと結果が出たまま（日付が変わるとまたボタンに）<br>🃏 タロットを追加：大アルカナ22枚から、その日の1枚をめくるよ（1日1枚で固定）。カードは、ファーちゃんが役になりきったクマちゃんタロットだよ。タロットは本物と同じように、ボタンを押したときに22枚から1枚を引くよ（逆さまに出たら「逆位置」）。1日1枚で、引き直しはなし。1枚目の意味をもっと知りたいときは、1日1回「アドバイスカード」をもう1枚引けるよ。カードの意味・メッセージ・夫婦運・仕事運・金運・人間関係・体調・今日のアドバイスで説明するよ。占うときは、ファーちゃんが水晶玉をのぞく動画が流れるよ（音が出るよ。「結果を見る ›」でとばせるよ）。占ったあとは「🔮 占いのようすをもう一回見る」で、もう一回見られるよ（結果は同じ。タロットは1日1枚だよ）<br>🃏 タロットは、裏むきにならんだ22枚から自分で1枚えらんで引くようになったよ。アドバイスカードも残りの21枚からえらぶよ<br>📖「どんなカード？」に、ひらく／とじるボタンをつけたよ<br>🍀 タロットの「今日のアドバイス」を、カードの意味と今日やってみることがわかる文にくわしくしたよ<br>💬 ファーちゃんのひとことや占いの「好きなこと」「ごほうび」の言い方を、カラオケや甘いものなどに変えたよ</span></li>
         <li data-go="おうちのリモコン" data-short="🎚 エアコンのモードと風量がえらべるようになったよ！"><span class="vNo">ver4.6</span><span class="vDate">11/26</span><span class="vTxt">🎚 おうちのリモコンに「モード・温度・風量をえらんで送る」：モード（自動・冷房・除湿・送風・暖房）、温度（16〜30℃）、風量（自動・弱・中・強）をえらんで、エアコンをつけられるよ。赤外線は送りっぱなしでエアコンから返事がないから、最後に送った設定をこのiPhoneに覚えておいて表示するよ。スイングはSwitchBotのしくみで外から動かせないよ（GASの更新がいるよ）<br>⏱ 勤怠ノートの「残業 見込み」に、丸めの境目ゲージ：あと何分で1時間に繰り上がるか、あと何分は残業しても残業代が増えないかを、バーで見られるよ（11/26、今月とこれからの月だけ）<br>⚡ 電波が弱いときも、3秒待って来なければ保存してある手帳ですぐ開くように（新しいのは裏で取ってきて、次に開いたときに新しくなるよ）。絵も軽くしたよ。小さかったボタンを押しやすく（11/27）</span></li>
         <li data-go="Googleカレンダーに送る" data-short="📅 シフトをGoogleカレンダー経由でTimeTreeに入れられるようになったよ！"><span class="vNo">ver4.5</span><span class="vDate">11/23</span><span class="vTxt">📅「Googleカレンダーに送る」で、手帳のシフトを月ごとにGoogleカレンダーの「ゆめいろシフト」に入れて、TimeTreeの「外部カレンダーの予定をインポート」で取り込めるよ。出勤の日は「シフト」と「動物の絵文字」が別々の終日予定、お休みは「お休み」「お休み(有休)」のまま。動物は「予定の動物たち」の一覧から、出勤〜退勤の時間で自動で選ぶよ。一覧にない時間はその場で入れたら覚えるよ。TimeTreeに取り込んだら「🧹 取り込み済みのGoogleカレンダーの予定を消す」で、iPhoneのカレンダーに残った予定を月ごとまとめて消せるよ。（11/24：🧹ボタンを大きくして、確認が裏に隠れてたのを直したよ）（11/24：スクショに写った前後の月の日は手帳に入れないようにしたよ。便番号がくっついて読めた日の業務名も直したよ）<br>🎨 Googleカレンダーへは、TimeTreeのラベルの色ごとのカレンダー（「ゆめいろ アップル・レッド」など）に分けて入れるようになったよ。インポートのときに名前と同じ色を選ぶと、いつもの色分けで入るよ前の晩21時のお知らせはなくしたよ<br>📒 スクショで読んだシフトは、一覧で確かめて「手帳に入れる」を押すとそのまま手帳に入るようになったよ（CSVはいらなくなったよ）。そのまま「Googleカレンダーに送る」に進めるよ<br>スクショ読みとりの結果とGoogleカレンダーに送る画面を全画面にして（読みとり中は小さい画面のまま）、裏の画面がスクロールしないようにしたよ<br>・🎍 年末年始手当（12/30〜1/3に出勤した日、1日6,000円・4時間未満は3,000円）を勤怠ノートの見込みと次の給料の予想に入れて、明細が来たら記録室で照らし合わせるように（手当が出る日は、逆算の画面と📅今月の勤務記録に🎍マーク）<br>・有休カウンター：シフトに入った有休は、まだ先の日でも確定なので「残り」から引くように<br>・Googleカレンダーに送る画面：来月のシフトがあるときは今月を出さない、🧹で片づけた月も出さないように（まちがえて送らないように）</span></li>
@@ -2219,6 +2255,13 @@ function fixRepeat(o,day){const d=new Date(day+"T12:00:00+09:00");const dd=n=>{c
   const y1=rawOrder(dd(1)),y2=rawOrder(dd(2));o=o.slice();
   for(let p=0;p<12;p++){const s=o[p];if(y1.indexOf(s)===p&&(y2.indexOf(s)===p||(dayLuck(day+"swap",s)+1)/2<FSWAP)){const q=p<11?p+1:p-1;[o[p],o[q]]=[o[q],o[p]]}}
   return o}
+const FCACHE={};
+function fRank(day){const s=Math.max(0,SIGNS.indexOf(S.sign)),key=day+"|"+s;if(FCACHE[key])return FCACHE[key];
+  const t=new Date(day+"T12:00:00+09:00").getTime();
+  const L=ASTRO.lonAll(t);const retro={mercury:ASTRO.retro("mercury",t),venus:ASTRO.retro("venus",t),mars:ASTRO.retro("mars",t)};
+  const all=SIGNS.map((_,i)=>scoreSign(L,i,retro));all.forEach((x,i)=>x.total+=FLUCK*dayLuck(day,i));
+  const order=fixRepeat(all.map((x,i)=>[x.total+x.moon*.01,i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]),day);
+  return FCACHE[key]={L,retro,all,rank:order.indexOf(s)+1,s}}
 function starsByRank(vals,s){const sorted=vals.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]);const r=sorted.findIndex(x=>x[1]===s);return r<2?5:r<5?4:r<8?3:r<10?2:1}
 let FORT=null;
 async function loadFortuneData(){try{const r=await fetch("fortune.json",{cache:"no-store"});if(r.ok){FORT=await r.json();renderFortune()}}catch(e){}}
@@ -2240,7 +2283,7 @@ const tGet=()=>{try{return JSON.parse(localStorage.getItem(TAROT_K)||"{}")}catch
 const tRec=day=>{const o=tGet();return o[day]||null};
 // 🃏 自分で引く演出：裏むきのカードを扇形にならべて、タップした1枚を引く（中身は tDraw/tDrawAdv のまま。2026-11-27）
 const tFanHtml=(n,id,sm)=>`<div class="tFan${sm?" sm":""}" id="${id}">`+Array.from({length:n},(_,i)=>`<button type="button" class="tPc" style="--a:${(-28+56*i/(n-1)).toFixed(2)}deg;--d:${i*28}ms" aria-label="${i+1}枚目のカード"></button>`).join("")+`</div>`;
-const tSave=o=>{const ks=Object.keys(o).sort();while(ks.length>14)delete o[ks.shift()];try{localStorage.setItem(TAROT_K,JSON.stringify(o))}catch(e){}};
+const tSave=o=>{const ks=Object.keys(o).sort();while(ks.length>92)delete o[ks.shift()];try{localStorage.setItem(TAROT_K,JSON.stringify(o))}catch(e){}};
 // 11/27だけ：新しい「引く」タロットを今日から試せるように、今日の占い済みを1回だけリセット（本人の希望、2026-11-27）
 (()=>{try{const d="2026-11-27",k="yumebell_treset_"+d;if(ymd(jstNow())===d&&!localStorage.getItem(k)){localStorage.setItem(k,"1");if(localStorage.getItem(FOPEN_K)===d)localStorage.removeItem(FOPEN_K);const o=tGet();if(o[d]){delete o[d];localStorage.setItem(TAROT_K,JSON.stringify(o))}}}catch(e){}})();
 // 11/27だけ（3回目・演出の直しをためす用）
@@ -2273,8 +2316,32 @@ function fAdvHtml(day,rc,anim){const today=day===ymd(jstNow());
     <div class="fAdvSum">💡 ${sum}</div><div class="fAdvTip"><b>🍀 このカードからのヒント</b>${tPick(x,7,day,"adv")}</div></div>`}
 document.getElementById("fTarot").addEventListener("click",e=>{const pc=e.target.closest(".tPc");if(!pc)return;const fan=pc.parentElement,ft=document.getElementById("fTarot"),day=ft.dataset.day;
   if(fan.classList.contains("picked")||day!==ymd(jstNow()))return;fan.classList.add("picked");pc.classList.add("on");setTimeout(()=>pc.classList.add("go"),700); // えらんだ場所でまず浮いて、それから真ん中へ
-  if(fan.id==="tFan")setTimeout(()=>{tDraw(day);ft.innerHTML=fTarotHtml(day,true);setTimeout(()=>{const c=document.getElementById("fCard");if(c)c.classList.add("flip")},750)},1600);
-  else{if(!tRec(day))return;setTimeout(()=>{tDrawAdv(day);const box=document.querySelector("#fTarot .fAdv");if(box){box.outerHTML=fAdvHtml(day,tRec(day),true);setTimeout(()=>{const c=document.getElementById("fAdvCard");if(c)c.classList.add("flip")},300)}},1600)}});
+  if(fan.id==="tFan")setTimeout(()=>{tDraw(day);fTarotHist();ft.innerHTML=fTarotHtml(day,true);setTimeout(()=>{const c=document.getElementById("fCard");if(c)c.classList.add("flip")},750)},1600);
+  else{if(!tRec(day))return;setTimeout(()=>{tDrawAdv(day);fTarotHist();const box=document.querySelector("#fTarot .fAdv");if(box){box.outerHTML=fAdvHtml(day,tRec(day),true);setTimeout(()=>{const c=document.getElementById("fAdvCard");if(c)c.classList.add("flip")},300)}},1600)}});
+let TH_M=null,TH_SEL=null;
+function fFortOf(day){const jg=FORT&&FORT.jugem&&FORT.jugem[day]&&FORT.jugem[day][S.sign];
+  if(jg)return{rank:+jg.rank,stars:[+jg.total||0,+jg.love||0,+jg.job||0,+jg.money||0],head:esc(jg.content),col:esc(jg.color),item:esc(jg.item)};
+  const {L,all,rank,s}=fRank(day),el=((L.moon-L.sun)%360+360)%360,lday=Math.floor(el/12)%30,stT=starsByRank(all.map(x=>x.total),s),col=SIGN_COL[Math.floor(L.moon/30)];
+  return{rank,stars:[stT,starsByRank(all.map(x=>x.love),s),starsByRank(all.map(x=>x.work),s),starsByRank(all.map(x=>x.money),s)],head:FHEAD[all[s].hM-1][tierOf(stT)][lday%4],col:col[0],item:FITEM2[Math.floor(L.moon/3)%120]}}
+function fTarotHist(){const box=document.getElementById("fTarotHist");if(!box)return;const o=tGet(),today=ymd(jstNow());
+  if(!TH_M)TH_M=today.slice(0,7);
+  const Y=+TH_M.slice(0,4),M=+TH_M.slice(5,7),startDow=new Date(Y,M-1,1).getDay(),days=new Date(Y,M,0).getDate(),keys=Object.keys(o).sort();
+  const canPrev=TH_M>"2026-09",canNext=TH_M<today.slice(0,7);
+  let cells="";for(let i=0;i<startDow;i++)cells+=`<span class="thC e"></span>`;
+  for(let d=1;d<=days;d++){const day=TH_M+"-"+String(d).padStart(2,"0"),rc=o[day],past=day<=today;
+    const inner=`<small>${d}</small>${rc?`<span class="thE${rc.r?" rev":""}">${TAROT[rc.n][1]}</span>`:`<span class="thE no">・</span>`}${past?`<span class="thR">${fFortOf(day).rank}位</span>`:""}`;
+    cells+=past?`<button type="button" class="thC has${day===today?" today":""}${day===TH_SEL?" sel":""}" data-thd="${day}">${inner}</button>`:`<span class="thC${day===today?" today":""}">${inner}</span>`}
+  let det="";
+  if(TH_SEL&&TH_SEL<=today){const fo=fFortOf(TH_SEL),rc=o[TH_SEL],dd=new Date(TH_SEL+"T00:00:00");
+    const stars=[["総合運",fo.stars[0]],["夫婦運",fo.stars[1]],["仕事運",fo.stars[2]],["金運",fo.stars[3]]].map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${star(Math.max(0,Math.min(5,v)))}</div></div>`).join("");
+    let th="";
+    if(rc){const nm=TAROT[rc.n][0],x=rc.r?TAROT_REV[nm]:TAROT_UP[nm],f=String(rc.n).padStart(2,"0");
+      th=`<div class="thTRow"><img src="tarot/${f}.webp" alt="${nm}" onerror="this.outerHTML='<span class=&quot;thDetE&quot;>${TAROT[rc.n][1]}</span>'"><div class="thDetT"><b>${nm}</b> <span class="pos${rc.r?" r":""}">${rc.r?"逆位置":"正位置"}</span><div class="thDetKw">${x[0]}</div><div class="thDetAdv">🍀 ${tPick(x,7,TH_SEL)}</div>${rc.a?`<div class="thDetA">🃏 アドバイスカード：${TAROT[rc.a.n][0]}（${rc.a.r?"逆位置":"正位置"}）〈${(rc.a.r?TAROT_REV:TAROT_UP)[TAROT[rc.a.n][0]][0]}〉</div>`:""}</div></div>`}
+    else th=`<div class="thNone">この日はタロットを引いてないよ🧸</div>`;
+    det=`<div class="thDet"><div class="thDetD">${dd.getMonth()+1}/${dd.getDate()}（${"日月火水木金土"[dd.getDay()]}）の記録</div><div class="thF"><span class="thRk">${fo.rank}位</span><span class="thOf"> / 12星座（${S.sign}）</span><div class="fort thFort">${stars}</div><div class="thHead2">${fo.head}</div><div class="thLuck">🎨 ラッキーカラー：${fo.col}　🎀 ラッキーアイテム：${fo.item}</div></div>${th}</div>`}
+  box.innerHTML=`<div class="thHead"><button type="button" class="thNav" data-thm="-1"${canPrev?"":" disabled"}>‹</button><div class="thTtl">📖 これまでの占い<span>${Y}年${M}月</span></div><button type="button" class="thNav" data-thm="1"${canNext?"":" disabled"}>›</button></div><div class="thDow">${["日","月","火","水","木","金","土"].map((w,i)=>`<span class="${i===0?"sun":i===6?"sat":""}">${w}</span>`).join("")}</div><div class="thGrid">${cells}</div>${det}<div class="thNote">星占いの順位と、引いたタロットが見返せるよ。タロットは端末に約3か月分たまるよ。絵文字が逆さまなのは逆位置のカード🧸</div>`}
+document.getElementById("fTarotHist").addEventListener("click",e=>{const nv=e.target.closest("[data-thm]");if(nv){if(nv.disabled)return;const d=new Date(+TH_M.slice(0,4),+TH_M.slice(5,7)-1+ +nv.dataset.thm,1);TH_M=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");TH_SEL=null;fTarotHist();return}
+  const c=e.target.closest("[data-thd]");if(c){TH_SEL=TH_SEL===c.dataset.thd?null:c.dataset.thd;fTarotHist()}});
 function fGateUpd(day){const today=FOFF===0,open=!today||fOpened(day),busy=document.getElementById("fAnim").style.display!=="none";
   if(busy)return;document.getElementById("fGate").style.display=open?"none":"";document.getElementById("fBody").style.display=open?"":"none"}
 function fPlay(){const n0=jstNow();n0.setDate(n0.getDate()-FOFF);const day=ymd(n0),off=FOFF;const g=document.getElementById("fGate"),a=document.getElementById("fAnim"),t=document.getElementById("fAnimTxt"),v=document.getElementById("fVid"),css=document.getElementById("fBallCss"),bar=document.getElementById("fGaugeBar");
@@ -2300,6 +2367,7 @@ function fPlay(){const n0=jstNow();n0.setDate(n0.getDate()-FOFF);const day=ymd(n
   document.getElementById("fSkip").onclick=()=>fin(true)}
 document.getElementById("fGo").onclick=fPlay;document.getElementById("fAgain").onclick=fPlay;
 function renderFortune(){
+  fTarotHist();
   const now=jstNow();now.setDate(now.getDate()-FOFF);const day=ymd(now);fGateUpd(day);
   if(!document.querySelector("#fTarot .fCard,#fTarot .tFan")||document.getElementById("fTarot").dataset.day!==day){document.getElementById("fTarot").innerHTML=fTarotHtml(day,false);document.getElementById("fTarot").dataset.day=day}const s=Math.max(0,SIGNS.indexOf(S.sign));
   document.getElementById("fTitle").textContent=`🔮 ${["きょう","きのう","おととい"][FOFF]}のファーちゃん占い 🧸（${now.getMonth()+1}/${now.getDate()}）`;
@@ -2315,10 +2383,7 @@ function renderFortune(){
     return;
   }
   // 天体計算(その日の正午の星の位置)
-  const t=new Date(day+"T12:00:00+09:00").getTime();
-  const L=ASTRO.lonAll(t);const retro={mercury:ASTRO.retro("mercury",t),venus:ASTRO.retro("venus",t),mars:ASTRO.retro("mars",t)};
-  const all=SIGNS.map((_,i)=>scoreSign(L,i,retro));all.forEach((x,i)=>x.total+=FLUCK*dayLuck(day,i));
-  const order=fixRepeat(all.map((x,i)=>[x.total+x.moon*.01,i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]),day);const rank=order.indexOf(s)+1;
+  const {L,retro,all,rank}=fRank(day);
   const me=all[s];const H=HOUSE[me.hM-1];
   // 月の満ち欠け(太陽と月の角度)と、月が星座のどのあたりにいるか(デーカン)
   const el=((L.moon-L.sun)%360+360)%360;const ph=FPHASE[Math.floor(((el+22.5)%360)/45)];
@@ -3885,7 +3950,7 @@ setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
 })();
 </script>
 <script src="fm-help.js?v=20261127a"></script>
-<script src="fm.js?v=20261127a"></script>
+<script src="fm.js?v=20261127b"></script>
 <script src="shift-ocr-parse.js?v=20261127a"></script>
 <script src="shift-img.js?v=20261127a"></script>
 </body>

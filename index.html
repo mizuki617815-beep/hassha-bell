@@ -304,7 +304,7 @@ body.dark .steps .pf{color:#9cc8ff}body.dark .steps .pf.arr{color:#cdb8ff}
 .laundry .ld{display:block;font-size:11px;opacity:.8}
 .l-ok{background:var(--mint2);color:#2a8f75}.l-so{background:var(--lemon2);color:#9a6c00}.l-ng{background:var(--sky2);color:#3f78c8}
 .laundry b{color:inherit!important}
-.fBearRow{display:flex;gap:10px;align-items:center;margin-top:10px}.fBearRow img{width:84px;height:84px;border-radius:16px;object-fit:cover;object-position:center 30%;box-shadow:0 2px 8px rgba(183,156,255,.25);flex:0 0 auto}.fBearRow .cap{font-size:13.5px;color:var(--ink);line-height:1.65;background:rgba(183,156,255,.10);border-radius:12px;padding:8px 11px;flex:1}
+.fBearRow{display:flex;gap:10px;align-items:center;margin-top:10px;background:linear-gradient(135deg,#fff8e6,#ffefd2);border:1.5px solid #f3ddab;border-radius:16px;padding:9px 11px}.fBearRow img{width:84px;height:84px;border-radius:16px;object-fit:cover;object-position:center 30%;box-shadow:0 2px 8px rgba(183,156,255,.25);flex:0 0 auto}.fBearRow .cap{font-size:13.5px;color:var(--ink);line-height:1.65;background:transparent;padding:2px 0;flex:1}
 .ldWrap{display:flex;gap:10px;margin-top:10px;align-items:stretch}.ldWrap .laundry{margin-top:0;flex:1}.ldBear{width:84px;flex:0 0 auto;border-radius:14px;object-fit:cover;object-position:center 30%;box-shadow:0 2px 8px rgba(183,156,255,.25)}
 body.dark .l-ok{color:#8fe0cc}body.dark .l-so{color:#ffd86b}body.dark .l-ng{color:#9cc8ff}
 .fort{display:flex;gap:8px;margin:10px 0}
@@ -839,15 +839,31 @@ body.dark .tPickMsg{color:#d2c0ff}
 .fSignPanel button.mine{border-color:#ffd968}
 .fViewBar{position:relative;display:flex;align-items:center;gap:8px;margin-top:10px;background:rgba(255,217,104,.16);border:1px solid rgba(255,217,104,.45);border-radius:12px;padding:7px 10px;font-size:12px;color:#ffeec2}
 .fViewBar button{margin-left:auto;font-family:inherit;font-size:12px;font-weight:800;color:#4a3577;background:#ffd968;border:none;border-radius:999px;padding:6px 13px;min-height:32px;cursor:pointer;flex:none}
-.fTopRow{display:flex;gap:13px;align-items:center;justify-content:center;margin:12px 0 2px}
-.fBadge{width:104px;height:104px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff8e1,#ffe9a8 60%,#f7cf5f);border:3px solid #e9b949;box-shadow:0 4px 14px rgba(233,185,73,.4),inset 0 0 0 5px #fff6d8;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#6b4e12;text-align:center}
+.fTopRow{display:flex;gap:13px;align-items:center;margin:12px 0 4px}
+.fBadge{width:116px;height:116px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff8e1,#ffe9a8 60%,#f7cf5f);border:3px solid #e9b949;box-shadow:0 4px 14px rgba(233,185,73,.4),inset 0 0 0 5px #fff6d8;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#6b4e12;text-align:center}
 .fBadge .fbCap{font-size:9.5px;letter-spacing:.14em;font-weight:700}
 .fBadge .fbNum{font-size:40px;line-height:1.05;font-weight:800}
 .fBadge .fbNum small{font-size:17px}
 .fBadge .fbSub{font-size:9px;color:#97792c}
 .fBadge.rank1{animation:fHalo 3s ease-in-out infinite alternate}
 @keyframes fHalo{from{box-shadow:0 4px 14px rgba(233,185,73,.4),inset 0 0 0 5px #fff6d8,0 0 10px 2px rgba(255,214,100,.35)}to{box-shadow:0 4px 14px rgba(233,185,73,.4),inset 0 0 0 5px #fff6d8,0 0 26px 9px rgba(255,214,100,.65)}}
-.fort.fBars{display:block;flex:1;margin:0}
+.fort.fBars{display:block;flex:1;margin:0;min-width:0}
+.fBadgeSub{font-size:9.5px;color:#97792c;margin-top:3px;font-weight:700;letter-spacing:.02em}
+.fBadgeSub .fbOn{color:#d9820b}.fBadgeSub .fbOff{color:rgba(151,121,44,.30)}
+.fbSt .fbOn{color:#f5a623}.fbSt .fbOff{color:#ddd2f6}
+body.dark .fbSt .fbOff{color:#57497e}
+body.dark .fBearRow{background:linear-gradient(135deg,rgba(255,214,120,.15),rgba(255,180,90,.08));border-color:rgba(243,221,171,.35)}
+#fHead{margin:14px 2px 0;font-family:"Hiragino Mincho ProN","YuMincho","Yu Mincho",serif;color:var(--ink)}
+#fHead b{display:block;font-size:20px;line-height:1.5;letter-spacing:.02em}
+#fHead .fBody{font-size:15px;line-height:1.9;margin-top:5px}
+.fTeller{margin-top:12px}
+.fTellerLab{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:.05em;margin-bottom:3px}
+#fLucky span{border-radius:99px;display:flex;align-items:center;gap:7px}
+#fLucky span b{display:inline;font-size:12px}
+#fLucky span:last-child{flex:1 1 100%;border-radius:16px;display:block}
+#fLucky span:last-child b{display:block;font-size:11px}
+.fzGrid{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+.fzGrid .fzC{flex:0 0 58px}
 .fort.fBars div{flex:none;text-align:left;background:none;padding:0;border-radius:0}
 .fbRow{margin-bottom:8px}
 .fbRow:last-child{margin-bottom:0}
@@ -873,7 +889,7 @@ body.dark .fZukan{background:linear-gradient(180deg,#2c2444,#2a2140);border-colo
 .fzTtl{font-weight:bold;color:#4b3585;font-size:14px}
 body.dark .fzTtl{color:#d2c0ff}
 .fzTtl span{font-size:11px;color:var(--sub);font-weight:normal;margin-left:6px}
-.fzGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:9px}
+.fzGrid{margin-top:9px}
 .fzC{position:relative;border:none;background:none;padding:0;cursor:pointer;font-family:inherit}
 .fzC img{width:100%;border-radius:7px;display:block;box-shadow:0 2px 6px rgba(70,58,125,.25)}
 .fzC .fzN{font-size:9.5px;color:var(--sub);margin-top:2px;line-height:1.25}
@@ -1027,10 +1043,11 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
       <button type="button" class="fSkip" id="fSkip">結果を見る ›</button>
     </div>
     <div id="fBody">
-    <div class="fTopRow"><div class="fBadge" id="fBadge"></div></div>
+    <div class="fTopRow"><div class="fBadge" id="fBadge"></div><div class="fBars" id="fBars"></div></div>
     <div class="fBearRow"><img id="fRankBear" src="fortune-happy.webp" alt="順位のファーちゃん"><div class="cap" id="fBearCap"></div></div>
-    <div class="talk" style="margin-top:0"><img src="fortune-teller.webp?v=20261127" alt="占い師のクマちゃん"><div class="bubble" id="fMsg"></div></div>
+    <div id="fHead"></div>
     <div class="lucky" id="fLucky"></div>
+    <div class="talk fTeller"><img src="fortune-teller.webp?v=20261127" alt="占い師のクマちゃん"><div class="bubble"><div class="fTellerLab">ファーちゃんのひとこと</div><div id="fLines"></div></div></div>
     <div class="fTarot" id="fTarot"></div>
     <div class="fTarotHist" id="fTarotHist"></div>
     <div class="fWave" id="fWave"></div>
@@ -1257,7 +1274,7 @@ function yuAsk(msg,ok="OK",danger=false){return new Promise(res=>{let a=document
     <details id="verHist">
       <summary>📝 アップデート履歴 <span class="verBadge" id="verHistBadge">ver4.2</span></summary>
       <ul class="verList">
-        <li data-go="ファーちゃんの占いの館" data-short="🔮 占いが「ファーちゃんの占いの館」になったよ！"><span class="vNo">ver4.9</span><span class="vDate">11/28</span><span class="vTxt">🔮 占いが「ファーちゃんの占いの館」に生まれ変わったよ。夜空のヘッダーに今夜の月（月齢つき）、順位は金のバッジ、4つの運勢はバーで見やすくなったよ。他の星座の運勢も、設定を変えずにその場で見れるよ。タロットはシャッフルの演出がついて、なぞると近い1枚が大きくなるから選びやすく。引いたカードが集まる「タロット図鑑」と、今月の順位の「運気の波」もできたよ。今日の占いを画像にして残すこともできるよ🧸（追記：バッジ横の4つの運勢バーは取りやめて、金のバッジだけにしたよ。順位でじゅうぶん分かるからね）</span></li>
+        <li data-go="ファーちゃんの占いの館" data-short="🔮 占いが「ファーちゃんの占いの館」になったよ！"><span class="vNo">ver4.9</span><span class="vDate">11/28</span><span class="vTxt">🔮 占いが「ファーちゃんの占いの館」に生まれ変わったよ。夜空のヘッダーに今夜の月（月齢つき）、順位は金のバッジ、4つの運勢はバーで見やすくなったよ。他の星座の運勢も、設定を変えずにその場で見れるよ。タロットはシャッフルの演出がついて、なぞると近い1枚が大きくなるから選びやすく。引いたカードが集まる「タロット図鑑」と、今月の順位の「運気の波」もできたよ。今日の占いを画像にして残すこともできるよ🧸（その後、デモ画像の形がいちばん見やすいということで、バッジの横にバーを並べた形に作り直したよ）</span></li>
         <li data-go="これまでの占い" data-short="📖 占いの履歴ができたよ！"><span class="vNo">ver4.8</span><span class="vDate">11/27</span><span class="vTxt">📖 占いのカードの下に「これまでの占い」ができたよ。その日の星占いの順位と、引いたタロットがカレンダーにたまって、日をタップすると見返せるよ（タロットは端末に約3か月分）🧸</span></li>
         <li data-go="きょうのファーちゃん占い" data-short="🔮 ファーちゃんが占ってくれるようになったよ！"><span class="vNo">ver4.7</span><span class="vDate">11/27</span><span class="vTxt">🔮 占いは、その日はじめて見るときに「ファーちゃんに占ってもらう」ボタンを押すと、水晶玉がキラキラして占ってくれるよ。占ったあとは、その日はずっと結果が出たまま（日付が変わるとまたボタンに）<br>🃏 タロットを追加：大アルカナ22枚から、その日の1枚をめくるよ（1日1枚で固定）。カードは、ファーちゃんが役になりきったクマちゃんタロットだよ。タロットは本物と同じように、ボタンを押したときに22枚から1枚を引くよ（逆さまに出たら「逆位置」）。1日1枚で、引き直しはなし。1枚目の意味をもっと知りたいときは、1日1回「アドバイスカード」をもう1枚引けるよ。カードの意味・メッセージ・夫婦運・仕事運・金運・人間関係・体調・今日のアドバイスで説明するよ。占うときは、ファーちゃんが水晶玉をのぞく動画が流れるよ（音が出るよ。「結果を見る ›」でとばせるよ）。占ったあとは「🔮 占いのようすをもう一回見る」で、もう一回見られるよ（結果は同じ。タロットは1日1枚だよ）<br>🃏 タロットは、裏むきにならんだ22枚から自分で1枚えらんで引くようになったよ。アドバイスカードも残りの21枚からえらぶよ<br>📖「どんなカード？」に、ひらく／とじるボタンをつけたよ<br>🍀 タロットの「今日のアドバイス」を、カードの意味と今日やってみることがわかる文にくわしくしたよ<br>💬 ファーちゃんのひとことや占いの「好きなこと」「ごほうび」の言い方を、カラオケや甘いものなどに変えたよ</span></li>
         <li data-go="おうちのリモコン" data-short="🎚 エアコンのモードと風量がえらべるようになったよ！"><span class="vNo">ver4.6</span><span class="vDate">11/26</span><span class="vTxt">🎚 おうちのリモコンに「モード・温度・風量をえらんで送る」：モード（自動・冷房・除湿・送風・暖房）、温度（16〜30℃）、風量（自動・弱・中・強）をえらんで、エアコンをつけられるよ。赤外線は送りっぱなしでエアコンから返事がないから、最後に送った設定をこのiPhoneに覚えておいて表示するよ。スイングはSwitchBotのしくみで外から動かせないよ（GASの更新がいるよ）<br>⏱ 勤怠ノートの「残業 見込み」に、丸めの境目ゲージ：あと何分で1時間に繰り上がるか、あと何分は残業しても残業代が増えないかを、バーで見られるよ（11/26、今月とこれからの月だけ）<br>⚡ 電波が弱いときも、3秒待って来なければ保存してある手帳ですぐ開くように（新しいのは裏で取ってきて、次に開いたときに新しくなるよ）。絵も軽くしたよ。小さかったボタンを押しやすく（11/27）</span></li>
@@ -2493,14 +2510,19 @@ async function fShare(){const btn=document.getElementById("fShareBtn");if(!btn||
     g.fillText("🔮 ファーちゃんの占いの館",320,74);
     g.font="600 21px sans-serif";g.fillStyle="#d9cdf8";
     g.fillText(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}（${"日月火水木金土"[now.getDay()]}）・${S.sign}`,320,112);
-    g.beginPath();g.arc(320,252,96,0,7);const bg2=g.createRadialGradient(282,214,12,320,252,102);bg2.addColorStop(0,"#fff8e1");bg2.addColorStop(.6,"#ffe9a8");bg2.addColorStop(1,"#f7cf5f");g.fillStyle=bg2;g.fill();g.lineWidth=5;g.strokeStyle="#e9b949";g.stroke();
-    g.fillStyle="#97792c";g.font="700 16px sans-serif";g.fillText("12星座中",320,206);
-    g.fillStyle="#6b4e12";g.font="800 84px sans-serif";g.fillText(fo.rank+"",320,292);
-    g.font="800 26px sans-serif";g.fillText("位",320,328);
+    g.beginPath();g.arc(150,238,84,0,7);const bg2=g.createRadialGradient(118,206,10,150,238,90);bg2.addColorStop(0,"#fff8e1");bg2.addColorStop(.6,"#ffe9a8");bg2.addColorStop(1,"#f7cf5f");g.fillStyle=bg2;g.fill();g.lineWidth=5;g.strokeStyle="#e9b949";g.stroke();
+    g.fillStyle="#97792c";g.font="700 15px sans-serif";g.fillText("12星座中",150,196);
+    g.fillStyle="#6b4e12";g.font="800 74px sans-serif";g.fillText(fo.rank+"",150,270);
+    g.font="800 24px sans-serif";g.fillText("位",150,302);
+    const rows=[["総合運",fo.stars[0]],["夫婦運",fo.stars[1]],["仕事運",fo.stars[2]],["金運",fo.stars[3]]];
+    g.textAlign="left";rows.forEach((r,i)=>{const y=176+i*46;g.fillStyle="#efe9ff";g.font="700 19px sans-serif";g.fillText(r[0],276,y);
+      g.fillStyle="rgba(255,255,255,.18)";rr(276,y+10,300,13,7);g.fill();
+      g.fillStyle="#ffd968";rr(276,y+10,Math.max(13,300*r[1]/5),13,7);g.fill();
+      g.fillStyle="#ffd968";g.font="15px sans-serif";g.fillText("★".repeat(r[1])+"☆".repeat(5-r[1]),478,y)});
     g.textAlign="center";g.fillStyle="#fff";g.font="800 25px sans-serif";
     let lines=[],cur="";for(const ch of fo.head){if(g.measureText(cur+ch).width>540){lines.push(cur);cur=ch}else cur+=ch}if(cur)lines.push(cur);
-    lines=lines.slice(0,3);lines.forEach((l,i)=>g.fillText(l,320,404+i*36));
-    const ly=404+lines.length*36+14;
+    lines=lines.slice(0,3);lines.forEach((l,i)=>g.fillText(l,320,398+i*36));
+    const ly=398+lines.length*36+14;
     g.font="600 20px sans-serif";g.fillStyle="#e8dffc";
     g.fillText(`🎨 ラッキーカラー：${fo.col}`,320,ly);
     g.fillText(`🎀 ラッキーアイテム：${fo.item}`,320,ly+34);
@@ -2570,7 +2592,9 @@ let FV_SIGN=null;
 function moonSvg(el){const r=15,cx=17,cy=17,rx=Math.max(.6,r*Math.abs(Math.cos(el*Math.PI/180))),wax=el<180,cs=Math.cos(el*Math.PI/180)>0,sw=(wax!==cs)?1:0,outer=wax?1:0;
   return `<svg width="34" height="34" viewBox="0 0 34 34"><circle cx="${cx}" cy="${cy}" r="${r}" fill="#3a3468"/><path d="M ${cx} ${cy-r} A ${r} ${r} 0 0 ${outer} ${cx} ${cy+r} A ${rx} ${r} 0 0 ${sw} ${cx} ${cy-r} Z" fill="#f7ead0"/></svg>`}
 function fSetMoon(day){try{const {L}=fRank(day),el=((L.moon-L.sun)%360+360)%360;document.getElementById("fMoon").innerHTML=moonSvg(el);document.getElementById("fMoonAge").textContent=`今夜の月・月齢${(el*.08203).toFixed(1)}`}catch(e){}}
-function fBadgeSet(rank){const b=document.getElementById("fBadge");if(!b)return;b.className="fBadge"+(rank===1?" rank1":"");b.innerHTML=`<div class="fbCap">12星座中</div><div class="fbNum">${rank}<small>位</small></div><div class="fbSub">${rank===1?"✦ さいこうの日 ✦":"今日の運勢"}</div>`}
+function fStarSpans(v){v=Math.max(0,Math.min(5,Math.round(v||0)));return `<span class="fbOn">${"★".repeat(v)}</span>${v<5?`<span class="fbOff">${"★".repeat(5-v)}</span>`:""}`}
+function fBarsSet(rows){const box=document.getElementById("fBars");if(!box)return;const rs=rows.map(r=>[r[0],Math.max(0,Math.min(5,Math.round(r[1]||0)))]).sort((a,b)=>b[1]-a[1]);box.innerHTML=rs.map(([k,v],i)=>`<div class="fbRow${i===0?" best":""}"><div class="fbLab"><span>${k}${i===0?'<span class="fbBest">今日いちばん</span>':""}</span><span class="fbSt">${fStarSpans(v)}</span></div><div class="fbTrack"><i style="width:${v*20}%"></i></div></div>`).join("")}
+function fBadgeSet(rank,total){const b=document.getElementById("fBadge");if(!b)return;b.className="fBadge"+(rank===1?" rank1":"");b.innerHTML=`<div class="fbCap">12星座中</div><div class="fbNum">${rank}<small>位</small></div><div class="fbSub">${rank===1?"✦ さいこうの日 ✦":"今日の運勢"}</div><div class="fBadgeSub">総合運 ${fStarSpans(total||0)}</div>`}
 function renderFortune(){
   const _sv=S.sign;if(FV_SIGN&&FV_SIGN!==S.sign)S.sign=FV_SIGN;
   fTarotHist();fWave();fZukan();
@@ -2586,7 +2610,7 @@ function renderFortune(){
   const jg=FORT&&FORT.jugem&&FORT.jugem[day]&&FORT.jugem[day][S.sign];
   const zt=FORT&&FORT.zt&&FORT.zt[day]&&FORT.zt[day][S.sign];
   if(jg){ // 原宿占い館 塔里木 監修の占いが取れている日はそれを表示
-    fBadgeSet(+jg.rank);fBearSet(+jg.rank,day);document.getElementById("fMsg").innerHTML=`${esc(jg.content)}`;
+    fBadgeSet(+jg.rank,+jg.total||0);fBarsSet([["総合運",+jg.total||0],["夫婦運",+jg.love||0],["仕事運",+jg.job||0],["金運",+jg.money||0]]);fBearSet(+jg.rank,day);document.getElementById("fHead").innerHTML="";document.getElementById("fLines").innerHTML=`${esc(jg.content)}`;
 
     document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b>🎨 ${esc(jg.color)}</span><span><b>ラッキーアイテム</b>🎀 ${esc(jg.item)}</span>${honeyHtml(+jg.rank)}`;
     document.getElementById("fSky").innerHTML="";
@@ -2611,7 +2635,7 @@ function renderFortune(){
   const lv=FLOVE2[tierOf(stL)][aspIdx(L.moon,L.venus)][dn%8],wk=FWORK2[tierOf(stW)][aspIdx(L.moon,L.mars)][(dn+3)%8];
   const mo=FMONEY[tierOf(stM)][aspIdx(L.moon,L.jupiter)][(dn+5)%8];const moonMsg=FMOON[lday][Math.floor(L.sun/30)%4];const item2=FITEM2[Math.floor(L.moon/3)%120];
   const col=SIGN_COL[Math.floor(L.moon/30)];
-  fBadgeSet(rank);fBearSet(rank,day);document.getElementById("fMsg").innerHTML=`<b>${FHEAD[me.hM-1][tierOf(stT)][lday%4]}</b>${tone?`<div class="fTone">${tone}</div>`:""}<div class="fBody">${msg}</div><div class="fRows"><div class="fR"><span class="fK">💗 夫婦運</span><span class="fV">${lv}</span></div><div class="fR"><span class="fK">💼 仕事運</span><span class="fV">${wk}</span></div><div class="fR"><span class="fK">💰 金運</span><span class="fV">${mo}</span></div><div class="fR"><span class="fK">${ph[0]} 今夜の月</span><span class="fV">${moonMsg}<small>（${ph[1]}）</small></span></div></div>`+(retro.mercury?`<div class="fTone" style="margin-top:6px">📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね</div>`:"");
+  fBadgeSet(rank,starsByRank(all.map(x=>x.total),s));fBarsSet([["総合運",starsByRank(all.map(x=>x.total),s)],["夫婦運",starsByRank(all.map(x=>x.love),s)],["仕事運",starsByRank(all.map(x=>x.work),s)],["金運",starsByRank(all.map(x=>x.money),s)]]);fBearSet(rank,day);document.getElementById("fHead").innerHTML=`<b>${FHEAD[me.hM-1][tierOf(stT)][lday%4]}</b>${tone?`<div class="fTone">${tone}</div>`:""}<div class="fBody">${msg}</div>`;document.getElementById("fLines").innerHTML=`<div class="fRows"><div class="fR"><span class="fK">💗 夫婦運</span><span class="fV">${lv}</span></div><div class="fR"><span class="fK">💼 仕事運</span><span class="fV">${wk}</span></div><div class="fR"><span class="fK">💰 金運</span><span class="fV">${mo}</span></div><div class="fR"><span class="fK">${ph[0]} 今夜の月</span><span class="fV">${moonMsg}<small>（${ph[1]}）</small></span></div></div>`+(retro.mercury?`<div class="fTone" style="margin-top:6px">📨 水星が逆行中。連絡や予定は<b>ていねいに確認</b>してね</div>`:"");
 
   document.getElementById("fLucky").innerHTML=`<span><b>ラッキーカラー</b><i class="dot" style="background:${col[1]}"></i>${col[0]}</span><span><b>ラッキーアイテム</b>🎀 ${item2}</span>${honeyHtml(rank)}`;
   const sn=x=>SIGNS[Math.floor(x/30)];
